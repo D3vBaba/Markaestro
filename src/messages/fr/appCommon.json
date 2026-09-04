@@ -60,7 +60,7 @@
     "loading": "Chargement..."
   },
   "metricCard": {
-    "vsLastPeriod": "vs période précédente"
+    "vsLastPeriod": "Vs période précédente"
   },
   "pagination": {
     "firstPage": "Première page",
@@ -138,7 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -147,7 +148,8 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "Connecter {provider}",
@@ -206,6 +208,10 @@
       },
       "linkedin_community": {
         "0": "Un compte LinkedIn avec un rôle Administrateur sur la Page d'entreprise sur laquelle vous souhaitez publier."
+      },
+      "x": {
+        "0": "Un compte X auquel vous pouvez vous connecter.",
+        "1": "Votre accès développeur X doit autoriser la publication et l'import de médias. L'utilisation est soumise aux tarifs et limites de l'API X."
       }
     },
     "features": {
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "Lister les Pages que vous administrez",
         "description": "Liste les Pages d'entreprise que vous administrez afin que vous puissiez choisir sur laquelle cette marque publie."
+      },
+      "media_write": {
+        "description": "Importe les images, GIF et vidéos joints aux publications que vous publiez via Markaestro.",
+        "title": "Importer des médias"
+      },
+      "offline_access": {
+        "description": "Renouvelle l'accès pour que les publications planifiées partent même en votre absence.",
+        "title": "Rester connecté"
+      },
+      "tweet_read": {
+        "description": "Lit vos publications et leur engagement public pour l'historique et la mesure des performances.",
+        "title": "Lire les publications"
+      },
+      "tweet_write": {
+        "description": "Crée et supprime les publications que vous publiez via Markaestro.",
+        "title": "Publier"
+      },
+      "users_read": {
+        "description": "Lit l'identifiant, le nom d'utilisateur, le nom et l'image de profil de votre compte X pour que Markaestro affiche le compte lié.",
+        "title": "Lire l'identité du compte"
       }
     },
     "outcome": {

@@ -138,7 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -147,7 +148,8 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "{provider} 연결",
@@ -206,6 +208,10 @@
       },
       "linkedin_community": {
         "0": "게시하려는 회사 페이지에 관리자 역할이 있는 LinkedIn 계정."
+      },
+      "x": {
+        "0": "로그인할 수 있는 X 계정.",
+        "1": "X 개발자 액세스가 게시물 게시와 미디어 업로드를 허용해야 합니다. 사용에는 X API 요금과 제한이 적용됩니다."
       }
     },
     "features": {
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "관리하는 페이지 목록 가져오기",
         "description": "회원님이 관리하는 회사 페이지 목록을 가져와, 이 브랜드가 게시할 페이지를 선택할 수 있게 합니다."
+      },
+      "media_write": {
+        "description": "Markaestro를 통해 게시하는 게시물에 첨부된 이미지, GIF, 동영상을 업로드합니다.",
+        "title": "미디어 업로드"
+      },
+      "offline_access": {
+        "description": "자리에 없을 때도 예약 게시물이 게시되도록 액세스를 갱신합니다.",
+        "title": "연결 유지"
+      },
+      "tweet_read": {
+        "description": "게시물 기록과 성과 측정을 위해 게시물과 공개 참여를 읽습니다.",
+        "title": "게시물 읽기"
+      },
+      "tweet_write": {
+        "description": "Markaestro를 통해 게시하는 게시물을 생성하고 삭제합니다.",
+        "title": "게시물 게시"
+      },
+      "users_read": {
+        "description": "연결된 계정을 표시하기 위해 X 계정의 ID, 사용자 이름, 이름, 프로필 이미지를 읽습니다.",
+        "title": "계정 정보 읽기"
       }
     },
     "outcome": {

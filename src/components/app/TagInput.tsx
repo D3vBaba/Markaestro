@@ -52,13 +52,13 @@ export default function TagInput({
 
   return (
     <div
-      className="flex flex-wrap gap-1.5 min-h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm cursor-text"
+      className="flex flex-wrap gap-1.5 min-h-9 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm cursor-text"
       onClick={() => inputRef.current?.focus()}
     >
       {tags.map((tag, i) => (
         <span
           key={i}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-foreground text-background text-xs font-medium"
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-foreground text-xs font-medium"
         >
           {tag}
           <button
@@ -66,7 +66,7 @@ export default function TagInput({
             onClick={(e) => { e.stopPropagation(); removeTag(i); }}
             className="hover:opacity-70 transition-opacity p-1.5 -m-1"
           >
-            <X className="h-3 w-3" />
+            <X className="size-3" />
           </button>
         </span>
       ))}

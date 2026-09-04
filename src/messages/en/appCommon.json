@@ -60,13 +60,13 @@
     "loading": "Loading..."
   },
   "metricCard": {
-    "vsLastPeriod": "vs last period"
+    "vsLastPeriod": "Compared to last period"
   },
   "pagination": {
-    "firstPage": "First page",
-    "previousPage": "Previous page",
-    "nextPage": "Next page",
-    "lastPage": "Last page"
+    "firstPage": "First Page",
+    "previousPage": "Previous Page",
+    "nextPage": "Next Page",
+    "lastPage": "Last Page"
   },
   "tagInput": {
     "defaultPlaceholder": "Type and press Enter…"
@@ -74,23 +74,23 @@
   "scanProgressStepper": {
     "steps": {
       "connecting": {
-        "label": "Connect to site",
+        "label": "Connect to Site",
         "activeLabel": "Connecting to site…"
       },
       "reading": {
-        "label": "Read website content",
+        "label": "Read Website Content",
         "activeLabel": "Reading website content…"
       },
       "extracting": {
-        "label": "Extract brand colours",
+        "label": "Extract Brand Colours",
         "activeLabel": "Extracting brand colours & logo…"
       },
       "analyzing": {
-        "label": "Analyse brand signals",
+        "label": "Analyse Brand Signals",
         "activeLabel": "Analysing brand signals…"
       },
       "finalizing": {
-        "label": "Build brand profile",
+        "label": "Build Brand Profile",
         "activeLabel": "Building your brand profile…"
       }
     },
@@ -115,7 +115,7 @@
     "originalSoundWithBrand": "Original sound · yourbrand",
     "save": "Save",
     "untitledPin": "Untitled Pin",
-    "viewLive": "View live",
+    "viewLive": "View Live",
     "previewSuffix": "Preview",
     "companyPageNow": "Company Page · now",
     "cta": {
@@ -138,8 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
-      ,"x": "X"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -148,31 +148,31 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
-      ,"x": "x.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "Connect {provider}",
       "reconnectTitle": "Reconnect {provider}",
       "forBrand": "for {brand}",
       "intro": "Here is exactly what happens next, and what Markaestro will ask {provider} for.",
-      "stepsTitle": "How it works",
+      "stepsTitle": "How It Works",
       "steps": {
         "0": {
           "title": "Sign in on {host}",
           "detail": "You will be taken to {provider}'s own sign-in page. Markaestro never sees your password."
         },
         "1": {
-          "title": "Review and approve the permissions",
+          "title": "Review and Approve the Permissions",
           "detail": "{provider} lists the permissions below and asks you to allow them. Approve all of them so publishing and analytics both work."
         },
         "2": {
-          "title": "Come back to Markaestro",
+          "title": "Come Back to Markaestro",
           "detail": "You are returned here automatically and the account shows as Linked."
         }
       },
       "metaStepDetail": "Facebook asks which Pages Markaestro may manage. Tick every Page you might post to; a Page left unticked loses access.",
-      "permissionsTitle": "Permissions Markaestro will request",
+      "permissionsTitle": "Permissions Markaestro Will Request",
       "permissionsHint": "Each permission is used only for the feature shown next to it.",
       "usedFor": "Used for {feature}",
       "requirementsTitle": "Before you start",
@@ -215,33 +215,33 @@
       }
     },
     "features": {
-      "profile": "Account identity",
+      "profile": "Account Identity",
       "publish": "Publishing",
       "insights": "Analytics",
-      "delete": "Post management",
+      "delete": "Post Management",
       "pages": "Facebook Pages",
       "boards": "Boards",
-      "library": "Post history"
+      "library": "Post History"
     },
     "permissions": {
       "instagram_business_basic": {
-        "title": "Basic account info",
+        "title": "Basic Account Info",
         "description": "Reads your Instagram username and account ID so Markaestro can show which account is linked and address posts to it."
       },
       "instagram_business_content_publish": {
-        "title": "Publish content",
+        "title": "Publish Content",
         "description": "Publishes the photos, videos and carousels you schedule in Markaestro to this Instagram account."
       },
       "instagram_business_manage_insights": {
-        "title": "Read insights",
+        "title": "Read Insights",
         "description": "Reads reach, likes, comments, saves and follower counts to build the Analytics page."
       },
       "pages_show_list": {
-        "title": "List your Pages",
+        "title": "List Your Pages",
         "description": "Lists the Facebook Pages you manage so you can choose which one this brand posts to."
       },
       "pages_read_engagement": {
-        "title": "Read Page engagement",
+        "title": "Read Page Engagement",
         "description": "Reads the Page's name, follower count and post engagement for Analytics."
       },
       "pages_manage_posts": {
@@ -249,111 +249,111 @@
         "description": "Creates the posts you schedule in Markaestro on the selected Facebook Page."
       },
       "read_insights": {
-        "title": "Read Page insights",
+        "title": "Read Page Insights",
         "description": "Reads reach and engagement insights for the Page and its posts."
       },
       "pages_read_user_content": {
-        "title": "Read Page content",
+        "title": "Read Page Content",
         "description": "Reads posts and comments on the Page for the post history view."
       },
       "threads_basic": {
-        "title": "Basic profile",
+        "title": "Basic Profile",
         "description": "Reads your Threads username and profile picture so Markaestro can show which account is linked."
       },
       "threads_content_publish": {
-        "title": "Publish posts",
+        "title": "Publish Posts",
         "description": "Publishes the text, image and video posts you schedule in Markaestro to Threads."
       },
       "threads_delete": {
-        "title": "Delete posts",
-        "description": "Deletes a Threads post when you remove it from the On Platform tab in Markaestro."
+        "title": "Delete Posts",
+        "description": "Deletes a Threads post when you remove it from the On platform tab in Markaestro."
       },
       "threads_manage_insights": {
-        "title": "Read insights",
+        "title": "Read Insights",
         "description": "Reads views, likes, replies and follower counts for Analytics."
       },
       "user_info_basic": {
-        "title": "Basic account info",
+        "title": "Basic Account Info",
         "description": "Reads your TikTok display name and avatar so Markaestro can show which account is linked."
       },
       "user_info_profile": {
-        "title": "Profile details",
+        "title": "Profile Details",
         "description": "Reads your username, bio and profile link for the connected-account view."
       },
       "video_publish": {
-        "title": "Publish videos",
+        "title": "Publish Videos",
         "description": "Sends the videos you schedule in Markaestro to your TikTok account."
       },
       "video_upload": {
-        "title": "Upload videos",
+        "title": "Upload Videos",
         "description": "Uploads video files to TikTok so they can be published."
       },
       "video_list": {
-        "title": "List your videos",
-        "description": "Lists your published TikTok videos for the On Platform tab and post metrics."
+        "title": "List Your Videos",
+        "description": "Lists your published TikTok videos for the On platform tab and post metrics."
       },
       "user_info_stats": {
-        "title": "Account statistics",
+        "title": "Account Statistics",
         "description": "Reads follower, like and video counts for Analytics."
       },
       "user_accounts_read": {
-        "title": "Account details",
+        "title": "Account Details",
         "description": "Reads your Pinterest username and profile so Markaestro can show which account is linked."
       },
       "boards_read": {
-        "title": "Read boards",
+        "title": "Read Boards",
         "description": "Lists your boards so you can choose which one this brand pins to."
       },
       "boards_write": {
-        "title": "Manage boards",
-        "description": "Required by Pinterest to create a Pin, even on an existing board."
+        "title": "Manage Boards",
+        "description": "Required by Pinterest to create a pin, even on an existing board."
       },
       "boards_read_secret": {
-        "title": "Read secret boards",
+        "title": "Read Secret Boards",
         "description": "Includes your secret boards in the board picker."
       },
       "boards_write_secret": {
-        "title": "Pin to secret boards",
+        "title": "Pin to Secret Boards",
         "description": "Lets this brand pin to a secret board."
       },
       "pins_read": {
         "title": "Read Pins",
-        "description": "Reads your Pins for the post history view."
+        "description": "Reads your pins for the post history view."
       },
       "pins_write": {
         "title": "Create Pins",
-        "description": "Creates the Pins you schedule in Markaestro."
+        "description": "Creates the pins you schedule in Markaestro."
       },
       "pins_read_secret": {
-        "title": "Read secret Pins",
-        "description": "Reads Pins on secret boards for the post history view."
+        "title": "Read Secret Pins",
+        "description": "Reads pins on secret boards for the post history view."
       },
       "pins_write_secret": {
-        "title": "Create secret Pins",
-        "description": "Creates Pins on secret boards."
+        "title": "Create Secret Pins",
+        "description": "Creates pins on secret boards."
       },
       "openid": {
         "title": "Sign in with LinkedIn",
         "description": "Confirms which LinkedIn member is connecting."
       },
       "profile": {
-        "title": "Basic profile",
+        "title": "Basic Profile",
         "description": "Reads your name and photo so Markaestro can show which profile is linked."
       },
       "w_member_social": {
-        "title": "Post on your behalf",
+        "title": "Post on Your Behalf",
         "description": "Publishes the posts you schedule in Markaestro to your LinkedIn profile."
       },
       "r_member_postAnalytics": {
-        "title": "Read post analytics",
+        "title": "Read Post Analytics",
         "description": "Reads impressions and engagement on your posts for Analytics."
       },
       "r_member_profileAnalytics": {
-        "title": "Read profile analytics",
+        "title": "Read Profile Analytics",
         "description": "Reads follower and profile-view counts for Analytics."
       },
       "r_basicprofile": {
-        "title": "Basic profile",
+        "title": "Basic Profile",
         "description": "Reads your name and photo so Markaestro can show who authorized the Pages."
       },
       "w_organization_social": {
@@ -361,27 +361,27 @@
         "description": "Publishes the posts you schedule in Markaestro to the company Page."
       },
       "r_organization_social": {
-        "title": "Read Page posts",
+        "title": "Read Page Posts",
         "description": "Reads the Page's posts for the post history view."
       },
       "rw_organization_admin": {
-        "title": "List Pages you administer",
+        "title": "List Pages You Administer",
         "description": "Lists the company Pages you administer so you can choose which one this brand posts to."
       },
       "tweet_read": {
-        "title": "Read posts",
+        "title": "Read Posts",
         "description": "Reads your posts and their public engagement for post history and performance measurement."
       },
       "tweet_write": {
-        "title": "Publish posts",
+        "title": "Publish Posts",
         "description": "Creates and deletes the posts you publish through Markaestro."
       },
       "users_read": {
-        "title": "Read account identity",
+        "title": "Read Account Identity",
         "description": "Reads your X account ID, username, name, and profile image so Markaestro can show the linked account."
       },
       "media_write": {
-        "title": "Upload media",
+        "title": "Upload Media",
         "description": "Uploads images, GIFs, and videos attached to posts you publish through Markaestro."
       },
       "offline_access": {
@@ -395,16 +395,16 @@
       "successBodyNoAccount": "The account is now linked to {brand}.",
       "successBodyNoBrand": "{account} is now linked.",
       "successBodyPlain": "The account is now linked.",
-      "grantedTitle": "Permissions granted",
-      "requestedTitle": "Permissions requested",
-      "nextTitle": "What you can do now",
-      "createPost": "Create a post",
-      "viewAnalytics": "View analytics",
-      "postHistory": "See posts on platform",
-      "needsPageTitle": "One more step: choose a Facebook Page",
+      "grantedTitle": "Permissions Granted",
+      "requestedTitle": "Permissions Requested",
+      "nextTitle": "What You Can Do Now",
+      "createPost": "Create a Post",
+      "viewAnalytics": "View Analytics",
+      "postHistory": "See Posts on Platform",
+      "needsPageTitle": "One More Step: Choose a Facebook Page",
       "needsPageBody": "Facebook access is granted. Now pick which Page this brand posts to.",
       "choosePages": "Choose Pages",
-      "needsBoardTitle": "One more step: choose a board",
+      "needsBoardTitle": "One More Step: Choose a Board",
       "needsBoardBody": "Pinterest access is granted. Now pick which board this brand pins to.",
       "errorTitle": "{provider} was not connected",
       "reasons": {
@@ -413,9 +413,9 @@
         "connection_failed": "{provider} did not complete the connection. Nothing was linked. Try again, and if it keeps failing check the requirements in the connection guide."
       },
       "providerSaid": "{provider} said: {message}",
-      "tryAgain": "Try again",
+      "tryAgain": "Try Again",
       "dismiss": "Dismiss",
-      "chooseBoard": "Choose board"
+      "chooseBoard": "Choose Board"
     },
     "hints": {
       "connect": "Opens {provider}'s sign-in page so you can approve access for this brand.",

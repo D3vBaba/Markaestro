@@ -355,7 +355,7 @@
     "engagements": "Interaktionen",
     "conversions": "Konversionen",
     "engagementRate": "Interaktionsrate",
-    "perPost": "pro Beitrag"
+    "perPost": "Pro Beitrag"
   },
   "platforms": {
     "title": "Plattformleistung",
@@ -413,7 +413,7 @@
     "observations": "{count} Beiträge",
     "liftUp": "+{value} % gegenüber deinem Durchschnitt",
     "liftDown": "{value} % gegenüber deinem Durchschnitt",
-    "estimate": "etwa {value} {metric} pro Beitrag",
+    "estimate": "Etwa {value} {metric} pro Beitrag",
     "timezone": "Zeiten in {timeZone}",
     "accountMean": "Dein Durchschnitt: {value} {metric} pro Beitrag"
   },

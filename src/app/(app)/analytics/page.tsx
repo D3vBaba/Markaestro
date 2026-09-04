@@ -4,7 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
+import Section from "@/components/app/Section";
+import Notice from "@/components/app/Notice";
+import EmptyState from "@/components/app/EmptyState";
+import Select from "@/components/app/Select";
+import { StatGrid } from "@/components/app/StatTile";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
@@ -37,20 +44,6 @@ const TREND_METRIC_KEYS = ["views", "reach", "engagements", "posts"] as const;
 type TrendMetric = (typeof TREND_METRIC_KEYS)[number];
 type TrendMode = "publish" | "activity";
 
-const EYEBROW = "text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500";
-const SURFACE = "rounded-2xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800/80 dark:bg-slate-900";
-const SEGMENT = "inline-flex items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80";
-const segment = (active: boolean, locked = false) =>
-  `inline-flex cursor-pointer items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
-    active
-      ? "bg-white text-slate-900 shadow-xs dark:bg-slate-900 dark:text-slate-100"
-      : locked
-        ? "cursor-not-allowed text-slate-400 opacity-50"
-        : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-  }`;
-const SELECT = "h-9 cursor-pointer rounded-xl border border-slate-200 bg-slate-100 px-3 text-xs font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-600";
-const DATE_INPUT = "h-9 rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300";
-
 function pctChange(current: number | null, prior: number | null | undefined): number | null {
   if (current === null || prior === null || prior === undefined || prior === 0) return null;
   return ((current - prior) / prior) * 100;
@@ -58,33 +51,6 @@ function pctChange(current: number | null, prior: number | null | undefined): nu
 
 function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
-}
-
-function Card({
-  eyebrow,
-  title,
-  children,
-  action,
-  className,
-}: {
-  eyebrow: string;
-  title?: string;
-  children: React.ReactNode;
-  action?: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={`min-w-0 p-5 sm:p-6 ${SURFACE} ${className ?? ""}`}>
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className={EYEBROW}>{eyebrow}</p>
-          {title && <h2 className="mt-1 text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">{title}</h2>}
-        </div>
-        {action}
-      </div>
-      {children}
-    </section>
-  );
 }
 
 export default function AnalyticsPage() {
@@ -262,9 +228,9 @@ export default function AnalyticsPage() {
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          <div className="flex flex-wrap items-center gap-2">
+          <>
             {(lastRefreshedAt || data?.coverage.lastMetricsAt) && (
-              <span className="text-[11px] tabular-nums text-slate-400 dark:text-slate-500" title={t("refresh.lastUpdatedTitle")}>
+              <span className="hidden text-xs tabular-nums text-muted-foreground sm:inline" title={t("refresh.lastUpdatedTitle")}>
                 {t("refresh.lastUpdated", {
                   time: new Date(lastRefreshedAt ?? data!.coverage.lastMetricsAt!).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" }),
                 })}
@@ -272,206 +238,207 @@ export default function AnalyticsPage() {
             )}
             <Button
               variant="outline"
-              className="h-9 gap-2 rounded-xl border-slate-200/80 bg-white text-xs font-medium shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
+              size="sm"
               onClick={handleRefresh}
               disabled={loading || refreshing || syncing}
               title={t("refresh.title")}
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${syncing || refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={cn("size-3.5", (syncing || refreshing) && "animate-spin")} />
               {syncing ? t("refresh.pulling") : refreshing ? t("refresh.refreshing") : t("refresh.idle")}
             </Button>
             {canExport ? (
-              <Button
-                variant="outline"
-                className="h-9 gap-2 rounded-xl border-slate-200/80 bg-white text-xs font-medium shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
-                onClick={handleExport}
-                disabled={exporting || loading}
-              >
-                <Download className="h-3.5 w-3.5" />
+              <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting || loading}>
+                <Download className="size-3.5" />
                 {exporting ? t("export.exporting") : t("export.idle")}
               </Button>
             ) : (
-              <Button variant="outline" className="h-9 gap-2 rounded-xl border-slate-200 text-xs font-medium opacity-60 dark:border-slate-800" disabled title={t("export.lockedTitle")}>
-                <Lock className="h-3.5 w-3.5" />
+              <Button variant="outline" size="sm" disabled title={t("export.lockedTitle")}>
+                <Lock className="size-3.5" />
                 {t("export.idle")}
               </Button>
             )}
-          </div>
+          </>
         }
-      />
-
-      {/* Filters */}
-      <div className="mb-6 flex flex-wrap items-center gap-2.5">
-        <div className={SEGMENT}>
-          {RANGE_PRESETS.map((preset) => {
-            const locked = maxDays !== -1 && maxDays > 0 && preset.days > maxDays;
-            const active = !customRange && days === preset.days;
-            return (
-              <button
-                key={preset.days}
-                type="button"
-                disabled={locked}
-                onClick={() => choosePreset(preset.days)}
-                title={locked ? t("filters.rangeLockedTitle", { label: preset.label }) : t("filters.rangeTitle", { label: preset.label })}
-                className={segment(active, locked)}
-              >
-                {locked && <Lock className="h-3 w-3" />}
-                {preset.label}
-              </button>
-            );
-          })}
-          <button type="button" onClick={() => setCustomRange({ ...draftRange })} className={segment(Boolean(customRange))} title={t("filters.customTitle")}>
-            {t("filters.custom")}
-          </button>
-        </div>
-
-        {customRange && (
-          <form
-            className="flex flex-wrap items-center gap-1.5"
-            onSubmit={(event) => {
-              event.preventDefault();
-              applyCustomRange();
-            }}
+      >
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Tabs
+            value={customRange ? "custom" : String(days)}
+            onValueChange={(v) => (v === "custom" ? setCustomRange({ ...draftRange }) : choosePreset(Number(v)))}
           >
-            <input
-              type="date"
-              value={draftRange.since}
-              max={draftRange.until}
-              onChange={(event) => setDraftRange((range) => ({ ...range, since: event.target.value }))}
-              aria-label={t("filters.from")}
-              className={DATE_INPUT}
-            />
-            <span className="text-xs text-slate-400">{t("filters.to")}</span>
-            <input
-              type="date"
-              value={draftRange.until}
-              min={draftRange.since}
-              max={isoDate(new Date())}
-              onChange={(event) => setDraftRange((range) => ({ ...range, until: event.target.value }))}
-              aria-label={t("filters.until")}
-              className={DATE_INPUT}
-            />
-            <Button type="submit" size="sm" className="h-9 rounded-xl text-xs font-semibold">{t("filters.apply")}</Button>
-          </form>
-        )}
+            <TabsList>
+              {RANGE_PRESETS.map((preset) => {
+                const locked = maxDays !== -1 && maxDays > 0 && preset.days > maxDays;
+                return (
+                  <TabsTrigger
+                    key={preset.days}
+                    value={String(preset.days)}
+                    disabled={locked}
+                    title={locked ? t("filters.rangeLockedTitle", { label: preset.label }) : t("filters.rangeTitle", { label: preset.label })}
+                  >
+                    {locked && <Lock className="size-3" />}
+                    {preset.label}
+                  </TabsTrigger>
+                );
+              })}
+              <TabsTrigger value="custom" title={t("filters.customTitle")}>{t("filters.custom")}</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <select
-          value={channel ?? ""}
-          onChange={(e) => setChannel((e.target.value || undefined) as SocialChannel | undefined)}
-          className={SELECT}
-          title={t("filters.platformTitle")}
-        >
-          <option value="">{t("filters.allPlatforms")}</option>
-          {socialChannels.map((ch) => (
-            <option key={ch} value={ch}>{channelLabel(ch)}</option>
-          ))}
-        </select>
+          {customRange && (
+            <form
+              className="flex flex-wrap items-center gap-1.5"
+              onSubmit={(event) => {
+                event.preventDefault();
+                applyCustomRange();
+              }}
+            >
+              <input
+                type="date"
+                value={draftRange.since}
+                max={draftRange.until}
+                onChange={(event) => setDraftRange((range) => ({ ...range, since: event.target.value }))}
+                aria-label={t("filters.from")}
+                className="h-8 rounded-lg border border-border bg-card px-2.5 text-[13px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
+              />
+              <span className="text-xs text-muted-foreground">{t("filters.to")}</span>
+              <input
+                type="date"
+                value={draftRange.until}
+                min={draftRange.since}
+                max={isoDate(new Date())}
+                onChange={(event) => setDraftRange((range) => ({ ...range, until: event.target.value }))}
+                aria-label={t("filters.until")}
+                className="h-8 rounded-lg border border-border bg-card px-2.5 text-[13px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
+              />
+              <Button type="submit" size="sm">{t("filters.apply")}</Button>
+            </form>
+          )}
 
-        {products.length > 0 && (
-          <select value={productId} onChange={(e) => setProductId(e.target.value)} className={SELECT} title={t("filters.brandTitle")}>
-            <option value="">{t("filters.allBrands")}</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+          <Select
+            size="sm"
+            value={channel ?? ""}
+            onChange={(e) => setChannel((e.target.value || undefined) as SocialChannel | undefined)}
+            className="w-auto min-w-36"
+            title={t("filters.platformTitle")}
+          >
+            <option value="">{t("filters.allPlatforms")}</option>
+            {socialChannels.map((ch) => (
+              <option key={ch} value={ch}>{channelLabel(ch)}</option>
             ))}
-          </select>
-        )}
+          </Select>
 
-        {clamped && (
-          <span className="text-xs font-medium text-slate-400">{t("filters.windowNote", { days: data.window.days })}</span>
-        )}
-        {data?.window.custom && !clamped && (
-          <span className="text-xs text-slate-400">{t("filters.showing", { since: data.window.since, until: data.window.until })}</span>
-        )}
-      </div>
+          {products.length > 0 && (
+            <Select size="sm" value={productId} onChange={(e) => setProductId(e.target.value)} className="w-auto min-w-36" title={t("filters.brandTitle")}>
+              <option value="">{t("filters.allBrands")}</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </Select>
+          )}
+
+          {clamped && (
+            <span className="text-xs text-muted-foreground">{t("filters.windowNote", { days: data.window.days })}</span>
+          )}
+          {data?.window.custom && !clamped && (
+            <span className="text-xs text-muted-foreground">{t("filters.showing", { since: data.window.since, until: data.window.until })}</span>
+          )}
+        </div>
+      </PageHeader>
 
       {error && !loading && (
-        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-rose-200/80 bg-rose-50/80 p-4 dark:border-rose-900/50 dark:bg-rose-950/30">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
-          <p className="m-0 flex-1 text-[13px] text-rose-900 dark:text-rose-200">{t("error.message")}</p>
-          <Button variant="outline" size="sm" className="rounded-lg text-[12px]" onClick={() => refresh()}>
-            {t("error.retry")}
-          </Button>
-        </div>
+        <Notice
+          tone="negative"
+          icon={AlertCircle}
+          className="mb-6"
+          action={
+            <Button variant="outline" size="sm" onClick={() => refresh()}>
+              {t("error.retry")}
+            </Button>
+          }
+        >
+          {t("error.message")}
+        </Notice>
       )}
 
       {noPostsAtAll ? (
-        <div className={`flex flex-col items-center p-10 text-center ${SURFACE}`}>
-          <p className={EYEBROW}>{t("emptyState.eyebrow")}</p>
-          <h3 className="m-0 mt-2 text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">{t("emptyState.title")}</h3>
-          <p className="mt-2 max-w-md text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">{t("emptyState.body")}</p>
-          <Link href="/content" className="mt-5">
-            <Button className="h-9 gap-1.5 rounded-xl text-[13px]">
-              <Plus className="h-3.5 w-3.5" />
-              {t("emptyState.createPost")}
+        <EmptyState
+          title={t("emptyState.title")}
+          description={t("emptyState.body")}
+          action={
+            <Button asChild>
+              <Link href="/content">
+                <Plus className="size-4" />
+                {t("emptyState.createPost")}
+              </Link>
             </Button>
-          </Link>
-        </div>
+          }
+        />
       ) : (
-        <>
+        <div className="space-y-10">
           {warmingUp && (
-            <div className="mb-4 rounded-2xl border border-blue-200/60 bg-blue-50/70 px-4 py-3 text-[12.5px] leading-relaxed text-slate-700 dark:border-blue-900/50 dark:bg-blue-950/25 dark:text-slate-300">
-              {t("warmingUp")}
-            </div>
+            <Notice tone="accent">{t("warmingUp")}</Notice>
           )}
 
-          {/* KPI row */}
-          <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+          <StatGrid columns={4} className="lg:grid-cols-5">
             <KpiCard label={t("kpis.views.label")} value={data?.totals.views ?? null} deltaPct={pctChange(data?.totals.views ?? null, data?.totals.prior?.views)} spark={data?.daily.map((d) => d.views)} sub={t("kpis.views.sub")} loading={loading} />
             <KpiCard label={t("kpis.reach.label")} value={data?.totals.reach ?? null} deltaPct={pctChange(data?.totals.reach ?? null, data?.totals.prior?.reach)} spark={data?.daily.map((d) => d.reach)} sub={t("kpis.reach.sub")} loading={loading} />
             <KpiCard label={t("kpis.engagement.label")} value={data?.totals.engagements ?? null} deltaPct={pctChange(data?.totals.engagements ?? null, data?.totals.prior?.engagements)} spark={data?.daily.map((d) => d.engagements)} sub={t("kpis.engagement.sub")} loading={loading} />
             <KpiCard label={t("kpis.engagementRate.label")} value={engagementRate.value} format="percent" deltaPct={engagementRate.delta} sub={engagementRate.byReach ? t("kpis.engagementRate.sub") : t("kpis.engagementRate.subViews")} loading={loading} />
             <KpiCard label={t("kpis.followers.label")} value={data?.totals.followers ?? null} deltaAbsolute={data?.totals.followerDelta} spark={followerSpark} sub={t("kpis.followers.sub")} loading={loading} />
-          </div>
+          </StatGrid>
 
-          {/* Insights */}
           {data && data.insights.length > 0 && (
-            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {data.insights.map((insight) => (
-                <div key={insight.id} className={`flex items-start gap-3 p-4 ${SURFACE}`}>
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-blue-200/50 bg-blue-50 text-blue-600 dark:border-blue-800/50 dark:bg-blue-950/60 dark:text-blue-400">
-                    <Lightbulb className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="m-0 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300">{insight.text}</p>
-                    <p className={`mb-0 mt-1.5 ${EYEBROW}`}>{t("insights.basedOn", { count: insight.sampleSize })}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Section bordered>
+              <ul className="m-0 list-none divide-y divide-border p-0">
+                {data.insights.map((insight) => (
+                  <li key={insight.id} className="flex items-start gap-3 px-4 py-3 sm:px-5">
+                    <Lightbulb className="mt-0.5 size-4 shrink-0 text-mk-ink-60" strokeWidth={1.75} />
+                    <div className="min-w-0 flex-1">
+                      <p className="m-0 text-[13px] leading-5 text-foreground">{insight.text}</p>
+                      <p className="m-0 mt-0.5 text-xs text-muted-foreground">{t("insights.basedOn", { count: insight.sampleSize })}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </Section>
           )}
 
-          {/* Trend + followers */}
-          <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-            <Card
-              eyebrow={t("trend.eyebrow", { days: data?.window.days ?? days })}
-              title={trendTitle}
-              action={
+          <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+            <Section
+              title={t("trend.eyebrow", { days: data?.window.days ?? days })}
+              description={trendTitle}
+              bordered
+              contentClassName="p-4 sm:p-5"
+            >
+              <div className="mb-5 flex flex-wrap items-center gap-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className={SEGMENT}>
-                    {TREND_METRIC_KEYS.map((key) => (
-                      <button key={key} type="button" onClick={() => setTrendMetric(key)} className={segment(trendMetric === key)}>
-                        {t(`trend.metrics.${key}`)}
-                      </button>
-                    ))}
-                  </div>
-                  <div className={SEGMENT}>
-                    {(["publish", "activity"] as const).map((mode) => (
-                      <button key={mode} type="button" onClick={() => setTrendMode(mode)} className={segment(trendMode === mode)} title={t(`trend.modeTitles.${mode}`)}>
-                        {t(`trend.modes.${mode}`)}
-                      </button>
-                    ))}
-                  </div>
-                  <label className={`inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium ${trendMode === "activity" ? "text-slate-300 dark:text-slate-600" : "text-slate-500 dark:text-slate-400"}`}>
-                    <input type="checkbox" checked={compare} disabled={trendMode === "activity"} onChange={(event) => setCompare(event.target.checked)} className="h-3.5 w-3.5 rounded border-slate-300 accent-slate-800" />
+                  <Tabs value={trendMetric} onValueChange={(v) => setTrendMetric(v as TrendMetric)}>
+                    <TabsList className="h-8">
+                      {TREND_METRIC_KEYS.map((key) => (
+                        <TabsTrigger key={key} value={key} className="px-2.5 text-xs">{t(`trend.metrics.${key}`)}</TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </Tabs>
+                  <Tabs value={trendMode} onValueChange={(v) => setTrendMode(v as TrendMode)}>
+                    <TabsList className="h-8">
+                      {(["publish", "activity"] as const).map((mode) => (
+                        <TabsTrigger key={mode} value={mode} className="px-2.5 text-xs" title={t(`trend.modeTitles.${mode}`)}>
+                          {t(`trend.modes.${mode}`)}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </Tabs>
+                  <label className={cn("inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium", trendMode === "activity" ? "text-mk-ink-40" : "text-muted-foreground")}>
+                    <input type="checkbox" checked={compare} disabled={trendMode === "activity"} onChange={(event) => setCompare(event.target.checked)} className="size-3.5 rounded border-border accent-[var(--mk-ink)]" />
                     {t("trend.compare")}
                   </label>
                 </div>
-              }
-            >
+              </div>
               {loading ? (
-                <Skeleton className="w-full rounded-xl" style={{ height: 220 }} />
+                <Skeleton className="h-[220px] w-full rounded-lg" />
               ) : activityUnavailable ? (
-                <div className="flex h-[220px] items-center justify-center px-6 text-center text-[13px] text-slate-500 dark:text-slate-400">{t("trend.activityEmpty")}</div>
+                <div className="flex h-[220px] items-center justify-center px-6 text-center text-[13px] text-muted-foreground">{t("trend.activityEmpty")}</div>
               ) : (
                 <>
                   <TrendChart
@@ -482,60 +449,56 @@ export default function AnalyticsPage() {
                     compare={compareSeries}
                     compareName={t("trend.previous")}
                   />
-                  <p className="mb-0 mt-2 text-[11px] text-slate-400 dark:text-slate-500">
+                  <p className="m-0 mt-2 text-xs text-muted-foreground">
                     {trendMode === "activity" ? t("trend.noteActivity") : t("trend.note")}
                   </p>
                 </>
               )}
-            </Card>
-            <Card
-              eyebrow={t("audience.eyebrow")}
-              title={data?.totals.followers !== null && data?.totals.followers !== undefined
+            </Section>
+            <Section
+              title={t("audience.eyebrow")}
+              description={data?.totals.followers !== null && data?.totals.followers !== undefined
                 ? t("audience.titleWithCount", { count: fmtCount(data.totals.followers, locale) })
                 : t("audience.title")}
+              bordered
+              contentClassName="p-4 sm:p-5"
             >
-              {loading ? <Skeleton className="w-full rounded-xl" style={{ height: 200 }} /> : <FollowerTrendChart data={data?.followerTrend ?? []} locale={locale} />}
-            </Card>
+              {loading ? <Skeleton className="h-[200px] w-full rounded-lg" /> : <FollowerTrendChart data={data?.followerTrend ?? []} locale={locale} />}
+            </Section>
           </div>
 
-          {/* Breakdown + best time + content types */}
-          <div className="mb-4 grid gap-4 sm:mb-5 sm:gap-5 lg:grid-cols-3">
-            <Card eyebrow={t("breakdown.eyebrow")} title={t("breakdown.title")}>
-              {loading || !data ? <Skeleton className="w-full rounded-lg" style={{ height: 170 }} /> : <EngagementBreakdown breakdown={data.breakdown} />}
-            </Card>
-            <Card eyebrow={t("timing.eyebrow")} title={t("timing.title")}>
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
+            <Section title={t("breakdown.title")} description={t("breakdown.eyebrow")} bordered contentClassName="p-4 sm:p-5">
+              {loading || !data ? <Skeleton className="h-[170px] w-full rounded-lg" /> : <EngagementBreakdown breakdown={data.breakdown} />}
+            </Section>
+            <Section title={t("timing.title")} description={t("timing.eyebrow")} bordered contentClassName="p-4 sm:p-5">
               {loading ? (
-                <Skeleton className="w-full rounded-lg" style={{ height: 170 }} />
+                <Skeleton className="h-[170px] w-full rounded-lg" />
               ) : (
                 <BestTimeHeatmap engagements={data?.heatmap.engagements ?? []} posts={data?.heatmap.posts ?? []} sampleSize={data?.heatmap.sampleSize ?? 0} />
               )}
-            </Card>
-            <Card eyebrow={t("format.eyebrow")} title={t("format.title")}>
-              {loading ? <Skeleton className="w-full rounded-lg" style={{ height: 170 }} /> : <ContentTypeBars contentTypes={data?.contentTypes ?? []} />}
-            </Card>
+            </Section>
+            <Section title={t("format.title")} description={t("format.eyebrow")} bordered contentClassName="p-4 sm:p-5">
+              {loading ? <Skeleton className="h-[170px] w-full rounded-lg" /> : <ContentTypeBars contentTypes={data?.contentTypes ?? []} />}
+            </Section>
           </div>
 
-          {/* Channels */}
-          <div className="mb-4 sm:mb-5">
-            <Card eyebrow={t("channels.eyebrow")} title={t("channels.title")}>
-              {loading ? <Skeleton className="w-full rounded-lg" style={{ height: 160 }} /> : <ChannelTable channels={data?.channels ?? []} activeChannel={channel} onSelect={setChannel} />}
-            </Card>
-          </div>
+          <Section title={t("channels.title")} description={t("channels.eyebrow")} bordered contentClassName="px-4 pb-2 sm:px-5">
+            {loading ? <Skeleton className="m-4 h-[160px] w-auto rounded-lg" /> : <ChannelTable channels={data?.channels ?? []} activeChannel={channel} onSelect={setChannel} />}
+          </Section>
 
-          {/* Leaderboard */}
-          <Card eyebrow={t("posts.eyebrow")} title={t("posts.title")}>
-            {loading ? <Skeleton className="w-full rounded-lg" style={{ height: 240 }} /> : <LeaderboardTable rows={data?.leaderboard ?? []} />}
-          </Card>
+          <Section title={t("posts.title")} description={t("posts.eyebrow")} bordered contentClassName="px-4 pb-2 sm:px-5">
+            {loading ? <Skeleton className="m-4 h-[240px] w-auto rounded-lg" /> : <LeaderboardTable rows={data?.leaderboard ?? []} />}
+          </Section>
 
-          {/* Data provenance */}
           {data && (
-            <p className="mt-4 text-[11px] leading-relaxed text-slate-400 dark:text-slate-500">
+            <p className="m-0 text-xs leading-5 text-muted-foreground">
               {t("provenance.base")}
               {data.coverage.truncated && t("provenance.truncated", { count: data.coverage.postsAnalyzed })}
               {data.coverage.lastMetricsAt && t("provenance.lastUpdate", { date: new Date(data.coverage.lastMetricsAt).toLocaleString(locale) })}
             </p>
           )}
-        </>
+        </div>
       )}
     </>
   );

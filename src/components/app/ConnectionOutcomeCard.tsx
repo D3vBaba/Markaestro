@@ -88,7 +88,7 @@ export default function ConnectionOutcomeCard({
       <div
         role="alert"
         className={cn(
-          "relative rounded-2xl border p-4 sm:p-5",
+          "relative rounded-xl border p-4 sm:p-5",
           "border-[color:color-mix(in_srgb,var(--mk-neg)_30%,transparent)] bg-[color:color-mix(in_srgb,var(--mk-neg)_6%,var(--mk-paper))]",
           className,
         )}
@@ -97,7 +97,7 @@ export default function ConnectionOutcomeCard({
         <div className="flex items-start gap-3.5 pe-8">
           <div className="relative shrink-0">
             <ChannelGlyph provider={outcome.provider} size={40} />
-            <XCircle className="absolute -bottom-1.5 -end-1.5 h-5 w-5 rounded-full bg-background text-[color:var(--mk-neg)]" aria-hidden />
+            <XCircle className="absolute -bottom-1.5 -end-1.5 size-5 rounded-full bg-background text-[color:var(--mk-neg)]" aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-foreground">
@@ -148,7 +148,7 @@ export default function ConnectionOutcomeCard({
     <div
       role="status"
       className={cn(
-        "relative rounded-2xl border p-4 sm:p-5",
+        "relative rounded-xl border p-4 sm:p-5",
         pending
           ? "border-[color:color-mix(in_srgb,var(--mk-warn)_35%,transparent)] bg-[color:color-mix(in_srgb,var(--mk-warn)_7%,var(--mk-paper))]"
           : "border-[color:color-mix(in_srgb,var(--mk-pos)_30%,transparent)] bg-[color:color-mix(in_srgb,var(--mk-pos)_6%,var(--mk-paper))]",
@@ -160,9 +160,9 @@ export default function ConnectionOutcomeCard({
         <div className="relative shrink-0">
           <ChannelGlyph provider={outcome.provider} size={40} />
           {pending ? (
-            <AlertTriangle className="absolute -bottom-1.5 -end-1.5 h-5 w-5 rounded-full bg-background p-0.5 text-[color:var(--mk-warn)]" aria-hidden />
+            <AlertTriangle className="absolute -bottom-1.5 -end-1.5 size-5 rounded-full bg-background p-0.5 text-[color:var(--mk-warn)]" aria-hidden />
           ) : (
-            <CheckCircle2 className="absolute -bottom-1.5 -end-1.5 h-5 w-5 rounded-full bg-background text-[color:var(--mk-pos)]" aria-hidden />
+            <CheckCircle2 className="absolute -bottom-1.5 -end-1.5 size-5 rounded-full bg-background text-[color:var(--mk-pos)]" aria-hidden />
           )}
         </div>
         <div className="min-w-0 flex-1">
@@ -183,7 +183,7 @@ export default function ConnectionOutcomeCard({
 
           {permissions.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="text-xs font-medium text-muted-foreground">
                 {granted.length > 0 ? t("outcome.grantedTitle") : t("outcome.requestedTitle")}
               </p>
               <ul className="mt-1.5 flex flex-wrap gap-1.5">
@@ -191,9 +191,9 @@ export default function ConnectionOutcomeCard({
                   <li
                     key={item.scope}
                     title={item.scope}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background px-2.5 py-1 text-[11.5px] font-medium text-foreground"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2 py-0.5 text-[11.5px] font-medium leading-4 text-mk-ink-80"
                   >
-                    <CheckCircle2 className="h-3 w-3 text-[color:var(--mk-pos)]" aria-hidden />
+                    <CheckCircle2 className="size-3 text-[color:var(--mk-pos)]" aria-hidden />
                     {t(`permissions.${item.key}.title`)}
                     <span className="text-muted-foreground/80">· {t(`features.${item.feature}`)}</span>
                   </li>
@@ -215,22 +215,22 @@ export default function ConnectionOutcomeCard({
             )}
             {!pending && (
               <>
-                <span className="me-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="me-1 text-xs font-medium text-muted-foreground">
                   {t("outcome.nextTitle")}
                 </span>
                 <Link href="/content?tab=create">
                   <Button size="sm" variant="outline">
-                    <PenLine className="h-3.5 w-3.5" aria-hidden /> {t("outcome.createPost")}
+                    <PenLine className="size-3.5" aria-hidden /> {t("outcome.createPost")}
                   </Button>
                 </Link>
                 <Link href="/analytics">
                   <Button size="sm" variant="outline">
-                    <BarChart3 className="h-3.5 w-3.5" aria-hidden /> {t("outcome.viewAnalytics")}
+                    <BarChart3 className="size-3.5" aria-hidden /> {t("outcome.viewAnalytics")}
                   </Button>
                 </Link>
                 <Link href="/content?tab=on-platform">
                   <Button size="sm" variant="outline">
-                    <History className="h-3.5 w-3.5" aria-hidden /> {t("outcome.postHistory")}
+                    <History className="size-3.5" aria-hidden /> {t("outcome.postHistory")}
                   </Button>
                 </Link>
               </>
@@ -248,9 +248,9 @@ function DismissButton({ onClick, label }: { onClick: () => void; label: string 
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="absolute top-3 end-3 grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-background/80 hover:text-foreground"
+      className="absolute top-3 end-3 grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-background/80 hover:text-foreground"
     >
-      <X className="h-4 w-4" aria-hidden />
+      <X className="size-4" aria-hidden />
     </button>
   );
 }

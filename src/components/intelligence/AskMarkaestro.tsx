@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { MessageSquareText } from "lucide-react";
+import { FlaskConical, MessageSquareText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { apiPost } from "@/lib/api-client";
 import { userFacingError } from "@/lib/user-facing-errors";
 import { cn } from "@/lib/utils";
-import { INSET, KindBadge, Section, TYPE, TrustBadge } from "./shared";
-import type { PostRow } from "./types";
+import { DraftButton, INSET, KindBadge, Section, TYPE, TrustBadge } from "./shared";
+import type { ExperimentDraft, PostRow } from "./types";
 
 const STRATEGIST_TOOLS = [
   "audience_performance", "audience_alignment", "top_posts", "pillar_performance",
@@ -24,8 +24,10 @@ type AskResult = { answer: string; tool: string; evidenceIds?: string[]; limitat
  * One question, one approved data tool, an answer that names its evidence.
  * Lives on Overview because it is the fastest way into the brand's memory.
  */
-export function AskMarkaestro({ productId, posts }: { productId: string; posts: PostRow[] }) {
+export function AskMarkaestro({ productId, posts, onTest }: { productId: string; posts: PostRow[]; onTest?: (draft: ExperimentDraft) => void }) {
   const t = useTranslations("intelligence.ask");
+  const tActions = useTranslations("intelligence.askActions");
+  const [asked, setAsked] = useState("");
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState<AskResult | null>(null);
   const [asking, setAsking] = useState(false);
@@ -36,6 +38,7 @@ export function AskMarkaestro({ productId, posts }: { productId: string; posts: 
     if (!trimmed || asking) return;
     setAsking(true);
     setResult(null);
+    setAsked(trimmed);
     try {
       const response = await apiPost<AskResult>(
         "/api/intelligence/strategist",
@@ -89,8 +92,8 @@ export function AskMarkaestro({ productId, posts }: { productId: string; posts: 
             }
           }}
         />
-        <Button className="h-10 shrink-0 gap-1.5 rounded-xl text-xs font-semibold sm:h-auto sm:self-stretch" type="submit" disabled={!question.trim() || asking}>
-          <MessageSquareText className="h-3.5 w-3.5" aria-hidden="true" />
+        <Button className="h-10 sm:h-auto sm:self-stretch" type="submit" disabled={!question.trim() || asking}>
+          <MessageSquareText className="size-3.5" aria-hidden="true" />
           {asking ? t("asking") : t("submit")}
         </Button>
       </form>
@@ -104,7 +107,7 @@ export function AskMarkaestro({ productId, posts }: { productId: string; posts: 
                 setQuestion(example);
                 void ask(example);
               }}
-              className="rounded-full border border-slate-200/80 px-2.5 py-1 text-xs text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-mk-ink-80 transition-colors hover:bg-muted"
             >
               {example}
             </button>
@@ -123,7 +126,7 @@ export function AskMarkaestro({ productId, posts }: { productId: string; posts: 
               <p className={TYPE.meta}>{t("evidence")}</p>
               <ul className="mt-1.5 space-y-1">
                 {cited.slice(0, 5).map((post) => (
-                  <li key={post.id} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                  <li key={post.id} className="flex items-center gap-2 text-xs text-mk-ink-80">
                     <KindBadge tone="slate">{post.platform}</KindBadge>
                     <span className="truncate">{post.content || t("mediaOnly")}</span>
                   </li>
@@ -135,6 +138,24 @@ export function AskMarkaestro({ productId, posts }: { productId: string; posts: 
           {result.limitations.map((item) => (
             <p key={item} className={cn("mt-2", TYPE.hint)}>{item}</p>
           ))}
+          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            {cited[0] && (
+              <DraftButton productId={productId} source={{ type: "post", id: cited[0].id }} platform={cited[0].platform} label={tActions("draft")} variant="outline" />
+            )}
+            {onTest && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onTest({ id: `ask:${Date.now()}`, name: asked.slice(0, 120), hypothesis: result.answer.split(/(?<=[.!?])\s/)[0]?.slice(0, 500) || asked, platform: cited[0]?.platform ?? null })}
+              >
+                <FlaskConical className="size-3.5" aria-hidden="true" />
+                {tActions("test")}
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={() => { setResult(null); setQuestion(""); }}>
+              {tActions("followUp")}
+            </Button>
+          </div>
         </div>
       )}
     </Section>

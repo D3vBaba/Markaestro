@@ -41,16 +41,16 @@ export default function Pagination({
   };
 
   return (
-    <div className="flex items-center justify-center gap-3 pt-6 pb-[max(env(safe-area-inset-bottom),1rem)] sm:pb-4 w-full">
+    <div className="flex w-full items-center justify-center gap-2 pt-6">
       <Button
         variant="outline"
         size="sm"
         onClick={() => onPageChange(1)}
         disabled={page <= 1}
         aria-label={t("firstPage")}
-        className="h-10 w-10 sm:h-8 sm:w-8 p-0 shrink-0"
+        className="size-9 p-0 sm:size-8"
       >
-        <ChevronsLeft className="h-4 w-4 rtl:-scale-x-100" />
+        <ChevronsLeft className="size-4 rtl:-scale-x-100" />
       </Button>
       <Button
         variant="outline"
@@ -58,11 +58,11 @@ export default function Pagination({
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
         aria-label={t("previousPage")}
-        className="h-10 w-10 sm:h-8 sm:w-8 p-0 shrink-0"
+        className="size-9 p-0 sm:size-8"
       >
-        <ChevronLeft className="h-4 w-4 rtl:-scale-x-100" />
+        <ChevronLeft className="size-4 rtl:-scale-x-100" />
       </Button>
-      <span className="text-sm sm:text-xs text-muted-foreground tabular-nums px-2 shrink-0">
+      <span className="shrink-0 px-2 text-[13px] tabular-nums text-muted-foreground">
         {page} / {totalPages}{hasMore ? "+" : ""}
       </span>
       <Button
@@ -71,9 +71,9 @@ export default function Pagination({
         onClick={nextPage}
         disabled={(page >= totalPages && !hasMore) || loadingMore}
         aria-label={t("nextPage")}
-        className="h-10 w-10 sm:h-8 sm:w-8 p-0 shrink-0"
+        className="size-9 p-0 sm:size-8"
       >
-        <ChevronRight className="h-4 w-4 rtl:-scale-x-100" />
+        <ChevronRight className="size-4 rtl:-scale-x-100" />
       </Button>
       <Button
         variant="outline"
@@ -81,9 +81,9 @@ export default function Pagination({
         onClick={() => onPageChange(totalPages)}
         disabled={page >= totalPages || hasMore || loadingMore}
         aria-label={t("lastPage")}
-        className="h-10 w-10 sm:h-8 sm:w-8 p-0 shrink-0"
+        className="size-9 p-0 sm:size-8"
       >
-        <ChevronsRight className="h-4 w-4 rtl:-scale-x-100" />
+        <ChevronsRight className="size-4 rtl:-scale-x-100" />
       </Button>
     </div>
   );

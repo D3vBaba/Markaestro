@@ -7,7 +7,8 @@
       "drafts": "المسودات",
       "scheduled": "المجدولة",
       "published": "المنشورة",
-      "onPlatform": "على المنصة"
+      "onPlatform": "على المنصة",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "العلامة التجارية",
@@ -354,5 +355,98 @@
       "videoTooLong": "هذا الفيديو يتجاوز حد الـ {maxSeconds} ثانية لهذا الحساب.",
       "creatorInfoUnavailable": "تعذر تحميل بيانات حساب TikTok الخاص بك، لذا لا يمكن نشر هذا المنشور مباشرة."
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "تعذّر تحديث القائمة",
+    "actions": {
+      "activate": "تفعيل",
+      "activateSuccess": "تم تفعيل القائمة",
+      "archive": "أرشفة",
+      "archiveSuccess": "تمت أرشفة القائمة",
+      "pause": "إيقاف مؤقت",
+      "pauseSuccess": "تم إيقاف القائمة مؤقتاً",
+      "resume": "استئناف",
+      "resumeSuccess": "تم استئناف القائمة"
+    },
+    "addVariant": "إضافة نسخة",
+    "analytics": {
+      "conversions": "التحويلات",
+      "details": "الأداء",
+      "engagements": "التفاعلات",
+      "loadFailed": "تعذّر تحميل أداء القائمة",
+      "loading": "جارٍ تحميل أداء القائمة...",
+      "measured": "تشغيلات مقاسة",
+      "needsReview": "بحاجة إلى مراجعة",
+      "noOutcome": "في انتظار نتيجة أداء مكتملة",
+      "noRuns": "لم تُنشأ أي مرات بعد.",
+      "recentRuns": "التشغيلات الأخيرة",
+      "trackedClicks": "النقرات المتعقَّبة",
+      "unavailable": "غير متاح",
+      "views": "إجمالي المشاهدات"
+    },
+    "approveFuture": "اعتماد التشغيلات المستقبلية الآن",
+    "cancel": "إلغاء",
+    "changeSource": "تغيير",
+    "choosePost": "اختر منشوراً منشوراً",
+    "create": "إنشاء قائمة",
+    "createFailed": "تعذّر إنشاء القائمة",
+    "created": "تم إنشاء قائمة Evergreen",
+    "defaultName": "قائمة Evergreen لـ {channel}",
+    "description": "حوّل المنشورات المثبتة إلى قوائم منظّمة وقابلة للقياس. يحافظ Markaestro على المصدر، وينشئ مرة جديدة لكل تشغيل، ويوقف السلاسل الضعيفة تلقائياً.",
+    "eligible": "تم العثور على أدلة مؤهِّلة",
+    "empty": "لا توجد قوائم Evergreen لهذه العلامة التجارية بعد.",
+    "everyDays": "كل {count} أيام",
+    "interval": "الحد الأدنى للأيام بين التشغيلات",
+    "loadFailed": "تعذّر تحميل قوائم Evergreen",
+    "loading": "جارٍ تحميل قوائم Evergreen...",
+    "newQueue": "قائمة جديدة",
+    "nextRun": "التشغيل التالي: {date}",
+    "notEligible": "غير مؤهل بعد",
+    "notScheduled": "فعّل هذه القائمة لجدولة أول تشغيل لها.",
+    "pausedReason": "متوقفة مؤقتاً: {reason}",
+    "picker": {
+      "engagements": "التفاعلات",
+      "filters": {
+        "all": "كل المنشورة",
+        "eligible": "جاهزة",
+        "suggested": "مقترحة"
+      },
+      "mediaOnly": "ذات وسائط فقط",
+      "noMatches": "لا توجد منشورات منشورة مطابقة.",
+      "noSuggested": "لا منشورات بارزة بعد. تحتاج المنشورات إلى سبعة أيام من النتائج المقاسة قبل اقتراحها.",
+      "notReady": "غير جاهز",
+      "rate": "المعدل",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "لا قناة لهذا المنشور",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "لا مشاهدات أو تفاعل مقاس بعد",
+        "SOURCE_METRICS_IMMATURE": "نُشر منذ أقل من سبعة أيام",
+        "SOURCE_NOT_PUBLISHED": "لم يُنشر بعد",
+        "SOURCE_PUBLISH_DATE_MISSING": "تاريخ النشر غير معروف"
+      },
+      "search": "البحث في المنشورات المنشورة",
+      "suggested": "مقترح",
+      "views": "المشاهدات"
+    },
+    "previewFailed": "تعذّر التحقق من هذا المنشور",
+    "queueName": "اسم القائمة",
+    "removeVariant": "إزالة",
+    "reviewEach": "مراجعة كل مرة",
+    "reviewPolicy": "سياسة الاعتماد",
+    "runs": "{count, plural, one {تم إنشاء تشغيل واحد} other {تم إنشاء # تشغيلات}}",
+    "saving": "جارٍ الإنشاء...",
+    "selectBrand": "اختر علامة تجارية لإدارة قوائم Evergreen الخاصة بها.",
+    "selectedSource": "المنشور المحدد",
+    "sourceHint": "اختر المنشور الذي تكرره هذه القائمة. المنشورات المقترحة حققت الأكثر لدى جمهورها وعمرها أسبوع على الأقل.",
+    "sourcePost": "منشور المصدر المثبت",
+    "statuses": {
+      "active": "نشطة",
+      "archived": "مؤرشفة",
+      "draft": "مسودة",
+      "paused": "متوقفة مؤقتاً"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "نسخة التعليق",
+    "variantNumber": "نسخة التعليق {number}",
+    "variants": "نسخ التعليق"
   }
 }

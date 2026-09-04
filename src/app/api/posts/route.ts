@@ -11,6 +11,7 @@ import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 import { checkAndIncrementUsage, refundUsage } from '@/lib/usage';
 import { logger } from '@/lib/logger';
 import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
+import { attachPostThumbnails } from '@/lib/media/post-thumbnails';
 
 export const runtime = 'nodejs';
 
@@ -90,7 +91,7 @@ export async function GET(req: Request) {
       );
       return apiOk({
         workspaceId: ctx.workspaceId,
-        posts,
+        posts: await attachPostThumbnails(ctx.workspaceId, posts),
         count: posts.length,
         // True only if a single window overflowed the safety ceiling, which
         // would mean the view is showing an incomplete month.
@@ -113,7 +114,7 @@ export async function GET(req: Request) {
     );
     return apiOk({
       workspaceId: ctx.workspaceId,
-      posts: page.items,
+      posts: await attachPostThumbnails(ctx.workspaceId, page.items),
       count: page.items.length,
       nextCursor: page.nextCursor,
       truncated: Boolean(page.nextCursor),

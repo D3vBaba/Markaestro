@@ -26,7 +26,7 @@ export const INSIGHTS_CACHE_TTL_MS = 60 * 60_000;
 /** Cached rows keep enough caption to preview; the full text lives on the post. */
 export const CACHED_CONTENT_LIMIT = 1000;
 
-type StoredDecision = { id: string; status?: string };
+type StoredDecision = { id: string; status?: string; decidedAt?: string };
 
 type CachedInsightsDoc = {
   cacheVersion?: number;

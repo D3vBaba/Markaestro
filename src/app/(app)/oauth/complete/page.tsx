@@ -41,9 +41,9 @@ function OAuthCompleteContent() {
 function OAuthCompleteFallback() {
   const t = useTranslations("auth.oauthComplete");
   return (
-    <div className="min-h-screen grid place-items-center bg-background px-6">
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="h-8 w-8 rounded-lg bg-primary animate-pulse" />
+    <div className="grid min-h-dvh place-items-center bg-background px-6">
+      <div className="flex flex-col items-center gap-4 text-center" role="status" aria-live="polite">
+        <div className="size-8 animate-pulse rounded-lg bg-muted" />
         <div className="space-y-1">
           <p className="text-sm font-medium text-foreground">{t("title")}</p>
           <p className="text-sm text-muted-foreground">

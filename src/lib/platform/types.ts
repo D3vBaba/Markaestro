@@ -51,6 +51,11 @@ export type PlatformConnection = {
   capabilities: PlatformCapability[];
   /** Current status */
   status: ConnectionStatus;
+  /**
+   * Seeded screenshot fixture: looks connected in the UI but carries no
+   * credentials. Workers that would call a platform API skip it.
+   */
+  fixture?: boolean;
   /** Encrypted access token */
   accessTokenEncrypted: string;
   /** Encrypted refresh token (if available) */

@@ -1,176 +1,145 @@
 {
   "hero": {
-    "badge": "Het social-publishing-hub voor elk merk dat je runt",
-    "titleLead": "Je volledige marketingmotor",
-    "titleHighlight": "in één platform",
-    "subtitle": "Upload je media, schrijf je onderschriften en publiceer elk merk dat je promoot, je eigen bedrijf, je klanten, of jezelf, naar elk sociaal kanaal vanuit één dashboard. Of geef een API-sleutel aan je AI-agent en laat die alles regelen.",
     "primaryButton": "Start gratis",
     "secondaryButton": "Bekijk functies",
     "signInPrompt": "Heb je al een account?",
     "signInLink": "Inloggen",
-    "stats": [
-      {
-        "value": "10u",
-        "label": "Bespaard per week"
-      },
-      {
-        "value": "6",
-        "label": "Kanalen, één klik"
-      },
-      {
-        "value": "1",
-        "label": "Editor voor elk kanaal"
-      }
-    ],
-    "trustedBy": "Vertrouwd door oprichters"
-  },
-  "featuresPreview": {
-    "eyebrow": "Platform",
-    "titleLead": "Alles wat je nodig hebt om te",
-    "titleHighlight": "groeien",
-    "subtitle": "Van conceptonderschrift tot gepubliceerde post: Markaestro regelt elke stap van je social workflow.",
-    "items": [
-      {
-        "title": "Publiceren op meerdere kanalen",
-        "desc": "Publiceer naar Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest vanuit één editor. Plan posts in of publiceer direct."
-      },
-      {
-        "title": "Gecentraliseerd media-uploaden",
-        "desc": "Gebruik je eigen afbeeldingen en video's. Upload één keer per post en verstuur naar elk verbonden kanaal."
-      },
-      {
-        "title": "Voorbeeldweergave voor meerdere kanalen",
-        "desc": "Zie hoe elke post er op elk platform uitziet voordat je publiceert, onderschriften, beeldverhoudingen, tekenlimieten."
-      },
-      {
-        "title": "Planning en kalender",
-        "desc": "Plaats posts in een gecombineerde kalender met tijdstippen per kanaal. Herplan, pauzeer of dupliceer met één klik."
-      },
-      {
-        "title": "Publicatiedashboard",
-        "desc": "Volg concepten, geplande posts en publicatiestatus voor elk kanaal."
-      },
-      {
-        "title": "OAuth-integraties",
-        "desc": "Verbind met één klik met Meta, TikTok, LinkedIn, Threads en Pinterest via veilige OAuth. Geen handmatig tokenbeheer nodig."
-      }
-    ],
-    "exploreButton": "Ontdek alle functies"
-  },
-  "intelligencePreview": {
-    "eyebrow": "Intelligentie",
-    "titleLead": "Publiceren is de input.",
-    "titleHighlight": "Groei is de output.",
-    "subtitle": "Intelligentie leert van de posts die je al hebt gepubliceerd en vertelt je in gewone taal wat werkte, wanneer je moet posten en wat je hierna kunt proberen. Daarna schrijft het het concept voor je.",
-    "items": [
-      {
-        "title": "Gemeten, nooit gegokt",
-        "desc": "Elk cijfer is precies wat het platform rapporteerde. Leeg blijft leeg, en elk resultaat zegt of het gemeten, berekend, aanbevolen of gegenereerd is."
-      },
-      {
-        "title": "Patronen met bewijs",
-        "desc": "Welk platform, tijdslot, welke openingszin of contentpijler beter presteert dan de rest van je merk, met de steekproefgrootte en het betrouwbaarheidsbereik erbij."
-      },
-      {
-        "title": "Concepten die jij beheert",
-        "desc": "Maak van elke kans of winnende post een caption in je merkstem. Die komt als concept in Content terecht. Jij bewerkt, voegt media toe en plant in."
-      }
-    ],
-    "exploreButton": "Ontdek Intelligentie"
+    "title": "Beheer de social media van elk merk vanuit één kalender",
+    "highlight": "één kalender",
+    "subtitle2": "Plan, schrijf, plan in en meet posts voor elk merk dat je vermarkt, op zeven kanalen. Of geef je AI-agent een API-sleutel en laat die het posten doen.",
+    "screenshotAlt": "Het Markaestro-dashboard: merken, posts, publicatieactiviteit en wat er hierna komt."
   },
   "channelsPreview": {
-    "eyebrow": "Kanalen",
-    "titleLead": "Bereik je doelgroep",
-    "titleHighlight": "overal",
-    "subtitle": "Verbind één keer en publiceer naar elk groot platform. Markaestro regelt de API-verschillen, tekenlimieten en mediavereisten per kanaal.",
-    "channels": [
-      {
-        "name": "Facebook en Instagram",
-        "desc": "OAuth-verbonden via Meta. Pagina's, feedposts, verhalen en zakelijke IG-publicaties."
-      },
-      {
-        "name": "TikTok",
-        "desc": "Foto- en videoposts. Standaard een overdracht naar de TikTok-inbox van de maker om af te ronden en te plaatsen; Direct Post naar het profiel is per post beschikbaar."
-      },
-      {
-        "name": "LinkedIn",
-        "desc": "Je profiel of een Pagina die je beheert. Tekst-, afbeeldings-, video- en meerdere-afbeeldingenposts tot 20 afbeeldingen."
-      },
-      {
-        "name": "Threads en Pinterest",
-        "desc": "Threads-carrousels tot 20 items; Pinterest-afbeeldings- en videopins naar het bord dat je kiest."
-      }
-    ],
-    "seeAllButton": "Bekijk alle kanalen",
-    "stats": [
-      {
-        "label": "Sociale kanalen",
-        "value": "6",
-        "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest"
-      },
-      {
-        "label": "Editor",
-        "value": "1",
-        "sub": "Onderschrift + media op één scherm"
-      },
-      {
-        "label": "Dashboard",
-        "value": "1",
-        "sub": "Gecombineerde publicatieworkflow"
-      },
-      {
-        "label": "API",
-        "value": "1",
-        "sub": "Eén sleutel, klaar voor agents"
-      }
-    ]
-  },
-  "composerPreview": {
-    "panelLabel": "Eén editor, elk kanaal",
-    "rows": [
-      {
-        "label": "Media",
-        "value": "Upload afbeeldingen of video's: JPG, PNG, WebP, MP4"
-      },
-      {
-        "label": "Onderschrift",
-        "value": "Eén keer schrijven, voorbeeld per kanaal voor publicatie"
-      },
-      {
-        "label": "Resultaat",
-        "value": "Geplande of directe posts naar alle zes verbonden kanalen"
-      }
-    ],
-    "eyebrow": "Editor",
-    "titleLead": "Jouw media,",
-    "titleHighlight": "jouw content",
-    "subtitle": "Upload de foto's of video's die je al hebt. Schrijf het onderschrift dat je wilt. Markaestro regelt publicatie en planning, zodat jij je kunt richten op het creatieve werk.",
-    "bullets": [
-      "Upload afbeeldingen en video's rechtstreeks vanaf je apparaat of bibliotheek",
-      "Kanaalbewuste voorbeeldweergaven: hashtags, tekenlimieten, mediaspecificaties",
-      "Plan, publiceer direct, of sla op als concept met één klik"
-    ],
-    "seeFeaturesButton": "Bekijk alle functies"
+    "seeAllButton": "Bekijk alle kanalen"
   },
   "agentSection": {
     "eyebrow": "AI-agents",
     "titleLead": "Of laat je agent",
     "titleHighlight": "het regelen",
-    "subtitle": "Elke workspace kan API-sleutels genereren. Geef er een aan je AI-agent, en die ontdekt naar welke accounts hij mag posten, uploadt media, stelt posts op en plant ze in, publiceert ze en rapporteert wat er daadwerkelijk is geplaatst, zonder ook maar één platform-API direct aan te raken.",
+    "subtitle": "Elke betaalde workspace kan API-sleutels aanmaken, en MCP-clients zoals Claude Code kunnen in plaats daarvan via de browser inloggen. Hoe dan ook kan je agent ontdekken op welke accounts hij mag posten, media uploaden, posts opstellen en inplannen, ze publiceren en rapporteren wat er echt is verstuurd, zonder zelf één platform-API aan te raken.",
     "bullets": [
       "Eén sleutel is beperkt tot één merk, een agent kan niet naar een ander merk afdwalen",
-      "Facebook, Instagram en TikTok blijven altijd manual-first: een mens plaatst, altijd",
+      "Facebook, Instagram en TikTok zijn standaard handmatig: een mens plaatst de post, tenzij je een post expliciet vrijgeeft",
       "Idempotente writes, asynchrone publicatieruns en ondertekende webhooks ingebouwd"
     ],
     "primaryButton": "Lees de agentgids",
     "secondaryButton": "API-referentie",
-    "codeLabel": "jouw agent, vanaf dag één"
+    "codeLabel": "Jouw agent, vanaf dag één"
   },
-  "cta": {
-    "eyebrow": "Aan de slag",
-    "title": "Klaar om je social publishing te stroomlijnen?",
-    "subtitle": "In enkele minuten ingesteld. Verbind je kanalen, upload je media en begin met publiceren.",
-    "primaryButton": "Gratis aan de slag",
-    "secondaryButton": "Contact met sales"
+  "proof": {
+    "label": "Wat je vanaf dag één krijgt",
+    "items": [
+      {
+        "value": "7",
+        "label": "Kanalen vanuit één composer"
+      },
+      {
+        "value": "1",
+        "label": "Kalender voor elk merk"
+      },
+      {
+        "value": "Onbeperkt",
+        "label": "Ingeplande posts op betaalde abonnementen"
+      },
+      {
+        "value": "Per kanaal",
+        "label": "Voorvertoningen voordat je publiceert"
+      },
+      {
+        "value": "Gemeten",
+        "label": "Analytics van elk platform"
+      },
+      {
+        "value": "API",
+        "label": "Voor scripts en AI-agents"
+      },
+      {
+        "value": "Evergreen",
+        "label": "Wachtrijen die winnaars opnieuw posten"
+      }
+    ]
+  },
+  "whoFor": {
+    "title": "Voor wie is Markaestro?",
+    "items": [
+      {
+        "title": "Founders",
+        "desc": "Eén product, een handvol kanalen en geen tijd om overal in te loggen. Schrijf één keer, plan de maand in en ga weer bouwen."
+      },
+      {
+        "title": "Kleine bedrijven",
+        "desc": "Houd de winkel, de studio of het restaurant elke week aan het posten zonder een socialteam aan te nemen."
+      },
+      {
+        "title": "Bureaus en freelancers",
+        "desc": "Elke klant is een merk met eigen kanalen, stem en kalender. Wissel met één klik."
+      },
+      {
+        "title": "Creators",
+        "desc": "Je eigen naam is ook een merk. Plan de week, post op elk platform en zie wat echt werkte."
+      }
+    ]
+  },
+  "bento": {
+    "title": "Alle tools voor sociale groei op één plek",
+    "tiles": [
+      {
+        "id": "calendar",
+        "label": "Planning",
+        "title": "Een kalender die je echt kunt lezen",
+        "desc": "Maand-, week- en lijstweergave. Sleep een post om hem te verplaatsen. Drukke dagen worden per kanaal samengevat in plaats van verstopt achter “+38 meer”."
+      },
+      {
+        "id": "composer",
+        "label": "Publiceren",
+        "title": "Eén composer, elk kanaal",
+        "desc": "Kies de kanalen, schrijf het bijschrift, voeg media toe en bekijk precies hoe elk platform het weergeeft."
+      },
+      {
+        "id": "analytics",
+        "label": "Analytics",
+        "title": "Cijfers van de platforms, geen gissingen",
+        "desc": "Weergaven, bereik, betrokkenheid en volgers per kanaal, met de beste posttijden en de posts die het waarmaakten."
+      },
+      {
+        "id": "brands",
+        "label": "Merken",
+        "title": "Elk merk in zijn eigen baan",
+        "desc": "Producten, bedrijven, klanten of jijzelf. Elk merk houdt zijn eigen kanalen, identiteit en stem."
+      },
+      {
+        "id": "intelligence",
+        "label": "Intelligence",
+        "title": "Leer van wat je al hebt gepost",
+        "desc": "Gerangschikte posts, patronen met bewijs en concepten in je merkstem die als bewerkbare posts binnenkomen."
+      }
+    ]
+  },
+  "channelWall": {
+    "title": "Elk kanaal waar je publiek zit",
+    "subtitle": "Koppel één keer met OAuth. Markaestro regelt de tekenlimieten, mediaregels en API-eigenaardigheden van elk platform.",
+    "extras": [
+      {
+        "label": "Openbare API"
+      },
+      {
+        "label": "AI-agents"
+      },
+      {
+        "label": "Webhooks"
+      }
+    ]
+  },
+  "ctaBand": {
+    "title": "Klaar om elk merk te laten posten?",
+    "subtitle": "Gratis om te starten. Koppel een kanaal en plan je eerste post binnen een paar minuten in.",
+    "button": "Gratis starten"
+  },
+  "wallOfLove": {
+    "title": "Wat mensen zeggen"
+  },
+  "faq": {
+    "title": "Veelgestelde vragen",
+    "more": "Bekijk prijzen en alle vragen"
   }
 }

@@ -7,7 +7,8 @@
       "drafts": "Borradores",
       "scheduled": "Programadas",
       "published": "Publicadas",
-      "onPlatform": "En la plataforma"
+      "onPlatform": "En la plataforma",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "Marca",
@@ -133,11 +134,11 @@
     "show": "Mostrar",
     "basedOnData": "Basado en datos de interacción del sector para {channel}",
     "thisChannel": "este canal",
-    "orPickManually": "o elige manualmente",
+    "orPickManually": "O elige manualmente",
     "timeLabel": "Hora",
     "timezoneNote": "Las programaciones usan tu zona horaria local ({timezone}) y se guardan en UTC.",
     "headsUp": "Aviso:",
-    "collisionNote": "ya hay otra publicación programada cerca de esta hora ({date}{channel}). Aun así puedes programar ambas.",
+    "collisionNote": "Ya hay otra publicación programada cerca de esta hora ({date}{channel}). Aun así puedes programar ambas.",
     "onChannel": " en {channel}",
     "scheduleFor": "Programar para el {date} a las {time}",
     "selectDate": "Selecciona una fecha"
@@ -354,5 +355,98 @@
       "videoTooLong": "Este vídeo supera el límite de {maxSeconds} segundos de esta cuenta.",
       "creatorInfoUnavailable": "No se pudieron cargar los datos de tu cuenta de TikTok, así que esta publicación no se puede publicar directamente."
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "No se pudo actualizar la cola",
+    "actions": {
+      "activate": "Activar",
+      "activateSuccess": "Cola activada",
+      "archive": "Archivar",
+      "archiveSuccess": "Cola archivada",
+      "pause": "Pausar",
+      "pauseSuccess": "Cola pausada",
+      "resume": "Reanudar",
+      "resumeSuccess": "Cola reanudada"
+    },
+    "addVariant": "Añadir variante",
+    "analytics": {
+      "conversions": "Conversiones",
+      "details": "Rendimiento",
+      "engagements": "Interacciones",
+      "loadFailed": "No se pudo cargar el rendimiento de la cola",
+      "loading": "Cargando el rendimiento de la cola...",
+      "measured": "Ejecuciones medidas",
+      "needsReview": "Necesita revisión",
+      "noOutcome": "Esperando un resultado de rendimiento maduro",
+      "noRuns": "Aún no se ha creado ninguna repetición.",
+      "recentRuns": "Ejecuciones recientes",
+      "trackedClicks": "Clics rastreados",
+      "unavailable": "No disponible",
+      "views": "Visualizaciones totales"
+    },
+    "approveFuture": "Aprobar ya las ejecuciones futuras",
+    "cancel": "Cancelar",
+    "changeSource": "Cambiar",
+    "choosePost": "Elige una publicación publicada",
+    "create": "Crear cola",
+    "createFailed": "No se pudo crear la cola",
+    "created": "Cola evergreen creada",
+    "defaultName": "Cola evergreen de {channel}",
+    "description": "Convierte publicaciones probadas en colas gobernadas y medibles. Markaestro conserva el original, crea una nueva repetición en cada ejecución y pausa automáticamente las secuencias flojas.",
+    "eligible": "Evidencia apta encontrada",
+    "empty": "Esta marca aún no tiene colas evergreen.",
+    "everyDays": "Cada {count} días",
+    "interval": "Días mínimos entre ejecuciones",
+    "loadFailed": "No se pudieron cargar las colas evergreen",
+    "loading": "Cargando colas evergreen...",
+    "newQueue": "Nueva cola",
+    "nextRun": "Próxima ejecución: {date}",
+    "notEligible": "Aún no apta",
+    "notScheduled": "Activa esta cola para programar su primera ejecución.",
+    "pausedReason": "Pausada: {reason}",
+    "picker": {
+      "engagements": "Interacciones",
+      "filters": {
+        "all": "Todas las publicadas",
+        "eligible": "Listas",
+        "suggested": "Sugeridas"
+      },
+      "mediaOnly": "Solo con medios",
+      "noMatches": "Ninguna publicación coincide.",
+      "noSuggested": "Aún no hay publicaciones destacadas. Necesitan siete días de resultados medidos antes de poder sugerirse.",
+      "notReady": "No lista",
+      "rate": "Tasa",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "Esta publicación no tiene canal",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Aún sin visualizaciones ni interacción medidas",
+        "SOURCE_METRICS_IMMATURE": "Publicada hace menos de siete días",
+        "SOURCE_NOT_PUBLISHED": "Aún no publicada",
+        "SOURCE_PUBLISH_DATE_MISSING": "Fecha de publicación desconocida"
+      },
+      "search": "Buscar publicaciones publicadas",
+      "suggested": "Sugerida",
+      "views": "Visualizaciones"
+    },
+    "previewFailed": "No se pudo comprobar esta publicación",
+    "queueName": "Nombre de la cola",
+    "removeVariant": "Quitar",
+    "reviewEach": "Revisar cada repetición",
+    "reviewPolicy": "Política de aprobación",
+    "runs": "{count, plural, one {# ejecución creada} other {# ejecuciones creadas}}",
+    "saving": "Creando...",
+    "selectBrand": "Selecciona una marca para gestionar sus colas evergreen.",
+    "selectedSource": "Publicación seleccionada",
+    "sourceHint": "Elige la publicación que repetirá esta cola. Las sugeridas son las que más lograron con su audiencia y tienen al menos una semana.",
+    "sourcePost": "Publicación de origen probada",
+    "statuses": {
+      "active": "Activa",
+      "archived": "Archivada",
+      "draft": "Borrador",
+      "paused": "Pausada"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "Variante del pie",
+    "variantNumber": "Variante del pie {number}",
+    "variants": "Variantes del pie"
   }
 }

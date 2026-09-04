@@ -12,17 +12,18 @@
       "brands": "Brands",
       "posts": "Posts",
       "calendar": "Calendar",
-      "connectChannels": "Connecting channels",
-      "settings": "Settings"
+      "connectChannels": "Connecting Channels",
+      "settings": "Settings",
+      "evergreen": "Evergreen"
     },
-    "signOut": "Sign out",
+    "signOut": "Sign Out",
     "workspaceSwitcher": {
-      "yourWorkspaces": "Your workspaces",
-      "manageWorkspaces": "Manage workspaces"
+      "yourWorkspaces": "Your Workspaces",
+      "manageWorkspaces": "Manage Workspaces"
     },
-    "toggleMenu": "Toggle navigation menu",
-    "navigationMenu": "Navigation menu",
-    "navigationMenuDescription": "Main navigation links"
+    "toggleMenu": "Toggle Navigation Menu",
+    "navigationMenu": "Navigation Menu",
+    "navigationMenuDescription": "Main Navigation Links"
   },
   "mobileTabBar": {
     "home": "Home",
@@ -41,22 +42,22 @@
     "markReadFailed": "Could not mark that as read. Please try again."
   },
   "commandPalette": {
-    "title": "Command palette",
+    "title": "Command Palette",
     "description": "Search for pages and quick actions",
     "searchPlaceholder": "Search pages and actions...",
     "noResults": "No results found.",
     "groupNavigation": "Navigation",
-    "groupQuickActions": "Quick actions",
+    "groupQuickActions": "Quick Actions",
     "channels": "Channels",
     "actions": {
-      "createPost": "Create post",
-      "addBrand": "Add brand",
-      "connectChannel": "Connect channel",
+      "createPost": "Create Post",
+      "addBrand": "Add Brand",
+      "connectChannel": "Connect Channel",
       "billing": "Billing"
     }
   },
   "trialBanner": {
-    "endsToday": "Your trial ends today",
+    "endsToday": "Your Trial Ends Today",
     "daysLeft": "{days, plural, one {# day left in your trial} other {# days left in your trial}}",
     "planSuffix": " · {tier} plan",
     "manageBilling": "Manage Billing",
@@ -67,8 +68,8 @@
   "verifyEmailBanner": {
     "prompt": "Verify your email to publish",
     "promptWithCode": ". Enter the code we sent to <emailTag>{email}</emailTag>",
-    "sendCode": "Send code",
-    "resendCode": "Resend code",
+    "sendCode": "Send Code",
+    "resendCode": "Resend Code",
     "resendCountdown": "Resend ({seconds}s)",
     "sending": "Sending…",
     "verify": "Verify",
@@ -85,8 +86,8 @@
   "logout": {
     "title": "Sign out of Markaestro?",
     "description": "You'll need a new email code to sign back in, and any unsaved work in the composer will be lost.",
-    "cancel": "Stay signed in",
-    "confirm": "Sign out",
+    "cancel": "Stay Signed In",
+    "confirm": "Sign Out",
     "confirming": "Signing out…"
   },
   "invitesBanner": {

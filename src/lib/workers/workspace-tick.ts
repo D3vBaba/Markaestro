@@ -43,6 +43,9 @@ import {
 } from '@/lib/observability/slo-inputs';
 import { processDueEvergreenQueues } from '@/lib/evergreen/worker';
 import { processEvergreenEvaluations } from '@/lib/evergreen/evaluation';
+import { suggestEvergreenCandidates } from '@/lib/evergreen/suggestions';
+import { runIntelligenceAlerts } from '@/lib/intelligence/alerts';
+import { sendIntelligenceWeeklyDigest } from '@/lib/intelligence/digest';
 
 export type WorkspaceTickResult = {
   workspaceId: string;
@@ -62,6 +65,7 @@ export type WorkspaceTickResult = {
   jobsProcessed: number;
   intelligenceJobs?: { processed: number; failed: number };
   experiments?: { scanned: number; closed: number };
+  intelligenceAlerts?: { alerts: number; digestsSent: number };
   mediaSweep?: { scanned: number; deleted: number; bytesReleased: number; skipped: number };
   channelHealth?: ChannelHealthNoticeResult;
   jobResults: Array<{ jobId: string } & Record<string, unknown>>;
@@ -70,6 +74,7 @@ export type WorkspaceTickResult = {
     generated: number;
     paused: number;
     evaluated: number;
+    suggested?: number;
   };
   errors: Array<{ kind: string; postId?: string; error: string }>;
 };
@@ -280,6 +285,14 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
   }
 
   try {
+    const suggestions = await suggestEvergreenCandidates(workspaceId);
+    if (evergreen) evergreen.suggested = suggestions.suggested;
+    else if (suggestions.suggested > 0) evergreen = { generated: 0, paused: 0, evaluated: 0, suggested: suggestions.suggested };
+  } catch (err) {
+    errors.push({ kind: 'evergreen-suggestions', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
     const jobsDocs = await getAllMatchingDocs(
       adminDb
         .collection(`workspaces/${workspaceId}/jobs`)
@@ -328,6 +341,19 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     channelHealth = await notifyUnreadyChannelsForUpcomingPosts(workspaceId, new Date(nowIso));
   } catch (err) {
     errors.push({ kind: 'channel-health', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  // Daily anomaly alerts and the weekly digest. Both gate themselves on a
+  // state doc, so most ticks return immediately.
+  let intelligenceAlerts: WorkspaceTickResult['intelligenceAlerts'];
+  try {
+    const [alerts, digest] = await Promise.all([
+      runIntelligenceAlerts(workspaceId, new Date(nowIso)),
+      sendIntelligenceWeeklyDigest(workspaceId, new Date(nowIso)),
+    ]);
+    if (!alerts.skipped || !digest.skipped) intelligenceAlerts = { alerts: alerts.alerts, digestsSent: digest.sent };
+  } catch (err) {
+    errors.push({ kind: 'intelligence-alerts', error: err instanceof Error ? err.message : 'unknown' });
   }
 
   // Domain SLO counters. These are the alerts that fire when the product is
@@ -389,6 +415,7 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     mediaSweep,
     channelHealth,
     evergreen,
+    intelligenceAlerts,
     errors,
   };
 }

@@ -49,13 +49,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (loading || onboardingLoading) {
     return (
-      <div className="min-h-dvh grid place-items-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 rounded-xl bg-primary animate-pulse" />
-          <div className="space-y-2">
-            <div className="h-3 w-32 rounded-full bg-muted animate-pulse" />
-            <div className="h-3 w-24 rounded-full bg-muted animate-pulse mx-auto" />
-          </div>
+      <div className="grid min-h-dvh place-items-center bg-background">
+        <div className="flex flex-col items-center gap-3" role="status" aria-live="polite">
+          <div className="size-8 animate-pulse rounded-lg bg-muted" />
+          <div className="h-2.5 w-24 animate-pulse rounded-full bg-muted" />
         </div>
       </div>
     );
@@ -69,18 +66,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // only action until they accept or decline.
   if (!currentWorkspace && pendingInvites > 0) {
     return (
-      <div className="min-h-dvh flex flex-col" style={{ background: "var(--mk-surface)" }}>
+      <div className="flex min-h-dvh flex-col bg-background">
         <InvitesBanner />
       </div>
     );
   }
 
   return (
-    <div className="grid h-dvh w-full max-w-full overflow-hidden lg:grid-cols-[240px_1fr]">
+    <div className="grid h-dvh w-full max-w-full overflow-hidden lg:grid-cols-[64px_1fr] xl:grid-cols-[240px_1fr]">
       <Sidebar />
-      <div
-        className="flex flex-col h-dvh min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950"
-      >
+      <div className="flex h-dvh min-w-0 flex-col overflow-hidden bg-background">
         <OfflineBanner />
         <TrialBanner />
         <VerifyEmailBanner />
@@ -90,12 +85,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             one warns about it. */}
         <ChannelHealthBanner />
         <Header />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 px-4 py-5 pb-8 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
-          {children}
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="mx-auto w-full max-w-[1320px] px-4 py-6 pb-16 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
+            {children}
+          </div>
         </main>
         <MobileTabBar />
       </div>
     </div>
   );
 }
-

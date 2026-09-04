@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { adminDb } from '@/lib/firebase-admin';
+import { attachPostThumbnails } from '@/lib/media/post-thumbnails';
 import type { SocialChannel } from '@/lib/schemas';
 import type { NormalizedPostMetrics, PlatformConnection, PlatformPostSummary } from '@/lib/platform/types';
 
@@ -38,6 +39,8 @@ export async function upsertMarkaestroSocialPost(input: {
   publishedAt: string;
   content?: string;
   mediaUrls?: string[];
+  /** Lets a video post carry its derived poster frame into the canonical row. */
+  mediaAssetIds?: string[];
   connection: PlatformConnection;
   metrics: NormalizedPostMetrics;
   capturedAt: string;
@@ -51,7 +54,10 @@ export async function upsertMarkaestroSocialPost(input: {
     .digest('base64url')
     .slice(0, 32);
   const now = input.capturedAt;
-  const existing = await ref.get();
+  const [existing, [withThumbnail]] = await Promise.all([
+    ref.get(),
+    attachPostThumbnails(input.workspaceId, [{ id: input.legacyPostId, mediaUrls: input.mediaUrls ?? [], mediaAssetIds: input.mediaAssetIds ?? [] }]),
+  ]);
   const batch = adminDb.batch();
   batch.set(ref, {
     id,
@@ -67,6 +73,7 @@ export async function upsertMarkaestroSocialPost(input: {
     externalId: input.externalId,
     content: input.content ?? null,
     mediaUrls: input.mediaUrls ?? [],
+    ...(withThumbnail?.thumbnailUrl ? { thumbnailUrl: withThumbnail.thumbnailUrl } : {}),
     publishedAt: input.publishedAt,
     latestMetrics: input.metrics,
     metricsUpdatedAt: now,

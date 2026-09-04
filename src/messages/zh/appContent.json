@@ -7,7 +7,8 @@
       "drafts": "草稿",
       "scheduled": "已排期",
       "published": "已发布",
-      "onPlatform": "平台内容"
+      "onPlatform": "平台内容",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "品牌",
@@ -354,5 +355,98 @@
       "videoTooLong": "此视频超过了该账号 {maxSeconds} 秒的限制。",
       "creatorInfoUnavailable": "无法加载你的 TikTok 账号信息，因此无法直接发布此帖子。"
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "无法更新队列",
+    "actions": {
+      "activate": "启用",
+      "activateSuccess": "队列已启用",
+      "archive": "归档",
+      "archiveSuccess": "队列已归档",
+      "pause": "暂停",
+      "pauseSuccess": "队列已暂停",
+      "resume": "恢复",
+      "resumeSuccess": "队列已恢复"
+    },
+    "addVariant": "添加变体",
+    "analytics": {
+      "conversions": "转化",
+      "details": "表现",
+      "engagements": "互动",
+      "loadFailed": "无法加载队列表现",
+      "loading": "正在加载队列表现...",
+      "measured": "已测量的运行",
+      "needsReview": "需要审核",
+      "noOutcome": "等待成熟的表现结果",
+      "noRuns": "尚未创建任何轮次。",
+      "recentRuns": "最近运行",
+      "trackedClicks": "追踪点击",
+      "unavailable": "不可用",
+      "views": "累计观看量"
+    },
+    "approveFuture": "立即批准未来运行",
+    "cancel": "取消",
+    "changeSource": "更改",
+    "choosePost": "选择一条已发布的帖子",
+    "create": "创建队列",
+    "createFailed": "无法创建队列",
+    "created": "Evergreen 队列已创建",
+    "defaultName": "{channel} Evergreen 队列",
+    "description": "把经过验证的帖子变成受管控、可衡量的队列。Markaestro 保留源帖子，每次运行创建新的轮次，并自动暂停表现不佳的序列。",
+    "eligible": "找到符合条件的依据",
+    "empty": "该品牌尚无 Evergreen 队列。",
+    "everyDays": "每 {count} 天",
+    "interval": "运行之间的最少天数",
+    "loadFailed": "无法加载 Evergreen 队列",
+    "loading": "正在加载 Evergreen 队列...",
+    "newQueue": "新建队列",
+    "nextRun": "下次运行：{date}",
+    "notEligible": "尚不符合条件",
+    "notScheduled": "启用此队列以安排首次运行。",
+    "pausedReason": "已暂停：{reason}",
+    "picker": {
+      "engagements": "互动",
+      "filters": {
+        "all": "全部已发布",
+        "eligible": "就绪",
+        "suggested": "推荐"
+      },
+      "mediaOnly": "仅含媒体",
+      "noMatches": "没有匹配的已发布帖子。",
+      "noSuggested": "暂无突出的帖子。帖子需要七天的实测结果才能被推荐。",
+      "notReady": "未就绪",
+      "rate": "比率",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "该帖子没有渠道",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "尚无实测观看量或互动",
+        "SOURCE_METRICS_IMMATURE": "发布不满七天",
+        "SOURCE_NOT_PUBLISHED": "尚未发布",
+        "SOURCE_PUBLISH_DATE_MISSING": "发布日期未知"
+      },
+      "search": "搜索已发布帖子",
+      "suggested": "推荐",
+      "views": "观看量"
+    },
+    "previewFailed": "无法检查此帖子",
+    "queueName": "队列名称",
+    "removeVariant": "移除",
+    "reviewEach": "逐次审核",
+    "reviewPolicy": "审批策略",
+    "runs": "{count, plural, other {已创建 # 次运行}}",
+    "saving": "正在创建...",
+    "selectBrand": "选择一个品牌以管理其 Evergreen 队列。",
+    "selectedSource": "已选帖子",
+    "sourceHint": "选择此队列要重复的帖子。推荐帖子在受众中表现最好，且发布至少一周。",
+    "sourcePost": "经验证的源帖子",
+    "statuses": {
+      "active": "启用中",
+      "archived": "已归档",
+      "draft": "草稿",
+      "paused": "已暂停"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "文案变体",
+    "variantNumber": "文案变体 {number}",
+    "variants": "文案变体"
   }
 }

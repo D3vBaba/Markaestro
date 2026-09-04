@@ -30,43 +30,41 @@
       ]
     },
     "starter": {
-      "description": "Para profissionais de marketing individuais que publicam no Meta e no TikTok.",
+      "description": "Para marketers a solo que agendam em todas as plataformas.",
       "features": [
-        "5 canais sociais",
-        "Posts ilimitados",
-        "10 GB de armazenamento",
-        "1 membro da equipe",
+        "2 marcas em todas as 7 plataformas",
+        "Até 8 canais por marca",
+        "Publicações agendadas ilimitadas",
         "Calendário de conteúdo",
-        "1 workspace",
-        "Voz da marca (1 perfil)",
-        "Análises (janela de 7 dias)"
+        "Voz de marca por marca",
+        "10 GB de armazenamento",
+        "API de publicação completa",
+        "Analytics (janela de 30 dias)"
       ]
     },
     "pro": {
-      "description": "Para equipes em crescimento que precisam de colaboração e agendamento.",
+      "description": "Para equipas em crescimento que gerem várias marcas.",
       "features": [
-        "15 canais sociais",
-        "Posts ilimitados",
-        "100 GB de armazenamento",
-        "5 membros da equipe",
+        "6 marcas",
+        "5 membros de equipa com funções",
         "5 workspaces",
-        "Voz da marca + identidade da marca",
-        "Agendamento inteligente",
-        "Análises (janela de 90 dias)",
-        "Suporte prioritário"
+        "Recomendações da melhor hora para publicar",
+        "Voz de marca + identidade de marca (logótipo e cores)",
+        "100 GB de armazenamento",
+        "Analytics (janela de 1 ano)",
+        "Suporte prioritário",
+        "10 filas Intelligent Evergreen por marca"
       ]
     },
     "business": {
-      "description": "Para agências que gerenciam múltiplas marcas em escala.",
+      "description": "Para agências que gerem muitas marcas em escala.",
       "features": [
-        "50 canais sociais",
-        "Posts ilimitados",
+        "20 marcas",
+        "Membros de equipa e workspaces ilimitados",
         "Armazenamento ilimitado",
-        "Membros de equipe ilimitados",
-        "Tudo do plano Pro",
-        "Workspaces ilimitados",
-        "Histórico de análises ilimitado + exportação CSV",
-        "Suporte prioritário"
+        "Histórico de analytics ilimitado + exportação CSV",
+        "Suporte prioritário",
+        "Filas Intelligent Evergreen ilimitadas"
       ]
     }
   },
@@ -92,19 +90,22 @@
         "name": "Publicação",
         "features": [
           {
-            "name": "Canais sociais"
+            "name": "Marcas"
           },
           {
-            "name": "Posts por mês"
+            "name": "Canais por marca"
+          },
+          {
+            "name": "Plataformas (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)"
+          },
+          {
+            "name": "Publicações agendadas"
           },
           {
             "name": "Calendário de conteúdo"
           },
           {
-            "name": "Agendamento em massa"
-          },
-          {
-            "name": "Agendamento inteligente"
+            "name": "Recomendações da melhor hora para publicar"
           }
         ]
       },
@@ -196,7 +197,7 @@
     },
     {
       "q": "O que conta como um 'canal social'?",
-      "a": "Cada conta social conectada conta como um canal. Por exemplo, uma Página do Facebook, uma conta comercial do Instagram e uma conta do TikTok seriam 3 canais."
+      "a": "Cada conta social ligada conta como um canal. Por exemplo, uma página do Facebook, uma conta do Instagram e uma conta do TikTok seriam 3 canais. Os planos pagos permitem até 8 canais por marca."
     },
     {
       "q": "Como funciona o armazenamento?",
@@ -216,7 +217,7 @@
     },
     {
       "q": "Meu agente de IA ou meu próprio software pode usar o Markaestro?",
-      "a": "Sim, em qualquer plano sem custo extra. Qualquer administrador do workspace pode gerar chaves de API em Configurações → API e entregar uma a um agente de IA, um script ou uma ferramenta de agendamento pronta. Cada chave é vinculada a uma única marca, carrega apenas os escopos que você marcar e pode ter uma expiração definida. Veja o guia do agente de IA para as definições de ferramentas e um guia rápido funcional de quatro comandos."
+      "a": "Sim, em todos os planos pagos sem custo adicional. Qualquer administrador do workspace pode gerar chaves de API em Definições → API e entregar uma a um agente de IA, a um script ou a uma ferramenta de agendamento existente. Cada chave está ligada a uma única marca, só transporta os âmbitos que selecionar e pode ter uma expiração. Clientes MCP como o Claude Code podem, em vez disso, iniciar sessão pelo navegador. Consulte o guia para agentes de IA para as definições de ferramentas e um arranque rápido de quatro comandos."
     },
     {
       "q": "Vocês oferecem descontos para organizações sem fins lucrativos ou startups?",

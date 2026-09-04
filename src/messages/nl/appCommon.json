@@ -60,7 +60,7 @@
     "loading": "Bezig met laden..."
   },
   "metricCard": {
-    "vsLastPeriod": "t.o.v. vorige periode"
+    "vsLastPeriod": "T.o.v. vorige periode"
   },
   "pagination": {
     "firstPage": "Eerste pagina",
@@ -138,7 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -147,7 +148,8 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "{provider} verbinden",
@@ -206,6 +208,10 @@
       },
       "linkedin_community": {
         "0": "Een LinkedIn-account met de rol Beheerder op de bedrijfspagina waarop je wilt publiceren."
+      },
+      "x": {
+        "0": "Een X-account waarop je kunt inloggen.",
+        "1": "Je X-ontwikkelaarstoegang moet publiceren en media-uploads toestaan. Gebruik valt onder de prijzen en limieten van de X-API."
       }
     },
     "features": {
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "Pagina's weergeven die je beheert",
         "description": "Toont de bedrijfspagina's die je beheert, zodat je kunt kiezen op welke dit merk post."
+      },
+      "media_write": {
+        "description": "Uploadt afbeeldingen, GIF's en video's die bij posts horen die je via Markaestro publiceert.",
+        "title": "Media uploaden"
+      },
+      "offline_access": {
+        "description": "Vernieuwt de toegang zodat ingeplande posts ook worden gepubliceerd als je er niet bent.",
+        "title": "Verbonden blijven"
+      },
+      "tweet_read": {
+        "description": "Leest je posts en hun openbare betrokkenheid voor de postgeschiedenis en prestatiemeting.",
+        "title": "Posts lezen"
+      },
+      "tweet_write": {
+        "description": "Maakt en verwijdert de posts die je via Markaestro publiceert.",
+        "title": "Posts publiceren"
+      },
+      "users_read": {
+        "description": "Leest het ID, de gebruikersnaam, de naam en de profielfoto van je X-account zodat Markaestro het gekoppelde account kan tonen.",
+        "title": "Accountidentiteit lezen"
       }
     },
     "outcome": {

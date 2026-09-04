@@ -46,24 +46,24 @@
     "kpis": {
       "views": {
         "label": "Vistas",
-        "sub": "vs. período anterior"
+        "sub": "Vs. período anterior"
       },
       "reach": {
         "label": "Alcance",
-        "sub": "cuentas únicas alcanzadas"
+        "sub": "Cuentas únicas alcanzadas"
       },
       "engagement": {
         "label": "Interacción",
-        "sub": "me gusta + comentarios + veces compartido + guardados"
+        "sub": "Me gusta + comentarios + veces compartido + guardados"
       },
       "engagementRate": {
         "label": "Tasa de interacción",
-        "sub": "interacción ÷ alcance",
-        "subViews": "interacciones ÷ visualizaciones (sin alcance reportado)"
+        "sub": "Interacción ÷ alcance",
+        "subViews": "Interacciones ÷ visualizaciones (sin alcance reportado)"
       },
       "followers": {
         "label": "Seguidores",
-        "sub": "todos los canales conectados"
+        "sub": "Todos los canales conectados"
       }
     },
     "insights": {
@@ -86,7 +86,7 @@
         "publish": "Lo que han ganado hasta ahora las publicaciones de cada día",
         "activity": "Lo que pasó cada día en todas las publicaciones"
       },
-      "compare": "vs periodo anterior",
+      "compare": "Vs periodo anterior",
       "previous": "Periodo anterior",
       "noteActivity": "Agrupado por el día en que las plataformas reportaron las cifras.",
       "activityEmpty": "La actividad se acumula a partir de la próxima obtención de métricas. La agrupación por publicación tiene el historial."
@@ -150,7 +150,7 @@
     "notEnoughVariety": "Aún no hay suficiente variedad",
     "publishAtLeastTwo": "Publica al menos dos formatos de contenido (imágenes, videos, carruseles, texto) para compararlos.",
     "postsCount": "{count, plural, one {# publicación} other {# publicaciones}}",
-    "avgEng": "interacción prom."
+    "avgEng": "Interacción prom."
   },
   "trendChart": {
     "noData": "Aún no hay datos para este período.",

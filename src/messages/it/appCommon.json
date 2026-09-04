@@ -60,7 +60,7 @@
     "loading": "Caricamento in corso..."
   },
   "metricCard": {
-    "vsLastPeriod": "vs periodo precedente"
+    "vsLastPeriod": "Vs periodo precedente"
   },
   "pagination": {
     "firstPage": "Prima pagina",
@@ -138,7 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -147,7 +148,8 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "Connetti {provider}",
@@ -206,6 +208,10 @@
       },
       "linkedin_community": {
         "0": "Un account LinkedIn con un ruolo di Amministratore sulla pagina aziendale su cui vuoi pubblicare."
+      },
+      "x": {
+        "0": "Un account X a cui puoi accedere.",
+        "1": "Il tuo accesso sviluppatore X deve consentire la pubblicazione di post e il caricamento di media. L'uso è soggetto a prezzi e limiti dell'API di X."
       }
     },
     "features": {
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "Elenca le pagine che amministri",
         "description": "Elenca le pagine aziendali che amministri in modo da poter scegliere su quale pubblica questo brand."
+      },
+      "media_write": {
+        "description": "Carica immagini, GIF e video allegati ai post che pubblichi tramite Markaestro.",
+        "title": "Carica media"
+      },
+      "offline_access": {
+        "description": "Rinnova l'accesso così i post programmati vengono pubblicati anche quando non ci sei.",
+        "title": "Resta connesso"
+      },
+      "tweet_read": {
+        "description": "Legge i tuoi post e le loro interazioni pubbliche per la cronologia e la misurazione delle prestazioni.",
+        "title": "Leggi i post"
+      },
+      "tweet_write": {
+        "description": "Crea ed elimina i post che pubblichi tramite Markaestro.",
+        "title": "Pubblica post"
+      },
+      "users_read": {
+        "description": "Legge ID, nome utente, nome e immagine del profilo del tuo account X così Markaestro può mostrare l'account collegato.",
+        "title": "Leggi l'identità dell'account"
       }
     },
     "outcome": {

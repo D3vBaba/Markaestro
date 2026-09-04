@@ -1,8 +1,8 @@
 {
   "hero": {
     "eyebrow": "Pricing",
-    "titleLead": "Your entire marketing engine,",
-    "titleHighlight": "one plan per workspace",
+    "titleLead": "Your Entire Marketing Engine,",
+    "titleHighlight": "One Plan per Workspace",
     "subtitle": "No hidden fees, no per-user surprises. Start free. Every paid plan includes a {trialDays}-day free trial. Cancel anytime.",
     "monthlyToggle": "Monthly",
     "annualToggle": "Annual",
@@ -30,43 +30,41 @@
       ]
     },
     "starter": {
-      "description": "For solo marketers publishing across Meta and TikTok.",
+      "description": "For solo marketers scheduling across every platform.",
       "features": [
-        "5 social channels",
-        "Unlimited posts",
-        "10 GB storage",
-        "1 team member",
+        "2 brands across all 7 platforms",
+        "Up to 8 channels per brand",
+        "Unlimited scheduled posts",
         "Content calendar",
-        "1 workspace",
-        "Brand voice (1 profile)",
-        "Analytics (7-day window)"
+        "Brand voice per brand",
+        "10 GB storage",
+        "Full publishing API",
+        "Analytics (30-day window)"
       ]
     },
     "pro": {
-      "description": "For growing teams that need collaboration and scheduling.",
+      "description": "For growing teams managing several brands.",
       "features": [
-        "15 social channels",
-        "Unlimited posts",
-        "100 GB storage",
-        "5 team members",
+        "6 brands",
+        "5 team members with roles",
         "5 workspaces",
-        "Brand voice + brand identity",
-        "Smart scheduling",
-        "Analytics (90-day window)",
-        "Priority support"
+        "Best-time posting recommendations",
+        "Brand voice + brand identity (logo & colors)",
+        "100 GB storage",
+        "Analytics (1-year window)",
+        "Priority support",
+        "10 Intelligent Evergreen queues per brand"
       ]
     },
     "business": {
-      "description": "For agencies managing multiple brands at scale.",
+      "description": "For agencies managing many brands at scale.",
       "features": [
-        "50 social channels",
-        "Unlimited posts",
+        "20 brands",
+        "Unlimited team members & workspaces",
         "Unlimited storage",
-        "Unlimited team members",
-        "Everything in Pro",
-        "Unlimited workspaces",
         "Unlimited analytics history + CSV export",
-        "Priority support"
+        "Priority support",
+        "Unlimited Intelligent Evergreen queues"
       ]
     }
   },
@@ -75,68 +73,113 @@
     "billedAnnually": "· Billed annually (${annualTotal}/yr)",
     "justPerDay": "That's just ${dailyCost}/day",
     "billedMonthly": "Billed monthly · Switch to annual and save 17%",
-    "startTrialButton": "Start {trialDays}-Day Free Trial",
+    "startTrialButton": "Start {trialDays}-day Free Trial",
     "noChargeLine": "No charge for {trialDays} days · Cancel anytime",
-    "everythingIncluded": "Everything included",
-    "freeForever": "Free forever",
-    "startFreeButton": "Start free",
+    "everythingIncluded": "Everything Included",
+    "freeForever": "Free Forever",
+    "startFreeButton": "Start Free",
     "noCardLine": "No card required · Upgrade anytime"
   },
   "comparison": {
     "titleLead": "Compare",
-    "titleHighlight": "every feature",
+    "titleHighlight": "Every Feature",
     "subtitle": "See exactly what's included in each plan.",
     "freeNote": "The Free plan includes 1 brand, 2 channels, 15 posts/month, 1 GB storage, and 7-day analytics, no API access.",
     "categories": [
       {
         "name": "Publishing",
         "features": [
-          { "name": "Social channels" },
-          { "name": "Posts per month" },
-          { "name": "Content calendar" },
-          { "name": "Bulk scheduling" },
-          { "name": "Smart scheduling" }
+          {
+            "name": "Brands"
+          },
+          {
+            "name": "Channels per brand"
+          },
+          {
+            "name": "Platforms (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)"
+          },
+          {
+            "name": "Scheduled posts"
+          },
+          {
+            "name": "Content calendar"
+          },
+          {
+            "name": "Best-time posting recommendations"
+          }
         ]
       },
       {
         "name": "Media Library",
         "features": [
-          { "name": "Storage" },
-          { "name": "Brand voice profiles" },
-          { "name": "Brand identity (logo & colors)" }
+          {
+            "name": "Storage"
+          },
+          {
+            "name": "Brand voice profiles"
+          },
+          {
+            "name": "Brand identity (logo & colors)"
+          }
         ]
       },
       {
         "name": "Analytics",
         "features": [
-          { "name": "Post & follower analytics" },
-          { "name": "History window" },
-          { "name": "CSV export" }
+          {
+            "name": "Post & follower analytics"
+          },
+          {
+            "name": "History window"
+          },
+          {
+            "name": "CSV export"
+          }
         ]
       },
       {
         "name": "Team & Workspace",
         "features": [
-          { "name": "Team members" },
-          { "name": "Workspaces" },
-          { "name": "Role-based access control" }
+          {
+            "name": "Team members"
+          },
+          {
+            "name": "Workspaces"
+          },
+          {
+            "name": "Role-based access control"
+          }
         ]
       },
       {
         "name": "Developers & AI Agents",
         "features": [
-          { "name": "Workspace API keys" },
-          { "name": "Publishing API (Connect + full v1)" },
-          { "name": "Signed webhooks" },
-          { "name": "Per-brand key scoping & expiry" },
-          { "name": "API rate limit" }
+          {
+            "name": "Workspace API keys"
+          },
+          {
+            "name": "Publishing API (Connect + Full v1)"
+          },
+          {
+            "name": "Signed webhooks"
+          },
+          {
+            "name": "Per-brand key scoping & expiry"
+          },
+          {
+            "name": "API rate limit"
+          }
         ]
       },
       {
         "name": "Support",
         "features": [
-          { "name": "Email support" },
-          { "name": "Priority support" }
+          {
+            "name": "Email support"
+          },
+          {
+            "name": "Priority support"
+          }
         ]
       }
     ]
@@ -154,7 +197,7 @@
     },
     {
       "q": "What counts as a 'social channel'?",
-      "a": "Each connected social account counts as one channel. For example, one Facebook Page, one Instagram Business account, and one TikTok account would be 3 channels."
+      "a": "Each connected social account counts as one channel. For example, one Facebook Page, one Instagram account, and one TikTok account would be 3 channels. Paid plans allow up to 8 channels per brand."
     },
     {
       "q": "How does storage work?",
@@ -174,7 +217,7 @@
     },
     {
       "q": "Can my AI agent or my own software use Markaestro?",
-      "a": "Yes, on every plan at no extra cost. Any workspace admin can mint API keys from Settings → API and hand one to an AI agent, a script, or an off-the-shelf scheduling tool. Each key is bound to a single brand, carries only the scopes you tick, and can be given an expiry. See the AI agent guide for the tool definitions and a working four-command quickstart."
+      "a": "Yes, on every paid plan at no extra cost. Any workspace admin can mint API keys from Settings → API and hand one to an AI agent, a script, or an off-the-shelf scheduling tool. Each key is bound to a single brand, carries only the scopes you tick, and can be given an expiry. MCP clients such as Claude Code can sign in through the browser instead. See the AI agent guide for the tool definitions and a working four-command quickstart."
     },
     {
       "q": "Do you offer discounts for nonprofits or startups?",
@@ -186,7 +229,7 @@
     }
   ],
   "cta": {
-    "title": "Try Markaestro free for {trialDays} days",
+    "title": "Try Markaestro Free for {trialDays} Days",
     "subtitle": "Full access on any annual plan. No charge until day {trialEndDay}. Cancel anytime.",
     "primaryButton": "Start Free Trial",
     "secondaryButton": "Talk to Sales"

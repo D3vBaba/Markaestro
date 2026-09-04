@@ -19,7 +19,7 @@ export default function GlobalError({
       <body style={{ margin: 0, fontFamily: "system-ui, sans-serif", background: "#faf9f7", color: "#1f2937" }}>
         <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
           <div style={{ maxWidth: 440, textAlign: "center" }}>
-            <h1 style={{ margin: 0, fontSize: 28 }}>Something went wrong</h1>
+            <h1 style={{ margin: 0, fontSize: 28 }}>Something Went Wrong</h1>
             <p style={{ margin: "12px 0 0", color: "#6b7280" }}>
               We couldn&apos;t load Markaestro. Please try again.
             </p>

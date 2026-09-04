@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { DocumentReference, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase-admin';
 import { evaluateExperiment } from '@/lib/intelligence/statistics';
+import { shouldStopEarly } from '@/lib/intelligence/pulse';
 import { measuredNumber, engagementTotal } from '@/lib/intelligence/overview-metrics';
 import type { SocialChannel } from '@/lib/schemas';
 import { logger } from '@/lib/logger';
@@ -141,10 +142,26 @@ export async function closeExperimentIfDue(
     armB: values.armB,
     targetSamplePerArm: Math.max(1, Number(experiment.targetSamplePerArm) || 1),
   });
-  await ref.set({
+  await finalizeExperiment(workspaceId, experiment, values, result, now, 'ended');
+  return { closed: true, status: result.status };
+}
+
+type ArmValues = NonNullable<Awaited<ReturnType<typeof resolveExperimentArmValues>>>;
+
+async function finalizeExperiment(
+  workspaceId: string,
+  experiment: ExperimentDoc,
+  values: ArmValues,
+  result: ReturnType<typeof evaluateExperiment>,
+  now: Date,
+  reason: 'ended' | 'early_stop',
+) {
+  const nowIso = now.toISOString();
+  await adminDb.doc(`workspaces/${workspaceId}/experiments/${experiment.id}`).set({
     status: 'complete',
     result: {
       ...result,
+      reason,
       armACount: values.armA.length,
       armBCount: values.armB.length,
       armAValue: values.armA[0] ?? null,
@@ -152,8 +169,33 @@ export async function closeExperimentIfDue(
     },
     evaluatedAt: nowIso,
     updatedAt: nowIso,
+    ...(reason === 'early_stop' ? { endsAt: nowIso, stoppedEarlyAt: nowIso } : {}),
   }, { merge: true });
   await notifyExperimentComplete(workspaceId, experiment, result.status);
+}
+
+/**
+ * A running test whose arms already disagree beyond doubt does not need to
+ * wait for its end date. Closes it and tells the owner why.
+ */
+export async function closeExperimentEarlyIfDecisive(
+  workspaceId: string,
+  experimentId: string,
+  now = new Date(),
+): Promise<{ closed: boolean; status?: string }> {
+  const ref = adminDb.doc(`workspaces/${workspaceId}/experiments/${experimentId}`);
+  const snap = await ref.get();
+  if (!snap.exists) return { closed: false };
+  const experiment = { ...(snap.data() as ExperimentDoc), id: snap.id };
+  if (experiment.status !== 'running') return { closed: false };
+  const values = await resolveExperimentArmValues(workspaceId, experiment);
+  if (!values) return { closed: false };
+  const target = Math.max(1, Number(experiment.targetSamplePerArm) || 1);
+  const early = shouldStopEarly({ armA: values.armA, armB: values.armB, targetSamplePerArm: target });
+  if (!early.stop) return { closed: false };
+  const result = evaluateExperiment({ armA: values.armA, armB: values.armB, targetSamplePerArm: Math.max(2, Math.ceil(target / 2)) });
+  if (result.status === 'inconclusive') return { closed: false };
+  await finalizeExperiment(workspaceId, experiment, values, result, now, 'early_stop');
   return { closed: true, status: result.status };
 }
 
@@ -224,6 +266,18 @@ export async function processDueExperiments(workspaceId: string, now = new Date(
   let closed = 0;
   for (const doc of docs) {
     const outcome = await closeExperimentIfDue(workspaceId, doc.id, now);
+    if (outcome.closed) closed += 1;
+  }
+
+  // Running tests that are not due yet may already be decisive.
+  const dueIds = new Set(docs.map((doc) => doc.id));
+  const running = await adminDb.collection(`workspaces/${workspaceId}/experiments`)
+    .where('status', '==', 'running')
+    .limit(25)
+    .get();
+  for (const doc of running.docs) {
+    if (dueIds.has(doc.id)) continue;
+    const outcome = await closeExperimentEarlyIfDecisive(workspaceId, doc.id, now);
     if (outcome.closed) closed += 1;
   }
 

@@ -86,8 +86,8 @@
       "title": "3. Programmez-le, puis observez-le",
       "description": "La création est en mode brouillon par défaut. Envoyez <code>is_draft: false</code> avec un horodatage <code>scheduled_at</code> pour le placer sur le calendrier à la place."
     },
-    "bashLabel": "bash",
-    "responseLabel": "réponse"
+    "bashLabel": "Bash",
+    "responseLabel": "Réponse"
   },
   "toolDefs": {
     "eyebrow": "Prêt à l'emploi",
@@ -98,13 +98,13 @@
     "schemasLabel": "tools.json",
     "briefTitle": "Résumé pour l'agent",
     "briefDescription": "Collez-le dans votre system prompt. Il encode les comportements qui distinguent un agent de publication fiable d'un agent qui publie en double et déclare la victoire trop tôt.",
-    "briefLabel": "system prompt",
+    "briefLabel": "System prompt",
     "briefFooter": "Votre agent peut aussi récupérer ceci lui-même : <code>curl https://markaestro.com/llms.txt</code> renvoie un résumé en texte brut de toute l'API, endpoints, règles et gestion des erreurs, assez compact pour tenir dans le contexte."
   },
   "recipes": {
     "eyebrow": "Recettes",
     "title": "Les quatre flux de travail que les agents utilisent réellement",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "publish": {
       "title": "Publier et confirmer",
       "description": "Créez un brouillon, publiez-le explicitement, puis consultez l'exécution. La seule façon honnête de dire à l'opérateur qu'une publication est sortie."
@@ -266,8 +266,8 @@
     "installDescription": "Dans Claude Code, le plugin est toute la configuration : il embarque la compétence de l'agent et l'entrée du serveur. Tout autre client MCP prend l'URL du serveur dans sa configuration habituelle.",
     "headlessTitle": "Sans navigateur",
     "headlessDescription": "Un job CI, un worker cron ou un client incapable d'ouvrir un navigateur transmet à la place une clé API d'espace de travail en en-tête bearer. Les deux chemins arrivent sur le même serveur avec les mêmes autorisations.",
-    "bashLabel": "bash",
-    "configLabel": "configuration MCP (json)",
+    "bashLabel": "Bash",
+    "configLabel": "Configuration MCP (json)",
     "flowTitle": "Ce qui se passe quand le client se connecte",
     "flowIntro": "Cinq étapes, toutes prises en charge par le client et le navigateur. Vous ne voyez que la page de consentement.",
     "steps": [
@@ -317,6 +317,6 @@
     ],
     "endpointsTitle": "Points de terminaison",
     "endpointsDescription": "Pour qui construit un client MCP ou audite le flux. Tout est découvrable depuis les deux documents well-known ; rien ici ne se configure à la main.",
-    "endpointsLabel": "référence"
+    "endpointsLabel": "Référence"
   }
 }

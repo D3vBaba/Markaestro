@@ -36,11 +36,11 @@ export default function ProductPicker({
 
   return (
     <div className="space-y-3">
-      <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("brand")}</label>
+      <label className="text-[13px] font-medium text-foreground">{t("brand")}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-11 rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-foreground focus:outline-none transition-colors"
+        className="w-full h-11 rounded-lg border border-border bg-background px-3 text-sm focus:border-foreground focus:outline-none transition-colors"
       >
         <option value="">{t("selectBrand")}</option>
         {products.map((p) => (

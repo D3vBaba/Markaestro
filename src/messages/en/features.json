@@ -1,8 +1,8 @@
 {
   "hero": {
     "eyebrow": "Platform",
-    "titleLead": "Everything you need to",
-    "titleHighlight": "grow",
+    "titleLead": "Everything You Need to",
+    "titleHighlight": "Grow",
     "subtitle": "From first draft to published post, Markaestro handles every step of your social workflow. One platform, zero context-switching."
   },
   "coreFeatures": [
@@ -12,15 +12,15 @@
       "details": [
         "Unified composer with per-channel preview",
         "Drag-and-drop media management",
-        "Bulk scheduling for content calendars",
-        "Auto-resizing images to platform specs"
+        "Bulk reschedule, status changes, and deletes",
+        "Character limits and media checks per channel before you publish"
       ]
     },
     {
       "title": "Media Upload & Library",
       "description": "Bring your own photography, video, and brand assets. Markaestro stores them per workspace and attaches them to posts with a single drop.",
       "details": [
-        "JPG, PNG, WebP, MP4, MOV, and WebM support",
+        "JPG, PNG, WebP, GIF, MP4, MOV, and WebM support",
         "Up to 250 MB per video, 10 MB per image",
         "Per-channel format checks before publish",
         "Reuse uploaded media across multiple posts"
@@ -30,9 +30,9 @@
       "title": "Multi-Channel Previews",
       "description": "See how every post will look on each network before you publish: Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X each get their own preview. Captions, aspect ratios, character limits, and media specs are all rendered live.",
       "details": [
-        "Pixel-accurate previews per platform",
+        "Per-platform previews, including ad-style placements",
         "Live caption character-count tracking",
-        "Per-channel aspect-ratio guidance",
+        "Media count and format rules per channel",
         "Catch formatting issues before they ship"
       ]
     },
@@ -40,10 +40,10 @@
       "title": "Publishing Dashboard",
       "description": "See every draft, scheduled post, and publishing state in one workspace view without jumping between platforms.",
       "details": [
-        "Draft, scheduled, and published queues",
-        "Per-channel publishing status",
-        "Failed-post retry workflow",
-        "Workspace-level content overview"
+        "Draft, scheduled, published, and on-platform views",
+        "Per-channel publishing status and error detail",
+        "To post queue for channels a human posts natively",
+        "Workspace-level activity overview on the dashboard"
       ]
     },
     {
@@ -68,14 +68,14 @@
     },
     {
       "title": "API & AI Agents",
-      "description": "Everything the dashboard does, your software can do too. Mint an API key, hand it to an AI agent or a script, and let it discover accounts, upload media, schedule posts, publish, and report back, on every plan, at no extra cost.",
+      "description": "Everything the dashboard does, your software can do too. Mint an API key, hand it to an AI agent or a script, and let it discover accounts, upload media, schedule posts, publish, and report back, on every paid plan, at no extra cost.",
       "details": [
         "Keys scoped to a single brand, with optional expiry",
         "Idempotent writes so a retry never double-posts",
-        "Async publish runs plus HMAC-signed webhooks",
-        "Manual-first on Meta and TikTok: a human still posts"
+        "Async publish runs, HMAC-signed webhooks, and an MCP server for Claude Code, claude.ai, and Cursor",
+        "Manual-first on Meta and TikTok by default: a human posts unless you opt a post in"
       ],
-      "codeLabel": "schedule a post from anything that speaks HTTP",
+      "codeLabel": "Schedule a Post from Anything That Speaks HTTP",
       "agentGuideLink": "Read the AI agent guide →"
     }
   ],
@@ -86,31 +86,35 @@
     },
     {
       "title": "Scheduling & Calendar",
-      "description": "Queue posts on a unified calendar across all your channels. Reschedule with a drag, duplicate posts in a click, and keep a clear view of what's going out when."
+      "description": "Queue posts on a unified calendar across all your channels. Reschedule with a drag, move a batch of posts at once, and keep a clear view of what's going out when."
     },
     {
       "title": "Role-Based Access",
-      "description": "Control who can publish, edit, or view with three-tier roles: Owner, Admin, and Member. Keep sensitive settings locked down while your team moves fast."
+      "description": "Control who can publish, edit, or view with four roles: Owner, Admin, Member, and Analyst. Keep sensitive settings locked down while your team moves fast."
+    },
+    {
+      "title": "Brand Profiles",
+      "description": "Scan a website to pull the name, description, colours, logo and tone into a brand profile, then refine its voice, identity and knowledge. Every post and every Intelligence draft is grounded in that profile."
     }
   ],
   "platformSection": {
     "eyebrow": "Platform",
-    "titleLead": "Built for everyone who",
-    "titleHighlight": "publishes",
+    "titleLead": "Built for Everyone Who",
+    "titleHighlight": "Publishes",
     "subtitle": "Beyond the core tools, Markaestro gives you the infrastructure to scale, from a single brand to a full client roster."
   },
   "cta": {
     "title": "Ready to see it in action?",
     "subtitle": "Start for free. No credit card required. Connect your first channel in under two minutes.",
-    "primaryButton": "Get started free",
-    "secondaryButton": "Contact sales"
+    "primaryButton": "Get Started Free",
+    "secondaryButton": "Contact Sales"
   },
   "intelligence": {
     "eyebrow": "Intelligence",
-    "titleLead": "Know what to post next,",
-    "titleHighlight": "from your own numbers",
+    "titleLead": "Know What to Post Next,",
+    "titleHighlight": "from Your Own Numbers",
     "subtitle": "Intelligence reads the posts you already published, keeps every metric exactly as the platforms reported it, and turns that history into plain-language answers, ready-to-edit drafts, and evidence for governed Evergreen queues.",
-    "loopTitle": "How it works",
+    "loopTitle": "How It Works",
     "loop": [
       {
         "title": "Measure",
@@ -129,31 +133,27 @@
         "body": "Draft this writes a caption in your brand voice from your own best-performing evidence and saves it to Content as a normal draft. You edit, add media, and schedule."
       }
     ],
-    "tabsTitle": "What you get, tab by tab",
+    "tabsTitle": "What You Get, Tab by Tab",
     "tabs": [
       {
         "title": "Overview",
-        "body": "Objective banner, measured KPIs, per-post platform comparison, and a readiness list that shows exactly which features are active and how much data each one still needs."
-      },
-      {
-        "title": "Audience",
-        "body": "Declare your objective, markets, timezone, pillars, and voice. Tracked short links count clicks without storing personal data and tie conversions back to the post."
+        "body": "Objective banner, measured KPIs, per-post platform comparison, a readiness list that shows which features are active and how much data each one still needs, and Ask Markaestro for questions answered only from this brand's records."
       },
       {
         "title": "Content",
         "body": "Your posts ranked by the metric you chose, the patterns detected in each one, and a Why it worked explanation grounded in that post's numbers against your account average."
       },
       {
-        "title": "Opportunities",
-        "body": "Evidence-backed suggestions you can accept, pin, or dismiss, each with a Draft this button. Accepting never creates or schedules a post."
-      },
-      {
         "title": "Playbook",
-        "body": "Patterns that repeat in your data with the sample size, effect, and confidence range spelled out in plain words, plus the posts behind each one."
+        "body": "Evidence-backed opportunities you can accept, pin, or dismiss, each with a Draft this button, plus the patterns that repeat in your data with sample size, effect, and confidence range spelled out. Accepting never creates or schedules a post."
       },
       {
-        "title": "Experiments and Ask",
-        "body": "Paired A/B posts with a measured winner, and questions answered only from this brand's records, citing the data used."
+        "title": "Audience",
+        "body": "Declare your objective, markets, timezone, pillars, and voice. Tracked short links count clicks without storing personal data and tie conversions back to the post."
+      },
+      {
+        "title": "Experiments",
+        "body": "Paired A/B posts with a measured winner, available on the Business plan."
       }
     ],
     "principlesTitle": "Rules it never breaks",

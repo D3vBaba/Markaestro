@@ -7,7 +7,8 @@
       "drafts": "Bozze",
       "scheduled": "Pianificati",
       "published": "Pubblicati",
-      "onPlatform": "Sulla piattaforma"
+      "onPlatform": "Sulla piattaforma",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "Brand",
@@ -133,11 +134,11 @@
     "show": "Mostra",
     "basedOnData": "Basato sui dati di coinvolgimento del settore per {channel}",
     "thisChannel": "questo canale",
-    "orPickManually": "oppure scegli manualmente",
+    "orPickManually": "Oppure scegli manualmente",
     "timeLabel": "Ora",
     "timezoneNote": "Le pianificazioni usano il tuo fuso orario locale ({timezone}) e vengono salvate in UTC.",
     "headsUp": "Attenzione:",
-    "collisionNote": "un altro post è già pianificato in prossimità di questo orario ({date}{channel}). Puoi comunque pianificare entrambi.",
+    "collisionNote": "Un altro post è già pianificato in prossimità di questo orario ({date}{channel}). Puoi comunque pianificare entrambi.",
     "onChannel": " su {channel}",
     "scheduleFor": "Pianifica per il {date} alle {time}",
     "selectDate": "Seleziona una data"
@@ -354,5 +355,98 @@
       "videoTooLong": "Questo video supera il limite di {maxSeconds} secondi di questo account.",
       "creatorInfoUnavailable": "Non è stato possibile caricare i dati del tuo account TikTok, quindi questo post non può essere pubblicato direttamente."
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "Impossibile aggiornare la coda",
+    "actions": {
+      "activate": "Attiva",
+      "activateSuccess": "Coda attivata",
+      "archive": "Archivia",
+      "archiveSuccess": "Coda archiviata",
+      "pause": "Metti in pausa",
+      "pauseSuccess": "Coda in pausa",
+      "resume": "Riprendi",
+      "resumeSuccess": "Coda ripresa"
+    },
+    "addVariant": "Aggiungi variante",
+    "analytics": {
+      "conversions": "Conversioni",
+      "details": "Prestazioni",
+      "engagements": "Interazioni",
+      "loadFailed": "Impossibile caricare le prestazioni della coda",
+      "loading": "Caricamento delle prestazioni della coda...",
+      "measured": "Esecuzioni misurate",
+      "needsReview": "Da rivedere",
+      "noOutcome": "In attesa di un risultato di prestazione maturo",
+      "noRuns": "Nessuna occorrenza creata finora.",
+      "recentRuns": "Esecuzioni recenti",
+      "trackedClicks": "Clic tracciati",
+      "unavailable": "Non disponibile",
+      "views": "Visualizzazioni totali"
+    },
+    "approveFuture": "Approva ora le esecuzioni future",
+    "cancel": "Annulla",
+    "changeSource": "Cambia",
+    "choosePost": "Scegli un post pubblicato",
+    "create": "Crea coda",
+    "createFailed": "Impossibile creare la coda",
+    "created": "Coda evergreen creata",
+    "defaultName": "Coda evergreen {channel}",
+    "description": "Trasforma i post collaudati in code governate e misurabili. Markaestro conserva l'originale, crea una nuova occorrenza per ogni esecuzione e mette in pausa automaticamente le sequenze deboli.",
+    "eligible": "Evidenze idonee trovate",
+    "empty": "Nessuna coda evergreen per questo brand, per ora.",
+    "everyDays": "Ogni {count} giorni",
+    "interval": "Giorni minimi tra le esecuzioni",
+    "loadFailed": "Impossibile caricare le code evergreen",
+    "loading": "Caricamento delle code evergreen...",
+    "newQueue": "Nuova coda",
+    "nextRun": "Prossima esecuzione: {date}",
+    "notEligible": "Non ancora idoneo",
+    "notScheduled": "Attiva questa coda per programmare la prima esecuzione.",
+    "pausedReason": "In pausa: {reason}",
+    "picker": {
+      "engagements": "Interazioni",
+      "filters": {
+        "all": "Tutti i pubblicati",
+        "eligible": "Pronti",
+        "suggested": "Suggeriti"
+      },
+      "mediaOnly": "Solo con media",
+      "noMatches": "Nessun post pubblicato corrisponde.",
+      "noSuggested": "Nessun post di spicco per ora. I post hanno bisogno di sette giorni di risultati misurati prima di poter essere suggeriti.",
+      "notReady": "Non pronto",
+      "rate": "Tasso",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "Nessun canale su questo post",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Nessuna visualizzazione o interazione misurata finora",
+        "SOURCE_METRICS_IMMATURE": "Pubblicato meno di sette giorni fa",
+        "SOURCE_NOT_PUBLISHED": "Non ancora pubblicato",
+        "SOURCE_PUBLISH_DATE_MISSING": "Data di pubblicazione sconosciuta"
+      },
+      "search": "Cerca tra i post pubblicati",
+      "suggested": "Suggerito",
+      "views": "Visualizzazioni"
+    },
+    "previewFailed": "Impossibile verificare questo post",
+    "queueName": "Nome della coda",
+    "removeVariant": "Rimuovi",
+    "reviewEach": "Rivedi ogni occorrenza",
+    "reviewPolicy": "Politica di approvazione",
+    "runs": "{count, plural, one {# esecuzione creata} other {# esecuzioni create}}",
+    "saving": "Creazione...",
+    "selectBrand": "Seleziona un brand per gestire le sue code evergreen.",
+    "selectedSource": "Post selezionato",
+    "sourceHint": "Scegli il post che questa coda ripete. I post suggeriti hanno ottenuto di più dal loro pubblico e hanno almeno una settimana.",
+    "sourcePost": "Post di origine collaudato",
+    "statuses": {
+      "active": "Attiva",
+      "archived": "Archiviata",
+      "draft": "Bozza",
+      "paused": "In pausa"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "Variante di didascalia",
+    "variantNumber": "Variante di didascalia {number}",
+    "variants": "Varianti di didascalia"
   }
 }

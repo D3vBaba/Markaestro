@@ -12,6 +12,7 @@ import { metricsForLegacyBackfill, publishedChannelTargets } from './publish-tar
 export const MAX_LEGACY_SOCIAL_POST_BACKFILL_PER_TICK = 200;
 
 type LegacyPostDoc = {
+  mediaAssetIds?: string[];
   channel?: string;
   targetChannels?: string[];
   externalId?: string;
@@ -139,6 +140,7 @@ export async function backfillLegacySocialPosts(
         publishedAt,
         content: post.content,
         mediaUrls: post.mediaUrls,
+        mediaAssetIds: post.mediaAssetIds,
         connection,
         metrics: metricsForLegacyBackfill(post.metricsByChannel, target.channel),
         capturedAt,

@@ -51,7 +51,7 @@ function ScoreBadge({ score }: { score: number }) {
           };
   return (
     <span
-      className="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
+      className="rounded-md px-1.5 py-0.5 text-[11.5px] font-medium leading-4"
       style={style}
     >
       {score}%
@@ -197,19 +197,16 @@ export default function ScheduleSheet({
     <Sheet open={open} onOpenChange={handleSheetOpenChange}>
       <SheetContent>
         <SheetHeader
-          className="px-6 pt-6 pb-4 border-b"
-          style={{ borderColor: "var(--mk-rule)" }}
+          className="px-6 pt-6 pb-4 border-b border-border"
         >
           <p className="mk-eyebrow">{t("eyebrow")}</p>
           <SheetTitle
-            className="text-[22px] font-semibold m-0"
-            style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+            className="text-[22px] font-semibold m-0 text-foreground"
           >
             {t("title")}
           </SheetTitle>
           <SheetDescription
-            className="text-[13px]"
-            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+            className="text-[13px] text-muted-foreground"
           >
             {t("description")}
           </SheetDescription>
@@ -238,7 +235,7 @@ export default function ScheduleSheet({
                 className="flex items-center gap-2 w-full text-start mb-3"
               >
                 <span className="text-sm font-semibold text-foreground">{t("smartSchedule")}</span>
-                <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium">
+                <span className="rounded-md bg-mk-accent-soft px-1.5 py-0.5 text-[11.5px] font-medium leading-4 text-mk-accent">
                   {t("aiSuggested")}
                 </span>
                 <span className="ms-auto text-xs text-muted-foreground">
@@ -253,7 +250,7 @@ export default function ScheduleSheet({
                       {Array.from({ length: 4 }).map((_, i) => (
                         <div
                           key={i}
-                          className="w-full flex items-center gap-3 rounded-xl border border-border/40 bg-background p-3"
+                          className="w-full flex items-center gap-3 rounded-xl border border-border bg-background p-3"
                         >
                           <div className="flex-1 min-w-0 space-y-1.5">
                             <div className="flex items-center gap-2">
@@ -271,7 +268,7 @@ export default function ScheduleSheet({
                         <button
                           key={i}
                           onClick={() => handleSmartPick(slot)}
-                          className="w-full flex items-center gap-3 rounded-xl border border-border/40 bg-background p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors text-start group"
+                          className="w-full flex items-center gap-3 rounded-xl border border-border bg-background p-3 hover:border-primary/30 hover:bg-primary/[0.02] transition-colors text-start group"
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
@@ -288,7 +285,7 @@ export default function ScheduleSheet({
                           </div>
                         </button>
                       ))}
-                      <p className="text-[10px] text-muted-foreground text-center pt-1">
+                      <p className="pt-1 text-center text-xs text-muted-foreground">
                         {t("basedOnData", { channel: channel || t("thisChannel") })}
                       </p>
                     </>
@@ -324,7 +321,7 @@ export default function ScheduleSheet({
                 setSelectedSuggestionIso(null);
               }}
             />
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               {t("timezoneNote", { timezone })}
             </p>
           </FormField>

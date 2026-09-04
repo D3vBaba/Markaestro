@@ -37,8 +37,8 @@ export function BestTimeHeatmap({
 
   if (sampleSize < MIN_SAMPLE) {
     return (
-      <div className="flex flex-col items-center justify-center gap-1 px-6 py-10 text-center text-slate-500 dark:text-slate-400">
-        <p className="m-0 text-[13px] font-medium text-slate-900 dark:text-slate-100">
+      <div className="flex flex-col items-center justify-center gap-1 px-6 py-10 text-center text-muted-foreground">
+        <p className="m-0 text-[13px] font-medium text-foreground">
           {t("notEnoughData")}
         </p>
         <p className="m-0 text-[12px]">
@@ -61,7 +61,7 @@ export function BestTimeHeatmap({
           <Heatmap data={avg} days={days} hours={HOURS} max={max} height={170} />
         </div>
       </div>
-      <p className="mb-0 mt-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+      <p className="mb-0 mt-2.5 text-xs font-medium text-muted-foreground">
         {t("footer", { count: sampleSize })}
       </p>
     </div>

@@ -26,7 +26,8 @@
     "preview": "Voorbeeld",
     "viewLivePost": "Live post bekijken",
     "untitledPost": "Post zonder titel",
-    "failedToPublish": "Publiceren mislukt"
+    "failedToPublish": "Publiceren mislukt",
+    "evergreen": "Evergreen"
   },
   "dayPanel": {
     "today": "Vandaag",
@@ -82,5 +83,14 @@
   "postNotFoundToast": "Die post kon niet worden geopend. Probeer het opnieuw.",
   "viewAllPostsOnDay": "Alle {count, plural, one {# post} other {# posts}} van deze dag bekijken",
   "viewAllPostsOnDate": "Alle {count, plural, one {# post} other {# posts}} van {date} bekijken",
-  "moreCount": "+{count} meer"
+  "moreCount": "+{count} meer",
+  "listEmpty": "Deze maand is er nog niets ingepland of gepubliceerd.",
+  "moreChannels": "+{count} meer",
+  "title": "Kalender",
+  "views": {
+    "list": "Lijst",
+    "month": "Maand",
+    "week": "Week"
+  },
+  "weekOf": "Week van {date}"
 }

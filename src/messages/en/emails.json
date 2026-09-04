@@ -2,7 +2,7 @@
   "shared": {
     "footerDefault": "If you did not request this email, you can ignore it. Your account will stay unchanged.",
     "copyright": "© {year} Markaestro · Growth workflows, one place",
-    "ctaOpenQueue": "Open your To Post queue"
+    "ctaOpenQueue": "Open your To post queue"
   },
   "signInCode": {
     "subject": "{code} is your Markaestro sign-in code",
@@ -51,13 +51,13 @@
   },
   "manualPostReminder": {
     "subject": "Your {channelLabel} post is ready",
-    "preheader": "A {channelLabel} post is waiting in your To Post queue.",
-    "bodyIntro": "A post is waiting in your To Post queue. Grab the media and caption from Markaestro, publish it from the {channelLabel} app, then mark it as posted.",
+    "preheader": "A {channelLabel} post is waiting in your To post queue.",
+    "bodyIntro": "A post is waiting in your To post queue. Grab the media and caption from Markaestro, publish it from the {channelLabel} app, then mark it as posted.",
     "footerNote": "You are receiving this because a post in your Markaestro workspace is waiting to be published manually.",
     "plain": {
       "heading": "Your {channelLabel} post is ready to publish",
       "captionLabel": "Caption:",
-      "queueLink": "Open your To Post queue: {url}"
+      "queueLink": "Open your To post queue: {url}"
     }
   },
   "channelHealth": {
@@ -88,7 +88,7 @@
       "bodyIntro": "Your video has been uploaded and is waiting in your TikTok inbox. TikTok requires the final post to be made from their app, so it is not live yet.",
       "toPublishLabel": "To publish it:",
       "captionLabel": "Your caption:",
-      "queueLink": "Open your To Post queue: {url}"
+      "queueLink": "Open your To post queue: {url}"
     }
   },
   "teamInvite": {
@@ -110,5 +110,17 @@
       "fallbackInviter": "A teammate",
       "summary": "{inviter} has invited you to join {workspaceName} on Markaestro {roleLabel}. Accept by signing in at {url}"
     }
+  },
+  "intelligenceDigest": {
+    "subject": "Your week on Markaestro",
+    "preheader": "This week against last week, and the one move to make next.",
+    "intro": "Here is how each brand did this week compared with last week, with the next move Markaestro suggests.",
+    "posts": "Posts",
+    "views": "Views",
+    "engagements": "Engagements",
+    "move": "Next move:",
+    "window": "Best window:",
+    "cta": "Open Intelligence",
+    "footerNote": "You receive this weekly summary because you are an owner or admin of this workspace."
   }
 }

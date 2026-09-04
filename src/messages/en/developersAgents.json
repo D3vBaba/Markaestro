@@ -1,46 +1,46 @@
 {
   "meta": {
-    "title": "Markaestro for AI agents | Connect an MCP client or use an API key",
+    "title": "Markaestro for AI Agents | Connect an MCP Client or Use an API Key",
     "description": "Connect Claude Code, claude.ai, Cursor, or any MCP client to Markaestro with a browser sign-in, or hand an agent a brand-scoped API key. Discover connected social accounts, upload media, draft, schedule, and publish across Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X.",
-    "ogTitle": "Markaestro for AI agents",
+    "ogTitle": "Markaestro for AI Agents",
     "ogDescription": "One sign-in or one API key turns Markaestro into a publishing tool your agent can call: discover accounts, upload media, draft, schedule, publish, and report back."
   },
   "hero": {
-    "eyebrow": "For AI agents",
+    "eyebrow": "For AI Agents",
     "title": "Connect your agent in one step. It runs your social channels.",
     "intro1": "Markaestro is built to be operated by software. An MCP client such as Claude Code signs in through the browser and is handed a key bound to one brand; any other agent gets the same key from Settings. Either way the agent can discover which accounts it can post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped, across Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X.",
     "intro2": "No SDK to install and no platform credentials to babysit. Your team connects the accounts once in the dashboard; the agent talks to one bearer-token API from then on.",
-    "createKeyButton": "Create an API key",
-    "apiReferenceButton": "Full API reference",
-    "machineBriefButton": "Machine-readable brief →",
-    "connectMcpButton": "Connect an MCP client"
+    "createKeyButton": "Create an API Key",
+    "apiReferenceButton": "Full API Reference",
+    "machineBriefButton": "Machine-Readable Brief →",
+    "connectMcpButton": "Connect an MCP Client"
   },
   "why": {
-    "eyebrow": "Designed for autonomy, bounded on purpose",
-    "title": "Why an API key is the whole integration",
+    "eyebrow": "Designed for Autonomy, Bounded on Purpose",
+    "title": "Why an API Key Is the Whole Integration",
     "intro": "The hard part of letting an agent touch social media is not the HTTP. It is making sure a confused model cannot post to the wrong brand, double-post on a retry, or ship something nobody read. Those guarantees are in the API surface itself, not in your prompt.",
     "cards": [
       {
-        "title": "One key, one brand",
+        "title": "One Key, One Brand",
         "body": "Every API key is bound to a single brand when you create it. An agent holding that key can only ever see and post to that brand, cross-brand requests are rejected at authentication, not by convention."
       },
       {
-        "title": "Discovery, not hardcoded ids",
+        "title": "Discovery, Not Hardcoded IDs",
         "body": "The agent asks which accounts it can post to and gets back opaque ids to pass straight back. No Page ids, no Business Manager spelunking, no config file that rots when a connection is re-linked."
       },
       {
-        "title": "Idempotent writes",
+        "title": "Idempotent Writes",
         "body": "Send an Idempotency-Key on any create or publish. A retried call inside 24 hours replays the original response instead of creating a second post, the failure mode agents hit most."
       },
       {
-        "title": "A human stays in the loop",
+        "title": "A Human Stays in the Loop",
         "body": "Facebook, Instagram, and TikTok posts are manual-first: your agent prepares them, a person posts them natively. Nothing goes out unattended unless you explicitly opt that post in."
       }
     ]
   },
   "loop": {
-    "eyebrow": "The agent loop",
-    "title": "Five calls, start to finish",
+    "eyebrow": "The Agent Loop",
+    "title": "Five Calls, Start to Finish",
     "intro": "Every Markaestro automation is a variation on this loop. Steps one through three are the <connectLink>Connect API</connectLink>, the flat surface most agents should target. Steps four and five reach into the full <code>/api/public/v1</code> API for explicit publishing and run tracking.",
     "steps": [
       {
@@ -50,29 +50,29 @@
       },
       {
         "step": "02",
-        "title": "Upload media",
+        "title": "Upload Media",
         "body": "Mint a short-lived, single-use signed URL, then PUT the raw bytes to it. You get back a media id. Images up to 10 MB; the full API also takes video up to 250 MB."
       },
       {
         "step": "03",
-        "title": "Draft or schedule",
+        "title": "Draft or Schedule",
         "body": "Pass the caption, the media ids, and the account ids verbatim. Leave it a draft for review, or send is_draft false with scheduled_at to put it on the calendar."
       },
       {
         "step": "04",
         "title": "Publish",
-        "body": "Queues an async run. LinkedIn, Threads, Pinterest, and X go out over the official API. Facebook, Instagram, and TikTok land in the workspace's To Post queue for a human to post natively."
+        "body": "Queues an async run. LinkedIn, Threads, Pinterest, and X go out over the official API. Facebook, Instagram, and TikTok land in the workspace's To post queue for a human to post natively."
       },
       {
         "step": "05",
-        "title": "Report back",
+        "title": "Report Back",
         "body": "Poll the run id, or register a webhook endpoint and let Markaestro push post.published, post.action_required, and post.failed to you. Never assume a publish finished synchronously."
       }
     ]
   },
   "quickstart": {
     "eyebrow": "Quickstart",
-    "title": "A working integration in four commands",
+    "title": "A Working Integration in Four Commands",
     "intro": "First, mint the key: open <settingsLink>Settings → API</settingsLink>, pick the brand it is allowed to touch, tick the scopes it needs, and optionally give it an expiry. The key is shown once, put it straight into your agent's secret store. Creating keys requires an admin or owner with a verified email.",
     "step1": {
       "title": "1. Discover the accounts",
@@ -86,71 +86,71 @@
       "title": "3. Schedule it, then watch it",
       "description": "Creating is draft-first by default. Send <code>is_draft: false</code> with a <code>scheduled_at</code> timestamp to put the post on the calendar instead."
     },
-    "bashLabel": "bash",
-    "responseLabel": "response"
+    "bashLabel": "Bash",
+    "responseLabel": "Response"
   },
   "toolDefs": {
-    "eyebrow": "Drop-in",
-    "title": "Tool definitions and an agent brief",
+    "eyebrow": "Drop-In",
+    "title": "Tool Definitions and an Agent Brief",
     "intro": "Two things to copy. The first is a set of tool schemas covering the whole publishing loop, written in JSON Schema, so they work as Claude tool definitions, OpenAI functions, or the input shape for an MCP server you host. The second is the operating brief that keeps a model from doing something surprising with them.",
-    "schemasTitle": "Tool schemas",
+    "schemasTitle": "Tool Schemas",
     "schemasDescription": "Core posting tools: list accounts, upload media, create, publish, list, and delete. The hosted MCP server also includes Intelligent Evergreen, run history, bulk operations, and webhooks.",
-    "schemasLabel": "tools.json",
-    "briefTitle": "Agent brief",
+    "schemasLabel": "Tools.json",
+    "briefTitle": "Agent Brief",
     "briefDescription": "Paste into your system prompt. It encodes the behaviors that separate a reliable publishing agent from one that double-posts and declares victory early.",
-    "briefLabel": "system prompt",
+    "briefLabel": "System Prompt",
     "briefFooter": "Your agent can also fetch this itself: <code>curl https://markaestro.com/llms.txt</code> returns a plain-text brief of the whole API, endpoints, rules, and error handling, small enough to sit in context."
   },
   "recipes": {
     "eyebrow": "Recipes",
-    "title": "The four workflows agents actually run",
-    "bashLabel": "bash",
+    "title": "The Four Workflows Agents Actually Run",
+    "bashLabel": "Bash",
     "publish": {
-      "title": "Publish and confirm",
+      "title": "Publish and Confirm",
       "description": "Create a draft, publish it explicitly, then poll the run. The only honest way to tell the operator a post went out."
     },
     "audit": {
-      "title": "Audit and cancel the queue",
+      "title": "Audit and Cancel the Queue",
       "description": "List what is scheduled, show it to a human, delete what they reject. Both calls use scopes an existing key already carries."
     },
     "batch": {
-      "title": "Fill a week in one call",
+      "title": "Fill a Week in One Call",
       "description": "Batch create takes up to 25 posts and returns per-item results, so a single malformed item does not sink the run."
     },
     "webhook": {
-      "title": "Get called instead of polling",
+      "title": "Get Called Instead of Polling",
       "description": "Long-running agents should register a webhook and sleep. Deliveries are HMAC-signed with a secret shown once at creation."
     }
   },
   "guardrails": {
     "eyebrow": "Guardrails",
-    "title": "What the agent can and cannot do",
+    "title": "What the Agent Can and Cannot Do",
     "intro": "Autonomy is only useful if the blast radius is small. Markaestro's defaults assume the caller is software that might be wrong.",
-    "calloutTitle": "Facebook, Instagram, and TikTok are manual-first",
-    "calloutBody": "Posts your agent creates for those channels default to <code>manual_reminder</code>: Markaestro never calls the platform's API for them. Publishing moves the post into the workspace's To Post queue, where a person downloads the media, posts natively, and confirms, so the post looks exactly like it was made by hand, and a human sees every one before it exists publicly. An agent can opt a single post into official-API publishing with <code>deliveryMode: \"direct_publish\"</code>, and on TikTok that means the creator-inbox handoff, never an unattended public post. LinkedIn, Threads, Pinterest, and X publish programmatically once your agent explicitly asks.",
+    "calloutTitle": "Facebook, Instagram, and TikTok Are Manual-First",
+    "calloutBody": "Posts your agent creates for those channels default to <code>manual_reminder</code>: Markaestro never calls the platform's API for them. Publishing moves the post into the workspace's To post queue, where a person downloads the media, posts natively, and confirms, so the post looks exactly like it was made by hand, and a human sees every one before it exists publicly. An agent can opt a single post into official-API publishing with <code>deliveryMode: \"direct_publish\"</code>, and on TikTok that means the creator-inbox handoff, never an unattended public post. LinkedIn, Threads, Pinterest, and X publish programmatically once your agent explicitly asks.",
     "items": [
       {
-        "title": "Scope the key down",
+        "title": "Scope the Key Down",
         "body": "Pick only the scopes the agent needs: products.read, media.write, posts.read, posts.write, posts.publish, evergreen.read, evergreen.write, job_runs.read, webhooks.manage. A research agent that only reads the calendar gets posts.read and nothing else."
       },
       {
-        "title": "Give it an expiry",
+        "title": "Give It an Expiry",
         "body": "Keys can be created with an expiry. An expired key behaves exactly like a revoked one, so a key that leaks out of an agent's environment stops working on its own."
       },
       {
-        "title": "Rotate and revoke",
+        "title": "Rotate and Revoke",
         "body": "Rotate a key in place or revoke it outright from Settings → API. Every key shows its last-used time and request volume, so an agent that goes quiet, or goes rogue, is visible."
       },
       {
-        "title": "Rate limits are enforced",
+        "title": "Rate Limits Are Enforced",
         "body": "60 requests per minute per endpoint and 240 per minute per key. Every response carries X-RateLimit-Limit, -Remaining, and -Reset; a 429 carries Retry-After. Honor it rather than hammering."
       },
       {
-        "title": "Markaestro never writes for you",
+        "title": "Markaestro Never Writes for You",
         "body": "There is no generation step. The caption comes from your agent, the media comes from your library or your agent's pipeline. Markaestro is the hands, not the voice."
       },
       {
-        "title": "Deletes are Markaestro-side",
+        "title": "Deletes Are Markaestro-Side",
         "body": "Deleting a scheduled post cancels it before it ships. Deleting a published post only stops Markaestro tracking it, the live post stays up until someone removes it on the platform."
       }
     ]
@@ -221,8 +221,8 @@
     ]
   },
   "stacks": {
-    "eyebrow": "Bring your own stack",
-    "title": "If it can make an HTTPS request, it can publish",
+    "eyebrow": "Bring Your Own Stack",
+    "title": "If It Can Make an HTTPS Request, It Can Publish",
     "intro": "There is no Markaestro client library to adopt and no framework to standardize on. Bearer token, JSON in, JSON out.",
     "items": [
       {
@@ -230,11 +230,11 @@
         "body": "Drop the tool definitions above into your tool list. The JSON Schema shapes are already in Claude tool-use format."
       },
       {
-        "name": "OpenAI function calling",
+        "name": "OpenAI Function Calling",
         "body": "The same schemas map one-to-one onto function definitions. Rename input_schema to parameters."
       },
       {
-        "name": "MCP clients",
+        "name": "MCP Clients",
         "body": "Claude Code, claude.ai, Cursor, ChatGPT: add the hosted server URL and sign in through the browser. For stdio-only clients, npx -y @markaestro/mcp runs the same twenty-eight tools locally."
       },
       {
@@ -252,23 +252,23 @@
     ]
   },
   "cta": {
-    "title": "Give your agent something real to do",
+    "title": "Give Your Agent Something Real to Do",
     "subtitle": "Connect your channels, then connect your agent: sign in from an MCP client, or mint a brand-scoped key. Either one is the entire integration.",
-    "primaryButton": "Start for free",
-    "secondaryButton": "Read the API reference"
+    "primaryButton": "Start for Free",
+    "secondaryButton": "Read the API Reference"
   },
   "mcp": {
-    "eyebrow": "MCP clients",
+    "eyebrow": "MCP Clients",
     "title": "Sign in from the client. Nothing to paste.",
     "intro1": "Claude Code, claude.ai, Cursor, ChatGPT, and every other client that speaks the Model Context Protocol can connect to Markaestro's hosted MCP server with no credentials configured. The first tool call opens your browser: sign in, choose the workspace and the brand the agent may act on, review the permissions, and click Allow. The client receives a key bound to that brand and refreshes it on its own.",
     "intro2": "This is standard OAuth 2.1 with PKCE and dynamic client registration, the same mechanism behind other hosted MCP servers, so it works without a Markaestro-specific plugin. The server lives at <code>https://markaestro.com/api/public/v1/mcp</code> and exposes twenty-eight tools over the public API: brand and destination discovery, media upload, draft and scheduled posts, Intelligent Evergreen analytics, publishing with job-run polling, bulk operations, webhooks, and the per-channel rules.",
     "installTitle": "Install",
     "installDescription": "In Claude Code the plugin is the whole setup: it bundles the agent skill and the server entry. Any other MCP client takes the server URL in its usual configuration.",
-    "headlessTitle": "Without a browser",
+    "headlessTitle": "Without a Browser",
     "headlessDescription": "A CI job, a cron worker, or a client that cannot open a browser passes a workspace API key as a bearer header instead. Both paths land on the same server with the same permissions.",
-    "bashLabel": "bash",
-    "configLabel": "mcp config (json)",
-    "flowTitle": "What happens when the client connects",
+    "bashLabel": "Bash",
+    "configLabel": "MCP Config (JSON)",
+    "flowTitle": "What Happens When the Client Connects",
     "flowIntro": "Five steps, all of them handled by the client and the browser. You see only the consent page.",
     "steps": [
       {
@@ -299,24 +299,24 @@
     ],
     "facts": [
       {
-        "title": "The token is a real API key",
+        "title": "The Token Is a Real API Key",
         "body": "Scopes, brand binding, rate limits, subscription checks, idempotency, and revocation are the same code path as a key created by hand. There is no second permission model to reason about."
       },
       {
-        "title": "Listed and revocable in Settings",
+        "title": "Listed and Revocable in Settings",
         "body": "A connected agent shows in Settings, API with a Connected agent badge, its last-used time, and its request volume. Revoke it there and the client's next call fails; the client can also revoke its own token when you disconnect it."
       },
       {
-        "title": "One connection, one brand",
+        "title": "One Connection, One Brand",
         "body": "Every connection is bound to exactly one brand, chosen at consent. To let an agent work on a second brand, connect it again and pick that brand. A client can never reach a brand it was not granted."
       },
       {
-        "title": "Codes and refresh tokens are single use",
+        "title": "Codes and Refresh Tokens Are Single Use",
         "body": "Authorization codes live ten minutes and are consumed atomically, so a replayed code fails. Refresh tokens are rotated on every use and stored hashed. Idle client registrations expire after 180 days."
       }
     ],
     "endpointsTitle": "Endpoints",
     "endpointsDescription": "For anyone building an MCP client or auditing the flow. All of it is discoverable from the two well-known documents; nothing here needs to be configured by hand.",
-    "endpointsLabel": "reference"
+    "endpointsLabel": "Reference"
   }
 }

@@ -138,13 +138,11 @@ export default function PostEditSheet({
         onKeyDown={handleKeyDown}
       >
         <SheetHeader
-          className="px-6 pt-6 pb-4 border-b"
-          style={{ borderColor: "var(--mk-rule)" }}
+          className="px-6 pt-6 pb-4 border-b border-border"
         >
           <p className="mk-eyebrow">{channelLabels[channel] ?? channel}</p>
           <SheetTitle
-            className="text-[22px] font-semibold m-0"
-            style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+            className="text-[22px] font-semibold m-0 text-foreground"
           >
             {resolvedTitle}
           </SheetTitle>
@@ -162,7 +160,7 @@ export default function PostEditSheet({
               {currentMedia && (
                 <button
                   onClick={() => setMediaUrls([])}
-                  className="text-[11px] text-muted-foreground hover:text-destructive transition-colors"
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors"
                 >
                   {t("remove")}
                 </button>
@@ -170,7 +168,7 @@ export default function PostEditSheet({
             </div>
 
             {currentMedia ? (
-              <div className="relative group rounded-xl overflow-hidden border border-border/40">
+              <div className="relative group rounded-xl overflow-hidden border border-border">
                 {isVideoUrl(currentMedia) ? (
                   <video src={currentMedia} className="w-full object-cover max-h-56 bg-black" muted playsInline preload="metadata" />
                 ) : (
@@ -179,7 +177,7 @@ export default function PostEditSheet({
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-white text-[12px] font-medium bg-white/20 hover:bg-white/30 px-3.5 py-1.5 rounded-lg transition-colors"
+                    className="text-white text-[12px] font-medium bg-card hover:bg-card px-3.5 py-1.5 rounded-lg transition-colors"
                   >
                     {t("replace")}
                   </button>
@@ -187,12 +185,12 @@ export default function PostEditSheet({
               </div>
             ) : (
               <div
-                className="border-2 border-dashed border-border/50 hover:border-foreground/30 rounded-xl p-8 text-center cursor-pointer transition-colors"
+                className="cursor-pointer rounded-xl border border-border bg-muted/40 p-8 text-center transition-colors hover:bg-muted"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <ImagePlus className="w-7 h-7 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">{allowVideo ? t("dropMedia") : t("dropImage")}</p>
-                <p className="text-[11px] text-muted-foreground/50 mt-1">{allowVideo ? t("mediaHintVideo") : t("mediaHintImage")}</p>
+                <p className="text-xs text-muted-foreground/50 mt-1">{allowVideo ? t("mediaHintVideo") : t("mediaHintImage")}</p>
               </div>
             )}
 
@@ -207,7 +205,7 @@ export default function PostEditSheet({
             <Button
               variant="outline"
               size="sm"
-              className="w-full text-xs"
+              className="w-full"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
             >
@@ -226,13 +224,12 @@ export default function PostEditSheet({
         </div>
 
         <SheetFooter
-          className="px-6 py-4 border-t flex gap-2"
-          style={{ borderColor: "var(--mk-rule)" }}
+          className="px-6 py-4 border-t flex gap-2 border-border"
         >
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 h-9 rounded-lg text-[13px]"
+            className="flex-1"
             onClick={() => onOpenChange(false)}
           >
             {t("cancel")}
@@ -241,7 +238,7 @@ export default function PostEditSheet({
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 h-9 rounded-lg text-[13px]"
+              className="flex-1"
               onClick={() => onSchedule(content, mediaUrls.length > 0 ? mediaUrls : undefined)}
             >
               {resolvedScheduleLabel}
@@ -249,7 +246,7 @@ export default function PostEditSheet({
           )}
           <Button
             size="sm"
-            className="flex-1 h-9 rounded-lg text-[13px]"
+            className="flex-1"
             onClick={handleSave}
             disabled={saving}
           >

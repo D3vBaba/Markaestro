@@ -1,176 +1,145 @@
 {
   "hero": {
-    "badge": "L'hub di pubblicazione social per ogni brand che gestisci",
-    "titleLead": "Tutto il tuo motore di marketing",
-    "titleHighlight": "in un'unica piattaforma",
-    "subtitle": "Carica i tuoi contenuti, scrivi le tue didascalie e pubblica ogni brand che promuovi, la tua attività, i tuoi clienti, o te stesso, su ogni canale social da un'unica dashboard. Oppure consegna una chiave API al tuo agente IA e lascia che gestisca tutto.",
     "primaryButton": "Inizia gratis",
     "secondaryButton": "Scopri le funzionalità",
     "signInPrompt": "Hai già un account?",
     "signInLink": "Accedi",
-    "stats": [
-      {
-        "value": "10h",
-        "label": "Risparmiate a settimana"
-      },
-      {
-        "value": "6",
-        "label": "Canali, un clic"
-      },
-      {
-        "value": "1",
-        "label": "Editor per ogni canale"
-      }
-    ],
-    "trustedBy": "Scelto dai founder"
-  },
-  "featuresPreview": {
-    "eyebrow": "Piattaforma",
-    "titleLead": "Tutto ciò che ti serve per",
-    "titleHighlight": "crescere",
-    "subtitle": "Dalla bozza della didascalia al post pubblicato, Markaestro gestisce ogni fase del tuo workflow social.",
-    "items": [
-      {
-        "title": "Pubblicazione multicanale",
-        "desc": "Pubblica su Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest da un unico editor. Programma i post o pubblica istantaneamente."
-      },
-      {
-        "title": "Caricamento centralizzato dei contenuti",
-        "desc": "Utilizza le tue immagini e i tuoi video. Carica una volta per post e distribuisci a ogni canale connesso."
-      },
-      {
-        "title": "Anteprime multicanale",
-        "desc": "Vedi come apparirà ogni post su ciascuna piattaforma prima di pubblicare, didascalie, proporzioni, limiti di caratteri."
-      },
-      {
-        "title": "Programmazione e calendario",
-        "desc": "Metti in coda i post su un calendario unificato con tempistiche per canale. Riprogramma, metti in pausa o duplica in un clic."
-      },
-      {
-        "title": "Dashboard di pubblicazione",
-        "desc": "Tieni traccia di bozze, post programmati e stato di pubblicazione su ogni canale."
-      },
-      {
-        "title": "Integrazioni OAuth",
-        "desc": "Connettiti con un clic a Meta, TikTok, LinkedIn, Threads e Pinterest tramite OAuth sicuro. Nessuna gestione manuale dei token richiesta."
-      }
-    ],
-    "exploreButton": "Esplora tutte le funzionalità"
-  },
-  "intelligencePreview": {
-    "eyebrow": "Intelligence",
-    "titleLead": "Pubblicare è l’input.",
-    "titleHighlight": "La crescita è il risultato.",
-    "subtitle": "Intelligence impara dai post che hai già pubblicato e ti dice, in parole semplici, cosa ha funzionato, quando pubblicare e cosa provare dopo. Poi lo scrive per te.",
-    "items": [
-      {
-        "title": "Misurato, mai supposto",
-        "desc": "Ogni numero è esattamente quello riportato dalla piattaforma. Un campo vuoto resta vuoto, e ogni risultato dice se è stato misurato, calcolato, consigliato o generato."
-      },
-      {
-        "title": "Pattern con prove",
-        "desc": "Quale piattaforma, fascia oraria, gancio o pilastro di contenuto rende sopra il resto del tuo brand, con dimensione del campione e intervallo di confidenza esplicitati."
-      },
-      {
-        "title": "Bozze sotto il tuo controllo",
-        "desc": "Trasforma qualsiasi opportunità o post vincente in una caption con la voce del tuo brand. Arriva in Contenuti come bozza. Tu modifichi, aggiungi media e programmi."
-      }
-    ],
-    "exploreButton": "Esplora Intelligence"
+    "title": "Gestisci i social di ogni brand da un unico calendario",
+    "highlight": "un unico calendario",
+    "subtitle2": "Pianifica, scrivi, programma e misura i post di ogni brand che promuovi, su sette canali. Oppure consegna una chiave API al tuo agente IA e lascia che pubblichi lui.",
+    "screenshotAlt": "La dashboard di Markaestro: brand, post, attività di pubblicazione e cosa arriva dopo."
   },
   "channelsPreview": {
-    "eyebrow": "Canali",
-    "titleLead": "Raggiungi il tuo pubblico",
-    "titleHighlight": "ovunque",
-    "subtitle": "Connettiti una volta e pubblica su ogni piattaforma principale. Markaestro gestisce le differenze tra le API, i limiti di caratteri e i requisiti dei contenuti per ogni canale.",
-    "channels": [
-      {
-        "name": "Facebook e Instagram",
-        "desc": "Connesso tramite OAuth via Meta. Pagine, post del feed, storie e pubblicazione business su IG."
-      },
-      {
-        "name": "TikTok",
-        "desc": "Post foto e video. Per impostazione predefinita passano alla inbox TikTok del creator per completare e pubblicare; la pubblicazione diretta sul profilo è disponibile per singolo post."
-      },
-      {
-        "name": "LinkedIn",
-        "desc": "Il tuo profilo o una Pagina che gestisci. Post di testo, immagine, video e con più immagini fino a 20 immagini."
-      },
-      {
-        "name": "Threads e Pinterest",
-        "desc": "Carousel Threads fino a 20 elementi; pin di immagini e video Pinterest sulla bacheca che scegli."
-      }
-    ],
-    "seeAllButton": "Vedi tutti i canali",
-    "stats": [
-      {
-        "label": "Canali social",
-        "value": "6",
-        "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest"
-      },
-      {
-        "label": "Editor",
-        "value": "1",
-        "sub": "Didascalia + contenuti in un'unica schermata"
-      },
-      {
-        "label": "Dashboard",
-        "value": "1",
-        "sub": "Workflow di pubblicazione unificato"
-      },
-      {
-        "label": "API",
-        "value": "1",
-        "sub": "Una chiave, pronta per gli agenti"
-      }
-    ]
-  },
-  "composerPreview": {
-    "panelLabel": "Un editor, ogni canale",
-    "rows": [
-      {
-        "label": "Contenuti",
-        "value": "Carica immagini o video: JPG, PNG, WebP, MP4"
-      },
-      {
-        "label": "Didascalia",
-        "value": "Scrivi una volta, visualizza l'anteprima per canale prima di pubblicare"
-      },
-      {
-        "label": "Risultato",
-        "value": "Post programmati o istantanei su tutti e sei i canali connessi"
-      }
-    ],
-    "eyebrow": "Editor",
-    "titleLead": "I tuoi contenuti,",
-    "titleHighlight": "il tuo materiale",
-    "subtitle": "Carica le foto o i video che già possiedi. Scrivi la didascalia che desideri. Markaestro gestisce la pubblicazione e la programmazione così puoi concentrarti sul lavoro creativo.",
-    "bullets": [
-      "Carica immagini e video direttamente dal tuo dispositivo o dalla tua libreria",
-      "Anteprime consapevoli del canale: hashtag, limiti di caratteri, specifiche dei contenuti",
-      "Programma, pubblica istantaneamente o salva come bozza in un clic"
-    ],
-    "seeFeaturesButton": "Vedi tutte le funzionalità"
+    "seeAllButton": "Vedi tutti i canali"
   },
   "agentSection": {
     "eyebrow": "Agenti IA",
     "titleLead": "Oppure lascia che il tuo agente",
     "titleHighlight": "se ne occupi",
-    "subtitle": "Ogni workspace può generare chiavi API. Consegnane una al tuo agente IA e potrà scoprire su quali account è autorizzato a pubblicare, caricare contenuti, creare bozze e programmare post, pubblicarli e riferire su cosa è stato effettivamente pubblicato, senza toccare direttamente nessuna API di piattaforma.",
+    "subtitle": "Ogni workspace a pagamento può generare chiavi API, e i client MCP come Claude Code possono invece accedere dal browser. In entrambi i casi il tuo agente può scoprire su quali account può pubblicare, caricare media, scrivere e programmare post, pubblicarli e riferire cosa è davvero uscito, senza toccare una sola API di piattaforma.",
     "bullets": [
       "Una chiave è limitata a un solo brand, un agente non può finire su un altro",
-      "Facebook, Instagram e TikTok rimangono sempre manuali per prima cosa: è sempre una persona a pubblicare",
+      "Facebook, Instagram e TikTok sono manuali per impostazione predefinita: pubblica una persona, a meno che tu non abiliti esplicitamente un post",
       "Scritture idempotenti, esecuzioni di pubblicazione asincrone e webhook firmati integrati"
     ],
     "primaryButton": "Leggi la guida per agenti",
     "secondaryButton": "Riferimento API",
-    "codeLabel": "il tuo agente, dal primo giorno"
+    "codeLabel": "Il tuo agente, dal primo giorno"
   },
-  "cta": {
-    "eyebrow": "Inizia ora",
-    "title": "Pronto a semplificare la tua pubblicazione social?",
-    "subtitle": "Configurazione in pochi minuti. Connetti i tuoi canali, carica i tuoi contenuti e inizia a pubblicare.",
-    "primaryButton": "Inizia gratis",
-    "secondaryButton": "Contatta il team commerciale"
+  "proof": {
+    "label": "Cosa ottieni dal primo giorno",
+    "items": [
+      {
+        "value": "7",
+        "label": "Canali da un unico compositore"
+      },
+      {
+        "value": "1",
+        "label": "Calendario per ogni brand"
+      },
+      {
+        "value": "Illimitati",
+        "label": "Post programmati nei piani a pagamento"
+      },
+      {
+        "value": "Per canale",
+        "label": "Anteprime prima di pubblicare"
+      },
+      {
+        "value": "Misurate",
+        "label": "Analytics da ogni piattaforma"
+      },
+      {
+        "value": "API",
+        "label": "Per script e agenti IA"
+      },
+      {
+        "value": "Evergreen",
+        "label": "Code che ripubblicano i post vincenti"
+      }
+    ]
+  },
+  "whoFor": {
+    "title": "Per chi è Markaestro?",
+    "items": [
+      {
+        "title": "Founder",
+        "desc": "Un prodotto, una manciata di canali e zero tempo per accedere a ciascuno. Scrivi una volta, programma il mese, torna a costruire."
+      },
+      {
+        "title": "Piccole imprese",
+        "desc": "Tieni il negozio, lo studio o il ristorante attivo ogni settimana senza assumere un team social."
+      },
+      {
+        "title": "Agenzie e freelance",
+        "desc": "Ogni cliente è un brand con i propri canali, la propria voce e il proprio calendario. Passa dall'uno all'altro con un clic."
+      },
+      {
+        "title": "Creator",
+        "desc": "Anche il tuo nome è un brand. Pianifica la settimana, pubblica su ogni piattaforma e scopri cosa ha funzionato davvero."
+      }
+    ]
+  },
+  "bento": {
+    "title": "Tutti gli strumenti per crescere sui social in un unico posto",
+    "tiles": [
+      {
+        "id": "calendar",
+        "label": "Pianificazione",
+        "title": "Un calendario che si legge davvero",
+        "desc": "Viste mese, settimana ed elenco. Trascina un post per riprogrammarlo. Le giornate piene si riassumono per canale invece di nascondersi dietro “+38 altri”."
+      },
+      {
+        "id": "composer",
+        "label": "Pubblicazione",
+        "title": "Un compositore, ogni canale",
+        "desc": "Scegli i canali, scrivi la didascalia, aggiungi i media e vedi in anteprima esattamente come ogni piattaforma lo mostrerà."
+      },
+      {
+        "id": "analytics",
+        "label": "Analytics",
+        "title": "Numeri dalle piattaforme, non supposizioni",
+        "desc": "Visualizzazioni, copertura, interazioni e follower per canale, con le finestre di pubblicazione migliori e i post che le hanno ottenute."
+      },
+      {
+        "id": "brands",
+        "label": "Brand",
+        "title": "Ogni brand nella sua corsia",
+        "desc": "Prodotti, aziende, clienti o te stesso. Ogni brand mantiene i propri canali, la propria identità e la propria voce."
+      },
+      {
+        "id": "intelligence",
+        "label": "Intelligence",
+        "title": "Impara da ciò che hai già pubblicato",
+        "desc": "Post classificati, schemi con prove e bozze nella voce del tuo brand che arrivano come post modificabili."
+      }
+    ]
+  },
+  "channelWall": {
+    "title": "Ogni canale in cui si trova il tuo pubblico",
+    "subtitle": "Collegati una volta con OAuth. Markaestro gestisce limiti di caratteri, regole sui media e particolarità API di ogni piattaforma.",
+    "extras": [
+      {
+        "label": "API pubblica"
+      },
+      {
+        "label": "Agenti IA"
+      },
+      {
+        "label": "Webhook"
+      }
+    ]
+  },
+  "ctaBand": {
+    "title": "Pronto a far pubblicare ogni brand?",
+    "subtitle": "Gratis per iniziare. Collega un canale e programma il tuo primo post in pochi minuti.",
+    "button": "Inizia gratis"
+  },
+  "wallOfLove": {
+    "title": "Cosa dicono di noi"
+  },
+  "faq": {
+    "title": "Domande frequenti",
+    "more": "Vedi i prezzi e tutte le domande"
   }
 }

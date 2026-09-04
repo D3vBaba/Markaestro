@@ -7,7 +7,8 @@
       "drafts": "임시 저장",
       "scheduled": "예약됨",
       "published": "게시됨",
-      "onPlatform": "플랫폼 내"
+      "onPlatform": "플랫폼 내",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "브랜드",
@@ -354,5 +355,98 @@
       "videoTooLong": "이 동영상은 이 계정의 {maxSeconds}초 제한을 초과합니다.",
       "creatorInfoUnavailable": "TikTok 계정 정보를 불러오지 못해 이 게시물을 바로 게시할 수 없습니다."
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "큐를 업데이트할 수 없습니다",
+    "actions": {
+      "activate": "활성화",
+      "activateSuccess": "큐가 활성화되었습니다",
+      "archive": "보관",
+      "archiveSuccess": "큐가 보관되었습니다",
+      "pause": "일시 중지",
+      "pauseSuccess": "큐가 일시 중지되었습니다",
+      "resume": "재개",
+      "resumeSuccess": "큐가 재개되었습니다"
+    },
+    "addVariant": "변형 추가",
+    "analytics": {
+      "conversions": "전환",
+      "details": "성과",
+      "engagements": "참여",
+      "loadFailed": "큐 성과를 불러올 수 없습니다",
+      "loading": "큐 성과를 불러오는 중...",
+      "measured": "측정된 실행",
+      "needsReview": "검토 필요",
+      "noOutcome": "충분히 성숙한 성과 결과를 기다리는 중",
+      "noRuns": "아직 생성된 회차가 없습니다.",
+      "recentRuns": "최근 실행",
+      "trackedClicks": "추적된 클릭",
+      "unavailable": "사용할 수 없음",
+      "views": "누적 조회수"
+    },
+    "approveFuture": "향후 실행을 지금 승인",
+    "cancel": "취소",
+    "changeSource": "변경",
+    "choosePost": "게시된 게시물 선택",
+    "create": "큐 만들기",
+    "createFailed": "큐를 만들 수 없습니다",
+    "created": "Evergreen 큐가 생성되었습니다",
+    "defaultName": "{channel} Evergreen 큐",
+    "description": "검증된 게시물을 관리되고 측정 가능한 큐로 바꾸세요. Markaestro는 원본을 보존하고, 실행마다 새 회차를 만들고, 성과가 약한 시퀀스를 자동으로 일시 중지합니다.",
+    "eligible": "적격 근거를 찾았습니다",
+    "empty": "이 브랜드에는 아직 Evergreen 큐가 없습니다.",
+    "everyDays": "{count}일마다",
+    "interval": "실행 간 최소 일수",
+    "loadFailed": "Evergreen 큐를 불러올 수 없습니다",
+    "loading": "Evergreen 큐를 불러오는 중...",
+    "newQueue": "새 큐",
+    "nextRun": "다음 실행: {date}",
+    "notEligible": "아직 적격하지 않음",
+    "notScheduled": "이 큐를 활성화하면 첫 실행이 예약됩니다.",
+    "pausedReason": "일시 중지됨: {reason}",
+    "picker": {
+      "engagements": "참여",
+      "filters": {
+        "all": "게시된 전체",
+        "eligible": "준비됨",
+        "suggested": "추천"
+      },
+      "mediaOnly": "미디어 있는 것만",
+      "noMatches": "일치하는 게시된 게시물이 없습니다.",
+      "noSuggested": "아직 눈에 띄는 게시물이 없습니다. 추천되려면 7일간의 측정 결과가 필요합니다.",
+      "notReady": "준비 안 됨",
+      "rate": "비율",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "이 게시물에 채널이 없습니다",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "아직 측정된 조회수나 참여가 없습니다",
+        "SOURCE_METRICS_IMMATURE": "게시된 지 7일 미만",
+        "SOURCE_NOT_PUBLISHED": "아직 게시되지 않음",
+        "SOURCE_PUBLISH_DATE_MISSING": "게시 날짜 알 수 없음"
+      },
+      "search": "게시된 게시물 검색",
+      "suggested": "추천",
+      "views": "조회수"
+    },
+    "previewFailed": "이 게시물을 확인할 수 없습니다",
+    "queueName": "큐 이름",
+    "removeVariant": "제거",
+    "reviewEach": "매 회차 검토",
+    "reviewPolicy": "승인 정책",
+    "runs": "{count, plural, other {#개 실행 생성됨}}",
+    "saving": "만드는 중...",
+    "selectBrand": "Evergreen 큐를 관리할 브랜드를 선택하세요.",
+    "selectedSource": "선택한 게시물",
+    "sourceHint": "이 큐가 반복할 게시물을 선택하세요. 추천 게시물은 오디언스로부터 가장 많은 반응을 얻었고 최소 일주일이 지난 것입니다.",
+    "sourcePost": "검증된 원본 게시물",
+    "statuses": {
+      "active": "활성",
+      "archived": "보관됨",
+      "draft": "초안",
+      "paused": "일시 중지됨"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "캡션 변형",
+    "variantNumber": "캡션 변형 {number}",
+    "variants": "캡션 변형"
   }
 }

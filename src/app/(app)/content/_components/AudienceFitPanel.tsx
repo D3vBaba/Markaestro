@@ -106,21 +106,21 @@ export default function AudienceFitPanel({
     <section className="rounded-xl p-4" style={{ background: "var(--mk-panel)", border: "1px solid var(--mk-rule)" }} aria-labelledby="audience-fit-title">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <BrainCircuit className="h-4 w-4" aria-hidden="true" />
+          <BrainCircuit className="size-4" aria-hidden="true" />
           <h3 id="audience-fit-title" className="text-[13px] font-semibold">{t("title")}</h3>
         </div>
-        <Badge variant="outline" className="text-[9px] uppercase">{t("recommended")}</Badge>
+        <Badge variant="outline" className="text-xs">{t("recommended")}</Badge>
       </div>
       {timing.data?.timing?.windows?.[0] && (
-        <p className="mt-2 text-[11px]" style={{ color: "var(--mk-ink-60)" }}>
+        <p className="mt-2 text-xs text-muted-foreground">
           {t("timingHint", { bucket: timing.data.timing.windows[0].bucket, count: timing.data.timing.windows[0].observations })}
         </p>
       )}
       {!displayResult && (
         <div className="mt-3">
-          <p className="text-[11px] leading-5" style={{ color: "var(--mk-ink-60)" }}>{displayStatus === "failed" ? t("failed") : t("body")}</p>
-          <Button type="button" variant="outline" size="sm" className="mt-3 gap-1.5" disabled={!content.trim() || displayStatus === "queued"} onClick={analyze}>
-            {displayStatus === "queued" && <RefreshCw className="h-3 w-3 animate-spin" />}
+          <p className="text-xs leading-5 text-muted-foreground">{displayStatus === "failed" ? t("failed") : t("body")}</p>
+          <Button type="button" variant="outline" size="sm" className="mt-3" disabled={!content.trim() || displayStatus === "queued"} onClick={analyze}>
+            {displayStatus === "queued" && <RefreshCw className="size-3 animate-spin" />}
             {displayStatus === "queued" ? t("analyzing") : displayStatus === "failed" ? t("retry") : t("analyze")}
           </Button>
         </div>
@@ -129,18 +129,18 @@ export default function AudienceFitPanel({
         <div className="mt-3 space-y-3">
           <div className="flex items-end gap-2">
             <span className="text-3xl font-semibold tabular-nums">{displayResult.fit.score ?? "n/a"}</span>
-            <span className="pb-1 text-[11px]" style={{ color: "var(--mk-ink-40)" }}>/100</span>
+            <span className="pb-1 text-xs text-mk-ink-40">/100</span>
           </div>
-          <p className="text-[10px]" style={{ color: "var(--mk-ink-40)" }}>
+          <p className="text-[10px] text-mk-ink-40">
             {t("meta", { coverage: displayResult.fit.dataCoverage, confidence: t(`confidence.${displayResult.fit.confidence.label}`), sample: displayResult.sampleSize })}
           </p>
-          {displayResult.fit.coldStart && <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>{t("coldStart")}</p>}
+          {displayResult.fit.coldStart && <p className="text-xs text-mk-warn">{t("coldStart")}</p>}
           {displayResult.fit.components.length > 0 && (
             <ul className="space-y-1.5">
               {displayResult.fit.components.map((component) => (
-                <li key={component.component} className="flex items-center justify-between gap-2 text-[11px]">
+                <li key={component.component} className="flex items-center justify-between gap-2 text-xs">
                   <span>{component.label}</span>
-                  <span className="tabular-nums" style={{ color: component.available ? "var(--mk-ink)" : "var(--mk-ink-40)" }}>
+                  <span className="tabular-nums">
                     {component.score === null ? t("unavailable") : component.score}
                   </span>
                 </li>
@@ -150,13 +150,13 @@ export default function AudienceFitPanel({
           {displayResult.fit.recommendations.length > 0 && (
             <ul className="space-y-2">
               {displayResult.fit.recommendations.map((recommendation) => (
-                <li key={recommendation} className="text-[11px] leading-4">{recommendation}</li>
+                <li key={recommendation} className="text-xs leading-4">{recommendation}</li>
               ))}
             </ul>
           )}
           {suggestion && onApplyCaption && (
             <div className="rounded-lg p-3" style={{ background: "var(--mk-paper)", border: "1px dashed var(--mk-rule)" }}>
-              <p className="text-[10px] uppercase tracking-wider" style={{ color: "var(--mk-ink-40)" }}>{t("suggestion")}</p>
+              <p className="text-xs text-mk-ink-40">{t("suggestion")}</p>
               <p className="mt-1 text-[12px] leading-5 whitespace-pre-wrap">{suggestion}</p>
               <Button
                 type="button"
@@ -173,7 +173,7 @@ export default function AudienceFitPanel({
               </Button>
             </div>
           )}
-          <Button type="button" variant="ghost" size="sm" className="px-0 text-[11px]" onClick={analyze}>{t("reanalyze")}</Button>
+          <Button type="button" variant="ghost" size="sm" className="px-0 text-xs" onClick={analyze}>{t("reanalyze")}</Button>
         </div>
       )}
     </section>

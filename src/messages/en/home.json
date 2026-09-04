@@ -1,180 +1,145 @@
 {
   "hero": {
-    "badge": "The social publishing hub for every brand you run",
-    "titleLead": "Your entire marketing engine",
-    "titleHighlight": "in one platform",
-    "subtitle": "Upload your media, write your captions, and publish every brand you market, your business, your clients, or yourself, to every social channel from one dashboard. Or hand an API key to your AI agent and let it run the whole thing.",
-    "primaryButton": "Start for free",
-    "secondaryButton": "See features",
+    "primaryButton": "Start for Free",
+    "secondaryButton": "See Features",
     "signInPrompt": "Already have an account?",
-    "signInLink": "Sign in",
-    "stats": [
-      {
-        "value": "10hrs",
-        "label": "Saved per week"
-      },
-      {
-        "value": "7",
-        "label": "Channels, one click"
-      },
-      {
-        "value": "1",
-        "label": "Composer for every channel"
-      }
-    ],
-    "trustedBy": "Trusted by founders"
-  },
-  "featuresPreview": {
-    "eyebrow": "Platform",
-    "titleLead": "Everything you need to",
-    "titleHighlight": "grow",
-    "subtitle": "From draft caption to published post, Markaestro handles every step of your social workflow.",
-    "items": [
-      {
-        "title": "Multi-channel publishing",
-        "desc": "Publish to Facebook, Instagram, TikTok, LinkedIn, Threads, Pinterest, and X from a single composer. Schedule posts or publish instantly."
-      },
-      {
-        "title": "Centralized media uploads",
-        "desc": "Bring your own images and videos. Upload once per post and ship to every connected channel."
-      },
-      {
-        "title": "Multi-channel previews",
-        "desc": "See how every post will render on each platform before you publish: captions, aspect ratios, character limits."
-      },
-      {
-        "title": "Scheduling & calendar",
-        "desc": "Queue posts on a unified calendar with per-channel timing. Reschedule, pause, or duplicate in a click."
-      },
-      {
-        "title": "Intelligent Evergreen",
-        "desc": "Turn a proven post into a governed queue with caption rotation, approval controls, measured evaluation, and automatic decay pauses."
-      },
-      {
-        "title": "OAuth integrations",
-        "desc": "One-click connect to Meta, TikTok, LinkedIn, Threads, Pinterest, and X via secure OAuth. No manual token management required."
-      }
-    ],
-    "exploreButton": "Explore all features"
-  },
-  "intelligencePreview": {
-    "eyebrow": "Intelligence",
-    "titleLead": "Publishing is the input.",
-    "titleHighlight": "Growth is the output.",
-    "subtitle": "Intelligence learns from the posts you already published and tells you, in plain language, what worked, when to post, and what to try next. Then it drafts it for you.",
-    "items": [
-      {
-        "title": "Measured, never guessed",
-        "desc": "Every number is exactly what the platform reported. A blank stays blank, and each result says whether it was measured, calculated, recommended, or generated."
-      },
-      {
-        "title": "Patterns with proof",
-        "desc": "Which platform, time slot, hook, or content pillar performs above the rest of your brand, with the sample size and confidence range spelled out."
-      },
-      {
-        "title": "Drafts you control",
-        "desc": "Turn any opportunity or winning post into a caption in your brand voice. It lands in Content as a draft. You edit, add media, and schedule."
-      }
-    ],
-    "exploreButton": "Explore Intelligence"
+    "signInLink": "Sign In",
+    "title": "Run Every Brand's Social Media from One Calendar",
+    "highlight": "One Calendar",
+    "subtitle2": "Plan, write, schedule and measure posts for every brand you market, across seven channels. Or hand an API key to your AI agent and let it do the posting.",
+    "screenshotAlt": "The Markaestro dashboard: brands, posts, publishing activity and what is up next."
   },
   "channelsPreview": {
-    "eyebrow": "Channels",
-    "titleLead": "Reach your audience",
-    "titleHighlight": "everywhere",
-    "subtitle": "Connect once and publish to every major platform. Markaestro handles the API differences, character limits, and media requirements for each channel.",
-    "channels": [
-      {
-        "name": "Facebook & Instagram",
-        "desc": "OAuth-connected via Meta. Pages, feed posts, stories, and IG business publishing."
-      },
-      {
-        "name": "TikTok",
-        "desc": "Photo and video posts. Default is a handoff to the creator's TikTok inbox to finish and post; Direct Post to the profile is available per post."
-      },
-      {
-        "name": "LinkedIn",
-        "desc": "Your profile or a Page you manage. Text, image, video, and multi-image posts up to 20 images."
-      },
-      {
-        "name": "Threads & Pinterest",
-        "desc": "Threads carousels up to 20 items; Pinterest image and video pins to the board you pick."
-      },
-      {
-        "name": "X",
-        "desc": "Text, image, GIF, and video posts with reply controls, live metrics, account audience, and workspace spend protection."
-      }
+    "seeAllButton": "See All Channels"
+  },
+  "agentSection": {
+    "eyebrow": "AI Agents",
+    "titleLead": "Or Let Your Agent",
+    "titleHighlight": "Run It",
+    "subtitle": "Every paid workspace can mint API keys, and MCP clients such as Claude Code can sign in through the browser instead. Either way your agent can discover which accounts it's allowed to post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped, without touching a single platform API itself.",
+    "bullets": [
+      "One key is scoped to one brand. An agent can't wander into another",
+      "Facebook, Instagram, and TikTok are manual-first by default: a human posts unless you opt a post in",
+      "Idempotent writes, async publish runs, and signed webhooks built in"
     ],
-    "seeAllButton": "See all channels",
-    "stats": [
+    "primaryButton": "Read the Agent Guide",
+    "secondaryButton": "API Reference",
+    "codeLabel": "Your Agent, on Day One"
+  },
+  "proof": {
+    "label": "What you get on day one",
+    "items": [
       {
-        "label": "Social channels",
         "value": "7",
-        "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest, X"
+        "label": "Channels from one composer"
       },
       {
-        "label": "Composer",
         "value": "1",
-        "sub": "Caption + media in one screen"
+        "label": "Calendar for every brand"
       },
       {
-        "label": "Dashboard",
-        "value": "1",
-        "sub": "Unified publishing workflow"
+        "value": "Unlimited",
+        "label": "Scheduled posts on paid plans"
       },
       {
-        "label": "API",
-        "value": "1",
-        "sub": "One key, agent-ready"
+        "value": "Per channel",
+        "label": "Previews before you publish"
+      },
+      {
+        "value": "Measured",
+        "label": "Analytics from each platform"
+      },
+      {
+        "value": "API",
+        "label": "For scripts and AI agents"
+      },
+      {
+        "value": "Evergreen",
+        "label": "Queues that repost winners"
       }
     ]
   },
-  "composerPreview": {
-    "panelLabel": "One composer, every channel",
-    "rows": [
+  "whoFor": {
+    "title": "Who is Markaestro for?",
+    "items": [
       {
-        "label": "Media",
-        "value": "Upload images or video: JPG, PNG, WebP, MP4"
+        "title": "Founders",
+        "desc": "One product, a handful of channels, and no time to log into each one. Write once, schedule the month, get back to building."
       },
       {
-        "label": "Caption",
-        "value": "Write once, preview per channel before publishing"
+        "title": "Small Businesses",
+        "desc": "Keep the shop, the studio or the restaurant posting every week without hiring a social team."
       },
       {
-        "label": "Output",
-        "value": "Scheduled or instant posts to all seven connected channels"
+        "title": "Agencies and Freelancers",
+        "desc": "Every client is a brand with its own channels, voice and calendar. Switch between them in one click."
+      },
+      {
+        "title": "Creators",
+        "desc": "Your own name is a brand too. Plan the week, cross-post to every platform, and see what actually worked."
       }
-    ],
-    "eyebrow": "Composer",
-    "titleLead": "Your media,",
-    "titleHighlight": "your content",
-    "subtitle": "Upload the photos or videos you already have. Write the caption you want. Markaestro handles publishing and scheduling so you can stay focused on the creative work.",
-    "bullets": [
-      "Upload images and video directly from your device or library",
-      "Channel-aware previews: hashtags, char limits, media specs",
-      "Schedule, publish instantly, or save to drafts in one click"
-    ],
-    "seeFeaturesButton": "See all features"
+    ]
   },
-  "agentSection": {
-    "eyebrow": "AI agents",
-    "titleLead": "Or let your agent",
-    "titleHighlight": "run it",
-    "subtitle": "Every paid workspace can mint API keys. Give one to your AI agent and it can discover which accounts it's allowed to post to, upload media, draft and schedule posts, publish them, and report back on what actually shipped, without touching a single platform API itself.",
-    "bullets": [
-      "One key is scoped to one brand. An agent can't wander into another",
-      "Facebook, Instagram, and TikTok stay manual-first: a human posts, always",
-      "Idempotent writes, async publish runs, and signed webhooks built in"
-    ],
-    "primaryButton": "Read the agent guide",
-    "secondaryButton": "API reference",
-    "codeLabel": "your agent, on day one"
+  "bento": {
+    "title": "All the Tools for Social Growth in One Place",
+    "tiles": [
+      {
+        "id": "calendar",
+        "label": "Planning",
+        "title": "A Calendar You Can Actually Read",
+        "desc": "Month, week and list views. Drag a post to reschedule it. Busy days summarise by channel instead of hiding behind \"+38 more\"."
+      },
+      {
+        "id": "composer",
+        "label": "Publishing",
+        "title": "One Composer, Every Channel",
+        "desc": "Pick the channels, write the caption, drop in media, and preview exactly how each platform will render it."
+      },
+      {
+        "id": "analytics",
+        "label": "Analytics",
+        "title": "Numbers from the Platforms, Not Guesses",
+        "desc": "Views, reach, engagement and followers per channel, with the best posting windows and the posts that earned it."
+      },
+      {
+        "id": "brands",
+        "label": "Brands",
+        "title": "Every Brand in Its Own Lane",
+        "desc": "Products, businesses, clients or yourself. Each brand keeps its own channels, identity and voice."
+      },
+      {
+        "id": "intelligence",
+        "label": "Intelligence",
+        "title": "Learn from What You Already Posted",
+        "desc": "Ranked posts, patterns with proof, and drafts in your brand voice that land as editable posts."
+      }
+    ]
   },
-  "cta": {
-    "eyebrow": "Get started",
-    "title": "Ready to streamline your social publishing?",
-    "subtitle": "Set up in minutes. Connect your channels, upload your media, and start publishing.",
-    "primaryButton": "Get started free",
-    "secondaryButton": "Contact sales"
+  "channelWall": {
+    "title": "Every Channel Your Audience Is On",
+    "subtitle": "Connect once with OAuth. Markaestro handles the character limits, media rules and API quirks of each platform.",
+    "extras": [
+      {
+        "label": "Public API"
+      },
+      {
+        "label": "AI Agents"
+      },
+      {
+        "label": "Webhooks"
+      }
+    ]
+  },
+  "ctaBand": {
+    "title": "Ready to get every brand posting?",
+    "subtitle": "Free to start. Connect a channel and schedule your first post in minutes.",
+    "button": "Start for Free"
+  },
+  "wallOfLove": {
+    "title": "What People Say"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "more": "See pricing and all questions"
   }
 }

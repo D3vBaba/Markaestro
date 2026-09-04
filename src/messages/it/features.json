@@ -10,17 +10,17 @@
       "title": "Pubblicazione Multicanale",
       "description": "Componi una volta, pubblica ovunque. Scrivi un unico post e adattalo per Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest con un clic. Programma per il momento ottimale o pubblica istantaneamente.",
       "details": [
-        "Editor unificato con anteprima per canale",
-        "Gestione dei contenuti drag-and-drop",
-        "Programmazione in blocco per calendari editoriali",
-        "Ridimensionamento automatico delle immagini secondo le specifiche della piattaforma"
+        "Compositore unificato con anteprima per canale",
+        "Gestione dei media con trascinamento",
+        "Riprogrammazione, cambi di stato ed eliminazioni in blocco",
+        "Limiti di caratteri e controlli sui media per canale prima di pubblicare"
       ]
     },
     {
       "title": "Caricamento e Libreria Contenuti",
       "description": "Utilizza le tue fotografie, i tuoi video e i materiali del tuo brand. Markaestro li archivia per workspace e li allega ai post con un unico trascinamento.",
       "details": [
-        "Supporto per JPG, PNG, WebP, MP4, MOV e WebM",
+        "Supporto per JPG, PNG, WebP, GIF, MP4, MOV e WebM",
         "Fino a 250 MB per video, 10 MB per immagine",
         "Controlli di formato per canale prima della pubblicazione",
         "Riutilizza i contenuti caricati su più post"
@@ -30,20 +30,20 @@
       "title": "Anteprime Multicanale",
       "description": "Vedi come apparirà ogni post su ciascun network prima di pubblicare: Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest hanno ognuna la propria anteprima dedicata. Didascalie, proporzioni, limiti di caratteri e specifiche dei contenuti vengono resi in tempo reale.",
       "details": [
-        "Anteprime precise al pixel per ogni piattaforma",
+        "Anteprime per piattaforma, inclusi i posizionamenti pubblicitari",
         "Conteggio caratteri della didascalia in tempo reale",
-        "Indicazioni sulle proporzioni per canale",
-        "Individua problemi di formattazione prima della pubblicazione"
+        "Regole su numero e formato dei media per canale",
+        "Individua i problemi di formattazione prima che vadano online"
       ]
     },
     {
       "title": "Dashboard di Pubblicazione",
       "description": "Vedi ogni bozza, post programmato e stato di pubblicazione in un'unica vista del workspace senza passare da una piattaforma all'altra.",
       "details": [
-        "Code di bozze, programmati e pubblicati",
-        "Stato di pubblicazione per canale",
-        "Workflow di ripetizione per post falliti",
-        "Panoramica dei contenuti a livello di workspace"
+        "Viste bozze, programmati, pubblicati e sulla piattaforma",
+        "Stato di pubblicazione e dettaglio errori per canale",
+        "Coda “Da pubblicare” per i canali in cui una persona pubblica in modo nativo",
+        "Panoramica dell'attività del workspace nella dashboard"
       ]
     },
     {
@@ -57,15 +57,25 @@
       ]
     },
     {
+      "title": "Intelligent Evergreen",
+      "description": "Trasforma un post maturo e misurato in una regola ricorrente che controlli tu. Ruota didascalie approvate, rivedi ogni esecuzione o pre-approva la coda, e lascia che Markaestro metta in pausa la sequenza quando le prestazioni comparabili calano.",
+      "details": [
+        "Idoneità basata sui risultati misurati del post di origine",
+        "Orari fissi o appresi con ricorrenza a prova di ora legale",
+        "Modalità “rivedi ogni esecuzione” e “pre-approvata”",
+        "Valutazione a sette giorni con una pausa prudente dopo due esecuzioni deboli"
+      ]
+    },
+    {
       "title": "API e Agenti IA",
-      "description": "Tutto ciò che fa la dashboard, può farlo anche il tuo software. Genera una chiave API, consegnala a un agente IA o a uno script, e lascia che scopra gli account, carichi contenuti, programmi post, pubblichi e riferisca, su ogni piano, senza costi aggiuntivi.",
+      "description": "Tutto ciò che fa la dashboard può farlo anche il tuo software. Genera una chiave API, affidala a un agente IA o a uno script e lascia che scopra gli account, carichi media, programmi post, pubblichi e riferisca, su ogni piano a pagamento senza costi aggiuntivi.",
       "details": [
         "Chiavi limitate a un singolo brand, con scadenza opzionale",
-        "Scritture idempotenti così un tentativo ripetuto non pubblica mai due volte",
-        "Esecuzioni di pubblicazione asincrone e webhook firmati con HMAC",
-        "Manuale per prima cosa su Meta e TikTok, è ancora una persona a pubblicare"
+        "Scritture idempotenti: un nuovo tentativo non pubblica mai due volte",
+        "Esecuzioni di pubblicazione asincrone, webhook firmati HMAC e un server MCP per Claude Code, claude.ai e Cursor",
+        "Meta e TikTok manuali per impostazione predefinita: pubblica una persona, a meno che tu non abiliti un post"
       ],
-      "codeLabel": "programma un post da qualsiasi cosa parli HTTP",
+      "codeLabel": "Programma un post da qualsiasi cosa parli HTTP",
       "agentGuideLink": "Leggi la guida per agenti IA →"
     }
   ],
@@ -76,11 +86,15 @@
     },
     {
       "title": "Programmazione e Calendario",
-      "description": "Metti in coda i post su un calendario unificato in tutti i tuoi canali. Riprogramma con un trascinamento, duplica i post in un clic e mantieni una visione chiara di cosa uscirà e quando."
+      "description": "Programma i post in un calendario unificato per tutti i canali. Riprogramma trascinando, sposta un gruppo di post in una volta e tieni sotto controllo cosa esce e quando."
     },
     {
       "title": "Accesso Basato su Ruoli",
-      "description": "Controlla chi può pubblicare, modificare o visualizzare con ruoli a tre livelli: Proprietario, Amministratore e Membro. Mantieni le impostazioni sensibili sotto controllo mentre il tuo team lavora velocemente."
+      "description": "Controlla chi può pubblicare, modificare o visualizzare con quattro ruoli: Owner, Admin, Member e Analyst. Mantieni protette le impostazioni sensibili mentre il team lavora veloce."
+    },
+    {
+      "title": "Profili del brand",
+      "description": "Scansiona un sito web per estrarre nome, descrizione, colori, logo e tono in un profilo del brand, poi perfeziona voce, identità e conoscenza. Ogni post e ogni bozza di Intelligence si basa su quel profilo."
     }
   ],
   "platformSection": {
@@ -123,27 +137,23 @@
     "tabs": [
       {
         "title": "Panoramica",
-        "body": "Banner dell’obiettivo, KPI misurati, confronto tra piattaforme per post e una lista di preparazione che mostra esattamente quali funzioni sono attive e quanti dati servono ancora a ciascuna."
-      },
-      {
-        "title": "Pubblico",
-        "body": "Dichiara obiettivo, mercati, fuso orario, pilastri e voce. I link brevi tracciati contano i clic senza salvare dati personali e collegano le conversioni al post."
+        "body": "Banner dell'obiettivo, KPI misurati, confronto tra piattaforme per post, un elenco di prontezza che mostra quali funzioni sono attive e quanti dati servono ancora a ciascuna, e Ask Markaestro per domande a cui rispondono solo i dati di questo brand."
       },
       {
         "title": "Contenuti",
         "body": "I tuoi post ordinati per la metrica che hai scelto, i pattern rilevati in ciascuno e una spiegazione Perché ha funzionato basata sui numeri di quel post rispetto alla media del tuo account."
       },
       {
-        "title": "Opportunità",
-        "body": "Suggerimenti supportati da evidenze che puoi accettare, fissare o scartare, ognuno con un pulsante Crea bozza. Accettare non crea né programma mai un post."
+        "title": "Playbook",
+        "body": "Opportunità supportate da evidenze che puoi accettare, fissare o scartare, ciascuna con un pulsante “Scrivi bozza”, più gli schemi che si ripetono nei tuoi dati con dimensione del campione, effetto e intervallo di confidenza spiegati chiaramente. Accettare non crea né programma mai un post."
       },
       {
-        "title": "Strategia",
-        "body": "I pattern che si ripetono nei tuoi dati con dimensione del campione, effetto e intervallo di confidenza spiegati con parole semplici, più i post dietro ciascuno."
+        "title": "Pubblico",
+        "body": "Dichiara obiettivo, mercati, fuso orario, pilastri e voce. I link brevi tracciati contano i clic senza salvare dati personali e collegano le conversioni al post."
       },
       {
-        "title": "Esperimenti e domande",
-        "body": "Post A/B accoppiati con un vincitore misurato, e domande a cui si risponde solo con i dati di questo brand, citando quelli usati."
+        "title": "Esperimenti",
+        "body": "Post A/B accoppiati con un vincitore misurato, disponibili nel piano Business."
       }
     ],
     "principlesTitle": "Regole che non infrange mai",

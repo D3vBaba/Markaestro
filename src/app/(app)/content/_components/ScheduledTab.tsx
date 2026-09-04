@@ -353,7 +353,7 @@ export default function ScheduledTab({
             <Button
               size="sm"
               variant="outline"
-              className="rounded-lg"
+             
               onClick={() => setSelectedIds(allOnPageSelected ? new Set() : new Set(pageIds))}
             >
               {allOnPageSelected ? t("selection.clear") : t("selection.selectAll")}
@@ -361,7 +361,7 @@ export default function ScheduledTab({
             <Button
               size="sm"
               variant="outline"
-              className="rounded-lg"
+             
               disabled={selectedIds.size === 0 || bulkPending}
               onClick={() => runBulk({ action: "status", status: "draft" }, "movedToDrafts")}
             >
@@ -370,13 +370,13 @@ export default function ScheduledTab({
             <Button
               size="sm"
               variant="outline"
-              className="rounded-lg"
+             
               disabled={selectedIds.size === 0 || bulkPending}
               onClick={() => setConfirmBulkDelete(true)}
             >
               {t("selection.delete")}
             </Button>
-            <Button size="sm" variant="ghost" className="rounded-lg" onClick={exitSelection}>
+            <Button size="sm" variant="ghost" onClick={exitSelection}>
               {t("selection.cancelSelection")}
             </Button>
           </>
@@ -384,7 +384,7 @@ export default function ScheduledTab({
           <Button
             size="sm"
             variant="outline"
-            className="rounded-lg"
+           
             onClick={() => setSelecting(true)}
           >
             {t("selection.selectMode")}
@@ -396,10 +396,10 @@ export default function ScheduledTab({
         {paginatedPosts.map((post) => (
           <div key={post.id} className="relative">
             {selecting && (
-              <label className="absolute left-3 top-3 z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-mk-rule bg-mk-paper">
+              <label className="absolute left-3 top-3 z-10 flex size-7 cursor-pointer items-center justify-center rounded-md border border-mk-rule bg-mk-paper">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 cursor-pointer accent-current"
+                  className="size-4 cursor-pointer accent-current"
                   checked={selectedIds.has(post.id)}
                   onChange={() => toggleSelected(post.id)}
                   aria-label={post.content.slice(0, 80) || post.id}

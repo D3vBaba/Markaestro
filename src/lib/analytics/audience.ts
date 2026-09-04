@@ -61,7 +61,7 @@ export async function captureAudienceSnapshots(
 
   const seen = new Set<string>();
   for (const connection of connections) {
-    if (connection.status !== 'connected') continue;
+    if (connection.status !== 'connected' || connection.fixture) continue;
     for (const channel of connection.channels) {
       const adapter = getAdapterForChannel(channel);
       if (!adapter?.fetchAudience) continue;

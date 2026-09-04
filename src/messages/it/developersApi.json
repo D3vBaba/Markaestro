@@ -22,7 +22,7 @@
       {
         "method": "GET",
         "path": "/api/connect/v1/social-accounts",
-        "note": "Elenca le destinazioni Facebook, Instagram, TikTok, LinkedIn e Threads connesse come account piatti, ciascuno etichettato con il proprio prodotto così i client possono raggruppare e disambiguare. Ogni canale ha il proprio percorso dedicato, nessuna propagazione tra canali."
+        "note": "Elenca le destinazioni Facebook, Instagram, TikTok e LinkedIn collegate come account piatti, ciascuno etichettato con il proprio prodotto così che i client possano raggruppare e distinguere. Ogni canale ha il proprio percorso dedicato, nessuna distribuzione tra canali."
       },
       {
         "method": "GET",
@@ -223,11 +223,15 @@
       },
       {
         "name": "TikTok",
-        "rule": "Almeno un'immagine o un video. Fino a 10 immagini o 1 video. Pubblicazione manuale di default; i post con opt-in vanno alla casella in arrivo del creator, mai un Direct Post pubblico."
+        "rule": "Almeno un'immagine o un video. Fino a 35 immagini o 1 video. Pubblicazione manuale per impostazione predefinita; i post abilitati vanno nella inbox TikTok del creator, oppure direttamente sul profilo con postMode direct_post di TikTok."
       },
       {
         "name": "LinkedIn",
         "rule": "Testo, immagine singola, video singolo, o post organici con più immagini fino a 20 immagini. Scegli come destinatario il Profilo connesso o una Pagina gestita."
+      },
+      {
+        "name": "X",
+        "rule": "Testo, fino a quattro immagini, una GIF o un video. I controlli sulle risposte si applicano per post e la pubblicazione viene bloccata quando il budget di costo X del workspace è esaurito."
       }
     ]
   },

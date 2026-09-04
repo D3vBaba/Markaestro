@@ -7,7 +7,8 @@
       "drafts": "Brouillons",
       "scheduled": "Planifiées",
       "published": "Publiées",
-      "onPlatform": "Sur la plateforme"
+      "onPlatform": "Sur la plateforme",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "Marque",
@@ -133,11 +134,11 @@
     "show": "Afficher",
     "basedOnData": "Basé sur les données d'engagement du secteur pour {channel}",
     "thisChannel": "ce canal",
-    "orPickManually": "ou choisir manuellement",
+    "orPickManually": "Ou choisir manuellement",
     "timeLabel": "Heure",
     "timezoneNote": "Les planifications utilisent votre fuseau horaire local ({timezone}) et sont stockées en UTC.",
     "headsUp": "Attention :",
-    "collisionNote": "une autre publication est déjà planifiée à peu près à cette heure ({date}{channel}). Vous pouvez tout de même planifier les deux.",
+    "collisionNote": "Une autre publication est déjà planifiée à peu près à cette heure ({date}{channel}). Vous pouvez tout de même planifier les deux.",
     "onChannel": " sur {channel}",
     "scheduleFor": "Planifier pour le {date} à {time}",
     "selectDate": "Sélectionnez une date"
@@ -354,5 +355,98 @@
       "videoTooLong": "Cette vidéo dépasse la limite de {maxSeconds} secondes de ce compte.",
       "creatorInfoUnavailable": "Les informations de votre compte TikTok n'ont pas pu être chargées, cette publication ne peut donc pas être publiée directement."
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "Impossible de mettre à jour la file",
+    "actions": {
+      "activate": "Activer",
+      "activateSuccess": "File activée",
+      "archive": "Archiver",
+      "archiveSuccess": "File archivée",
+      "pause": "Suspendre",
+      "pauseSuccess": "File suspendue",
+      "resume": "Reprendre",
+      "resumeSuccess": "File reprise"
+    },
+    "addVariant": "Ajouter une variante",
+    "analytics": {
+      "conversions": "Conversions",
+      "details": "Performance",
+      "engagements": "Engagements",
+      "loadFailed": "Impossible de charger la performance de la file",
+      "loading": "Chargement de la performance de la file...",
+      "measured": "Exécutions mesurées",
+      "needsReview": "À examiner",
+      "noOutcome": "En attente d'un résultat de performance mature",
+      "noRuns": "Aucune occurrence n'a encore été créée.",
+      "recentRuns": "Exécutions récentes",
+      "trackedClicks": "Clics suivis",
+      "unavailable": "Indisponible",
+      "views": "Vues cumulées"
+    },
+    "approveFuture": "Approuver dès maintenant les exécutions futures",
+    "cancel": "Annuler",
+    "changeSource": "Modifier",
+    "choosePost": "Choisir une publication publiée",
+    "create": "Créer la file",
+    "createFailed": "Impossible de créer la file",
+    "created": "File evergreen créée",
+    "defaultName": "File evergreen {channel}",
+    "description": "Transformez vos publications éprouvées en files gouvernées et mesurables. Markaestro conserve la source, crée une nouvelle occurrence à chaque exécution et suspend automatiquement les séquences faibles.",
+    "eligible": "Preuves éligibles trouvées",
+    "empty": "Aucune file evergreen pour cette marque pour l'instant.",
+    "everyDays": "Tous les {count} jours",
+    "interval": "Jours minimum entre deux exécutions",
+    "loadFailed": "Impossible de charger les files evergreen",
+    "loading": "Chargement des files evergreen...",
+    "newQueue": "Nouvelle file",
+    "nextRun": "Prochaine exécution : {date}",
+    "notEligible": "Pas encore éligible",
+    "notScheduled": "Activez cette file pour planifier sa première exécution.",
+    "pausedReason": "Suspendue : {reason}",
+    "picker": {
+      "engagements": "Engagements",
+      "filters": {
+        "all": "Toutes les publiées",
+        "eligible": "Prêtes",
+        "suggested": "Suggérées"
+      },
+      "mediaOnly": "Avec média uniquement",
+      "noMatches": "Aucune publication ne correspond.",
+      "noSuggested": "Aucune publication remarquable pour l'instant. Il faut sept jours de résultats mesurés avant qu'une publication puisse être suggérée.",
+      "notReady": "Pas prête",
+      "rate": "Taux",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "Aucun canal sur cette publication",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Aucune vue ni engagement mesurés pour l'instant",
+        "SOURCE_METRICS_IMMATURE": "Publiée il y a moins de sept jours",
+        "SOURCE_NOT_PUBLISHED": "Pas encore publiée",
+        "SOURCE_PUBLISH_DATE_MISSING": "Date de publication inconnue"
+      },
+      "search": "Rechercher des publications publiées",
+      "suggested": "Suggérée",
+      "views": "Vues"
+    },
+    "previewFailed": "Impossible de vérifier cette publication",
+    "queueName": "Nom de la file",
+    "removeVariant": "Retirer",
+    "reviewEach": "Examiner chaque occurrence",
+    "reviewPolicy": "Politique d'approbation",
+    "runs": "{count, plural, one {# exécution créée} other {# exécutions créées}}",
+    "saving": "Création...",
+    "selectBrand": "Sélectionnez une marque pour gérer ses files evergreen.",
+    "selectedSource": "Publication sélectionnée",
+    "sourceHint": "Choisissez la publication que cette file répète. Les publications suggérées ont le plus performé auprès de leur audience et datent d'au moins une semaine.",
+    "sourcePost": "Publication source éprouvée",
+    "statuses": {
+      "active": "Active",
+      "archived": "Archivée",
+      "draft": "Brouillon",
+      "paused": "Suspendue"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "Variante de légende",
+    "variantNumber": "Variante de légende {number}",
+    "variants": "Variantes de légende"
   }
 }

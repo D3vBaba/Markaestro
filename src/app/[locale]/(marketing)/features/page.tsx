@@ -64,7 +64,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Core Features */}
-      <section className="border-t" style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}>
+      <section className="border-t bg-card border-border">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="space-y-24">
             {coreFeatures.map((feature, i) => (
@@ -78,7 +78,7 @@ export default function FeaturesPage() {
               >
                 <div>
                   <div
-                    className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-[10.5px] uppercase"
+                    className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-xs"
                     style={{
                       border: "1px solid color-mix(in oklch, var(--mk-accent) 24%, var(--mk-rule))",
                       background: "var(--mk-accent-soft)",
@@ -128,8 +128,7 @@ export default function FeaturesPage() {
                         style={{ background: "var(--mk-accent-soft)" }}
                       >
                         <p
-                          className="text-[16px] font-semibold"
-                          style={{ color: "var(--mk-accent)", letterSpacing: "-0.01em" }}
+                          className="text-[16px] font-semibold text-mk-accent"
                         >
                           {feature.title}
                         </p>
@@ -144,7 +143,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Intelligence */}
-      <section id="intelligence" className="scroll-mt-24 border-t" style={{ borderColor: "var(--mk-rule)", background: "var(--mk-surface)" }}>
+      <section id="intelligence" className="scroll-mt-24 border-t border-border bg-background">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="mx-auto max-w-3xl text-center">
             <p className="mk-eyebrow">{t("intelligence.eyebrow")}</p>
@@ -154,7 +153,7 @@ export default function FeaturesPage() {
             <p className="mt-5 text-muted-foreground leading-relaxed">{t("intelligence.subtitle")}</p>
           </div>
 
-          <h3 className="mt-16 text-center text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <h3 className="mt-16 text-center text-sm font-medium text-muted-foreground">
             {t("intelligence.loopTitle")}
           </h3>
           <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -180,7 +179,7 @@ export default function FeaturesPage() {
             ))}
           </ol>
 
-          <h3 className="mt-20 text-center text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <h3 className="mt-20 text-center text-sm font-medium text-muted-foreground">
             {t("intelligence.tabsTitle")}
           </h3>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -194,7 +193,7 @@ export default function FeaturesPage() {
 
           <div className="mt-16 grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:items-start">
             <div className="rounded-xl p-8" style={{ background: "var(--mk-paper)", border: "1px solid var(--mk-rule)" }}>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">{t("intelligence.principlesTitle")}</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">{t("intelligence.principlesTitle")}</h3>
               <ul className="mt-5 space-y-3">
                 {intelligencePrinciples.map((principle) => (
                   <li key={principle} className="flex items-start gap-3">
@@ -205,7 +204,7 @@ export default function FeaturesPage() {
               </ul>
             </div>
             <div className="rounded-xl p-8" style={{ background: "var(--mk-accent-soft)", border: "1px solid color-mix(in oklch, var(--mk-accent) 24%, var(--mk-rule))" }}>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--mk-ink)" }}>{t("intelligence.plans")}</p>
+              <p className="text-sm leading-relaxed text-foreground">{t("intelligence.plans")}</p>
               <NextLink href="/onboarding" className="mt-6 inline-block">
                 <Button className="h-10 rounded-lg px-5 text-[13px]">{t("intelligence.cta")}</Button>
               </NextLink>
@@ -242,8 +241,7 @@ export default function FeaturesPage() {
 
       {/* CTA */}
       <section
-        className="border-t"
-        style={{ background: "var(--mk-ink)", borderColor: "var(--mk-rule)" }}
+        className="border-t bg-foreground border-border"
       >
         <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
@@ -266,8 +264,7 @@ export default function FeaturesPage() {
               <NextLink href="/onboarding">
                 <Button
                   size="lg"
-                  className="h-11 px-7 rounded-lg text-[13.5px]"
-                  style={{ background: "var(--mk-paper)", color: "var(--mk-ink)" }}
+                  className="h-11 px-7 rounded-lg text-[13.5px] bg-card text-foreground"
                 >
                   {t("cta.primaryButton")}
                 </Button>

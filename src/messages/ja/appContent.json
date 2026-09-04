@@ -7,7 +7,8 @@
       "drafts": "下書き",
       "scheduled": "予約済み",
       "published": "公開済み",
-      "onPlatform": "プラットフォーム上"
+      "onPlatform": "プラットフォーム上",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "ブランド",
@@ -354,5 +355,98 @@
       "videoTooLong": "この動画はこのアカウントの上限{maxSeconds}秒を超えています。",
       "creatorInfoUnavailable": "TikTokアカウントの情報を読み込めなかったため、この投稿を直接公開できません。"
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "キューを更新できませんでした",
+    "actions": {
+      "activate": "有効化",
+      "activateSuccess": "キューを有効化しました",
+      "archive": "アーカイブ",
+      "archiveSuccess": "キューをアーカイブしました",
+      "pause": "一時停止",
+      "pauseSuccess": "キューを一時停止しました",
+      "resume": "再開",
+      "resumeSuccess": "キューを再開しました"
+    },
+    "addVariant": "バリエーションを追加",
+    "analytics": {
+      "conversions": "コンバージョン",
+      "details": "パフォーマンス",
+      "engagements": "エンゲージメント",
+      "loadFailed": "キューのパフォーマンスを読み込めませんでした",
+      "loading": "キューのパフォーマンスを読み込み中...",
+      "measured": "計測済みのラン",
+      "needsReview": "確認が必要",
+      "noOutcome": "十分な期間のパフォーマンス結果を待っています",
+      "noRuns": "まだ回が作成されていません。",
+      "recentRuns": "最近のラン",
+      "trackedClicks": "追跡クリック",
+      "unavailable": "利用不可",
+      "views": "累計再生数"
+    },
+    "approveFuture": "今後のランを今すぐ承認",
+    "cancel": "キャンセル",
+    "changeSource": "変更",
+    "choosePost": "公開済みの投稿を選択",
+    "create": "キューを作成",
+    "createFailed": "キューを作成できませんでした",
+    "created": "Evergreenキューを作成しました",
+    "defaultName": "{channel} Evergreenキュー",
+    "description": "実績のある投稿を、管理された計測可能なキューに変えます。Markaestroは元の投稿を保持し、ランごとに新しい回を作成し、成果の弱いシーケンスを自動で一時停止します。",
+    "eligible": "適格な実績が見つかりました",
+    "empty": "このブランドにはまだEvergreenキューがありません。",
+    "everyDays": "{count}日ごと",
+    "interval": "ラン間の最小日数",
+    "loadFailed": "Evergreenキューを読み込めませんでした",
+    "loading": "Evergreenキューを読み込み中...",
+    "newQueue": "新しいキュー",
+    "nextRun": "次のラン: {date}",
+    "notEligible": "まだ適格ではありません",
+    "notScheduled": "このキューを有効化すると最初のランが予約されます。",
+    "pausedReason": "一時停止: {reason}",
+    "picker": {
+      "engagements": "エンゲージメント",
+      "filters": {
+        "all": "公開済みすべて",
+        "eligible": "準備完了",
+        "suggested": "おすすめ"
+      },
+      "mediaOnly": "メディア付きのみ",
+      "noMatches": "一致する公開済み投稿がありません。",
+      "noSuggested": "まだ際立った投稿はありません。おすすめに表示されるには7日間の計測結果が必要です。",
+      "notReady": "未準備",
+      "rate": "率",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "この投稿にチャネルがありません",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "計測済みの再生数やエンゲージメントがまだありません",
+        "SOURCE_METRICS_IMMATURE": "公開から7日未満",
+        "SOURCE_NOT_PUBLISHED": "まだ公開されていません",
+        "SOURCE_PUBLISH_DATE_MISSING": "公開日が不明"
+      },
+      "search": "公開済み投稿を検索",
+      "suggested": "おすすめ",
+      "views": "再生数"
+    },
+    "previewFailed": "この投稿を確認できませんでした",
+    "queueName": "キュー名",
+    "removeVariant": "削除",
+    "reviewEach": "毎回確認する",
+    "reviewPolicy": "承認ポリシー",
+    "runs": "{count, plural, other {#回のランを作成}}",
+    "saving": "作成中...",
+    "selectBrand": "Evergreenキューを管理するブランドを選択してください。",
+    "selectedSource": "選択した投稿",
+    "sourceHint": "このキューが繰り返す投稿を選びます。おすすめの投稿はオーディエンスから最も反応を得たもので、公開から1週間以上経過しています。",
+    "sourcePost": "実績のある元投稿",
+    "statuses": {
+      "active": "有効",
+      "archived": "アーカイブ済み",
+      "draft": "下書き",
+      "paused": "一時停止中"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "キャプションのバリエーション",
+    "variantNumber": "キャプションのバリエーション {number}",
+    "variants": "キャプションのバリエーション"
   }
 }

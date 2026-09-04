@@ -8,6 +8,7 @@ const SHELL_ROUTES = [
   "/products",
   "/content",
   "/calendar",
+  "/evergreen",
   "/analytics",
   "/intelligence",
   "/settings",

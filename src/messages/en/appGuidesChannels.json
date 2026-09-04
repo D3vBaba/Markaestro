@@ -1,6 +1,6 @@
 {
   "page": {
-    "title": "Connecting channels",
+    "title": "Connecting Channels",
     "subtitle": "How permissions and brands fit together, and the exact steps for each platform."
   },
   "intro": {
@@ -19,9 +19,18 @@
       "label": "Facebook",
       "scope": "One Facebook login covers your whole workspace. Each brand then picks its own Page.",
       "steps": {
-        "0": { "title": "Open a brand and press Connect on Facebook", "detail": "Brands → pick a brand → Channels. It does not matter which brand you start from; the login applies to every brand." },
-        "1": { "title": "Tick every Page you want Markaestro to manage", "detail": "Facebook's dialog is the permission list. Whatever you tick becomes the complete set Markaestro may touch, and it replaces the previous set. A Page you leave unticked loses access immediately." },
-        "2": { "title": "Choose which Page this brand posts to", "detail": "Back in Markaestro, use Choose Pages. This is routing, not permission. Each brand can point at its own Page, and one brand can hold several." }
+        "0": {
+          "title": "Open a Brand and Press Connect on Facebook",
+          "detail": "Brands → pick a brand → Channels. It does not matter which brand you start from; the login applies to every brand."
+        },
+        "1": {
+          "title": "Tick Every Page You Want Markaestro to Manage",
+          "detail": "Facebook's dialog is the permission list. Whatever you tick becomes the complete set Markaestro may touch, and it replaces the previous set. A Page you leave unticked loses access immediately."
+        },
+        "2": {
+          "title": "Choose Which Page This Brand Posts To",
+          "detail": "Back in Markaestro, use Choose Pages. This is routing, not permission. Each brand can point at its own Page, and one brand can hold several."
+        }
       },
       "gotcha": "Ticking only one Page in Facebook's dialog will disconnect every other brand's Page. Always tick them all, then narrow per brand inside Markaestro."
     },
@@ -29,46 +38,73 @@
       "label": "Instagram",
       "scope": "Connected per brand, using Instagram's own login rather than Facebook's.",
       "steps": {
-        "0": { "title": "Press Connect on Instagram in the brand's Channels tab", "detail": "This is separate from Facebook. Linking a Facebook Page does not link its Instagram account." },
-        "1": { "title": "Log in with the Instagram account itself", "detail": "The account must be a Professional (Business or Creator) account. Personal accounts cannot publish through the API." }
+        "0": {
+          "title": "Press Connect on Instagram in the Brand's Channels Tab",
+          "detail": "This is separate from Facebook. Linking a Facebook Page does not link its Instagram account."
+        },
+        "1": {
+          "title": "Log in with the Instagram Account Itself",
+          "detail": "The account must be a Professional (Business or Creator) account. Personal accounts cannot publish through the API."
+        }
       },
       "gotcha": "If Instagram refuses the login, the account is almost certainly still a personal account. Switch it to Professional in the Instagram app, then reconnect."
     },
     "tiktok": {
       "label": "TikTok",
-      "scope": "Connected per brand. TikTok requires you to finish each post in their app.",
+      "scope": "Connected per brand. By default a post goes to your TikTok inbox to finish in the app; Direct Post publishes straight to your profile.",
       "steps": {
-        "0": { "title": "Press Connect on TikTok and authorize", "detail": "Markaestro uploads the video and sends it to your TikTok inbox." },
-        "1": { "title": "Finish the post in the TikTok app", "detail": "TikTok does not allow full publishing from outside their app. When a post reaches your inbox we email you, and the post sits in To Post until you confirm." }
+        "0": {
+          "title": "Press Connect on TikTok and Authorize",
+          "detail": "Markaestro uploads the media and, by default, sends it to your TikTok inbox."
+        },
+        "1": {
+          "title": "Finish the Post in the TikTok App",
+          "detail": "Inbox posts are finished in the TikTok app. When a post reaches your inbox we email you, and the post sits in To post until you confirm. Choose Direct Post on a post to publish straight to your profile instead."
+        }
       },
-      "gotcha": "A TikTok post is not live until you open the TikTok app and publish it. The email is your prompt."
+      "gotcha": "An inbox post is not live until you open the TikTok app and publish it. The email is your prompt. Direct Post posts go live on their own."
     },
     "threads": {
       "label": "Threads",
       "scope": "Connected per brand, using its own login.",
       "steps": {
-        "0": { "title": "Press Connect on Threads", "detail": "Authorize with the Threads account you want to post from." }
+        "0": {
+          "title": "Press Connect on Threads",
+          "detail": "Authorize with the Threads account you want to post from."
+        }
       }
     },
     "pinterest": {
       "label": "Pinterest",
       "scope": "Connected per brand. Boards work like Facebook Pages. Pick which one this brand pins to.",
       "steps": {
-        "0": { "title": "Press Connect on Pinterest", "detail": "Authorize the Pinterest business account." },
-        "1": { "title": "Choose a board", "detail": "Pins need a destination board. You can link several boards to one brand and choose between them when composing." }
+        "0": {
+          "title": "Press Connect on Pinterest",
+          "detail": "Authorize the Pinterest business account."
+        },
+        "1": {
+          "title": "Choose a Board",
+          "detail": "Pins need a destination board. You can link several boards to one brand and choose between them when composing."
+        }
       }
     },
     "linkedin": {
       "label": "LinkedIn",
       "scope": "Connected per brand, as either a personal profile or a company Page.",
       "steps": {
-        "0": { "title": "Choose Profile or Pages when connecting", "detail": "They are separate authorizations. Connect both if you post as yourself and as the company." },
-        "1": { "title": "Pick the destination", "detail": "Select which profile or company Page this brand publishes to." }
+        "0": {
+          "title": "Choose Profile or Pages When Connecting",
+          "detail": "They are separate authorizations. Connect both if you post as yourself and as the company."
+        },
+        "1": {
+          "title": "Pick the Destination",
+          "detail": "Select which profile or company Page this brand publishes to."
+        }
       }
     }
   },
   "troubleshooting": {
-    "title": "If something stops working",
+    "title": "If Something Stops Working",
     "subtitle": "What each message means and the quickest way out.",
     "items": {
       "0": {
@@ -85,7 +121,7 @@
       },
       "3": {
         "q": "A TikTok post never went live",
-        "a": "TikTok posts must be finished in the TikTok app. Check your email for the prompt, or open To Post in Markaestro."
+        "a": "Inbox TikTok posts must be finished in the TikTok app. Check your email for the prompt, or open To post in Markaestro. Direct Post posts publish on their own; check the post's status for the error."
       }
     },
     "manageFrom": "Manage every connection from <brands>Brands</brands> or <settings>Settings → Integrations</settings>."

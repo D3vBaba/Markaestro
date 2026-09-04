@@ -30,43 +30,41 @@
       ]
     },
     "starter": {
-      "description": "Voor zelfstandige marketeers die publiceren op Meta en TikTok.",
+      "description": "Voor solo-marketeers die op elk platform inplannen.",
       "features": [
-        "5 sociale kanalen",
-        "Onbeperkt aantal posts",
-        "10 GB opslag",
-        "1 teamlid",
+        "2 merken op alle 7 platforms",
+        "Tot 8 kanalen per merk",
+        "Onbeperkt ingeplande posts",
         "Contentkalender",
-        "1 workspace",
-        "Merkstem (1 profiel)",
-        "Analyse (7-daags venster)"
+        "Merkstem per merk",
+        "10 GB opslag",
+        "Volledige publicatie-API",
+        "Analytics (venster van 30 dagen)"
       ]
     },
     "pro": {
-      "description": "Voor groeiende teams die samenwerking en planning nodig hebben.",
+      "description": "Voor groeiende teams die meerdere merken beheren.",
       "features": [
-        "15 sociale kanalen",
-        "Onbeperkt aantal posts",
-        "100 GB opslag",
-        "5 teamleden",
+        "6 merken",
+        "5 teamleden met rollen",
         "5 workspaces",
-        "Merkstem + merkidentiteit",
-        "Slim plannen",
-        "Analyse (90-daags venster)",
-        "Prioriteitsondersteuning"
+        "Aanbevelingen voor de beste posttijd",
+        "Merkstem + merkidentiteit (logo & kleuren)",
+        "100 GB opslag",
+        "Analytics (venster van 1 jaar)",
+        "Prioriteitssupport",
+        "10 Intelligent Evergreen-wachtrijen per merk"
       ]
     },
     "business": {
-      "description": "Voor bureaus die meerdere merken op grote schaal beheren.",
+      "description": "Voor bureaus die veel merken op schaal beheren.",
       "features": [
-        "50 sociale kanalen",
-        "Onbeperkt aantal posts",
+        "20 merken",
+        "Onbeperkt teamleden & workspaces",
         "Onbeperkte opslag",
-        "Onbeperkt aantal teamleden",
-        "Alles uit Pro",
-        "Onbeperkt aantal workspaces",
-        "Onbeperkte analysegeschiedenis + CSV-export",
-        "Prioriteitsondersteuning"
+        "Onbeperkte analyticsgeschiedenis + CSV-export",
+        "Prioriteitssupport",
+        "Onbeperkt Intelligent Evergreen-wachtrijen"
       ]
     }
   },
@@ -92,19 +90,22 @@
         "name": "Publiceren",
         "features": [
           {
-            "name": "Sociale kanalen"
+            "name": "Merken"
           },
           {
-            "name": "Posts per maand"
+            "name": "Kanalen per merk"
+          },
+          {
+            "name": "Platformen (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)"
+          },
+          {
+            "name": "Ingeplande posts"
           },
           {
             "name": "Contentkalender"
           },
           {
-            "name": "Bulk-inplannen"
-          },
-          {
-            "name": "Slim plannen"
+            "name": "Aanbevelingen voor de beste posttijd"
           }
         ]
       },
@@ -196,7 +197,7 @@
     },
     {
       "q": "Wat telt als een 'sociaal kanaal'?",
-      "a": "Elk verbonden sociaal account telt als één kanaal. Bijvoorbeeld: één Facebook-pagina, één zakelijk Instagram-account en één TikTok-account zouden 3 kanalen zijn."
+      "a": "Elk gekoppeld social account telt als één kanaal. Eén Facebook-pagina, één Instagram-account en één TikTok-account zijn bijvoorbeeld 3 kanalen. Betaalde abonnementen staan tot 8 kanalen per merk toe."
     },
     {
       "q": "Hoe werkt opslag?",
@@ -216,7 +217,7 @@
     },
     {
       "q": "Kan mijn AI-agent of mijn eigen software Markaestro gebruiken?",
-      "a": "Ja, op elk abonnement zonder extra kosten. Elke workspacebeheerder kan API-sleutels genereren via Instellingen → API en er een geven aan een AI-agent, een script of een kant-en-klare planningstool. Elke sleutel is gebonden aan één merk, heeft alleen de reikwijdtes die je aanvinkt, en kan een vervaldatum krijgen. Zie de AI-agentgids voor de tooldefinities en een werkende snelstartgids met vier commando's."
+      "a": "Ja, op elk betaald abonnement zonder extra kosten. Elke workspace-admin kan API-sleutels aanmaken via Instellingen → API en er een geven aan een AI-agent, een script of een bestaande planningstool. Elke sleutel is gebonden aan één merk, bevat alleen de scopes die je aanvinkt en kan een vervaldatum krijgen. MCP-clients zoals Claude Code kunnen in plaats daarvan via de browser inloggen. Zie de AI-agentgids voor de tooldefinities en een werkende quickstart in vier commando's."
     },
     {
       "q": "Bieden jullie kortingen aan voor non-profits of startups?",

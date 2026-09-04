@@ -1,176 +1,145 @@
 {
   "hero": {
-    "badge": "为你运营的每一个品牌打造的社交发布中心",
-    "titleLead": "你的整个营销引擎",
-    "titleHighlight": "尽在一个平台",
-    "subtitle": "上传素材、撰写文案，将你负责营销的每一个品牌，你的企业、你的客户，或是你自己，从一个控制台一键发布到每一个社交渠道。或者把 API 密钥交给你的 AI 代理，让它全权负责。",
     "primaryButton": "免费开始",
     "secondaryButton": "查看功能",
     "signInPrompt": "已有账号？",
     "signInLink": "登录",
-    "stats": [
-      {
-        "value": "10小时",
-        "label": "每周节省时间"
-      },
-      {
-        "value": "6",
-        "label": "渠道，一键搞定"
-      },
-      {
-        "value": "1",
-        "label": "所有渠道通用的编辑器"
-      }
-    ],
-    "trustedBy": "深受创始人信赖"
-  },
-  "featuresPreview": {
-    "eyebrow": "平台",
-    "titleLead": "成长所需的一切，",
-    "titleHighlight": "尽在这里",
-    "subtitle": "从文案草稿到发布上线，Markaestro 覆盖你社交工作流的每一步。",
-    "items": [
-      {
-        "title": "多渠道发布",
-        "desc": "通过单一编辑器发布到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。可定时发布，也可立即发布。"
-      },
-      {
-        "title": "集中式素材上传",
-        "desc": "使用你自己的图片和视频。每篇内容只需上传一次，即可分发到所有已连接的渠道。"
-      },
-      {
-        "title": "多渠道预览",
-        "desc": "发布前查看每篇内容在各平台上的呈现效果，文案、宽高比、字数限制，一目了然。"
-      },
-      {
-        "title": "排期与日历",
-        "desc": "在统一日历中按渠道设置发布时间。重新排期、暂停或复制，一键完成。"
-      },
-      {
-        "title": "发布控制台",
-        "desc": "在所有渠道跟踪草稿、已排期内容和发布状态。"
-      },
-      {
-        "title": "OAuth 集成",
-        "desc": "通过安全的 OAuth 一键连接 Meta、TikTok、LinkedIn、Threads 和 Pinterest。无需手动管理令牌。"
-      }
-    ],
-    "exploreButton": "探索全部功能"
-  },
-  "intelligencePreview": {
-    "eyebrow": "智能洞察",
-    "titleLead": "发布是输入。",
-    "titleHighlight": "增长是输出。",
-    "subtitle": "智能洞察从你已发布的帖子中学习，用通俗语言告诉你什么有效、何时发布、接下来试什么。然后替你起草。",
-    "items": [
-      {
-        "title": "只测量，不猜测",
-        "desc": "每个数字都与平台报告的完全一致。空白保持空白，每个结果都注明它是实测、计算、建议还是生成。"
-      },
-      {
-        "title": "有证据的模式",
-        "desc": "哪个平台、时段、开头或内容支柱的表现高于品牌其他帖子，并写明样本量和置信区间。"
-      },
-      {
-        "title": "由你掌控的草稿",
-        "desc": "把任何机会或成功帖子变成符合品牌语气的文案。它会作为草稿进入内容。编辑、添加媒体和排期由你完成。"
-      }
-    ],
-    "exploreButton": "探索智能洞察"
+    "title": "在一个日历里运营每个品牌的社交媒体",
+    "highlight": "一个日历",
+    "subtitle2": "为你负责的每个品牌在七个渠道上规划、撰写、排期并衡量帖子。或者把 API 密钥交给你的 AI 智能体，让它来发布。",
+    "screenshotAlt": "Markaestro 仪表盘：品牌、帖子、发布活动以及接下来的安排。"
   },
   "channelsPreview": {
-    "eyebrow": "渠道",
-    "titleLead": "触达你的受众，",
-    "titleHighlight": "无处不达",
-    "subtitle": "只需连接一次，即可发布到所有主流平台。API 差异、字数限制和素材要求，全部由 Markaestro 处理。",
-    "channels": [
-      {
-        "name": "Facebook 与 Instagram",
-        "desc": "通过 Meta 进行 OAuth 连接。支持主页、动态发布、快拍和 IG 商业账号发布。"
-      },
-      {
-        "name": "TikTok",
-        "desc": "图片和视频帖子。默认交给创作者的 TikTok 收件箱完成并发布；也可按帖子选择直接发布到个人主页。"
-      },
-      {
-        "name": "LinkedIn",
-        "desc": "发布到你的个人资料，或你管理的主页。支持文字、图片、视频，以及最多 20 张图片的多图发布。"
-      },
-      {
-        "name": "Threads 与 Pinterest",
-        "desc": "Threads 轮播最多支持 20 项内容；Pinterest 的图片和视频图钉发布到你选定的图板。"
-      }
-    ],
-    "seeAllButton": "查看全部渠道",
-    "stats": [
-      {
-        "label": "社交渠道",
-        "value": "6",
-        "sub": "Meta、TikTok、LinkedIn、Threads、Pinterest"
-      },
-      {
-        "label": "编辑器",
-        "value": "1",
-        "sub": "一屏搞定文案与素材"
-      },
-      {
-        "label": "控制台",
-        "value": "1",
-        "sub": "统一的发布工作流"
-      },
-      {
-        "label": "API",
-        "value": "1",
-        "sub": "一个密钥，即可对接代理"
-      }
-    ]
-  },
-  "composerPreview": {
-    "panelLabel": "一个编辑器，覆盖所有渠道",
-    "rows": [
-      {
-        "label": "素材",
-        "value": "上传图片或视频，支持 JPG、PNG、WebP、MP4"
-      },
-      {
-        "label": "文案",
-        "value": "只需撰写一次，发布前按渠道预览"
-      },
-      {
-        "label": "输出",
-        "value": "为全部六个已连接渠道排期发布或即时发布"
-      }
-    ],
-    "eyebrow": "编辑器",
-    "titleLead": "你的素材，",
-    "titleHighlight": "你的内容",
-    "subtitle": "上传你现有的照片或视频，写下你想要的文案。发布与排期交给 Markaestro，你可以专注于创意本身。",
-    "bullets": [
-      "直接从设备或素材库上传图片和视频",
-      "渠道感知预览：话题标签、字数限制、素材规格",
-      "一键排期、即时发布或保存为草稿"
-    ],
-    "seeFeaturesButton": "查看全部功能"
+    "seeAllButton": "查看全部渠道"
   },
   "agentSection": {
     "eyebrow": "AI 代理",
     "titleLead": "或者交给你的代理",
     "titleHighlight": "全权负责",
-    "subtitle": "每个工作区都可以生成 API 密钥。将密钥交给你的 AI 代理，它就能识别自己有权发布的账号、上传素材、起草并排期内容、发布内容，并回报实际发布的结果，全程无需直接调用任何平台的 API。",
+    "subtitle": "每个付费工作区都可以生成 API 密钥，Claude Code 等 MCP 客户端也可以改为通过浏览器登录。无论哪种方式，你的智能体都能发现自己有权发布的账号、上传媒体、撰写并排期帖子、发布，并汇报实际发出的内容，而无需接触任何平台 API。",
     "bullets": [
       "一个密钥仅限定于一个品牌，代理不会误发到其他品牌",
-      "Facebook、Instagram 和 TikTok 始终以人工优先：始终由真人完成发布",
+      "Facebook、Instagram 和 TikTok 默认为人工发布：除非你明确为某条帖子选择开启，否则始终由人来发布",
       "内置幂等写入、异步发布任务和已签名的 Webhook"
     ],
     "primaryButton": "阅读代理指南",
     "secondaryButton": "API 参考",
     "codeLabel": "第一天起就为你的代理准备就绪"
   },
-  "cta": {
-    "eyebrow": "开始使用",
-    "title": "准备好简化你的社交发布流程了吗？",
-    "subtitle": "几分钟即可完成设置。连接渠道、上传素材，开始发布。",
-    "primaryButton": "免费开始",
-    "secondaryButton": "联系销售"
+  "proof": {
+    "label": "第一天就能用上的",
+    "items": [
+      {
+        "value": "7",
+        "label": "个渠道，一个编辑器搞定"
+      },
+      {
+        "value": "1",
+        "label": "个日历管理所有品牌"
+      },
+      {
+        "value": "无限",
+        "label": "排期帖子（付费方案）"
+      },
+      {
+        "value": "按渠道",
+        "label": "发布前预览"
+      },
+      {
+        "value": "实测",
+        "label": "来自各平台的分析数据"
+      },
+      {
+        "value": "API",
+        "label": "供脚本和 AI 智能体使用"
+      },
+      {
+        "value": "Evergreen",
+        "label": "自动重发优胜帖子的队列"
+      }
+    ]
+  },
+  "whoFor": {
+    "title": "Markaestro 适合谁？",
+    "items": [
+      {
+        "title": "创始人",
+        "desc": "一个产品、几个渠道，却没时间逐个登录。写一次，排好一个月，回去继续开发。"
+      },
+      {
+        "title": "小型企业",
+        "desc": "不用招社媒团队，也能让店铺、工作室或餐厅每周持续发帖。"
+      },
+      {
+        "title": "代理机构与自由职业者",
+        "desc": "每个客户都是一个品牌，有自己的渠道、语气和日历。一键切换。"
+      },
+      {
+        "title": "创作者",
+        "desc": "你的名字也是品牌。规划一周，跨平台发布，看看到底什么有效。"
+      }
+    ]
+  },
+  "bento": {
+    "title": "社交增长所需的全部工具，集中一处",
+    "tiles": [
+      {
+        "id": "calendar",
+        "label": "规划",
+        "title": "一眼就能看懂的日历",
+        "desc": "月、周、列表视图。拖动帖子即可重新排期。忙碌的日子按渠道汇总，而不是藏在“+38 条”后面。"
+      },
+      {
+        "id": "composer",
+        "label": "发布",
+        "title": "一个编辑器，所有渠道",
+        "desc": "选择渠道，撰写文案，放入媒体，精确预览每个平台的呈现效果。"
+      },
+      {
+        "id": "analytics",
+        "label": "分析",
+        "title": "来自平台的数据，而非猜测",
+        "desc": "按渠道查看观看量、覆盖、互动和粉丝数，附带最佳发布时段以及带来这些成绩的帖子。"
+      },
+      {
+        "id": "brands",
+        "label": "品牌",
+        "title": "每个品牌各行其道",
+        "desc": "产品、企业、客户或你自己。每个品牌保留自己的渠道、视觉识别和语气。"
+      },
+      {
+        "id": "intelligence",
+        "label": "Intelligence",
+        "title": "从已发布的内容中学习",
+        "desc": "排名的帖子、有据可依的规律，以及以品牌语气生成、可直接编辑的草稿。"
+      }
+    ]
+  },
+  "channelWall": {
+    "title": "受众所在的每个渠道",
+    "subtitle": "通过 OAuth 连接一次。字数限制、媒体规则和各平台 API 的怪癖都由 Markaestro 处理。",
+    "extras": [
+      {
+        "label": "公开 API"
+      },
+      {
+        "label": "AI 智能体"
+      },
+      {
+        "label": "Webhook"
+      }
+    ]
+  },
+  "ctaBand": {
+    "title": "准备好让每个品牌都动起来了吗？",
+    "subtitle": "免费开始。连接一个渠道，几分钟内排期你的第一条帖子。",
+    "button": "免费开始"
+  },
+  "wallOfLove": {
+    "title": "用户评价"
+  },
+  "faq": {
+    "title": "常见问题",
+    "more": "查看价格和全部问题"
   }
 }

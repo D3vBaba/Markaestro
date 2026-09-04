@@ -13,7 +13,7 @@
     "posts": "Publications",
     "postsSub": "{published} publiées · {scheduled} programmées",
     "publishedWeek": "Publié · 7j",
-    "acrossDays": "sur {count} jours"
+    "acrossDays": "Sur {count} jours"
   },
   "chart": {
     "eyebrow": "Activité de publication · 7j",

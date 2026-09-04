@@ -63,7 +63,7 @@ export default function LogoutConfirmDialog({
           <Button onClick={handleConfirm} disabled={loading}>
             {loading ? (
               <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin" />
                 {t("confirming")}
               </>
             ) : (

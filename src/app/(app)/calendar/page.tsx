@@ -3,15 +3,30 @@
 import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, ArrowLeft, ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
+import Link from "next/link";
+import type { VariantProps } from "class-variance-authority";
+import { AlertCircle, ArrowLeft, CalendarDays, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 import { apiGet, apiPost, apiPut } from "@/lib/api-client";
 import { invalidateQueries, useApiQuery } from "@/hooks/useApiQuery";
-import { toast } from "sonner";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { toastApiError } from "@/lib/error-toast";
-import Link from "next/link";
-import ScheduleSheet from "@/app/(app)/content/_components/ScheduleSheet";
+import { cn } from "@/lib/utils";
+import PageHeader from "@/components/app/PageHeader";
+import Notice from "@/components/app/Notice";
+import EmptyState from "@/components/app/EmptyState";
+import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
+import ScheduleSheet from "@/app/(app)/content/_components/ScheduleSheet";
+import { Button } from "@/components/ui/button";
+import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Pagination from "@/components/app/Pagination";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Channel } from "@/components/mk/Channel";
+import { PostThumbnail } from "@/components/mk/PostThumbnail";
+import { channelLabel } from "@/components/mk/channels";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -29,6 +44,8 @@ type Post = {
   /** Brands are stored as `products` in Firestore; posts link via productId. */
   productId?: string;
   evergreen?: { queueId: string; runId: string; sourcePostId: string; variantId: string };
+  /** Resolved server-side: platform poster, first image, or the video asset's poster. */
+  thumbnailUrl?: string | null;
 };
 
 /** A brand, as returned by /api/products (the storage name for brands). */
@@ -40,53 +57,60 @@ type Brand = {
 
 type CalendarItem = { kind: "post"; date: string; post: Post };
 
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-// Channel names are platform brand names (Instagram, TikTok, ...) — proper
+// Channel names are platform brand names (Instagram, TikTok, ...), proper
 // nouns that stay in English across every locale, same as elsewhere in the app.
-const CHANNEL_ACCENT: Record<string, string> = {
-  instagram: "#E4405F",
-  facebook:  "#1877F2",
-  tiktok:    "#00F2FE",
-  threads:   "#000000",
-  pinterest: "#E60023",
-  linkedin:  "#0A66C2",
-  x:         "#111111",
-};
+// Order is the filter row order.
+const CHANNEL_KEYS = ["instagram", "facebook", "tiktok", "threads", "pinterest", "linkedin", "x"] as const;
 
-const CHANNEL_BG: Record<string, string> = {
-  instagram: "color-mix(in srgb, #E4405F 10%, transparent)",
-  facebook:  "color-mix(in srgb, #1877F2 10%, transparent)",
-  tiktok:    "color-mix(in srgb, #00F2FE 10%, transparent)",
-  threads:   "color-mix(in srgb, #000000 10%, transparent)",
-  pinterest: "color-mix(in srgb, #E60023 10%, transparent)",
-  linkedin:  "color-mix(in srgb, #0A66C2 10%, transparent)",
-  x:         "color-mix(in srgb, #111111 10%, transparent)",
-};
-
-const CHANNEL_LABEL: Record<string, string> = {
-  instagram: "Instagram",
-  facebook:  "Facebook",
-  tiktok:    "TikTok",
-  threads:   "Threads",
-  pinterest: "Pinterest",
-  linkedin:  "LinkedIn",
-  x:         "X",
-};
+/** Statuses offered as filters. Drafts have no date and never land on the grid. */
+const STATUS_FILTER_KEYS = ["published", "scheduled", "failed", "partial_failed"] as const;
 
 /** Sentinel brand filter value matching posts that have no brand linked. */
 const UNASSIGNED_BRAND = "none";
 
-const STATUS_DOT: Record<string, string> = {
-  published:  "#10b981",
-  scheduled:  "#2563eb",
-  draft:      "#94a3b8",
-  failed:     "#f43f5e",
-  partial_failed: "#f59e0b",
-  publishing: "#f59e0b",
+/** Month-cell chip: soft semantic background carries the status. */
+const STATUS_CHIP: Record<string, string> = {
+  published: "bg-mk-pos-soft text-mk-pos",
+  scheduled: "bg-mk-accent-soft text-mk-accent",
+  draft: "bg-muted text-mk-ink-80",
+  failed: "bg-mk-neg-soft text-mk-neg",
+  partial_failed: "bg-mk-warn-soft text-mk-warn",
+  publishing: "bg-mk-warn-soft text-mk-warn",
 };
 
+/** Mobile day dots and filter dots. */
+const STATUS_DOT: Record<string, string> = {
+  published: "bg-mk-pos",
+  scheduled: "bg-mk-accent",
+  draft: "bg-mk-ink-40",
+  failed: "bg-mk-neg",
+  partial_failed: "bg-mk-warn",
+  publishing: "bg-mk-warn",
+};
 
+const STATUS_BADGE: Record<string, BadgeVariant> = {
+  published: "positive",
+  scheduled: "accent",
+  draft: "secondary",
+  failed: "negative",
+  partial_failed: "warning",
+  publishing: "warning",
+};
+
+/** A day with this many posts or fewer lists them; busier days summarise by channel. */
+const MAX_CHIPS_PER_CELL = 3;
+type ViewMode = "month" | "week" | "list";
+const VIEW_MODES: ViewMode[] = ["month", "week", "list"];
+
+function startOfWeek(d: Date): Date {
+  const out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  out.setDate(out.getDate() - out.getDay());
+  return out;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -137,40 +161,40 @@ function isVideoUrl(url: string): boolean {
 }
 
 // ─── Platform Mockups ─────────────────────────────────────────────────────────
+// These imitate the target platform, so platform colours are deliberate here.
 
 function InstagramMockup({ post }: { post: Post }) {
   const t = useTranslations("calendar.mockups");
   const img = post.mediaUrls?.[0];
   return (
-    <div className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-md max-w-[320px] mx-auto">
+    <div className="mx-auto max-w-[320px] overflow-hidden rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between px-3 py-2.5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full p-[2px]" style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }}>
-            <div className="w-full h-full rounded-full bg-white dark:bg-zinc-900 flex items-center justify-center">
-              <div className="w-5 h-5 rounded-full" style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }} />
+          <div className="size-8 rounded-full p-[2px]" style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }}>
+            <div className="flex size-full items-center justify-center rounded-full bg-card">
+              <div className="size-5 rounded-full" style={{ background: "linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7)" }} />
             </div>
           </div>
           <div>
-            <p className="text-[12px] font-semibold leading-none text-zinc-900 dark:text-white">yourbrand</p>
-            <p className="text-[10px] text-zinc-400 mt-0.5">{t("sponsored")}</p>
+            <p className="m-0 text-[12px] font-semibold leading-none text-foreground">yourbrand</p>
+            <p className="m-0 mt-0.5 text-[10px] text-mk-ink-40">{t("sponsored")}</p>
           </div>
         </div>
-        <span className="text-zinc-400 text-lg leading-none">···</span>
+        <span className="text-lg leading-none text-mk-ink-40">···</span>
       </div>
       {img ? (
         isVideoUrl(img)
-          ? <video src={img} className="w-full aspect-square object-cover" controls playsInline preload="metadata" />
-          : <img src={img} alt="" className="w-full aspect-square object-cover" />
+          ? <video src={img} className="aspect-square w-full object-cover" controls playsInline preload="metadata" />
+          : <img src={img} alt="" className="aspect-square w-full object-cover" />
       ) : (
-        <div className="w-full aspect-square flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-          <svg className="w-10 h-10 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <div className="flex aspect-square w-full items-center justify-center bg-muted">
+          <svg className="size-10 text-mk-ink-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
           </svg>
         </div>
-
       )}
-      <div className="px-3 pt-2.5 pb-3 space-y-1.5">
-        <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+      <div className="space-y-1.5 px-3 pb-3 pt-2.5">
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
           <div className="flex items-center gap-3">
             <span>{t("like")}</span>
             <span>{t("comment")}</span>
@@ -178,7 +202,7 @@ function InstagramMockup({ post }: { post: Post }) {
           </div>
           <span>{t("save")}</span>
         </div>
-        <p className="text-[12px] text-zinc-900 dark:text-white leading-snug">
+        <p className="m-0 text-[12px] leading-snug text-foreground">
           <span className="font-semibold">yourbrand </span>
           {post.content.length > 120 ? post.content.slice(0, 120) + "…" : post.content}
         </p>
@@ -191,26 +215,26 @@ function FacebookMockup({ post }: { post: Post }) {
   const t = useTranslations("calendar.mockups");
   const img = post.mediaUrls?.[0];
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#242526] shadow-md max-w-[320px] mx-auto overflow-hidden">
+    <div className="mx-auto max-w-[320px] overflow-hidden rounded-xl border border-border bg-card">
       <div className="flex items-start justify-between p-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#1877F2] flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-black text-xl leading-none">f</span>
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#1877F2]">
+            <span className="text-xl font-black leading-none text-white">f</span>
           </div>
           <div>
-            <p className="text-[13px] font-semibold leading-none text-zinc-900 dark:text-[#e4e6ea]">Your Brand</p>
-            <p className="text-[10px] text-zinc-500 mt-0.5">{t("justNow")} · 🌐</p>
+            <p className="m-0 text-[13px] font-semibold leading-none text-foreground">Your Brand</p>
+            <p className="m-0 mt-0.5 text-[10px] text-muted-foreground">{t("justNow")} · 🌐</p>
           </div>
         </div>
       </div>
-      <p className="px-3 pb-2 text-[13px] leading-snug text-zinc-900 dark:text-[#e4e6ea] whitespace-pre-wrap">
+      <p className="m-0 whitespace-pre-wrap px-3 pb-2 text-[13px] leading-snug text-foreground">
         {post.content.length > 200 ? post.content.slice(0, 200) + "…" : post.content}
       </p>
-      {img && !isVideoUrl(img) && <img src={img} alt="" className="w-full object-cover max-h-48" />}
-      <div className="px-3 py-2 border-t border-zinc-100 dark:border-zinc-700/50">
+      {img && !isVideoUrl(img) && <img src={img} alt="" className="max-h-48 w-full object-cover" />}
+      <div className="border-t border-border px-3 py-2">
         <div className="flex items-center justify-around pt-1">
           {[t("likeAction"), t("commentAction"), t("shareAction")].map((l) => (
-            <button key={l} className="flex-1 text-center text-[12px] font-medium text-zinc-500 py-1 rounded-lg">{l}</button>
+            <span key={l} className="flex-1 py-1 text-center text-[12px] font-medium text-muted-foreground">{l}</span>
           ))}
         </div>
       </div>
@@ -221,185 +245,210 @@ function FacebookMockup({ post }: { post: Post }) {
 function TikTokMockup({ post }: { post: Post }) {
   const img = post.mediaUrls?.[0];
   return (
-    <div className="mx-auto" style={{ width: 180, aspectRatio: "9/16", position: "relative" }}>
-      <div className="absolute inset-0 rounded-[28px] overflow-hidden bg-zinc-950 border border-zinc-800 shadow-2xl">
+    <div className="relative mx-auto aspect-[9/16] w-[180px]">
+      <div className="absolute inset-0 overflow-hidden rounded-xl border border-border bg-black">
         {img ? (
           isVideoUrl(img)
-            ? <video src={img} className="absolute inset-0 w-full h-full object-cover opacity-75" controls playsInline preload="metadata" />
-            : <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-75" />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-b from-zinc-800 to-zinc-950" />
-        )}
+            ? <video src={img} className="absolute inset-0 size-full object-cover opacity-75" controls playsInline preload="metadata" />
+            : <img src={img} alt="" className="absolute inset-0 size-full object-cover opacity-75" />
+        ) : null}
         <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0.3) 100%)" }} />
         <div className="absolute bottom-0 left-0 right-7 p-2.5">
-          <p className="text-[9px] font-bold text-white mb-0.5">@yourbrand</p>
-          <p className="text-[8px] text-white/80 leading-tight line-clamp-3">{post.content}</p>
+          <p className="m-0 mb-0.5 text-[9px] font-semibold text-white">@yourbrand</p>
+          <p className="m-0 line-clamp-3 text-[8px] leading-tight text-white/80">{post.content}</p>
         </div>
       </div>
     </div>
   );
 }
+
+// ─── Panel scaffolding ────────────────────────────────────────────────────────
+// The rail is an inline sidebar at `lg` and a Sheet below it. Both share this
+// header / body / footer rhythm so the panel reads the same in either home.
+
+const PANEL_HEADER = "flex items-start gap-3 border-b border-border px-5 py-4 sm:px-6";
+const PANEL_BODY = "min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6 space-y-5";
+const PANEL_FOOTER = "mt-auto flex flex-wrap items-center gap-2 border-t border-border px-5 py-4 sm:px-6";
 
 // ─── Detail Panels ────────────────────────────────────────────────────────────
 
 function PostDetailPanel({ post, onClose, onBack, brandName }: {
   post: Post;
   onClose: () => void;
-  /** Present when the post was opened from a day list — returns to that list. */
+  /** Present when the post was opened from a day list; returns to that list. */
   onBack?: () => void;
   brandName?: string;
 }) {
   const t = useTranslations("calendar.detailPanel");
   const tStatus = useTranslations("calendar.statusLabels");
   const locale = useLocale();
-  const accent = CHANNEL_ACCENT[post.channel] || "#2563eb";
 
   const statusDate = post.publishedAt || post.scheduledAt;
+  const statusLabel = tStatus.has(post.status) ? tStatus(post.status) : post.status;
   return (
-    <div className="h-full min-h-0 flex flex-col">
-      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border/40 flex-shrink-0">
-        <div className="flex items-center gap-2.5 min-w-0">
-          {onBack && (
-            <button
-              onClick={onBack}
-              aria-label={t("backToDay")}
-              className="w-9 h-9 lg:w-7 lg:h-7 -ms-1.5 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-          )}
-          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: accent }} />
-          <span className="text-sm font-semibold">{CHANNEL_LABEL[post.channel] || post.channel}</span>
-          <span
-            className="text-[10px] font-medium px-1.5 py-0.5 rounded-full border capitalize"
-            style={{ color: STATUS_DOT[post.status], borderColor: STATUS_DOT[post.status] + "50", background: STATUS_DOT[post.status] + "12" }}
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className={PANEL_HEADER}>
+        {onBack && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="-ms-2 shrink-0"
+            onClick={onBack}
+            aria-label={t("backToDay")}
           >
-            {tStatus.has(post.status) ? tStatus(post.status) : post.status}
-          </span>
-          {post.evergreen && <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800">{t("evergreen")}</span>}
-        </div>
-        <button onClick={onClose} aria-label={t("close")} className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-        {(statusDate || brandName) && (
-          <p className="text-[11px] text-muted-foreground">
-            {statusDate && (
-              <>
-                {post.status === "published" ? t("published") : t("scheduled")} · {formatDate(statusDate, locale)} {formatTime(statusDate, locale)}
-              </>
-            )}
-            {statusDate && brandName && " · "}
-            {brandName}
-          </p>
+            <ArrowLeft className="size-4 rtl:rotate-180" />
+          </Button>
         )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Channel channel={post.channel} size={20} />
+            <p className="m-0 text-base font-semibold leading-6 text-foreground">
+              {channelLabel(post.channel)}
+            </p>
+            <Badge variant={STATUS_BADGE[post.status] ?? "secondary"}>{statusLabel}</Badge>
+            {post.evergreen && <Badge variant="positive">{t("evergreen")}</Badge>}
+          </div>
+          {(statusDate || brandName) && (
+            <p className="m-0 mt-0.5 text-[13px] leading-5 text-muted-foreground tabular-nums">
+              {statusDate && (
+                <>
+                  {post.status === "published" ? t("published") : t("scheduled")} · {formatDate(statusDate, locale)} {formatTime(statusDate, locale)}
+                </>
+              )}
+              {statusDate && brandName && " · "}
+              {brandName}
+            </p>
+          )}
+        </div>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="-me-2 shrink-0"
+          onClick={onClose}
+          aria-label={t("close")}
+        >
+          <X className="size-4" />
+        </Button>
+      </div>
+      <div className={PANEL_BODY}>
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 font-medium">{t("preview")}</p>
+          <p className="mk-label m-0 mb-3">{t("preview")}</p>
           {post.channel === "instagram" && <InstagramMockup post={post} />}
           {post.channel === "facebook" && <FacebookMockup post={post} />}
           {post.channel === "tiktok" && <TikTokMockup post={post} />}
-          {!["instagram","facebook","tiktok"].includes(post.channel) && (
-            <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
+          {!["instagram", "facebook", "tiktok"].includes(post.channel) && (
+            <div className="rounded-xl border border-border bg-muted/40 p-4">
+              <p className="m-0 whitespace-pre-wrap text-sm leading-6 text-mk-ink-80">{post.content}</p>
             </div>
           )}
         </div>
         {post.errorMessage && (
-          <div className="rounded-lg border border-destructive/20 bg-destructive/8 px-3 py-2 text-[12px] text-destructive">
+          <Notice tone="negative" icon={AlertCircle}>
             {t("failedToPublish")}
-          </div>
-        )}
-        {post.externalUrl && (
-          <a href={post.externalUrl} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors w-fit">
-            {t("viewLivePost")}
-          </a>
+          </Notice>
         )}
       </div>
+      {post.externalUrl && (
+        <div className={cn(PANEL_FOOTER, "justify-end")}>
+          <Button variant="outline" size="sm" onClick={onClose}>
+            {t("close")}
+          </Button>
+          <Button size="sm" asChild>
+            <a href={post.externalUrl} target="_blank" rel="noopener noreferrer">
+              {t("viewLivePost")}
+            </a>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
 
-// ─── Visual Event Chip with Media Thumbnail ──────────────────────────────────
+// ─── Post chips and rows ──────────────────────────────────────────────────────
 
-const CHANNEL_ICON: Record<string, React.ReactNode> = {
-  instagram: (
-    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-  ),
-  facebook: (
-    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-  ),
-  tiktok: (
-    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.51a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15.2a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.75a8.18 8.18 0 0 0 4.76 1.52V6.84a4.84 4.84 0 0 1-1-.15z"/></svg>
-  ),
-  x: <span className="text-[10px] font-bold leading-none">X</span>,
-};
-
-function VisualEventChip({ item, onClick, isSelected, onDragStart, showDetail = false }: {
+/** Month-cell chip: channel glyph, one truncated line, status as background. */
+function PostChip({ item, onClick, isSelected, onDragStart }: {
   item: CalendarItem;
   onClick: () => void;
   isSelected: boolean;
   onDragStart?: (e: React.DragEvent) => void;
-  /** Agenda rows render time + caption snippet so they're informative without opening the panel. */
-  showDetail?: boolean;
 }) {
   const t = useTranslations("calendar.detailPanel");
-  const locale = useLocale();
   const p = item.post;
-  const accent = CHANNEL_ACCENT[p.channel] || "#2563eb";
-  const bg = CHANNEL_BG[p.channel] || "rgba(37,99,235,0.08)";
-
-  const thumb = p.mediaUrls?.[0];
   const draggable = p.status === "scheduled" || p.status === "draft";
-
   const isFailed = p.status === "failed" || p.status === "partial_failed";
-  const when = p.publishedAt || p.scheduledAt;
 
   return (
     <button
+      type="button"
       onClick={onClick}
       draggable={draggable}
       onDragStart={onDragStart}
       title={isFailed ? t("failedToPublish") : undefined}
-      className="w-full rounded-lg overflow-hidden transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.98] cursor-grab active:cursor-grabbing"
-      style={{ background: isSelected ? accent + "20" : bg, borderLeft: `3px solid ${accent}`, outline: isSelected ? `1.5px solid ${accent}` : "none" }}
+      className={cn(
+        "flex w-full min-w-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-start text-[11.5px] font-medium leading-4 transition-[opacity,transform] duration-150 hover:opacity-85 active:scale-[0.98]",
+        draggable && "cursor-grab active:cursor-grabbing",
+        STATUS_CHIP[p.status] ?? STATUS_CHIP.draft,
+        isSelected && "ring-1 ring-foreground",
+      )}
     >
-      <div className={`px-1.5 flex items-center gap-1.5 ${showDetail ? "py-2 min-h-[44px]" : "py-1"}`}>
-        {/* Media thumbnail */}
-        {thumb && !isVideoUrl(thumb) ? (
-          <img src={thumb} alt="" className={`rounded object-cover shrink-0 ${showDetail ? "w-8 h-8" : "w-6 h-6"}`} draggable={false} />
-        ) : (
-          <div className={`rounded shrink-0 flex items-center justify-center ${showDetail ? "w-8 h-8" : "w-6 h-6"}`} style={{ background: accent + "18" }}>
-            <div style={{ color: accent }}>{CHANNEL_ICON[p.channel] || null}</div>
-          </div>
-        )}
-        {/* Platform icon */}
-        <div style={{ color: accent }} className="shrink-0">
-          {CHANNEL_ICON[p.channel] || null}
+      <span className="flex shrink-0">
+        <Channel channel={p.channel} size={14} />
+      </span>
+      <span className="min-w-0 flex-1 truncate">{p.content || t("untitledPost")}</span>
+      {isFailed && <AlertCircle className="size-3 shrink-0" aria-label={t("failedToPublish")} />}
+    </button>
+  );
+}
+
+/** List row for day lists: time, caption snippet and status, so a day is
+ *  reviewable without opening every post. */
+function PostRow({ item, onClick, isSelected, onDragStart, className }: {
+  item: CalendarItem;
+  onClick: () => void;
+  isSelected: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  className?: string;
+}) {
+  const t = useTranslations("calendar.detailPanel");
+  const tStatus = useTranslations("calendar.statusLabels");
+  const locale = useLocale();
+  const p = item.post;
+  const thumb = p.mediaUrls?.[0];
+  const draggable = Boolean(onDragStart) && (p.status === "scheduled" || p.status === "draft");
+  const isFailed = p.status === "failed" || p.status === "partial_failed";
+  const when = p.publishedAt || p.scheduledAt;
+  const statusLabel = tStatus.has(p.status) ? tStatus(p.status) : p.status;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      aria-pressed={isSelected}
+      title={isFailed ? t("failedToPublish") : undefined}
+      className={cn(
+        "flex w-full items-center gap-3 px-4 py-3 text-start transition-colors hover:bg-muted/60 sm:px-5",
+        draggable && "cursor-grab active:cursor-grabbing",
+        isSelected && "bg-muted",
+        className,
+      )}
+    >
+      <PostThumbnail src={p.thumbnailUrl} mediaUrl={thumb ?? null} channel={p.channel} size={40} />
+      <div className="min-w-0 flex-1">
+        <p className="m-0 truncate text-[13px] font-medium leading-5 text-foreground">
+          {p.content || t("untitledPost")}
+        </p>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          {when && (
+            <span className="text-xs tabular-nums text-muted-foreground">{formatTime(when, locale)}</span>
+          )}
+          <Badge variant={STATUS_BADGE[p.status] ?? "secondary"}>{statusLabel}</Badge>
+          {p.evergreen && <Badge variant="positive">{t("evergreen")}</Badge>}
         </div>
-        {showDetail && (
-          <span className="flex-1 min-w-0 text-start text-[12px] truncate text-foreground/80">
-            {p.content || t("untitledPost")}
-          </span>
-        )}
-        {showDetail && when && (
-          <span className="shrink-0 font-mono text-[10.5px] text-muted-foreground">
-            {formatTime(when, locale)}
-          </span>
-        )}
-        {p.evergreen && (
-          <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-medium text-emerald-800">
-            {t("evergreen")}
-          </span>
-        )}
-        {/* Failed indicator — surfaces errors without opening the detail panel */}
-        {isFailed && (
-          <span className="ms-auto shrink-0 flex items-center" style={{ color: "var(--mk-neg)" }} aria-label={t("failedToPublish")}>
-            <AlertCircle className="w-3 h-3" />
-          </span>
-        )}
       </div>
+      {isFailed && <AlertCircle className="size-4 shrink-0 text-mk-neg" aria-label={t("failedToPublish")} />}
     </button>
   );
 }
@@ -426,7 +475,7 @@ function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart, onBulkC
   // Multi-select lives here, in the day list, and deliberately NOT on the
   // month grid: the grid chips already carry click-to-open and
   // drag-to-reschedule, and a third gesture on a 20px chip would fight both.
-  // While selecting, chips toggle instead of opening and dragging is off, so
+  // While selecting, rows toggle instead of opening and dragging is off, so
   // the two modes can never race.
   const [selecting, setSelecting] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -493,116 +542,111 @@ function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart, onBulkC
   };
 
   return (
-    <div className="h-full min-h-0 flex flex-col">
-      <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-border/40 shrink-0">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold m-0 truncate">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className={PANEL_HEADER}>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="m-0 truncate text-base font-semibold leading-6 text-foreground">
               {date.toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" })}
             </p>
-            {isToday && (
-              <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">{t("today")}</span>
-            )}
+            {isToday && <Badge variant="default">{t("today")}</Badge>}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5 m-0">
+          <p className="m-0 mt-0.5 text-[13px] leading-5 text-muted-foreground">
             {selecting
               ? t("selection.count", { count: selectedIds.size })
               : t("postCount", { count: items.length })}
           </p>
         </div>
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex shrink-0 items-center gap-1">
           {items.length > 0 && (
-            <button
+            <Button
+              variant={selecting ? "secondary" : "ghost"}
+              size="xs"
               onClick={() => (selecting ? exitSelection() : setSelecting(true))}
-              className="px-2.5 h-7 rounded-full text-[11px] font-medium border border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             >
               {selecting ? t("selection.cancelSelection") : t("selection.selectMode")}
-            </button>
+            </Button>
           )}
-          <button onClick={onClose} aria-label="Close" className="w-9 h-9 lg:w-7 lg:h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
-            <X className="w-4 h-4" />
-          </button>
+          <Button variant="ghost" size="icon-sm" className="-me-2" onClick={onClose} aria-label="Close">
+            <X className="size-4" />
+          </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         {items.length === 0 ? (
-          <p className="text-[12px] text-muted-foreground text-center py-8 m-0">
+          <p className="m-0 px-5 py-10 text-center text-[13px] text-muted-foreground">
             {t("noPosts")}
           </p>
         ) : (
-          items.map((item) => (
-            selecting ? (
-              <div key={item.post.id} className="relative">
-                <span className="absolute start-2 top-1/2 -translate-y-1/2 z-10 flex h-5 w-5 items-center justify-center rounded-md border border-border/60 bg-card">
-                  <input
-                    type="checkbox"
-                    className="h-3.5 w-3.5 cursor-pointer accent-current"
-                    checked={selectedIds.has(item.post.id)}
-                    onChange={() => toggleSelected(item.post.id)}
-                    aria-label={item.post.content?.slice(0, 80) || item.post.id}
-                  />
-                </span>
-                <div className="ps-8">
-                  <VisualEventChip
+          <ul className="m-0 list-none divide-y divide-border p-0">
+            {items.map((item) => (
+              <li key={item.post.id} className="relative">
+                {selecting ? (
+                  <>
+                    <input
+                      type="checkbox"
+                      className="absolute start-4 top-1/2 z-10 size-4 -translate-y-1/2 cursor-pointer rounded accent-foreground sm:start-5"
+                      checked={selectedIds.has(item.post.id)}
+                      onChange={() => toggleSelected(item.post.id)}
+                      aria-label={item.post.content?.slice(0, 80) || item.post.id}
+                    />
+                    <PostRow
+                      item={item}
+                      isSelected={selectedIds.has(item.post.id)}
+                      onClick={() => toggleSelected(item.post.id)}
+                      className="ps-11 sm:ps-12"
+                    />
+                  </>
+                ) : (
+                  <PostRow
                     item={item}
-                    isSelected={selectedIds.has(item.post.id)}
-                    showDetail
-                    onClick={() => toggleSelected(item.post.id)}
+                    isSelected={false}
+                    onClick={() => onSelect(item)}
+                    onDragStart={onDragStart(item.post)}
                   />
-                </div>
-              </div>
-            ) : (
-              <VisualEventChip
-                key={item.post.id}
-                item={item}
-                isSelected={false}
-                showDetail
-                onClick={() => onSelect(item)}
-                onDragStart={onDragStart(item.post)}
-              />
-            )
-          ))
+                )}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
       {selecting && (
-        <div className="shrink-0 border-t border-border/40 px-3 py-2.5 flex flex-wrap items-center gap-1.5">
-          <button
+        <div className={cn(PANEL_FOOTER, "px-4 py-3 sm:px-5")}>
+          <Button
+            variant="ghost"
+            size="xs"
             onClick={() =>
               setSelectedIds(allSelected ? new Set() : new Set(items.map((item) => item.post.id)))
             }
-            className="px-2.5 h-7 rounded-full text-[11px] font-medium border border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             {allSelected ? t("selection.clear") : t("selection.selectAll")}
-          </button>
-          <div className="ms-auto flex items-center gap-1.5">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 rounded-full text-[11px]"
-              disabled={selectedIds.size === 0 || bulkPending}
-              onClick={() => setRescheduleOpen(true)}
-            >
-              {t("selection.reschedule")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 rounded-full text-[11px]"
-              disabled={selectedIds.size === 0 || bulkPending}
-              onClick={() => runBulk({ action: "status", status: "draft" }, "movedToDrafts")}
-            >
-              {t("selection.moveToDrafts")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 rounded-full text-[11px] text-mk-neg hover:text-mk-neg"
-              disabled={selectedIds.size === 0 || bulkPending}
-              onClick={() => setConfirmBulkDelete(true)}
-            >
-              {t("selection.delete")}
-            </Button>
-          </div>
+          </Button>
+          <span className="flex-1" />
+          <Button
+            size="xs"
+            variant="outline"
+            disabled={selectedIds.size === 0 || bulkPending}
+            onClick={() => setRescheduleOpen(true)}
+          >
+            {t("selection.reschedule")}
+          </Button>
+          <Button
+            size="xs"
+            variant="outline"
+            disabled={selectedIds.size === 0 || bulkPending}
+            onClick={() => runBulk({ action: "status", status: "draft" }, "movedToDrafts")}
+          >
+            {t("selection.moveToDrafts")}
+          </Button>
+          <Button
+            size="xs"
+            variant="outline"
+            className="text-mk-neg hover:bg-mk-neg-soft hover:text-mk-neg"
+            disabled={selectedIds.size === 0 || bulkPending}
+            onClick={() => setConfirmBulkDelete(true)}
+          >
+            {t("selection.delete")}
+          </Button>
         </div>
       )}
 
@@ -631,36 +675,98 @@ function DayPostsPanel({ dateStr, items, onSelect, onClose, onDragStart, onBulkC
   );
 }
 
-// ─── Mobile Agenda View ──────────────────────────────────────────────────────
+// ─── Grid pieces ─────────────────────────────────────────────────────────────
 
-function MobileAgendaDay({ date, items, selected, onSelect }: {
-  date: Date;
-  items: CalendarItem[];
-  selected: CalendarItem | null;
-  onSelect: (item: CalendarItem | null) => void;
-}) {
-  const t = useTranslations("calendar.agenda");
-  const locale = useLocale();
-  const todayStr = isoDate(new Date());
-  const dateStr = isoDate(date);
-  const isToday = dateStr === todayStr;
-
+function WeekdayHeader({ dayNames, compact = false }: { dayNames: string[]; compact?: boolean }) {
   return (
-    <div className={`rounded-xl border border-border/30 p-3 ${isToday ? "bg-primary/[0.03] border-primary/20" : "bg-card"}`}>
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`text-sm font-semibold ${isToday ? "text-primary" : "text-foreground"}`}>
-          {date.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" })}
-        </span>
-        {isToday && <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">{t("today")}</span>}
-        <span className="text-[10px] text-muted-foreground ms-auto">{t("itemCount", { count: items.length })}</span>
-      </div>
-      <div className="space-y-1.5">
-        {items.map((item, i) => {
-          const isItemSelected = selected !== null && selected.post.id === item.post.id;
-          return <VisualEventChip key={i} item={item} isSelected={isItemSelected} showDetail onClick={() => onSelect(isItemSelected ? null : item)} />;
-        })}
+    <div className="grid grid-cols-7 border-b border-border bg-muted/60">
+      {dayNames.map((d) => (
+        <div key={d} className={cn("mk-label text-center", compact ? "py-1.5 text-[11px]" : "py-2")}>
+          {d}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Same shape as the month grid, so the page does not jump when data lands. */
+function CalendarSkeleton({ dayNames }: { dayNames: string[] }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-card" aria-busy="true">
+      <WeekdayHeader dayNames={dayNames} />
+      <div className="grid grid-cols-7 gap-px bg-border">
+        {Array.from({ length: 35 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex aspect-square flex-col gap-1.5 bg-card p-2 sm:aspect-auto sm:min-h-[9.5rem] lg:min-h-[10.5rem]"
+          >
+            <Skeleton className="size-6 rounded-full" />
+            {i % 3 === 0 && <Skeleton className="hidden h-4 w-full sm:block" />}
+            {i % 4 === 1 && <Skeleton className="hidden h-4 w-3/4 sm:block" />}
+          </div>
+        ))}
       </div>
     </div>
+  );
+}
+
+function DayNumber({ day, isToday }: { day: number; isToday: boolean }) {
+  return (
+    <span
+      className={cn(
+        "grid size-6 place-items-center rounded-full text-xs leading-none tabular-nums",
+        isToday ? "bg-foreground font-semibold text-background" : "font-medium text-muted-foreground",
+      )}
+    >
+      {day}
+    </span>
+  );
+}
+
+/**
+ * Busy-day summary: one line per channel with its count, then a thin status
+ * bar. At twenty posts a day a list of truncated captions says nothing; the
+ * mix of channels and how much is still scheduled does.
+ */
+function ChannelSummary({ items, onOpen, label }: { items: CalendarItem[]; onOpen: () => void; label: string }) {
+  const t = useTranslations("calendar");
+  const byChannel = new Map<string, number>();
+  const byStatus = { published: 0, scheduled: 0, failed: 0, other: 0 };
+  for (const item of items) {
+    byChannel.set(item.post.channel, (byChannel.get(item.post.channel) ?? 0) + 1);
+    const st = item.post.status;
+    if (st === "published") byStatus.published += 1;
+    else if (st === "scheduled") byStatus.scheduled += 1;
+    else if (st === "failed" || st === "partial_failed") byStatus.failed += 1;
+    else byStatus.other += 1;
+  }
+  const rows = [...byChannel.entries()].sort((a, b) => b[1] - a[1]);
+  const shown = rows.slice(0, 4);
+  const rest = rows.length - shown.length;
+  const total = items.length || 1;
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={label}
+      className="flex min-h-0 flex-1 flex-col justify-between gap-2 rounded-lg px-1 py-1 text-start transition-colors hover:bg-muted/60"
+    >
+      <ul className="m-0 grid list-none gap-1 p-0">
+        {shown.map(([channel, count]) => (
+          <li key={channel} className="flex items-center gap-1.5 text-xs text-mk-ink-80">
+            <Channel channel={channel} size={16} />
+            <span className="truncate">{channelLabel(channel)}</span>
+            <span className="ms-auto tabular-nums text-muted-foreground">{count}</span>
+          </li>
+        ))}
+        {rest > 0 && <li className="text-xs text-mk-ink-40">{t("moreChannels", { count: rest })}</li>}
+      </ul>
+      <span className="flex h-1 w-full overflow-hidden rounded-full bg-muted" aria-hidden>
+        <span className="bg-mk-pos" style={{ width: `${(byStatus.published / total) * 100}%` }} />
+        <span className="bg-mk-accent" style={{ width: `${(byStatus.scheduled / total) * 100}%` }} />
+        <span className="bg-mk-neg" style={{ width: `${(byStatus.failed / total) * 100}%` }} />
+      </span>
+    </button>
   );
 }
 
@@ -669,13 +775,28 @@ function MobileAgendaDay({ date, items, selected, onSelect }: {
 function CalendarPageContent() {
   const t = useTranslations("calendar");
   const tStatus = useTranslations("calendar.statusLabels");
+  const tView = useTranslations("calendar.views");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  // The rail is inline at `lg` (so day-list rows can still be dragged onto the
+  // grid) and a Sheet below it. Only one of the two ever mounts.
+  const isDesktop = useMediaQuery("(min-width: 1024px)", true);
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
+  const [view, setView] = useState<ViewMode>(() => {
+    const requested = searchParams.get("view");
+    return VIEW_MODES.includes(requested as ViewMode) ? (requested as ViewMode) : "month";
+  });
+  // Week view anchors on the week containing today when viewing this month,
+  // otherwise the first week of the month.
+  const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(today));
+  // List view pages through the month a week of days at a time.
+  const [listPage, setListPage] = useState(1);
+  const [listPagedFor, setListPagedFor] = useState(`${year}-${month}`);
+  if (listPagedFor !== `${year}-${month}`) { setListPagedFor(`${year}-${month}`); setListPage(1); }
   // Locale-aware month name and Sun-first weekday abbreviations. Jan 1 2023 was
   // a Sunday, used purely as an anchor date to walk the week in order.
   const monthLabel = new Date(year, month, 1).toLocaleDateString(locale, { month: "long" });
@@ -708,7 +829,7 @@ function CalendarPageContent() {
     () => new Map(brands.map((b) => [b.id, b])),
     [brands]
   );
-  // Optimistic patches (postId → patched fields) layered over query data so
+  // Optimistic patches (postId to patched fields) layered over query data so
   // drag-to-reschedule feels instant; cleared once fresh data arrives.
   const [overrides, setOverrides] = useState<Record<string, Partial<Post>>>({});
   const posts = useMemo(() => {
@@ -719,9 +840,12 @@ function CalendarPageContent() {
   // ISO date whose full post list is open in the side rail. Kept set while a
   // post from that day is previewed so "back" returns to the list.
   const [dayView, setDayView] = useState<string | null>(null);
+  // ISO date highlighted in the compact mobile grid; its posts list under the
+  // grid. Falls back to today (or the 1st) when it is not in the viewed month.
+  const [mobileDay, setMobileDay] = useState<string | null>(null);
   const [dragItem, setDragItem] = useState<Post | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
-  // Filters initialize from URL (?status=…&channel=…&brand=…) so dashboard
+  // Filters initialize from URL (?status=...&channel=...&brand=...) so dashboard
   // drill-ins and shared links work
   const [statusFilter, setStatusFilter] = useState<string | null>(
     () => searchParams.get("status")
@@ -786,7 +910,7 @@ function CalendarPageContent() {
       return;
     }
 
-    // Otherwise ask the API definitively — the post may simply be outside
+    // Otherwise ask the API definitively: the post may simply be outside
     // the loaded window, or it may have been deleted.
     let cancelled = false;
     (async () => {
@@ -913,7 +1037,7 @@ function CalendarPageContent() {
     }
   };
 
-  // Build date → items map (with filters applied)
+  // Build date to items map (with filters applied)
   const filteredPosts = posts.filter((p) =>
     (!statusFilter || p.status === statusFilter) &&
     (!channelFilter || p.channel === channelFilter) &&
@@ -936,8 +1060,9 @@ function CalendarPageContent() {
 
   const days = calendarDays(year, month);
   const todayStr = isoDate(today);
+  const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
 
-  // ─── Side rail: day list ⇄ single-post preview ───────────────────────
+  // ─── Side rail: day list <-> single-post preview ─────────────────────
   const openDay = (dateStr: string) => {
     setSelected(null);
     setDayView(dateStr);
@@ -952,7 +1077,7 @@ function CalendarPageContent() {
   };
   const railOpen = Boolean(selected || dayView);
 
-  // Rendered twice (desktop sidebar + mobile sheet) — only one is ever visible.
+  // Rendered in one of two homes (desktop sidebar or Sheet); never both.
   const renderRail = () => {
     if (selected) {
       return (
@@ -981,10 +1106,17 @@ function CalendarPageContent() {
     }
     return null;
   };
+  // Accessible name for the Sheet; the visible header lives inside the panel.
+  const railTitle = selected
+    ? channelLabel(selected.post.channel)
+    : dayView
+      ? parseIsoDate(dayView).toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" })
+      : "";
 
-  // Escape steps back through the rail: post → day list → closed.
+  // Escape steps back through the rail: post, then day list, then closed.
+  // The Sheet handles this itself below `lg` (see onEscapeKeyDown).
   useEffect(() => {
-    if (!railOpen) return;
+    if (!railOpen || !isDesktop) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       // From a post opened out of a day list, step back to the list first.
@@ -993,19 +1125,42 @@ function CalendarPageContent() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [railOpen, selected, dayView]);
+  }, [railOpen, isDesktop, selected, dayView]);
 
   const prevMonth = () => month === 0 ? (setMonth(11), setYear(y => y - 1)) : setMonth(m => m - 1);
   const nextMonth = () => month === 11 ? (setMonth(0), setYear(y => y + 1)) : setMonth(m => m + 1);
-
-  // Build mobile agenda
-  const agendaDays: { date: Date; items: CalendarItem[] }[] = [];
-  for (const day of days) {
-    if (!day) continue;
-    const dateStr = isoDate(day);
-    const items = itemsByDate.get(dateStr);
-    if (items && items.length > 0) agendaDays.push({ date: day, items });
-  }
+  // In week view the arrows walk weeks; the loaded month follows the week's
+  // Thursday so a week straddling two months still has most of its posts.
+  const shiftWeek = (delta: number) => {
+    const next = new Date(weekStart);
+    next.setDate(next.getDate() + delta * 7);
+    setWeekStart(next);
+    const mid = new Date(next);
+    mid.setDate(mid.getDate() + 3);
+    if (mid.getMonth() !== month || mid.getFullYear() !== year) {
+      setMonth(mid.getMonth());
+      setYear(mid.getFullYear());
+    }
+  };
+  const goPrev = () => (view === "week" ? shiftWeek(-1) : prevMonth());
+  const goNext = () => (view === "week" ? shiftWeek(1) : nextMonth());
+  const selectView = (next: ViewMode) => {
+    setView(next);
+    if (next === "week") {
+      const inMonth = today.getMonth() === month && today.getFullYear() === year;
+      setWeekStart(startOfWeek(inMonth ? today : new Date(year, month, 1)));
+    }
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "month") params.delete("view"); else params.set("view", next);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+  const weekLabel = t("weekOf", { date: weekStart.toLocaleDateString(locale, { month: "short", day: "numeric" }) });
 
   // Count totals for month (respects active filter)
   const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
@@ -1014,434 +1169,503 @@ function CalendarPageContent() {
     return d && d.startsWith(monthPrefix);
   }).length;
 
+  // Mobile: the highlighted day and its posts.
+  const mobileDayStr =
+    mobileDay && mobileDay.startsWith(monthPrefix)
+      ? mobileDay
+      : isCurrentMonth
+        ? todayStr
+        : `${monthPrefix}-01`;
+  const mobileItems = itemsByDate.get(mobileDayStr) ?? [];
+  const mobileDate = parseIsoDate(mobileDayStr);
+
+  const subtitle = dragItem
+    ? `${t("postsThisMonth", { count: totalPosts })} ${t("dropToReschedule")}`
+    : t("postsThisMonth", { count: totalPosts });
+
   return (
     <>
-      <style>{`
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(12px); }
-          to   { opacity: 1; transform: translateX(0); }
+      <PageHeader
+        title={t("title")}
+        subtitle={subtitle}
+        action={
+          <>
+            <div className="flex items-center gap-1">
+              <Button variant="outline" size="icon-sm" onClick={goPrev} aria-label={t("views.month")}>
+                <ChevronLeft className="size-4 rtl:rotate-180" />
+              </Button>
+              <span className="min-w-[12ch] px-1 text-center text-sm font-semibold capitalize tabular-nums text-foreground">
+                {view === "week" ? weekLabel : `${monthLabel} ${year}`}
+              </span>
+              <Button variant="outline" size="icon-sm" onClick={goNext} aria-label={t("views.month")}>
+                <ChevronRight className="size-4 rtl:rotate-180" />
+              </Button>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isCurrentMonth && (view !== "week" || isoDate(weekStart) === isoDate(startOfWeek(today)))}
+              onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); setWeekStart(startOfWeek(today)); closeRail(); }}
+            >
+              {t("today")}
+            </Button>
+            <Tabs value={view} onValueChange={(v) => selectView(v as ViewMode)}>
+              <TabsList className="h-8">
+                {VIEW_MODES.map((mode) => (
+                  <TabsTrigger key={mode} value={mode} className="px-2.5 text-xs">{tView(mode)}</TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+            <Button size="sm" asChild>
+              <Link href="/content">
+                <Plus className="size-4" />
+                {t("newPost")}
+              </Link>
+            </Button>
+          </>
         }
-        .detail-panel { animation: slideInRight 0.18s ease-out; }
-        .drop-highlight { background: rgba(var(--primary-rgb, 0, 102, 255), 0.06) !important; outline: 2px dashed rgba(var(--primary-rgb, 0, 102, 255), 0.3); outline-offset: -2px; }
-      `}</style>
+      >
+        {/* Filters. Toggles for status and channel; a select for brands, since a
+            workspace can have many and the row is already dense. */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {STATUS_FILTER_KEYS.map((key) => {
+            const active = statusFilter === key;
+            return (
+              <Button
+                key={key}
+                variant={active ? "secondary" : "ghost"}
+                size="xs"
+                aria-pressed={active}
+                onClick={() => applyFilters({ status: active ? null : key })}
+              >
+                <span className={cn("size-1.5 rounded-full", STATUS_DOT[key])} aria-hidden />
+                {tStatus(key)}
+              </Button>
+            );
+          })}
+          <span className="mx-1 hidden h-4 w-px bg-border sm:block" aria-hidden />
+          {CHANNEL_KEYS.map((key) => {
+            const active = channelFilter === key;
+            return (
+              <Button
+                key={key}
+                variant={active ? "secondary" : "ghost"}
+                size="xs"
+                aria-pressed={active}
+                onClick={() => applyFilters({ channel: active ? null : key })}
+              >
+                <Channel channel={key} size={14} />
+                {channelLabel(key)}
+              </Button>
+            );
+          })}
+          {(brands.length > 0 || brandFilter) && (
+            <>
+              <span className="mx-1 hidden h-4 w-px bg-border sm:block" aria-hidden />
+              <Select
+                size="sm"
+                value={brandFilter ?? ""}
+                onChange={(e) => applyFilters({ brand: e.target.value || null })}
+                aria-label={t("filters.brand")}
+                className="w-auto max-w-44 h-7 rounded-md text-xs"
+              >
+                <option value="">{t("filters.brand")}: {t("filters.all")}</option>
+                {brands.map((b) => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+                {(hasUnassignedPosts || brandFilter === UNASSIGNED_BRAND) && (
+                  <option value={UNASSIGNED_BRAND}>{t("filters.noBrand")}</option>
+                )}
+                {/* Keeps the control in sync when ?brand= names a brand that
+                    hasn't loaded yet or has since been deleted. */}
+                {unknownBrandId && <option value={unknownBrandId}>{t("filters.unknownBrand")}</option>}
+              </Select>
+            </>
+          )}
+          <span className="ms-auto hidden text-xs text-muted-foreground md:inline">
+            {t("filters.dragToReschedule")}
+          </span>
+        </div>
+      </PageHeader>
 
-      <div className="flex flex-col lg:flex-row gap-6 h-full">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         {/* ── Calendar column ── */}
-        <div className="flex flex-col min-w-0 flex-1">
-          {/* Deleted-post notice — shown when a deep link points at a post
+        <div className="min-w-0 flex-1 space-y-4">
+          {/* Deleted-post notice: shown when a deep link points at a post
               that no longer exists (e.g. an old "Recent posts" link) */}
           {deletedNotice && (
-            <div
-              className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 mb-4"
-              style={{ background: "var(--mk-surface)", border: "1px dashed var(--mk-rule)" }}
+            <Notice
+              tone="neutral"
+              icon={AlertCircle}
+              action={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => setDeletedNotice(false)}
+                  aria-label={t("dismiss")}
+                >
+                  <X className="size-4" />
+                </Button>
+              }
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <AlertCircle className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-40)" }} />
-                <p className="text-[13px] m-0" style={{ color: "var(--mk-ink-60)" }}>
-                  {t("deletedNotice")}
-                </p>
-              </div>
-              <button
-                onClick={() => setDeletedNotice(false)}
-                aria-label={t("dismiss")}
-                className="shrink-0 w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+              {t("deletedNotice")}
+            </Notice>
           )}
 
-          {/* Safety-ceiling notice — the month held more posts than one read
+          {/* Safety-ceiling notice: the month held more posts than one read
               returns, so the grid below is incomplete. Should not happen in
               practice; shown rather than silently dropping posts. */}
           {postsData?.truncated && (
-            <div
-              className="flex items-center gap-2.5 rounded-lg px-4 py-3 mb-4"
-              style={{ background: "var(--mk-surface)", border: "1px dashed var(--mk-warn)" }}
-            >
-              <AlertCircle className="h-4 w-4 shrink-0" style={{ color: "var(--mk-warn)" }} />
-              <p className="text-[13px] m-0" style={{ color: "var(--mk-ink-60)" }}>
-                {t("truncatedNotice")}
-              </p>
-            </div>
+            <Notice tone="warning" icon={AlertCircle}>
+              {t("truncatedNotice")}
+            </Notice>
           )}
 
-          {/* Header row */}
-          <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 capitalize">
-                {monthLabel}{" "}
-                <span className="font-light text-slate-400 dark:text-slate-500">
-                  {year}
-                </span>
-              </h1>
-              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1">
-                {t("postsThisMonth", { count: totalPosts })}
-                {dragItem && (
-                  <span className="ms-2 font-bold text-blue-600 dark:text-blue-400">
-                    {t("dropToReschedule")}
-                  </span>
-                )}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href="/content">
-                <Button className="h-9 px-3.5 rounded-xl gap-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
-                  <Plus className="h-4 w-4" /> {t("newPost")}
-                </Button>
-              </Link>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-3.5 rounded-xl text-xs font-semibold border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
-                disabled={month === today.getMonth() && year === today.getFullYear()}
-                onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); closeRail(); }}
-              >
-                {t("today")}
-              </Button>
-              <div className="flex rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-none border-r border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
-                  onClick={prevMonth}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-none hover:bg-slate-50 dark:hover:bg-slate-800"
-                  onClick={nextMonth}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-
-          {/* Filters + Legend */}
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 flex-nowrap overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
-            {[
-              { key: "published", color: STATUS_DOT.published },
-              { key: "scheduled", color: STATUS_DOT.scheduled },
-              { key: "failed", color: STATUS_DOT.failed },
-              { key: "partial_failed", color: STATUS_DOT.partial_failed },
-            ].map(({ key, color }) => {
-              const active = statusFilter === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => applyFilters({ status: active ? null : key })}
-                  className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-colors ${
-                    active
-                      ? "border-current bg-current/10"
-                      : "border-transparent hover:bg-muted"
-                  }`}
-                  style={active ? { color, borderColor: color + "60" } : undefined}
-                >
-                  <span className="w-2 h-2 rounded-full" style={{ background: color }} />
-                  <span className={active ? "" : "text-muted-foreground"}>{tStatus(key)}</span>
-                </button>
-              );
-            })}
-            <div className="w-px h-3 bg-border/50 hidden sm:block" />
-            {Object.entries(CHANNEL_LABEL).map(([key, label]) => {
-              const active = channelFilter === key;
-              const color = CHANNEL_ACCENT[key];
-              return (
-                <button
-                  key={key}
-                  onClick={() => applyFilters({ channel: active ? null : key })}
-                  className={`flex items-center gap-1.5 px-3 sm:px-2.5 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-colors ${
-                    active
-                      ? "border-current bg-current/10"
-                      : "border-transparent hover:bg-muted"
-                  }`}
-                  style={active ? { color, borderColor: color + "60" } : undefined}
-                >
-                  <span className="w-0.5 h-3 rounded-full" style={{ background: color }} />
-                  <span className={active ? "" : "text-muted-foreground"}>{label}</span>
-                </button>
-              );
-            })}
-            {/* Brand filter — a select rather than chips, since a workspace can
-                have many brands and the chip row is already dense. */}
-            {(brands.length > 0 || brandFilter) && (
-              <>
-                <div className="w-px h-3 bg-border/50 hidden sm:block" />
-                <label
-                  className={`flex items-center gap-1.5 ps-3 sm:ps-2.5 pe-1 py-2 sm:py-1 shrink-0 whitespace-nowrap rounded-full border text-[11px] font-medium transition-colors cursor-pointer ${
-                    brandFilter ? "bg-current/10" : "border-transparent hover:bg-muted"
-                  }`}
-                  style={
-                    brandFilter
-                      ? {
-                          color: "var(--mk-accent)",
-                          borderColor: "color-mix(in oklch, var(--mk-accent) 60%, transparent)",
-                        }
-                      : undefined
-                  }
-                >
-                  <span
-                    className="w-0.5 h-3 rounded-full shrink-0"
-                    style={{ background: brandFilter ? "var(--mk-accent)" : "var(--mk-ink-40)" }}
-                  />
-                  <span className={brandFilter ? "" : "text-muted-foreground"}>{t("filters.brand")}</span>
-                  <select
-                    value={brandFilter ?? ""}
-                    onChange={(e) => applyFilters({ brand: e.target.value || null })}
-                    aria-label={t("filters.brand")}
-                    className="bg-transparent border-none outline-none cursor-pointer text-[11px] font-medium max-w-36 truncate text-inherit"
-                  >
-                    <option value="">{t("filters.all")}</option>
-                    {brands.map((b) => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                    {(hasUnassignedPosts || brandFilter === UNASSIGNED_BRAND) && (
-                      <option value={UNASSIGNED_BRAND}>{t("filters.noBrand")}</option>
-                    )}
-                    {/* Keeps the control in sync when ?brand= names a brand that
-                        hasn't loaded yet or has since been deleted. */}
-                    {unknownBrandId && <option value={unknownBrandId}>{t("filters.unknownBrand")}</option>}
-                  </select>
-                </label>
-              </>
-            )}
-            <div className="w-px h-3 bg-border/50 hidden md:block" />
-            <div className="hidden md:flex items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">{t("filters.dragToReschedule")}</span>
-            </div>
-          </div>
-
-          {/* Grid — spinner only on true initial load; post-mutation refetches
+          {/* Grid. Skeleton only on true initial load; post-mutation refetches
               keep the (optimistically patched) grid on screen */}
           {loading && !postsData ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="h-5 w-5 border-2 border-foreground/15 border-t-foreground rounded-full animate-spin" />
-            </div>
+            <CalendarSkeleton dayNames={dayNames} />
           ) : loadError && !postsData ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12">
-              <AlertCircle className="h-5 w-5" style={{ color: "var(--mk-neg)" }} />
-              <p className="text-sm text-muted-foreground m-0">
-                {t("loadError")}
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-lg text-[12px]"
-                onClick={() => refresh()}
-              >
-                {t("retry")}
-              </Button>
-            </div>
+            <Notice
+              tone="negative"
+              icon={AlertCircle}
+              action={
+                <Button variant="outline" size="sm" onClick={() => refresh()}>
+                  {t("retry")}
+                </Button>
+              }
+            >
+              {t("loadError")}
+            </Notice>
           ) : (
             <>
-              {/* Desktop empty state — acknowledges active filters */}
+              {/* Empty state acknowledges active filters; the grid stays so
+                  the month can still be browsed. */}
               {totalPosts === 0 && (
-                <div
-                  className="hidden md:flex items-center justify-between gap-3 rounded-lg px-4 py-3 mb-4"
-                  style={{
-                    background: "var(--mk-surface)",
-                    border: "1px dashed var(--mk-rule)",
-                  }}
-                >
-                  <p className="text-sm text-muted-foreground m-0">
-                    {hasActiveFilters
-                      ? t("noPostsMatchingFilters")
-                      : t("noPostsThisMonth")}
-                  </p>
-                  {hasActiveFilters ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-lg text-[12px]"
-                      onClick={clearFilters}
-                    >
-                      {t("clearFilters")}
-                    </Button>
-                  ) : (
-                    <Link href="/content">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-lg gap-1.5 text-[12px]"
-                      >
-                        <Plus className="h-3.5 w-3.5" /> {t("createPost")}
+                <EmptyState
+                  compact
+                  icon={CalendarDays}
+                  title={hasActiveFilters ? t("noPostsMatchingFilters") : t("noPostsThisMonth")}
+                  action={
+                    hasActiveFilters ? (
+                      <Button variant="outline" size="sm" onClick={clearFilters}>
+                        {t("clearFilters")}
                       </Button>
-                    </Link>
-                  )}
-                </div>
+                    ) : (
+                      <Button size="sm" asChild>
+                        <Link href="/content">
+                          <Plus className="size-4" />
+                          {t("createPost")}
+                        </Link>
+                      </Button>
+                    )
+                  }
+                />
               )}
 
-              {/* Desktop calendar grid */}
-              <div
-                className="hidden md:flex flex-1 flex-col rounded-xl overflow-hidden"
-                style={{
-                  background: "var(--mk-paper)",
-                  border: "1px solid var(--mk-rule)",
-                }}
-              >
-                <div
-                  className="grid grid-cols-7 border-b"
-                  style={{
-                    borderColor: "var(--mk-rule)",
-                    background: "var(--mk-surface)",
-                  }}
-                >
-                  {dayNames.map((d) => (
-                    <div
-                      key={d}
-                      className="py-2.5 text-center font-mono text-[9.5px] uppercase"
-                      style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
-                    >
-                      {d}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-7 flex-1" style={{ gridAutoRows: "1fr" }}>
+              {/* Month grid (sm and up) */}
+              {view === "month" && (
+              <div className="hidden overflow-hidden rounded-xl border border-border bg-card sm:block">
+                <WeekdayHeader dayNames={dayNames} />
+                <div className="grid grid-cols-7 gap-px bg-border">
                   {days.map((day, idx) => {
                     if (!day) {
-                      return <div key={`pad-${idx}`} className="border-b border-e border-border/25 bg-muted/10" />;
+                      return <div key={`pad-${idx}`} className="min-h-[9.5rem] bg-muted/40 lg:min-h-[10.5rem]" />;
                     }
 
                     const dateStr = isoDate(day);
                     const isToday = dateStr === todayStr;
                     const items = itemsByDate.get(dateStr) || [];
-                    const MAX = 3;
-                    const overflow = Math.max(0, items.length - MAX);
                     const isDropTarget = dropTarget === dateStr;
                     const isDayOpen = dayView === dateStr;
+                    const dayLabel = t("viewAllPostsOnDate", { count: items.length, date: day.toLocaleDateString(locale, { month: "long", day: "numeric" }) });
 
                     return (
                       <div
                         key={dateStr}
-                        className={`border-b border-e border-border/25 p-1.5 flex flex-col gap-1 transition-colors overflow-hidden ${
-                          isToday ? "bg-primary/[0.03]" : "bg-background hover:bg-muted/10"
-                        } ${isDropTarget ? "drop-highlight" : ""} ${
-                          isDayOpen ? "ring-1 ring-inset ring-primary/30" : ""
-                        }`}
+                        className={cn(
+                          "flex min-h-[9.5rem] flex-col gap-1.5 p-2 transition-colors lg:min-h-[10.5rem]",
+                          isDayOpen ? "bg-mk-accent-soft/60" : "bg-card",
+                          isDropTarget && "bg-mk-accent-soft ring-1 ring-inset ring-mk-accent",
+                        )}
                         onDragOver={handleDragOver(dateStr)}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop(dateStr)}
                       >
-                        <div className="flex justify-between items-center px-0.5">
-                          <span
-                            className={`text-xs w-6 h-6 flex items-center justify-center rounded-full leading-none ${
-                              isToday
-                                ? "bg-primary text-primary-foreground font-semibold shadow-sm ring-2 ring-primary/25"
-                                : "text-muted-foreground/60 font-medium"
-                            }`}
-                          >
-                            {day.getDate()}
-                          </span>
+                        <div className="flex items-center justify-between">
+                          <DayNumber day={day.getDate()} isToday={isToday} />
                           {items.length > 0 && (
                             <button
+                              type="button"
                               onClick={() => openDay(dateStr)}
                               title={t("viewAllPostsOnDay", { count: items.length })}
-                              aria-label={t("viewAllPostsOnDate", { count: items.length, date: day.toLocaleDateString(locale, { month: "long", day: "numeric" }) })}
-                              className={`text-[9px] font-medium min-w-4 h-4 px-1 rounded-full transition-colors hover:bg-muted ${
-                                isDayOpen ? "bg-muted text-foreground" : "text-muted-foreground/40 hover:text-foreground"
-                              }`}
+                              aria-label={dayLabel}
+                              className={cn(
+                                "rounded-md px-1.5 py-0.5 text-xs font-medium leading-4 tabular-nums transition-colors hover:bg-muted hover:text-foreground",
+                                isDayOpen ? "bg-card text-foreground" : "text-muted-foreground",
+                              )}
                             >
                               {items.length}
                             </button>
                           )}
                         </div>
 
-                        <div className="flex-1 flex flex-col gap-1 min-h-0 overflow-hidden">
-                          {items.slice(0, MAX).map((item) => {
-                            const isItemSelected = selected !== null && selected.post.id === item.post.id;
-                            return (
-                              <VisualEventChip
-                                key={item.post.id}
-                                item={item}
-                                isSelected={isItemSelected}
-                                onClick={() => (isItemSelected ? closeRail() : openPost(item, false))}
-                                onDragStart={handleDragStart(item.post)}
-                              />
-                            );
-                          })}
-                          {overflow > 0 && (
-                            <button
-                              className="text-[10px] font-medium text-muted-foreground/60 hover:text-foreground transition-colors ps-2 text-start"
-                              onClick={() => openDay(dateStr)}
-                            >
-                              {t("moreCount", { count: overflow })}
-                            </button>
-                          )}
-                        </div>
+                        {items.length === 0 ? null : items.length <= MAX_CHIPS_PER_CELL ? (
+                          <div className="flex min-h-0 flex-1 flex-col gap-1">
+                            {items.map((item) => {
+                              const isItemSelected = selected !== null && selected.post.id === item.post.id;
+                              return (
+                                <PostChip
+                                  key={item.post.id}
+                                  item={item}
+                                  isSelected={isItemSelected}
+                                  onClick={() => (isItemSelected ? closeRail() : openPost(item, false))}
+                                  onDragStart={handleDragStart(item.post)}
+                                />
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <ChannelSummary items={items} onOpen={() => openDay(dateStr)} label={dayLabel} />
+                        )}
                       </div>
                     );
                   })}
                 </div>
               </div>
+              )}
 
-              {/* Mobile agenda view */}
-              <div className="md:hidden space-y-3">
-                {agendaDays.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-sm text-muted-foreground">
-                      {hasActiveFilters
-                        ? t("noPostsMatchingFilters")
-                        : t("noPostsThisMonthPeriod")}
-                    </p>
-                    {hasActiveFilters ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-4 rounded-xl"
-                        onClick={clearFilters}
-                      >
-                        {t("clearFilters")}
-                      </Button>
-                    ) : (
-                      <Link href="/content">
-                        <Button variant="outline" size="sm" className="mt-4 rounded-xl gap-1.5">
-                          <Plus className="h-3.5 w-3.5" /> {t("createPostCaps")}
-                        </Button>
-                      </Link>
-                    )}
+              {/* Week view: seven day columns, each a full post list */}
+              {view === "week" && (
+                <div className="overflow-hidden rounded-xl border border-border bg-card">
+                  <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-7 sm:divide-x sm:divide-y-0">
+                    {weekDays.map((day) => {
+                      const dateStr = isoDate(day);
+                      const isToday = dateStr === todayStr;
+                      const inMonth = day.getMonth() === month && day.getFullYear() === year;
+                      const items = itemsByDate.get(dateStr) || [];
+                      const isDropTarget = dropTarget === dateStr;
+                      return (
+                        <section
+                          key={dateStr}
+                          className={cn("flex min-h-[12rem] min-w-0 flex-col", !inMonth && "bg-muted/40", isDropTarget && "bg-mk-accent-soft")}
+                          onDragOver={inMonth ? handleDragOver(dateStr) : undefined}
+                          onDragLeave={handleDragLeave}
+                          onDrop={inMonth ? handleDrop(dateStr) : undefined}
+                        >
+                          <header className="flex items-center gap-2 border-b border-border px-3 py-2.5">
+                            <span className={cn("text-xs font-medium", isToday ? "text-mk-accent" : "text-muted-foreground")}>
+                              {day.toLocaleDateString(locale, { weekday: "short" })}
+                            </span>
+                            <DayNumber day={day.getDate()} isToday={isToday} />
+                            {items.length > 0 && (
+                              <span className="ms-auto text-xs tabular-nums text-muted-foreground">{items.length}</span>
+                            )}
+                          </header>
+                          {items.length === 0 ? (
+                            <p className="m-0 px-3 py-6 text-center text-xs text-mk-ink-40">{t("dayPanel.noPosts")}</p>
+                          ) : (
+                            <ul className="m-0 flex list-none flex-col gap-1.5 p-2">
+                              {items.map((item) => {
+                                const isItemSelected = selected !== null && selected.post.id === item.post.id;
+                                const p = item.post;
+                                const thumb = p.mediaUrls?.[0];
+                                const when = p.publishedAt || p.scheduledAt;
+                                return (
+                                  <li key={p.id}>
+                                    <button
+                                      type="button"
+                                      draggable={p.status === "scheduled" || p.status === "draft"}
+                                      onDragStart={handleDragStart(p)}
+                                      onClick={() => (isItemSelected ? closeRail() : openPost(item, false))}
+                                      aria-pressed={isItemSelected}
+                                      className={cn(
+                                        "flex w-full flex-col gap-1.5 rounded-lg border border-border bg-card p-2 text-start transition-colors hover:border-mk-ink-20",
+                                        isItemSelected && "border-mk-accent ring-1 ring-mk-accent",
+                                      )}
+                                    >
+                                      <div className="flex items-center gap-1.5">
+                                        <Channel channel={p.channel} size={16} />
+                                        {when && <span className="text-xs tabular-nums text-muted-foreground">{formatTime(when, locale)}</span>}
+                                        <span className={cn("ms-auto size-1.5 rounded-full", STATUS_DOT[p.status] ?? "bg-mk-ink-40")} aria-hidden />
+                                      </div>
+                                      {(p.thumbnailUrl || (thumb && !isVideoUrl(thumb))) ? (
+                                        <img src={p.thumbnailUrl || thumb!} alt="" className="aspect-[4/3] w-full rounded-md object-cover" draggable={false} loading="lazy" />
+                                      ) : thumb ? (
+                                        <video src={`${thumb}#t=0.1`} muted playsInline preload="metadata" className="aspect-[4/3] w-full rounded-md bg-muted object-cover" tabIndex={-1} />
+                                      ) : null}
+                                      <p className="m-0 line-clamp-2 text-xs leading-4 text-foreground">{p.content || t("detailPanel.untitledPost")}</p>
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </section>
+                      );
+                    })}
                   </div>
-                ) : (
-                  agendaDays.map(({ date, items }) => (
-                    <MobileAgendaDay
-                      key={isoDate(date)}
-                      date={date}
-                      items={items}
-                      selected={selected}
-                      onSelect={(item) => (item ? openPost(item, false) : closeRail())}
-                    />
-                  ))
-                )}
+                </div>
+              )}
+
+              {/* List view: the month as an agenda, grouped by day */}
+              {view === "list" && (
+                <div className="overflow-hidden rounded-xl border border-border bg-card">
+                  {totalPosts === 0 ? (
+                    <p className="m-0 px-4 py-10 text-center text-[13px] text-muted-foreground">{t("listEmpty")}</p>
+                  ) : (
+                    (() => {
+                      const allDays = [...itemsByDate.entries()].sort(([a], [b]) => a.localeCompare(b));
+                      const listTotalPages = Math.max(1, Math.ceil(allDays.length / 7));
+                      const pageDays = allDays.slice((listPage - 1) * 7, listPage * 7);
+                      return (
+                        <>
+                          {pageDays.map(([dateStr, items]) => {
+                      const date = parseIsoDate(dateStr);
+                      return (
+                        <section key={dateStr} className="border-b border-border last:border-b-0">
+                          <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-muted/60 px-4 py-2 sm:px-5">
+                            <p className="m-0 text-[13px] font-semibold text-foreground">
+                              {date.toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" })}
+                            </p>
+                            {dateStr === todayStr && <Badge variant="accent">{t("agenda.today")}</Badge>}
+                            <span className="ms-auto text-xs tabular-nums text-muted-foreground">{t("agenda.itemCount", { count: items.length })}</span>
+                          </header>
+                          <ul className="m-0 list-none divide-y divide-border p-0">
+                            {items.map((item) => {
+                              const isItemSelected = selected !== null && selected.post.id === item.post.id;
+                              return (
+                                <li key={item.post.id}>
+                                  <PostRow
+                                    item={item}
+                                    isSelected={isItemSelected}
+                                    onClick={() => (isItemSelected ? closeRail() : openPost(item, false))}
+                                    onDragStart={isDesktop ? handleDragStart(item.post) : undefined}
+                                  />
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </section>
+                      );
+                          })}
+                          {listTotalPages > 1 && (
+                            <div className="px-4 pb-4">
+                              <Pagination page={listPage} totalPages={listTotalPages} onPageChange={setListPage} />
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()
+                  )}
+                </div>
+              )}
+
+              {/* Compact grid + selected day list (below sm) */}
+              {view === "month" && (
+              <div className="space-y-4 sm:hidden">
+                <div className="overflow-hidden rounded-xl border border-border bg-card">
+                  <WeekdayHeader dayNames={dayNames} compact />
+                  <div className="grid grid-cols-7 gap-px bg-border">
+                    {days.map((day, idx) => {
+                      if (!day) {
+                        return <div key={`pad-${idx}`} className="aspect-square bg-muted/40" />;
+                      }
+                      const dateStr = isoDate(day);
+                      const isToday = dateStr === todayStr;
+                      const isSelectedDay = dateStr === mobileDayStr;
+                      const items = itemsByDate.get(dateStr) || [];
+                      return (
+                        <button
+                          key={dateStr}
+                          type="button"
+                          onClick={() => setMobileDay(dateStr)}
+                          aria-pressed={isSelectedDay}
+                          aria-label={day.toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" })}
+                          className={cn(
+                            "flex aspect-square flex-col items-center justify-center gap-1 transition-colors",
+                            isSelectedDay ? "bg-muted" : "bg-card",
+                          )}
+                        >
+                          <DayNumber day={day.getDate()} isToday={isToday} />
+                          <span className="flex h-1.5 items-center gap-0.5" aria-hidden>
+                            {items.slice(0, 3).map((item) => (
+                              <span
+                                key={item.post.id}
+                                className={cn("size-1.5 rounded-full", STATUS_DOT[item.post.status] ?? "bg-mk-ink-40")}
+                              />
+                            ))}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-xl border border-border bg-card">
+                  <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+                    <p className="m-0 min-w-0 truncate text-sm font-semibold text-foreground">
+                      {mobileDate.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" })}
+                    </p>
+                    {mobileDayStr === todayStr && <Badge variant="default">{t("agenda.today")}</Badge>}
+                    <span className="ms-auto shrink-0 text-xs tabular-nums text-muted-foreground">
+                      {t("agenda.itemCount", { count: mobileItems.length })}
+                    </span>
+                  </div>
+                  {mobileItems.length === 0 ? (
+                    <p className="m-0 px-4 py-8 text-center text-[13px] text-muted-foreground">
+                      {t("dayPanel.noPosts")}
+                    </p>
+                  ) : (
+                    <ul className="m-0 list-none divide-y divide-border p-0">
+                      {mobileItems.map((item) => {
+                        const isItemSelected = selected !== null && selected.post.id === item.post.id;
+                        return (
+                          <li key={item.post.id}>
+                            <PostRow
+                              item={item}
+                              isSelected={isItemSelected}
+                              onClick={() => (isItemSelected ? closeRail() : openPost(item, false))}
+                            />
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
               </div>
+              )}
             </>
           )}
         </div>
 
-        {/* ── Side rail: sidebar on desktop ── */}
-        {railOpen && (
-          <div className="detail-panel shrink-0 rounded-xl border border-border/40 bg-card overflow-hidden hidden lg:block lg:w-[380px]">
+        {/* ── Side rail: inline sidebar at lg ── */}
+        {railOpen && isDesktop && (
+          <aside className="hidden max-h-[calc(100dvh-6rem)] w-[380px] shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card animate-in fade-in-0 duration-200 lg:sticky lg:top-20 lg:flex">
             {renderRail()}
-          </div>
-        )}
-
-        {/* ── Side rail: modal on mobile ── */}
-        {railOpen && (
-          <div className="lg:hidden fixed inset-0 z-50">
-            <div className="absolute inset-0 bg-black/50" onClick={closeRail} />
-            <div
-              className="absolute bottom-0 left-0 right-0 max-h-[85dvh] rounded-t-2xl bg-card overflow-hidden animate-in slide-in-from-bottom duration-200 flex flex-col"
-              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-            >
-              {renderRail()}
-            </div>
-          </div>
+          </aside>
         )}
       </div>
+
+      {/* ── Side rail: bottom sheet below lg ── */}
+      <Sheet open={railOpen && !isDesktop} onOpenChange={(open) => { if (!open) closeRail(); }}>
+        <SheetContent
+          side="bottom"
+          showCloseButton={false}
+          aria-describedby={undefined}
+          className="max-h-[85dvh] gap-0"
+          onEscapeKeyDown={(e) => {
+            // From a post opened out of a day list, step back to the list first.
+            if (selected && dayView) {
+              e.preventDefault();
+              setSelected(null);
+            }
+          }}
+        >
+          <SheetTitle className="sr-only">{railTitle}</SheetTitle>
+          {renderRail()}
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

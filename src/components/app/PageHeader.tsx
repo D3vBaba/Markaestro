@@ -1,32 +1,44 @@
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
+/**
+ * Page title row. Title on the left, actions on the right; on small screens
+ * actions wrap under the title. Children (tabs, filters) render below the
+ * title on the same rhythm.
+ */
 export default function PageHeader({
   title,
   subtitle,
   action,
+  children,
+  className,
 }: {
   title: string;
   subtitle?: string;
   action?: ReactNode;
+  children?: ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-      <div className="min-w-0 flex-1">
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-balance text-slate-900 dark:text-slate-50 m-0">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="mt-1 text-sm text-pretty text-slate-500 dark:text-slate-400">
-            {subtitle}
-          </p>
-        )}
-      </div>
-      {action ? (
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
-          {action}
+    <div className={cn("mb-8 flex flex-col gap-5", className)}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="min-w-0 flex-1">
+          <h1 className="m-0 text-xl font-semibold tracking-tight text-foreground text-balance">
+            {title}
+          </h1>
+          {subtitle ? (
+            <p className="m-0 mt-1 max-w-[60ch] text-[13px] leading-5 text-muted-foreground text-pretty">
+              {subtitle}
+            </p>
+          ) : null}
         </div>
-      ) : null}
+        {action ? (
+          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
+            {action}
+          </div>
+        ) : null}
+      </div>
+      {children}
     </div>
   );
 }
-

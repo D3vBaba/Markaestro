@@ -26,7 +26,8 @@
     "preview": "预览",
     "viewLivePost": "查看已发布的帖子",
     "untitledPost": "无标题帖子",
-    "failedToPublish": "发布失败"
+    "failedToPublish": "发布失败",
+    "evergreen": "Evergreen"
   },
   "dayPanel": {
     "today": "今天",
@@ -82,5 +83,14 @@
   "postNotFoundToast": "无法打开该帖子，请重试。",
   "viewAllPostsOnDay": "查看当天全部{count}篇帖子",
   "viewAllPostsOnDate": "查看{date}的全部{count}篇帖子",
-  "moreCount": "还有{count}篇"
+  "moreCount": "还有{count}篇",
+  "listEmpty": "本月尚无排期或已发布的内容。",
+  "moreChannels": "+{count} 条",
+  "title": "日历",
+  "views": {
+    "list": "列表",
+    "month": "月",
+    "week": "周"
+  },
+  "weekOf": "{date} 当周"
 }

@@ -7,6 +7,7 @@ import { PLANS } from "@/lib/stripe/plans";
 import type { PlanTier } from "@/lib/stripe/plans";
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import EmptyState from "@/components/app/EmptyState";
 import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -53,22 +54,18 @@ function DefaultUpgradePrompt({ feature }: { feature: FeatureKey }) {
   }
 
   return (
-    <div className="rounded-2xl border border-dashed border-border/60 bg-muted/20 p-8 flex flex-col items-center text-center">
-      <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center mb-4">
-        <Lock className="h-5 w-5 text-muted-foreground" />
-      </div>
-      <h3 className="text-base font-semibold">
-        {t("upgradeTo", { plan: plan.name })}
-      </h3>
-      <p className="mt-1.5 text-sm text-muted-foreground max-w-sm">
-        {t("requiresPlan", { plan: plan.name, price: plan.price.annual })}
-      </p>
-      {canManageBilling && (
-        <Button className="mt-5 rounded-xl" onClick={handleUpgrade} disabled={busy}>
-          {busy ? t("loading") : t("upgradeTo", { plan: plan.name })}
-        </Button>
-      )}
-    </div>
+    <EmptyState
+      icon={Lock}
+      title={t("upgradeTo", { plan: plan.name })}
+      description={t("requiresPlan", { plan: plan.name, price: plan.price.annual })}
+      action={
+        canManageBilling ? (
+          <Button onClick={handleUpgrade} disabled={busy}>
+            {busy ? t("loading") : t("upgradeTo", { plan: plan.name })}
+          </Button>
+        ) : undefined
+      }
+    />
   );
 }
 

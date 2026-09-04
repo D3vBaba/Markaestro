@@ -72,99 +72,72 @@ function OnboardingSuccessContent() {
   }, [ready, nextPath, router]);
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: "var(--mk-surface)" }}
-    >
-      <header
-        className="border-b"
-        style={{
-          background: "var(--mk-paper)",
-          borderColor: "var(--mk-rule)",
-        }}
-      >
-        <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center px-5 sm:px-6">
+    <div className="flex min-h-dvh flex-col bg-background">
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto flex h-14 max-w-7xl items-center px-5 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/markaestro-logo-transparent.png"
               alt="Markaestro"
-              width={28}
-              height={28}
-              className="object-contain"
+              width={24}
+              height={24}
+              className="size-6 object-contain"
             />
-            <span
-              className="text-[15px] font-semibold"
-              style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
-            >
-              Markaestro
-            </span>
+            <span className="text-[14px] font-semibold tracking-tight text-foreground">Markaestro</span>
           </Link>
         </div>
       </header>
 
-      <div className="flex-1 flex items-center justify-center px-5 py-20">
-        <div className="max-w-md w-full text-center">
+      <div className="flex flex-1 items-center justify-center px-5 py-20">
+        <div className="w-full max-w-md text-center">
           <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, ease, type: "spring", stiffness: 200 }}
-            className="inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full mb-7"
-            style={{
-              background: "color-mix(in oklch, var(--mk-pos) 14%, var(--mk-paper))",
-              border: "1px solid color-mix(in oklch, var(--mk-pos) 28%, var(--mk-rule))",
-            }}
+            transition={{ duration: 0.35, ease }}
+            className="mb-6 inline-flex size-14 items-center justify-center rounded-full bg-mk-pos-soft text-mk-pos"
           >
-            <Check
-              className="h-7 w-7 sm:h-9 sm:w-9"
-              style={{ color: "var(--mk-pos)" }}
-              strokeWidth={2.5}
-            />
+            <Check className="size-7" strokeWidth={2.25} />
           </motion.div>
 
           <motion.p
-            className="mk-eyebrow"
+            className="m-0 text-[13px] font-medium text-muted-foreground"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.15, duration: 0.3 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
           >
             {t("allSet")}
           </motion.p>
 
           <motion.h1
-            className="mt-2 text-[28px] sm:text-[32px] font-semibold leading-[1.1]"
-            style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
-            initial={{ opacity: 0, y: 12 }}
+            className="m-0 mt-2 text-3xl font-semibold leading-tight tracking-tight text-foreground text-balance"
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.4, ease }}
+            transition={{ delay: 0.15, duration: 0.35, ease }}
           >
             {t("readyToLaunch")}
           </motion.h1>
 
           <motion.p
-            className="mt-3 text-[14px] leading-relaxed"
-            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-            initial={{ opacity: 0, y: 12 }}
+            className="m-0 mt-3 text-[15px] leading-6 text-mk-ink-80 text-pretty"
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.4, ease }}
+            transition={{ delay: 0.25, duration: 0.35, ease }}
           >
             {t("settingUpAccount")}
           </motion.p>
 
           <motion.div
-            className="mt-7"
+            className="mt-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
+            transition={{ delay: 0.4, duration: 0.3 }}
+            aria-hidden
           >
-            <div
-              className="h-px w-32 mx-auto overflow-hidden"
-              style={{ background: "var(--mk-rule)" }}
-            >
+            <div className="mx-auto h-1 w-32 overflow-hidden rounded-full bg-muted">
               <motion.div
-                className="h-full"
-                style={{ background: "var(--mk-accent)" }}
-                initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
+                className="h-full w-full origin-left bg-foreground rtl:origin-right"
+                initial={{ transform: "scaleX(0)" }}
+                animate={{ transform: "scaleX(1)" }}
                 transition={{ duration: 2.5, ease: "linear" }}
               />
             </div>

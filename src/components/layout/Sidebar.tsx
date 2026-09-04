@@ -9,7 +9,11 @@ import LogoutConfirmDialog from "@/components/app/LogoutConfirmDialog";
 import { cn } from "@/lib/utils";
 import { navigationGroupsForUser, settingsItem } from "@/lib/nav";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useIntelligencePreviewAccess } from "@/hooks/useIntelligencePreviewAccess";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
+import { useSubscription } from "@/components/providers/SubscriptionProvider";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  ChevronDown,
+  ChevronsUpDown,
   Check,
   Home,
   Package,
@@ -31,204 +35,299 @@ import {
   BarChart3,
   LogOut,
   type LucideIcon,
+    Repeat,
 } from "lucide-react";
-import { useSubscription } from "@/components/providers/SubscriptionProvider";
 
-const NAV_ICONS: Record<string, LucideIcon> = {
+export const NAV_ICONS: Record<string, LucideIcon> = {
   "/dashboard": Home,
   "/analytics": BarChart3,
   "/intelligence": BrainCircuit,
   "/products": Package,
   "/content": LayoutGrid,
   "/calendar": Calendar,
+  "/evergreen": Repeat,
   "/settings": Settings,
   "/guides/channels": BookOpen,
 };
 
+export function isNavActive(pathname: string, href: string) {
+  return pathname === href || (href !== "/dashboard" && pathname.startsWith(href + "/"));
+}
+
+function NavLink({
+  href,
+  label,
+  icon: Icon,
+  active,
+  rail,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  active: boolean;
+  rail: boolean;
+  onNavigate?: () => void;
+}) {
+  const link = (
+    <Link
+      href={href}
+      prefetch={false}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "group flex h-9 items-center gap-2.5 rounded-lg text-[13.5px] font-medium transition-colors duration-150",
+        rail ? "w-9 justify-center" : "px-2.5",
+        active
+          ? "bg-mk-accent-soft text-mk-accent"
+          : "text-mk-ink-80 hover:bg-muted hover:text-foreground",
+      )}
+    >
+      <Icon
+        className={cn(
+          "size-4 shrink-0 transition-colors",
+          active ? "text-mk-accent" : "text-mk-ink-60 group-hover:text-foreground",
+        )}
+        strokeWidth={active ? 2 : 1.75}
+      />
+      {rail ? <span className="sr-only">{label}</span> : <span className="truncate">{label}</span>}
+    </Link>
+  );
+  if (!rail) return link;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/**
+ * Grouped navigation list shared by the desktop sidebar and the mobile
+ * drawer. `rail` collapses it to icons with tooltips.
+ */
+export function SidebarNav({
+  rail = false,
+  onNavigate,
+  className,
+}: {
+  rail?: boolean;
+  onNavigate?: () => void;
+  className?: string;
+}) {
+  const pathname = usePathname();
+  const { user } = useAuth();
+  const t = useTranslations("shell.nav");
+  const canAccessIntelligence = useIntelligencePreviewAccess();
+  const navGroups = navigationGroupsForUser(user?.email, user?.uid, canAccessIntelligence);
+
+  return (
+    <nav className={cn("flex flex-col gap-5", className)} aria-label={t("navigationMenu")}>
+      {navGroups.map((group) => (
+        <div key={group.id} className={cn("flex flex-col gap-0.5", rail && "items-center")}>
+          {rail ? null : (
+            <p className="mk-label mb-1 px-2.5">{t(`groups.${group.id}`)}</p>
+          )}
+          {group.items.map((item) => (
+            <NavLink
+              key={item.id}
+              href={item.href}
+              label={t(`items.${item.id}`)}
+              icon={NAV_ICONS[item.href] ?? Home}
+              active={isNavActive(pathname, item.href)}
+              rail={rail}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+export function WorkspaceMark({ name, className }: { name: string; className?: string }) {
+  return (
+    <span
+      className={cn(
+        "grid size-6 shrink-0 place-items-center rounded-md bg-primary font-mono text-[10.5px] font-semibold text-primary-foreground",
+        className,
+      )}
+      aria-hidden
+    >
+      {name.slice(0, 2).toUpperCase()}
+    </span>
+  );
+}
+
+export function WorkspaceSwitcher({ rail = false }: { rail?: boolean }) {
+  const t = useTranslations("shell.nav");
+  const { workspaces, current, switchWorkspace } = useWorkspace();
+  if (!current) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label={rail ? current.name : undefined}
+          className={cn(
+            "group flex items-center gap-2.5 rounded-lg border border-border bg-card text-start transition-colors hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/40 outline-none",
+            rail ? "size-9 justify-center" : "w-full px-2.5 py-2",
+          )}
+        >
+          <WorkspaceMark name={current.name} />
+          {rail ? null : (
+            <>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[13px] font-medium leading-4 text-foreground">{current.name}</span>
+                <span className="mt-0.5 block text-[11px] capitalize leading-4 text-muted-foreground">{current.role}</span>
+              </span>
+              <ChevronsUpDown className="size-3.5 shrink-0 text-mk-ink-40 group-hover:text-foreground" />
+            </>
+          )}
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side={rail ? "right" : "bottom"} className="w-60">
+        <DropdownMenuLabel className="mk-label">{t("workspaceSwitcher.yourWorkspaces")}</DropdownMenuLabel>
+        {workspaces.map((ws) => (
+          <DropdownMenuItem
+            key={ws.id}
+            onClick={() => switchWorkspace(ws.id)}
+            className="flex items-center gap-2.5 py-2"
+          >
+            <WorkspaceMark name={ws.name} className={ws.id === current.id ? undefined : "bg-muted text-mk-ink-80"} />
+            <span className="flex-1 truncate text-[13px] font-medium">{ws.name}</span>
+            {ws.id === current.id ? <Check className="size-4 text-foreground" /> : null}
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/settings?tab=workspaces" prefetch={false} className="text-[13px] text-mk-ink-80">
+            {t("workspaceSwitcher.manageWorkspaces")}
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function UserAvatar({ name, className }: { name: string; className?: string }) {
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+  return (
+    <span
+      className={cn(
+        "grid size-8 shrink-0 place-items-center rounded-full bg-muted text-[11px] font-semibold text-foreground ring-1 ring-border",
+        className,
+      )}
+      aria-hidden
+    >
+      {initials}
+    </span>
+  );
+}
+
+/**
+ * Desktop navigation. Full 240px column at `xl`, a 64px icon rail at `lg`,
+ * hidden below (the header drawer and tab bar take over).
+ */
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const t = useTranslations("shell.nav");
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const { workspaces, current, switchWorkspace } = useWorkspace();
   const { status: subscriptionStatus } = useSubscription();
+  const rail = !useMediaQuery("(min-width: 1280px)", true);
   const tier = subscriptionStatus?.tier ?? null;
-  const planBadge = tier && tier !== "free" ? tier.toUpperCase() : null;
+  const planBadge = tier && tier !== "free" ? tier : null;
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
-  const handle = user?.email ? `@${user.email.split("@")[0]}` : "";
-  const navGroups = navigationGroupsForUser(user?.email, user?.uid);
-  const initials = displayName
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  const email = user?.email ?? "";
 
   return (
     <aside
       className={cn(
-        "hidden lg:flex flex-col h-dvh sticky top-0 shrink-0 border-r border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 z-20 select-none",
+        "sticky top-0 z-20 hidden h-dvh w-16 shrink-0 select-none flex-col border-e border-border bg-card lg:flex xl:w-60",
         className,
       )}
-      style={{ width: 240 }}
     >
-      {/* Brand */}
-      <div className="flex items-center gap-3 px-5 pt-5 pb-3">
+      <div className={cn("flex h-14 items-center", rail ? "justify-center" : "gap-2.5 px-4")}>
         <Image
           src="/markaestro-logo-transparent.png"
           alt="Markaestro"
-          width={28}
-          height={28}
-          className="h-7 w-7 object-contain"
+          width={24}
+          height={24}
+          className="size-6 object-contain"
         />
-        <div className="flex flex-col">
-          <span className="font-bold text-[15px] tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+        {rail ? null : (
+          <span className="flex items-center gap-2 text-[14px] font-semibold tracking-tight text-foreground">
             Markaestro
-            {planBadge && (
-              <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 text-[9.5px] font-semibold text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60">
+            {planBadge ? (
+              <span className="rounded-md bg-muted px-1.5 py-px text-[10.5px] font-medium capitalize text-mk-ink-80">
                 {planBadge}
               </span>
-            )}
+            ) : null}
           </span>
-        </div>
+        )}
       </div>
 
-      {/* Workspace switcher */}
-      {workspaces.length > 0 && current && (
-        <div className="px-3 pb-3 pt-1 border-b border-slate-100 dark:border-slate-800/60">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-start transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/30 group cursor-pointer"
-              >
-                <div className="h-6 w-6 rounded-lg bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center shrink-0 font-mono text-[11px] font-bold shadow-xs">
-                  {current.name.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[12.5px] font-medium leading-tight truncate text-slate-800 dark:text-slate-200">
-                    {current.name}
-                  </p>
-                  <p className="text-[10.5px] text-slate-400 dark:text-slate-500 capitalize leading-tight mt-0.5">
-                    {current.role}
-                  </p>
-                </div>
-                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              <DropdownMenuLabel className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
-                {t("workspaceSwitcher.yourWorkspaces")}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {workspaces.map((ws) => (
-                <DropdownMenuItem
-                  key={ws.id}
-                  onClick={() => switchWorkspace(ws.id)}
-                  className="flex items-center gap-2.5 cursor-pointer rounded-lg py-2"
-                >
-                  <div className="h-6 w-6 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center justify-center shrink-0 border border-blue-200/50 dark:border-blue-800/50">
-                    {ws.name.slice(0, 2).toUpperCase()}
-                  </div>
-                  <span className="flex-1 truncate text-xs font-medium text-slate-700 dark:text-slate-200">{ws.name}</span>
-                  {ws.id === current.id && (
-                    <Check className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                  )}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/settings?tab=workspaces" prefetch={false} className="cursor-pointer text-xs text-slate-500 hover:text-slate-900 dark:hover:text-slate-100">
-                  {t("workspaceSwitcher.manageWorkspaces")}
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
+      <div className={cn("pb-3", rail ? "flex justify-center" : "px-3")}>
+        <WorkspaceSwitcher rail={rail} />
+      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3.5 flex flex-col gap-4">
-        {navGroups.map((group) => (
-          <div key={group.id} className="flex flex-col gap-0.5">
-            <p className="px-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              {t(`groups.${group.id}`)}
-            </p>
-            <div className="flex flex-col gap-0.5">
-              {group.items.map((item) => {
-                const Icon = NAV_ICONS[item.href] ?? Home;
-                const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
-                return (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    prefetch={false}
-                    className={cn(
-                      "group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 relative",
-                      isActive
-                        ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100",
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        "h-4 w-4 shrink-0 transition-colors",
-                        isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300",
-                      )}
-                    />
-                    <span className="whitespace-nowrap flex-1">{t(`items.${item.id}`)}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </nav>
+      <div className={cn("flex-1 overflow-y-auto py-2", rail ? "px-3.5" : "px-3")}>
+        <SidebarNav rail={rail} />
+      </div>
 
-      {/* Footer: settings + user tile */}
-      <div className="border-t border-slate-100 dark:border-slate-800/60 p-2.5 flex flex-col gap-1.5 bg-slate-50/40 dark:bg-slate-950/40">
-        <Link
+      <div className={cn("flex flex-col gap-1 border-t border-border py-3", rail ? "items-center px-3.5" : "px-3")}>
+        <NavLink
           href={settingsItem.href}
-          prefetch={false}
-          className={cn(
-            "flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-colors",
-            pathname === settingsItem.href
-              ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
-              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100",
-          )}
-        >
-          <Settings className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <span>{t("items.settings")}</span>
-        </Link>
-
-        <div className="flex items-center gap-2.5 rounded-xl p-2 bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 shadow-xs">
-          <div className="h-8 w-8 rounded-full bg-blue-600 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[12.5px] font-semibold leading-tight truncate text-slate-900 dark:text-slate-100">
-              {displayName}
-            </p>
-            <p className="text-[10.5px] leading-tight truncate text-slate-400 dark:text-slate-500 mt-0.5">
-              {handle}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setLogoutOpen(true)}
-            title={t("signOut")}
-            aria-label={t("signOut")}
-            className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-          </button>
-        </div>
+          label={t("items.settings")}
+          icon={Settings}
+          active={pathname === settingsItem.href}
+          rail={rail}
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={displayName}
+              className={cn(
+                "mt-1 flex items-center gap-2.5 rounded-lg text-start outline-none transition-colors hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/40",
+                rail ? "size-9 justify-center" : "w-full px-1.5 py-1.5",
+              )}
+            >
+              <UserAvatar name={displayName} className={rail ? "size-7" : undefined} />
+              {rail ? null : (
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[13px] font-medium leading-4 text-foreground">{displayName}</span>
+                  <span className="mt-0.5 block truncate text-[11px] leading-4 text-muted-foreground">{email}</span>
+                </span>
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" side={rail ? "right" : "top"} className="w-56">
+            <DropdownMenuLabel className="font-normal">
+              <span className="block truncate text-[13px] font-medium text-foreground">{displayName}</span>
+              {email ? <span className="block truncate text-[11.5px] text-muted-foreground">{email}</span> : null}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/settings" prefetch={false}>{t("items.settings")}</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onSelect={() => setTimeout(() => setLogoutOpen(true), 0)}>
+              <LogOut />
+              {t("signOut")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-
 
       <LogoutConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} onConfirm={logout} />
     </aside>
   );
 }
-

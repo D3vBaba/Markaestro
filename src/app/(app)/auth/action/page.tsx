@@ -10,7 +10,6 @@ import { auth } from '@/lib/firebase-client';
 import MarketingLayout from '@/components/layout/MarketingLayout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { pillStyle } from '@/components/mk/pills';
 
 type Mode = 'resetPassword' | 'verifyEmail' | 'verifyAndChangeEmail' | string;
 
@@ -109,48 +108,28 @@ function AuthActionContent() {
           ? t('titles.verifyAndChangeEmail')
           : t('titles.default');
 
-  const eyebrow =
-    mode === 'resetPassword'
-      ? t('eyebrows.resetPassword')
-      : mode === 'verifyEmail'
-        ? t('eyebrows.verifyEmail')
-        : mode === 'verifyAndChangeEmail'
-          ? t('eyebrows.verifyAndChangeEmail')
-          : t('eyebrows.default');
-
   if (!canProceed) {
     return (
       <MarketingLayout hideLocaleSwitcher>
-        <div className="mx-auto w-full max-w-lg p-6 min-h-[calc(100vh-4rem)] flex items-center">
+        <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-md items-center px-5 py-10">
           <div
-            className="w-full rounded-xl p-6 sm:p-7"
-            style={{
-              background: 'var(--mk-paper)',
-              border: '1px solid var(--mk-rule)',
-            }}
+            className="w-full rounded-2xl border border-border bg-card p-6 sm:p-8"
           >
-            <p className="mk-eyebrow">{t('canceledFallback.eyebrow')}</p>
             <h1
-              className="mt-1.5 text-[22px] sm:text-[24px] font-semibold m-0"
-              style={{ color: 'var(--mk-ink)', letterSpacing: '-0.025em' }}
+              className="m-0 text-xl font-semibold tracking-tight text-foreground"
             >
               {t('canceledFallback.title')}
             </h1>
             <p
-              className="mt-1.5 text-[13px]"
-              style={{ color: 'var(--mk-ink-60)' }}
+              className="m-0 mt-1.5 text-[13px] leading-5 text-muted-foreground"
             >
               {t('canceledFallback.subtitle')}
             </p>
-            <p
-              className="mt-5 rounded-lg px-3.5 py-2.5 text-[12px]"
-              style={pillStyle('neg')}
-            >
+            <p className="m-0 mt-5 text-[13px] leading-5 text-mk-neg" role="alert">
               {t('canceledFallback.message')}
             </p>
             <Link
-              className="mt-4 block text-center text-[12px] font-medium hover:underline"
-              style={{ color: 'var(--mk-accent)' }}
+              className="mt-4 block text-center text-[13px] font-medium text-mk-accent underline-offset-4 hover:underline"
               href="/login"
             >
               {t('canceledFallback.backToSignIn')}
@@ -163,43 +142,34 @@ function AuthActionContent() {
 
   return (
     <MarketingLayout hideLocaleSwitcher>
-      <div className="mx-auto w-full max-w-lg p-6 min-h-[calc(100vh-4rem)] flex items-center">
+      <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-md items-center px-5 py-10">
         <div
-          className="w-full rounded-xl p-6 sm:p-7"
-          style={{
-            background: 'var(--mk-paper)',
-            border: '1px solid var(--mk-rule)',
-          }}
+          className="w-full rounded-2xl border border-border bg-card p-6 sm:p-8"
         >
-          <p className="mk-eyebrow">{eyebrow}</p>
-          <h1
-            className="mt-1.5 text-[22px] sm:text-[24px] font-semibold m-0"
-            style={{ color: 'var(--mk-ink)', letterSpacing: '-0.025em' }}
+                    <h1
+            className="m-0 text-xl font-semibold tracking-tight text-foreground"
           >
             {titleLabel}
           </h1>
           <p
-            className="mt-1.5 text-[13px]"
-            style={{ color: 'var(--mk-ink-60)' }}
+            className="m-0 mt-1.5 text-[13px] leading-5 text-muted-foreground"
           >
             {mode === 'resetPassword'
               ? t('subtitles.resetPassword')
               : t('subtitles.default')}
           </p>
 
-          <div className="mt-5 flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-4">
             {status === 'error' && (
               <p
-                className="rounded-lg px-3.5 py-2.5 text-[12px]"
-                style={pillStyle('neg')}
+                className="m-0 text-[13px] leading-5 text-mk-neg" role="alert"
               >
                 {message || t('genericError')}
               </p>
             )}
             {status === 'success' && (
               <p
-                className="rounded-lg px-3.5 py-2.5 text-[12px]"
-                style={pillStyle('pos')}
+                className="m-0 text-[13px] leading-5 text-mk-pos" role="status"
               >
                 {message || t('genericSuccess')}
               </p>
@@ -209,12 +179,11 @@ function AuthActionContent() {
               <div className="flex flex-col gap-3">
                 {emailForReset && (
                   <p
-                    className="text-[12px]"
-                    style={{ color: 'var(--mk-ink-60)' }}
+                    className="m-0 text-[13px] text-muted-foreground"
                   >
                     {t.rich('resettingPasswordFor', {
                       email: () => (
-                        <span className="font-medium" style={{ color: 'var(--mk-ink)' }}>
+                        <span className="font-medium text-foreground">
                           {emailForReset}
                         </span>
                       ),
@@ -226,11 +195,11 @@ function AuthActionContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('newPasswordPlaceholder')}
                   type="password"
-                  className="h-11 rounded-lg text-[13.5px]"
+                  className="h-11"
                   disabled={status === 'working' || status === 'success'}
                 />
                 <Button
-                  className="h-11 w-full rounded-lg text-[13.5px]"
+                  size="lg" className="w-full"
                   disabled={status === 'working' || status === 'success' || password.trim().length < 6}
                   onClick={async () => {
                     try {
@@ -248,8 +217,7 @@ function AuthActionContent() {
                   {status === 'working' ? t('updating') : t('updatePassword')}
                 </Button>
                 <Link
-                  className="block text-center text-[12px] font-medium hover:underline"
-                  style={{ color: 'var(--mk-accent)' }}
+                  className="block text-center text-[13px] font-medium text-mk-accent underline-offset-4 hover:underline"
                   href="/login"
                 >
                   {t('backToSignIn')}
@@ -259,15 +227,13 @@ function AuthActionContent() {
               <div className="flex flex-col gap-3">
                 {status === 'working' && (
                   <p
-                    className="text-[12px]"
-                    style={{ color: 'var(--mk-ink-60)' }}
+                    className="m-0 text-[13px] text-muted-foreground"
                   >
                     {t('working')}
                   </p>
                 )}
                 <a
-                  className="block text-center text-[12px] font-medium hover:underline"
-                  style={{ color: 'var(--mk-accent)' }}
+                  className="block text-center text-[13px] font-medium text-mk-accent underline-offset-4 hover:underline"
                   href={continueUrl.startsWith('/') ? continueUrl : '/login'}
                 >
                   {t('continue')}

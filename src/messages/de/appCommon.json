@@ -60,7 +60,7 @@
     "loading": "Wird geladen..."
   },
   "metricCard": {
-    "vsLastPeriod": "vs. vorheriger Zeitraum"
+    "vsLastPeriod": "Vs. vorheriger Zeitraum"
   },
   "pagination": {
     "firstPage": "Erste Seite",
@@ -138,7 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -147,7 +148,8 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "{provider} verbinden",
@@ -206,6 +208,10 @@
       },
       "linkedin_community": {
         "0": "Ein LinkedIn-Konto mit der Rolle Admin auf der Unternehmensseite, auf der du veröffentlichen möchtest."
+      },
+      "x": {
+        "0": "Ein X-Konto, in das du dich einloggen kannst.",
+        "1": "Dein X-Entwicklerzugang muss das Veröffentlichen von Beiträgen und Medien-Uploads erlauben. Die Nutzung unterliegt den Preisen und Limits der X-API."
       }
     },
     "features": {
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "Von dir verwaltete Seiten auflisten",
         "description": "Listet die Unternehmensseiten auf, die du verwaltest, damit du auswählen kannst, auf welcher diese Marke postet."
+      },
+      "media_write": {
+        "description": "Lädt Bilder, GIFs und Videos hoch, die an Beiträgen hängen, die du über Markaestro veröffentlichst.",
+        "title": "Medien hochladen"
+      },
+      "offline_access": {
+        "description": "Erneuert den Zugriff, damit geplante Beiträge auch veröffentlicht werden, wenn du nicht da bist.",
+        "title": "Verbunden bleiben"
+      },
+      "tweet_read": {
+        "description": "Liest deine Beiträge und deren öffentliche Interaktionen für den Beitragsverlauf und die Leistungsmessung.",
+        "title": "Beiträge lesen"
+      },
+      "tweet_write": {
+        "description": "Erstellt und löscht die Beiträge, die du über Markaestro veröffentlichst.",
+        "title": "Beiträge veröffentlichen"
+      },
+      "users_read": {
+        "description": "Liest die ID, den Nutzernamen, den Namen und das Profilbild deines X-Kontos, damit Markaestro das verknüpfte Konto anzeigen kann.",
+        "title": "Kontoidentität lesen"
       }
     },
     "outcome": {

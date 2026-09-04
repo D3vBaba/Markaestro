@@ -31,7 +31,7 @@
     "other": "Other"
   },
   "categorySelect": {
-    "selectCategory": "Select a category"
+    "selectCategory": "Select a Category"
   },
   "productStatus": {
     "active": "Active",
@@ -43,21 +43,21 @@
   "productCard": {
     "noChannelsConnected": "No channels connected",
     "reconnectNeeded": "{label}: reconnect needed",
-    "deleteBrand": "Delete brand"
+    "deleteBrand": "Delete Brand"
   },
   "page": {
     "title": "Brands",
     "subtitle": "Everything you market: products, businesses, clients, or yourself.",
-    "addBrand": "Add brand",
+    "addBrand": "Add Brand",
     "filters": {
       "all": "All",
       "active": "Active",
-      "development": "In dev"
+      "development": "In Dev"
     },
     "ungrantedPages": {
       "title": "{count, plural, one {# Facebook Page is no longer authorized} other {# Facebook Pages are no longer authorized}}",
       "body": "This login did not include {pages}. Facebook replaces the whole permission set each time you connect, so those Pages cannot publish until you reconnect and tick them. Scheduled posts for them will fail.",
-      "howItWorks": "How connecting works",
+      "howItWorks": "How Connecting Works",
       "dismiss": "Dismiss"
     },
     "emptyState": {
@@ -78,8 +78,8 @@
     }
   },
   "createWizard": {
-    "eyebrow": "New brand",
-    "title": "Add brand",
+    "eyebrow": "New Brand",
+    "title": "Add Brand",
     "descriptions": {
       "start": "Start by scanning your website, or enter details manually.",
       "scan": "Researching your brand…",
@@ -87,17 +87,17 @@
       "review": "Review what we found, tweak anything, then save."
     },
     "scanCard": {
-      "title": "Scan your website",
+      "title": "Scan Your Website",
       "body": "We'll extract your name, description, brand colours, logo and tone so you can start with 90% done.",
       "urlPlaceholder": "https://yourbrand.com",
       "scan": "Scan"
     },
     "or": "Or",
     "manualCard": {
-      "title": "Enter manually",
+      "title": "Enter Manually",
       "body": "Skip the scan and fill the form yourself."
     },
-    "cancelScan": "Cancel scan",
+    "cancelScan": "Cancel Scan",
     "scanError": {
       "body": "We couldn't scan {url}. Retry the scan, or enter your details manually.",
       "editUrl": "Edit URL",
@@ -106,7 +106,7 @@
     },
     "scanComplete": "Scan complete. Review and edit anything below.",
     "fields": {
-      "brandName": "Brand name",
+      "brandName": "Brand Name",
       "brandNamePlaceholder": "DripCheckr",
       "description": "Description",
       "descriptionPlaceholder": "What is this brand about?",
@@ -114,15 +114,15 @@
       "websitePlaceholder": "https://yourbrand.com",
       "category": "Category"
     },
-    "brandIntelligence": "Brand intelligence",
-    "logoDetected": "Logo detected from site",
-    "targetAudience": "Target audience",
-    "brandTone": "Brand tone",
+    "brandIntelligence": "Brand Intelligence",
+    "logoDetected": "Logo Detected from Site",
+    "targetAudience": "Target Audience",
+    "brandTone": "Brand Tone",
     "fineTuneNote": "You can fine-tune all of this after creating the brand.",
-    "audienceSetup": "Audience profile",
+    "audienceSetup": "Audience Profile",
     "audienceSetupBody": "Set the objective, primary market, conversion action, timezone, and platform priority. Advanced fields live in brand settings.",
-    "startOver": "Start over",
-    "createBrand": "Create brand",
+    "startOver": "Start Over",
+    "createBrand": "Create Brand",
     "creating": "Creating…",
     "toasts": {
       "enterUrl": "Enter a URL first",
@@ -130,7 +130,7 @@
       "createFailed": "Failed to create brand",
       "brandAdded": "Brand added"
     },
-    "sitePreview": "Website preview"
+    "sitePreview": "Website Preview"
   },
   "detailSheet": {
     "sections": {

@@ -46,11 +46,11 @@
     "kpis": {
       "views": {
         "label": "Aufrufe",
-        "sub": "vs. vorheriger Zeitraum"
+        "sub": "Vs. vorheriger Zeitraum"
       },
       "reach": {
         "label": "Reichweite",
-        "sub": "erreichte einzelne Konten"
+        "sub": "Erreichte einzelne Konten"
       },
       "engagement": {
         "label": "Engagement",
@@ -63,7 +63,7 @@
       },
       "followers": {
         "label": "Follower",
-        "sub": "alle verbundenen Kanäle"
+        "sub": "Alle verbundenen Kanäle"
       }
     },
     "insights": {
@@ -86,7 +86,7 @@
         "publish": "Was die an jedem Tag veröffentlichten Beiträge bisher erzielt haben",
         "activity": "Was an jedem Tag über alle Beiträge hinweg passiert ist"
       },
-      "compare": "vs. Vorperiode",
+      "compare": "Vs. Vorperiode",
       "previous": "Vorperiode",
       "noteActivity": "Gruppiert nach dem Tag, an dem die Plattformen die Zahlen gemeldet haben.",
       "activityEmpty": "Aktivität baut sich ab dem nächsten Abruf auf. Die Gruppierung nach Veröffentlichung enthält die Historie."

@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import FormField from "@/components/app/FormField";
 import Select from "@/components/app/Select";
 import CategorySelect from "./CategorySelect";
-import { categoryLabel, categoryColor } from "./categories";
+import { categoryLabel } from "./categories";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import ConnectChannelDialog, { type ConnectDialogRequest } from "@/components/app/ConnectChannelDialog";
 import ConnectionOutcomeCard, { type ConnectOutcome } from "@/components/app/ConnectionOutcomeCard";
@@ -28,7 +28,6 @@ import { apiGet, apiPut, apiPost, apiDelete, apiUpload, getApiWorkspaceId } from
 import { startOAuthAuthorize } from "@/lib/in-app-browser";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { pillStyle } from "@/components/mk/pills";
 import { resolveChannelStatus } from "@/lib/integrations/channel-status";
 import { getValidationIssueFields, userFacingError } from "@/lib/user-facing-errors";
 import AudienceProfileEditor from "@/components/intelligence/AudienceProfileEditor";
@@ -298,7 +297,7 @@ function ColorField({
           <button
             type="button"
             aria-label={t("openColorPicker")}
-            className="h-9 w-9 shrink-0 rounded-md border border-border cursor-pointer"
+            className="size-9 shrink-0 rounded-md border border-border cursor-pointer"
             style={{ backgroundColor: isValid ? value : "#ffffff" }}
             onClick={() => nativeRef.current?.click()}
           />
@@ -320,11 +319,11 @@ function ColorField({
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 shrink-0"
+              className="w-9"
               onClick={() => onChange("")}
               aria-label={t("clearColor")}
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="size-3.5" />
             </Button>
           )}
         </div>
@@ -664,35 +663,21 @@ export default function ProductDetailSheet({
   return (
     <>
       <Sheet open={open} onOpenChange={handleOpenChange}>
-        <SheetContent className="!max-w-2xl w-full p-0 flex flex-col overflow-hidden">
-          {/* Brand accent strip */}
-          {dominant && (
-            <div
-              aria-hidden
-              className="absolute top-0 left-0 right-0 h-1 z-10"
-              style={{
-                background: `linear-gradient(90deg, ${dominant}, ${dominant}aa 40%, transparent 100%)`,
-              }}
-            />
-          )}
-
+        <SheetContent className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
           {/* Header — sticky */}
-          <SheetHeader className="px-4 sm:px-6 pt-5 pb-3 border-b border-border/40">
+          <SheetHeader className="border-b border-border px-4 pb-0 pt-5 sm:px-6">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 {form?.identity.logoUrl ? (
                   <img
                     src={form.identity.logoUrl}
                     alt="Logo"
-                    className="h-10 w-10 rounded-xl object-contain border border-border/40 bg-white shrink-0"
+                    className="size-10 shrink-0 rounded-lg border border-border bg-card object-contain"
                   />
                 ) : (
                   <div
-                    className="h-10 w-10 rounded-xl border border-border/40 flex items-center justify-center shrink-0"
-                    style={{
-                      backgroundColor: dominant ? `${dominant}12` : undefined,
-                      color: dominant || undefined,
-                    }}
+                    className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-foreground"
+                    style={dominant ? { backgroundColor: `${dominant}1f`, color: dominant } : undefined}
                   >
                     <span className="text-sm font-semibold">
                       {form?.name?.charAt(0).toUpperCase() || "·"}
@@ -711,7 +696,7 @@ export default function ProductDetailSheet({
             </div>
 
             {/* Section nav + edit controls (same row) */}
-            <div className="mt-4 -mb-0.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <div className="mt-3 flex flex-wrap items-end justify-between gap-x-3 gap-y-2">
               <nav className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide max-w-full">
               {sectionKeys.map((key) => {
                 const active = section === key;
@@ -721,25 +706,23 @@ export default function ProductDetailSheet({
                     key={key}
                     onClick={() => setSection(key)}
                     className={cn(
-                      "relative flex items-center gap-1.5 px-2.5 py-2 sm:py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0",
-                      active
-                        ? "text-foreground font-medium"
-                        : "text-muted-foreground hover:text-foreground",
+                      "relative flex h-10 shrink-0 items-center gap-1.5 px-2.5 text-[13px] font-medium whitespace-nowrap transition-colors first:ps-0",
+                      active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    <Icon className="h-3.5 w-3.5" />
+                    <Icon className="size-3.5" />
                     {tSections(key)}
                     {active && (
                       <motion.span
                         layoutId="product-section-underline"
-                        className="absolute left-2.5 right-2.5 -bottom-[9px] h-0.5 bg-foreground"
+                        className="absolute inset-x-0 -bottom-px h-0.5 bg-foreground"
                       />
                     )}
                   </button>
                 );
               })}
               </nav>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex shrink-0 items-center gap-2 pb-1.5">
                 {section !== "audience" && (editing ? (
                   <>
                     <Button
@@ -750,7 +733,7 @@ export default function ProductDetailSheet({
                         setEditing(false);
                       }}
                       disabled={saving}
-                      className="rounded-lg text-muted-foreground"
+                      className="text-muted-foreground"
                     >
                       {t("cancel")}
                     </Button>
@@ -758,12 +741,12 @@ export default function ProductDetailSheet({
                       size="sm"
                       onClick={save}
                       disabled={!dirty || saving || loading}
-                      className="rounded-lg gap-1.5"
+                     
                     >
                       {saving ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <Loader2 className="size-3.5 animate-spin" />
                       ) : (
-                        <Check className="h-3.5 w-3.5" />
+                        <Check className="size-3.5" />
                       )}
                       {saving ? t("saveIndicator.saving") : t("save")}
                     </Button>
@@ -774,9 +757,8 @@ export default function ProductDetailSheet({
                     variant="outline"
                     onClick={() => setEditing(true)}
                     disabled={loading}
-                    className="rounded-lg gap-1.5"
                   >
-                    <Pencil className="h-3.5 w-3.5" />
+                    <Pencil className="size-3.5" />
                     {t("edit")}
                   </Button>
                 ))}
@@ -789,7 +771,7 @@ export default function ProductDetailSheet({
             {loading || !form ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-16 rounded-xl bg-muted/30 animate-pulse" />
+                  <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />
                 ))}
               </div>
             ) : (
@@ -861,13 +843,10 @@ export default function ProductDetailSheet({
 
           {/* Footer — delete + status recap */}
           {!loading && form && (
-            <div className="px-4 sm:px-6 py-3 border-t border-border/40 bg-muted/20 flex items-center justify-between gap-2">
-              <button
-                onClick={() => setDeleteOpen(true)}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors inline-flex items-center gap-1 py-2 -my-2 px-1 -mx-1"
-              >
-                <Trash2 className="h-3 w-3" /> {t("deleteBrand")}
-              </button>
+            <div className="flex items-center justify-between gap-2 border-t border-border bg-card px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] sm:px-6">
+              <Button variant="ghost" size="xs" className="text-mk-neg hover:bg-mk-neg-soft hover:text-mk-neg" onClick={() => setDeleteOpen(true)}>
+                <Trash2 className="size-3.5" /> {t("deleteBrand")}
+              </Button>
               <SaveIndicator
                 dirty={dirty}
                 saving={saving}
@@ -934,7 +913,7 @@ function SaveIndicator({
   if (saving) {
     return (
       <span className="inline-flex items-center gap-1 text-muted-foreground">
-        <Loader2 className="h-3 w-3 animate-spin" />
+        <Loader2 className="size-3 animate-spin" />
         {t("saving")}
       </span>
     );
@@ -942,10 +921,9 @@ function SaveIndicator({
   if (dirty) {
     return (
       <span
-        className="inline-flex items-center gap-1"
-        style={{ color: "var(--mk-warn)" }}
+        className="inline-flex items-center gap-1 text-mk-warn"
       >
-        <Dot className="h-3.5 w-3.5 -mx-1" strokeWidth={6} />
+        <Dot className="size-3.5 -mx-1" strokeWidth={6} />
         {t("unsavedChanges")}
       </span>
     );
@@ -957,17 +935,16 @@ function SaveIndicator({
     });
     return (
       <span
-        className="inline-flex items-center gap-1"
-        style={{ color: "var(--mk-pos)" }}
+        className="inline-flex items-center gap-1 text-mk-pos"
       >
-        <Check className="h-3 w-3" />
+        <Check className="size-3" />
         {t("savedAt", { time })}
       </span>
     );
   }
   return (
     <span className={cn("inline-flex items-center gap-1 text-muted-foreground", compact && "text-[11px]")}>
-      <Check className="h-3 w-3" />
+      <Check className="size-3" />
       {t("allSaved")}
     </span>
   );
@@ -985,7 +962,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-border/40 bg-card p-4 space-y-4">
+    <div className="rounded-xl border border-border bg-card p-4 space-y-4">
       {(title || description) && (
         <div>
           {title && <p className="text-sm font-semibold text-foreground">{title}</p>}
@@ -1015,7 +992,7 @@ function ReadRow({
 }) {
   return (
     <div className="space-y-1">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/80">
+      <p className="text-xs font-medium text-muted-foreground/80">
         {label}
       </p>
       {children ?? (
@@ -1061,7 +1038,7 @@ function FoundationSection({
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
               >
-                <Globe className="h-3.5 w-3.5" />
+                <Globe className="size-3.5" />
                 {form.url.replace(/^https?:\/\//, "")}
               </a>
             ) : (
@@ -1077,9 +1054,9 @@ function FoundationSection({
                 {form.categories.map((c) => (
                   <span
                     key={c}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/30 px-2 py-0.5 text-[11px] text-foreground"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/60 px-2 py-0.5 text-[11px] text-foreground"
                   >
-                    <span className="h-2 w-2 rounded-full" style={{ background: categoryColor(c) }} />
+                    <span className="h-2 w-2 rounded-full" />
                     {categoryLabel(c, tCategories)}
                   </span>
                 ))}
@@ -1089,7 +1066,7 @@ function FoundationSection({
             )}
           </ReadRow>
           <ReadRow label={t("status")}>
-            <Badge className="border-0" style={pillStyle(form.status === "active" ? "pos" : "neutral")}>
+            <Badge variant={form.status === "active" ? "positive" : "secondary"}>
               {tStatus.has(form.status) ? tStatus(form.status) : form.status}
             </Badge>
           </ReadRow>
@@ -1114,7 +1091,7 @@ function FoundationSection({
         </FormField>
         <FormField label={t("website")}>
           <div className="relative">
-            <Globe className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Globe className="absolute start-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             <Input
               className="ps-9"
               placeholder="https://yourbrand.com"
@@ -1227,11 +1204,11 @@ function KnowledgeCard({
           className="h-8"
         >
           {importing ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="size-3.5 animate-spin" />
           ) : hasContent ? (
-            <RefreshCw className="h-3.5 w-3.5" />
+            <RefreshCw className="size-3.5" />
           ) : (
-            <BookOpen className="h-3.5 w-3.5" />
+            <BookOpen className="size-3.5" />
           )}
           <span className="ms-1.5">
             {importing ? t("importing") : hasContent ? t("reimportButton") : t("importButton")}
@@ -1289,11 +1266,11 @@ function IdentitySection({
             <img
               src={form.identity.logoUrl}
               alt="Logo"
-              className="h-20 w-20 rounded-2xl object-contain border border-border/50 bg-white"
+              className="h-20 w-20 rounded-xl object-contain border border-border bg-card"
             />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/20">
-              <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
+            <div className="flex size-20 items-center justify-center rounded-lg bg-muted">
+              <ImageIcon className="size-6 text-muted-foreground/50" />
             </div>
           )}
         </SectionCard>
@@ -1303,14 +1280,14 @@ function IdentitySection({
             {swatches.map((s) => (
               <div key={s.label} className="flex items-center gap-2.5">
                 <span
-                  className="h-9 w-9 rounded-xl border border-border/50 shadow-sm"
+                  className="size-9 rounded-lg border border-border"
                   style={{
                     background: /^#[0-9A-Fa-f]{6}$/i.test(s.color) ? s.color : "transparent",
                   }}
                 />
                 <div className="leading-tight">
                   <p className="text-[11px] font-medium text-foreground">{s.label}</p>
-                  <p className="font-mono text-[11px] uppercase text-muted-foreground">
+                  <p className="font-mono text-xs text-muted-foreground">
                     {s.color || "n/a"}
                   </p>
                 </div>
@@ -1331,11 +1308,11 @@ function IdentitySection({
               <img
                 src={form.identity.logoUrl}
                 alt="Logo"
-                className="h-20 w-20 rounded-2xl object-contain border border-border/50 bg-white"
+                className="h-20 w-20 rounded-xl object-contain border border-border bg-card"
               />
             ) : (
-              <div className="h-20 w-20 rounded-2xl border border-dashed border-border/60 bg-muted/20 flex items-center justify-center">
-                <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
+              <div className="flex size-20 items-center justify-center rounded-lg bg-muted">
+                <ImageIcon className="size-6 text-muted-foreground/50" />
               </div>
             )}
           </div>
@@ -1355,9 +1332,9 @@ function IdentitySection({
                 disabled={logoUploading}
               >
                 {logoUploading ? (
-                  <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="me-1.5 size-3.5 animate-spin" />
                 ) : (
-                  <Upload className="me-1.5 h-3.5 w-3.5" />
+                  <Upload className="me-1.5 size-3.5" />
                 )}
                 {logoUploading ? t("uploading") : form.identity.logoUrl ? t("replace") : t("upload")}
               </Button>
@@ -2122,13 +2099,13 @@ function LinkedAccountsList({
       {accounts.map((account) => (
         <div
           key={account.connectionId}
-          className="flex items-center gap-2 rounded-lg border border-border/40 px-2.5 py-1.5"
+          className="flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5"
         >
           <span className="min-w-0 flex-1 truncate text-[12px] text-foreground">
             {accountName(account, t("linkedAccountFallback"))}
           </span>
           {!account.enabled && (
-            <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
+            <Badge variant="warning" className="shrink-0">
               {account.status === "revoked" ? t("reconnectBadge") : account.status}
             </Badge>
           )}
@@ -2197,11 +2174,11 @@ function DestinationPicker({
 
   return (
     <div className="w-full space-y-2 pt-1">
-      <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border/40 p-1.5">
+      <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border p-1.5">
         {[...groups.entries()].map(([key, group]) => (
           <div key={key || "default"} className="space-y-1">
             {showAccountHeadings && (
-              <p className="px-2 pt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="px-2 pt-1 text-xs font-medium text-muted-foreground">
                 {group.label || t("connectedAccount")}
               </p>
             )}
@@ -2212,7 +2189,7 @@ function DestinationPicker({
               >
                 <input
                   type="checkbox"
-                  className="h-3.5 w-3.5 accent-mk-pos"
+                  className="size-3.5 accent-mk-pos"
                   checked={selected.includes(item.id)}
                   onChange={() => toggle(item.id)}
                 />
@@ -2314,14 +2291,13 @@ function ChannelCard({
     : [];
   return (
     <div
-      className="group rounded-xl border border-border/50 p-3.5 transition-colors hover:border-border data-[on=true]:border-[color:var(--mk-pos)]/30"
+      className="group rounded-xl border border-border p-3.5 transition-colors hover:border-border data-[on=true]:border-[color:var(--mk-pos)]/30"
       data-on={connected ? "true" : "false"}
     >
       <div className="flex items-start gap-3">
         {brand && (
           <span
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] shadow-sm"
-            style={{ background: brand.bg }}
+            className="grid size-9 shrink-0 place-items-center rounded-[10px]"
           >
             {brand.icon}
           </span>
@@ -2330,12 +2306,12 @@ function ChannelCard({
           <div className="flex items-center gap-2 min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">{label}</p>
             {connected && (
-              <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("pos")}>
+              <Badge variant="positive" className="shrink-0">
                 {t("linked")}
               </Badge>
             )}
             {warn && (
-              <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
+              <Badge variant="warning" className="shrink-0">
                 {warnLabel || t("warning")}
               </Badge>
             )}

@@ -2,6 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
 import { apiError, apiOk } from '@/lib/api-response';
+import { attachPostThumbnails } from '@/lib/media/post-thumbnails';
 import { socialChannels } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
@@ -15,6 +16,8 @@ type RecentPost = {
   publishedAt?: string;
   scheduledAt?: string;
   createdAt?: string;
+  mediaUrls?: string[];
+  thumbnailUrl?: string | null;
 };
 
 export async function GET(req: Request) {
@@ -83,16 +86,19 @@ export async function GET(req: Request) {
     const nowMs = now.getTime();
     const distanceFromNow = (p: RecentPost) =>
       Math.abs(Date.parse(p.publishedAt || p.scheduledAt || p.createdAt || '') - nowMs) || Number.MAX_SAFE_INTEGER;
-    const recentPosts = [...recentScheduledSnap.docs, ...recentPublishedSnap.docs]
+    const recentDocs = [...recentScheduledSnap.docs, ...recentPublishedSnap.docs]
       .map((d) => ({ id: d.id, ...d.data() } as RecentPost))
       .sort((a, b) => distanceFromNow(a) - distanceFromNow(b))
-      .slice(0, 5)
+      .slice(0, 5);
+    const recentPosts = (await attachPostThumbnails(ws, recentDocs))
       .map((p) => ({
         id: p.id,
         channel: p.channel,
         status: p.status,
         content: (p.content || '').slice(0, 80),
         date: p.publishedAt || p.scheduledAt || p.createdAt,
+        thumbnailUrl: p.thumbnailUrl,
+        mediaUrl: p.mediaUrls?.[0] ?? null,
       }));
 
     return apiOk({

@@ -39,7 +39,7 @@ export function ReadinessPanel({
       help="overview"
       action={<span className={cn(TYPE.hint, "tabular-nums")}>{t("summary", { met, total: checks.length })}</span>}
     >
-      <ul className="divide-y divide-slate-100 dark:divide-slate-800/80">
+      <ul className="divide-y divide-border">
         {checks.map((check) => {
           const ratio = check.required > 0 ? Math.min(1, check.current / check.required) : 0;
           const Icon = check.met ? CheckCircle2 : CircleDashed;
@@ -47,7 +47,7 @@ export function ReadinessPanel({
             <li key={check.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:gap-4">
               <div className="flex min-w-0 flex-1 items-start gap-2.5">
                 <Icon
-                  className={cn("mt-0.5 h-4 w-4 shrink-0", check.met ? "text-emerald-600 dark:text-emerald-400" : "text-amber-500")}
+                  className={cn("mt-0.5 size-4 shrink-0", check.met ?"text-mk-pos" :"text-mk-warn")}
                   aria-hidden="true"
                 />
                 <div className="min-w-0">
@@ -60,13 +60,13 @@ export function ReadinessPanel({
                 </div>
               </div>
               <div className="flex items-center gap-3 sm:w-56">
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                   <div
-                    className={cn("h-full rounded-full transition-[width]", check.met ? "bg-emerald-500" : "bg-amber-400")}
+                    className={cn("h-full rounded-full transition-[width]", check.met ?"bg-mk-pos" :"bg-mk-warn")}
                     style={{ width: `${Math.round(ratio * 100)}%` }}
                   />
                 </div>
-                <span className={cn("w-16 shrink-0 text-end text-xs tabular-nums", check.met ? "font-semibold text-emerald-700 dark:text-emerald-300" : "text-slate-500 dark:text-slate-400")}>
+                <span className={cn("w-16 shrink-0 text-end text-xs tabular-nums", check.met ?"font-semibold text-mk-pos" :"text-muted-foreground")}>
                   {check.met ? t("met") : t("progress", { current: check.current, required: check.required })}
                 </span>
               </div>

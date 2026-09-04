@@ -6,36 +6,35 @@ import { ChevronDown, ExternalLink, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 import PlatformPreview from "@/components/app/PlatformPreview";
 import Select from "@/components/app/Select";
+import { Button } from "@/components/ui/button";
+import Pagination from "@/components/app/Pagination";
+import { PostThumbnail } from "@/components/mk/PostThumbnail";
 import { apiPost } from "@/lib/api-client";
 import { userFacingError } from "@/lib/user-facing-errors";
 import { channelLabel } from "@/components/mk/channels";
 import { cn } from "@/lib/utils";
-import { ChannelDot, DraftButton, EmptyState, INSET, KindBadge, Section, TYPE, TrustBadge } from "./shared";
+import { DraftButton, EmptyState, INSET, KindBadge, Section, TYPE, TrustBadge } from "./shared";
 import { useIntelligenceFormat } from "./format";
+import { CohortsSection, PillarCoverageSection } from "./Cohorts";
 import type { IntelligenceOverview, PostExplanation, PostRow } from "./types";
 
 type SortKey = "objective" | "views" | "engagements";
+const PAGE_SIZE = 6;
 
 function sortValue(post: PostRow, key: SortKey): number {
   const value = key === "objective" ? post.objectiveValue ?? post.views : key === "views" ? post.views : post.engagements;
   return value ?? Number.NEGATIVE_INFINITY;
 }
 
-function WhyItWorked({ productId, post }: { productId: string; post: PostRow }) {
+function useExplanation(productId: string, post: PostRow) {
   const t = useTranslations("intelligence.content.why");
   const locale = useLocale();
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [explanation, setExplanation] = useState<PostExplanation | null>(null);
-  const measured = post.views !== null || post.engagements !== null;
 
-  async function load() {
-    if (explanation) {
-      setOpen((value) => !value);
-      return;
-    }
+  async function load(): Promise<boolean> {
+    if (explanation) return true;
     setLoading(true);
-    setOpen(true);
     try {
       const response = await apiPost<{ explanation: PostExplanation }>(
         `/api/intelligence/posts/${encodeURIComponent(post.id)}/explain`,
@@ -45,154 +44,196 @@ function WhyItWorked({ productId, post }: { productId: string; post: PostRow }) 
       );
       if (!response.ok) {
         toast.error(userFacingError(response.data, t("failed"), { VALIDATION_POST_NOT_MEASURED: t("notMeasured") }));
-        setOpen(false);
-        return;
+        return false;
       }
       setExplanation(response.data.explanation);
+      return true;
     } catch {
       toast.error(t("failed"));
-      setOpen(false);
+      return false;
     } finally {
       setLoading(false);
     }
   }
 
-  if (!measured) return null;
+  return { loading, explanation, load };
+}
+
+function Explanation({ explanation }: { explanation: PostExplanation }) {
+  const t = useTranslations("intelligence.content.why");
   return (
-    <div className="space-y-2">
-      <button
-        type="button"
-        onClick={() => void load()}
-        disabled={loading}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-700 hover:underline disabled:opacity-60 dark:text-violet-300"
-      >
-        <Lightbulb className="h-3.5 w-3.5" aria-hidden="true" />
-        {loading ? t("loading") : t("button")}
-      </button>
-      {open && explanation && (
-        <div className="rounded-xl border border-violet-200/70 bg-violet-50/60 p-3 dark:border-violet-900/60 dark:bg-violet-950/30">
-          <div className="mb-1.5"><TrustBadge kind="generated" /></div>
-          <p className={TYPE.body}>{explanation.summary}</p>
-          {explanation.factors.length > 0 && (
-            <div className="mt-2">
-              <p className={TYPE.meta}>{t("factors")}</p>
-              <ul className="mt-1 space-y-1">
-                {explanation.factors.map((factor) => (
-                  <li key={factor.label} className={TYPE.hint}>
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">{factor.label}:</span> {factor.detail}
-                  </li>
-                ))}
-              </ul>
+    <div className={cn("p-4", INSET)}>
+      <div className="mb-2"><TrustBadge kind="generated" /></div>
+      <p className={cn("m-0", TYPE.body)}>{explanation.summary}</p>
+      {explanation.factors.length > 0 && (
+        <dl className="m-0 mt-3 grid gap-2 sm:grid-cols-2">
+          {explanation.factors.map((factor) => (
+            <div key={factor.label} className="rounded-lg bg-card px-3 py-2">
+              <dt className="text-xs font-semibold text-foreground">{factor.label}</dt>
+              <dd className={cn("m-0 mt-0.5", TYPE.hint)}>{factor.detail}</dd>
             </div>
-          )}
-          {explanation.tryNext && (
-            <p className={cn("mt-2", TYPE.hint)}>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{t("tryNext")}:</span> {explanation.tryNext}
-            </p>
-          )}
-        </div>
+          ))}
+        </dl>
+      )}
+      {explanation.tryNext && (
+        <p className={cn("m-0 mt-3", TYPE.body)}>
+          <span className="font-semibold text-foreground">{t("tryNext")}: </span>{explanation.tryNext}
+        </p>
       )}
     </div>
   );
 }
 
-function Metric({ label, value, emphasis }: { label: string; value: string; emphasis?: boolean }) {
-  return (
-    <div className="min-w-0">
-      <p className={TYPE.meta}>{label}</p>
-      <p className={cn(TYPE.figure, emphasis ? "text-lg" : "text-sm text-slate-700 dark:text-slate-200")}>{value}</p>
-    </div>
-  );
-}
-
-function PostCard({ post, productId, objectiveMetric, rank }: { post: PostRow; productId: string; objectiveMetric: string; rank?: number }) {
+/**
+ * One ranked post. Reads as a row: rank, channel, caption, then the three
+ * figures in fixed columns so the eye can scan down the list. Everything
+ * secondary (why it worked, preview, actions) lives under a disclosure.
+ */
+function PostRowItem({
+  post,
+  productId,
+  objectiveMetric,
+  rank,
+}: {
+  post: PostRow;
+  productId: string;
+  objectiveMetric: string;
+  rank?: number;
+}) {
   const t = useTranslations("intelligence");
+  const tWhy = useTranslations("intelligence.content.why");
   const fmt = useIntelligenceFormat();
+  const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(false);
+  const { loading, explanation, load } = useExplanation(productId, post);
   const media = post.mediaUrls?.length ? post.mediaUrls : post.thumbnailUrl ? [post.thumbnailUrl] : [];
   const date = fmt.date(post.publishedAt);
   const patterns = post.fingerprint;
   const canPreview = Boolean(post.content || media.length > 0);
+  const measured = post.views !== null || post.engagements !== null;
+
   return (
-    <article className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200/80 p-4 dark:border-slate-800/80">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
-          {typeof rank === "number" && <span className={cn("w-5 shrink-0 text-xs tabular-nums", rank === 1 ? "font-bold text-emerald-600" : "text-slate-400")}>{rank}</span>}
-          <ChannelDot platform={post.platform} />
+    <li className="px-5 py-5 sm:px-6">
+      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+        <div className="flex min-w-0 gap-3">
+          {typeof rank === "number" ? (
+            <span className={cn("mt-0.5 w-5 shrink-0 text-right text-xs tabular-nums", rank <= 3 ? "font-semibold text-foreground" : "text-mk-ink-40")}>
+              {rank}
+            </span>
+          ) : null}
+          <PostThumbnail src={post.thumbnailUrl} mediaUrl={media[0] ?? null} channel={post.platform} size={48} />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">{channelLabel(post.platform)}</span>
+              {post.username ? <span>@{post.username}</span> : null}
+              {date ? <span>{t("content.published", { date })}</span> : null}
+            </div>
+            <p className={cn("m-0 mt-1 line-clamp-2 whitespace-pre-line", TYPE.body)}>{post.content || t("content.mediaOnly")}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {post.engagementRate !== null && (
+                <KindBadge tone="emerald">{t("content.engagementRate", { value: (post.engagementRate * 100).toFixed(1) })}</KindBadge>
+              )}
+              {patterns?.pillar && <KindBadge tone="slate">{patterns.pillar}</KindBadge>}
+              {patterns?.kind && <KindBadge tone="slate">{patterns.kind}</KindBadge>}
+            </div>
+          </div>
         </div>
-        <span className={cn("truncate", TYPE.hint)}>
-          {date ? t("content.published", { date }) : post.username ? `@${post.username}` : ""}
-        </span>
+
+        <dl className="m-0 grid grid-cols-3 gap-4 md:w-[300px] md:shrink-0">
+          {[
+            [fmt.metricName(objectiveMetric).split(" (")[0], fmt.metric(post.objectiveValue), true],
+            [t("metrics.views"), fmt.metric(post.views), false],
+            [t("metrics.engagements"), fmt.metric(post.engagements), false],
+          ].map(([label, value, emphasis]) => (
+            <div key={String(label)} className="min-w-0">
+              <dt className="mk-label truncate" title={String(label)}>{label}</dt>
+              <dd className={cn("m-0 mt-0.5", TYPE.figure, emphasis ? "text-lg" : "text-sm text-mk-ink-80")}>{value}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
-      <p className={cn("line-clamp-3 whitespace-pre-line", TYPE.body)}>{post.content || t("content.mediaOnly")}</p>
-
-      <div className="grid grid-cols-3 gap-3">
-        <Metric label={fmt.metricName(objectiveMetric)} value={fmt.metric(post.objectiveValue)} emphasis />
-        <Metric label={t("metrics.views")} value={fmt.metric(post.views)} />
-        <Metric label={t("metrics.engagements")} value={fmt.metric(post.engagements)} />
-      </div>
-
-      <div className="flex flex-wrap gap-1.5">
-        {post.engagementRate !== null && (
-          <KindBadge tone="emerald">{t("content.engagementRate", { value: (post.engagementRate * 100).toFixed(1) })}</KindBadge>
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <DraftButton productId={productId} source={{ type: "post", id: post.id }} platform={post.platform} label={t("content.remix")} variant="outline" />
+        {measured && (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={loading}
+            onClick={async () => {
+              if (open && explanation) { setOpen(false); return; }
+              if (await load()) setOpen(true);
+            }}
+          >
+            <Lightbulb className="size-3.5" />
+            {loading ? tWhy("loading") : tWhy("button")}
+          </Button>
         )}
-        {patterns ? (
-          <>
-            {patterns.pillar && <KindBadge tone="slate">{t("content.patterns.pillar")}: {patterns.pillar}</KindBadge>}
-            {patterns.hook && <KindBadge tone="slate">{t("content.patterns.hook")}: {patterns.hook.slice(0, 48)}</KindBadge>}
-            {patterns.kind && <KindBadge tone="slate">{t("content.patterns.format")}: {patterns.kind}</KindBadge>}
-          </>
-        ) : (
-          <span className={TYPE.hint}>{t("content.patterns.pending")}</span>
+        {canPreview && (
+          <Button variant="ghost" size="sm" onClick={() => setPreview((v) => !v)}>
+            <ChevronDown className={cn("size-3.5 transition-transform", preview && "rotate-180")} />
+            {preview ? t("content.hidePreview") : t("content.showPreview")}
+          </Button>
         )}
-      </div>
-
-      {preview && canPreview && (
-        <PlatformPreview
-          compact
-          content={post.content || t("content.mediaOnly")}
-          channel={post.platform}
-          mediaUrls={media}
-          username={post.username}
-          metrics={{
-            views: post.views,
-            likes: post.likes ?? null,
-            comments: post.comments ?? null,
-            shares: post.shares ?? null,
-            saves: post.saves ?? null,
-          }}
-        />
-      )}
-
-      <div className="mt-auto space-y-2.5 border-t border-slate-100 pt-3 dark:border-slate-800/80">
-        <WhyItWorked productId={productId} post={post} />
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <DraftButton productId={productId} source={{ type: "post", id: post.id }} platform={post.platform} label={t("content.remix")} variant="outline" />
-          {canPreview && (
-            <button
-              type="button"
-              onClick={() => setPreview((value) => !value)}
-              className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-            >
-              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", preview && "rotate-180")} aria-hidden="true" />
-              {preview ? t("content.hidePreview") : t("content.showPreview")}
-            </button>
-          )}
-          {post.externalUrl && (
-            <a
-              href={post.externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-            >
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+        {post.externalUrl && (
+          <Button variant="ghost" size="sm" asChild>
+            <a href={post.externalUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="size-3.5" />
               {t("content.viewLive")}
             </a>
-          )}
-        </div>
+          </Button>
+        )}
       </div>
-    </article>
+
+      {open && explanation ? <div className="mt-3"><Explanation explanation={explanation} /></div> : null}
+
+      {preview && canPreview && (
+        <div className="mt-3 max-w-md">
+          <PlatformPreview
+            compact
+            content={post.content || t("content.mediaOnly")}
+            channel={post.platform}
+            mediaUrls={media}
+            username={post.username}
+            metrics={{
+              views: post.views,
+              likes: post.likes ?? null,
+              comments: post.comments ?? null,
+              shares: post.shares ?? null,
+              saves: post.saves ?? null,
+            }}
+          />
+        </div>
+      )}
+    </li>
+  );
+}
+
+function PostList({
+  posts,
+  productId,
+  objectiveMetric,
+  ranked = false,
+  offset = 0,
+}: {
+  posts: PostRow[];
+  productId: string;
+  objectiveMetric: string;
+  ranked?: boolean;
+  offset?: number;
+}) {
+  return (
+    <ul className="m-0 -mx-5 list-none divide-y divide-border border-y border-border p-0 sm:-mx-6">
+      {posts.map((post, index) => (
+        <PostRowItem
+          key={post.id}
+          post={post}
+          productId={productId}
+          objectiveMetric={objectiveMetric}
+          rank={ranked ? offset + index + 1 : undefined}
+        />
+      ))}
+    </ul>
   );
 }
 
@@ -211,28 +252,33 @@ export function ContentTab({ data, productId }: { data: IntelligenceOverview; pr
     return [...filtered].sort((a, b) => sortValue(b, sort) - sortValue(a, sort));
   }, [source, platform, sort]);
   const measuredRows = rows.filter((post) => sortValue(post, sort) !== Number.NEGATIVE_INFINITY);
-  const top = measuredRows.slice(0, 12);
+  const ranked = measuredRows.slice(0, 24);
+  const [page, setPage] = useState(1);
+  const [pagedFor, setPagedFor] = useState(`${sort}|${platform}`);
+  if (pagedFor !== `${sort}|${platform}`) { setPagedFor(`${sort}|${platform}`); setPage(1); }
+  const totalPages = Math.max(1, Math.ceil(ranked.length / PAGE_SIZE));
+  const top = ranked.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const lowest = measuredRows.length >= 8 ? measuredRows.slice(-4).reverse() : [];
+  const patternsPending = source.length > 0 && source.every((post) => !post.fingerprint);
 
   return (
-    <div className="space-y-4 sm:space-y-5">
+    <div className="space-y-6">
       {source.length === 0 ? (
         <EmptyState title={t("empty.contentTitle")} body={t("empty.contentBody")} next={t("empty.contentNext")} />
       ) : (
         <Section
           trust="measured"
           title={t("content.title")}
-          subtitle={t("content.subtitle")}
+          subtitle={patternsPending ? t("content.patterns.pending") : t("content.subtitle")}
           help="content"
           action={
             <div className="flex flex-wrap items-center gap-2">
-              <label className={TYPE.meta}>{t("content.sortBy")}</label>
-              <Select value={sort} onChange={(event) => setSort(event.target.value as SortKey)} className="h-8 text-xs">
+              <Select size="sm" value={sort} onChange={(event) => setSort(event.target.value as SortKey)} className="w-auto" aria-label={t("content.sortBy")}>
                 <option value="objective">{t("content.sortObjective", { metric: fmt.metricName(objectiveMetric) })}</option>
                 <option value="views">{t("content.sortViews")}</option>
                 <option value="engagements">{t("content.sortEngagements")}</option>
               </Select>
-              <Select value={platform} onChange={(event) => setPlatform(event.target.value)} className="h-8 text-xs">
+              <Select size="sm" value={platform} onChange={(event) => setPlatform(event.target.value)} className="w-auto">
                 <option value="">{t("content.allPlatforms")}</option>
                 {platforms.map((item) => (
                   <option key={item} value={item}>{channelLabel(item)}</option>
@@ -242,31 +288,34 @@ export function ContentTab({ data, productId }: { data: IntelligenceOverview; pr
           }
         >
           {top.length === 0 ? (
-            <p className={TYPE.hint}>{t("empty.contentBody")}</p>
+            <p className={cn("m-0", TYPE.hint)}>{t("empty.contentBody")}</p>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {top.map((post, index) => (
-                <PostCard key={post.id} post={post} productId={productId} objectiveMetric={objectiveMetric} rank={index + 1} />
-              ))}
-            </div>
+            <>
+              <PostList posts={top} productId={productId} objectiveMetric={objectiveMetric} ranked offset={(page - 1) * PAGE_SIZE} />
+              {totalPages > 1 && <div className="pt-2"><Pagination page={page} totalPages={totalPages} onPageChange={setPage} /></div>}
+            </>
           )}
         </Section>
       )}
 
       {lowest.length > 0 && (
         <Section trust="measured" title={t("content.lowestTitle")} subtitle={t("content.lowestBody")}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {lowest.map((post) => (
-              <PostCard key={post.id} post={post} productId={productId} objectiveMetric={objectiveMetric} />
-            ))}
-          </div>
+          <PostList posts={lowest} productId={productId} objectiveMetric={objectiveMetric} />
         </Section>
       )}
+
+      {data.phases?.learning && data.cohorts && source.length > 0 && (
+        <CohortsSection cohorts={data.cohorts} measuredCount={source.filter((post) => post.views !== null || post.engagements !== null).length} />
+      )}
+
+      {data.phases?.learning && source.length > 0 && (data.pillars?.length || data.profile?.contentPillars?.length) ? (
+        <PillarCoverageSection pillars={data.pillars ?? []} />
+      ) : null}
 
       {data.phases?.learning && (
         <Section trust="calculated" title={t("timing.title")} subtitle={t("timing.subtitle", { metric: timingMetric })}>
           {!data.timing?.windows.length ? (
-            <p className={TYPE.hint}>
+            <p className={cn("m-0", TYPE.hint)}>
               {data.timing?.limitations[0] === "no_window_with_five"
                 ? t("timing.no_window_with_five")
                 : t("timing.needs_dated_posts", {
@@ -275,37 +324,36 @@ export function ContentTab({ data, productId }: { data: IntelligenceOverview; pr
                 })}
             </p>
           ) : (
-            <div className="space-y-3">
-              <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+            <>
+              <ol className="m-0 -mx-5 list-none divide-y divide-border border-t border-border p-0 sm:-mx-6">
                 {data.timing.windows.map((window, index) => (
-                  <div key={window.bucket} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className={cn("w-4 text-xs tabular-nums", index === 0 ? "font-bold text-emerald-600" : "text-slate-400")}>{index + 1}</span>
-                      <span className={TYPE.strong}>{fmt.window(window.weekday, window.hour)}</span>
-                      <span className={TYPE.hint}>{t("timing.observations", { count: window.observations })}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className={TYPE.hint}>
+                  <li key={window.bucket} className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 sm:px-6">
+                    <span className={cn("text-xs tabular-nums", index === 0 ? "font-semibold text-foreground" : "text-mk-ink-40")}>{index + 1}</span>
+                    <div className="min-w-0">
+                      <p className={cn("m-0", TYPE.strong)}>{fmt.window(window.weekday, window.hour)}</p>
+                      <p className={cn("m-0 mt-0.5", TYPE.hint)}>
+                        {t("timing.observations", { count: window.observations })}
+                        {" · "}
                         {t("timing.estimate", { value: fmt.metric(window.estimate === null ? null : Math.round(window.estimate)), metric: timingMetric })}
-                      </span>
-                      {window.liftPercent !== null && (
-                        <span className={cn("text-sm", TYPE.figure, window.liftPercent >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")}>
-                          {window.liftPercent >= 0
-                            ? t("timing.liftUp", { value: Math.round(window.liftPercent) })
-                            : t("timing.liftDown", { value: Math.round(window.liftPercent) })}
-                        </span>
-                      )}
+                      </p>
                     </div>
-                  </div>
+                    {window.liftPercent !== null && (
+                      <span className={cn("text-sm", TYPE.figure, window.liftPercent >= 0 ? "text-mk-pos" : "text-mk-neg")}>
+                        {window.liftPercent >= 0
+                          ? t("timing.liftUp", { value: Math.round(window.liftPercent) })
+                          : t("timing.liftDown", { value: Math.round(window.liftPercent) })}
+                      </span>
+                    )}
+                  </li>
                 ))}
-              </div>
-              <p className={cn("px-3 py-2", INSET, TYPE.hint)}>
+              </ol>
+              <p className={cn("m-0 mt-4", TYPE.hint)}>
                 {t("timing.timezone", { timeZone: data.timing.timeZone })}
                 {data.timing.accountMean !== null && (
                   <> · {t("timing.accountMean", { value: fmt.metric(Math.round(data.timing.accountMean)), metric: fmt.metricName(data.timing.metric) })}</>
                 )}
               </p>
-            </div>
+            </>
           )}
         </Section>
       )}

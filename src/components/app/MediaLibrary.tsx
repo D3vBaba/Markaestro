@@ -274,7 +274,7 @@ export default function MediaLibrary() {
                   : t("meter.usedUnlimited", { used: formatBytes(storage.usedBytes, locale) })}
               </span>
               {limited && (
-                <span className="tabular-nums font-medium" style={{ color: meterColor }}>
+                <span className="tabular-nums font-medium">
                   {Math.round(usedRatio * 100)}%
                 </span>
               )}
@@ -316,7 +316,7 @@ export default function MediaLibrary() {
           <button
             key={chip.id}
             onClick={() => setFilter(chip.id)}
-            className={`px-2.5 h-7 rounded-full border text-[11px] font-medium transition-colors ${
+            className={`h-8 sm:h-7 rounded-lg border px-2.5 text-xs font-medium transition-colors ${
               filter === chip.id
                 ? "border-foreground bg-foreground text-background"
                 : "border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -330,7 +330,7 @@ export default function MediaLibrary() {
           <button
             key={option}
             onClick={() => setSort(option)}
-            className={`px-2.5 h-7 rounded-full border text-[11px] font-medium transition-colors ${
+            className={`h-8 sm:h-7 rounded-lg border px-2.5 text-xs font-medium transition-colors ${
               sort === option
                 ? "border-foreground bg-foreground text-background"
                 : "border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -363,7 +363,7 @@ export default function MediaLibrary() {
           ))}
         </div>
       ) : assets.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border/40 p-6 text-center text-sm text-muted-foreground">
+        <p className="rounded-lg bg-muted/60 p-6 text-center text-[13px] text-muted-foreground">
           {t("empty")}
         </p>
       ) : (
@@ -397,24 +397,24 @@ export default function MediaLibrary() {
                     <video src={asset.url} className="h-full w-full object-cover" muted playsInline preload="metadata" />
                   )}
 
-                  <span className="absolute left-2 bottom-2 flex items-center gap-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-white">
+                  <span className="absolute left-2 bottom-2 flex items-center gap-1 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-white">
                     {asset.type === "video"
-                      ? <Film className="h-3 w-3" aria-hidden />
-                      : <ImageIcon className="h-3 w-3" aria-hidden />}
+                      ? <Film className="size-3" aria-hidden />
+                      : <ImageIcon className="size-3" aria-hidden />}
                     {formatBytes(asset.sizeBytes, locale)}
                   </span>
 
                   {asset.refCount === 0 && (
-                    <span className="absolute right-2 bottom-2 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                    <span className="absolute right-2 bottom-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-medium text-white">
                       {t("notUsedBadge")}
                     </span>
                   )}
 
                   {selecting && (
-                    <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-md border border-white/70 bg-black/40">
+                    <span className="absolute left-2 top-2 flex size-6 items-center justify-center rounded-md border border-white/70 bg-black/40">
                       <input
                         type="checkbox"
-                        className="h-4 w-4 cursor-pointer accent-current"
+                        className="size-4 cursor-pointer accent-current"
                         checked={isSelected}
                         onChange={() => toggleSelected(asset.id)}
                         onClick={(event) => event.stopPropagation()}
@@ -431,9 +431,9 @@ export default function MediaLibrary() {
                     variant="secondary"
                     aria-label={t("deleteLabel", { name: asset.originalFileName || t("untitled") })}
                     onClick={() => setPending(asset)}
-                    className="absolute right-2 top-2 h-7 w-7 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+                    className="absolute right-2 top-2 size-7 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="size-3.5" />
                   </Button>
                 )}
 
@@ -464,7 +464,7 @@ export default function MediaLibrary() {
       )}
 
       {selecting && (
-        <div className="sticky bottom-2 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-card/95 px-3 py-2 shadow-sm backdrop-blur">
+        <div className="sticky bottom-2 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-card/95 px-3 py-2 backdrop-blur">
           <span className="text-[12px] tabular-nums text-muted-foreground">
             {bulkState
               ? t("bulk.progress", { done: bulkState.done, total: bulkState.total })

@@ -3,6 +3,9 @@ import type { NormalizedPostMetrics } from '@/lib/platform/types';
 import type { EvergreenQueue } from './types';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import { pauseEvergreenQueueForSystem } from './storage';
+import { adaptInterval, cadenceFloorDays, nextVariantState, UNDERPERFORMANCE_INDEX } from './cadence';
+import { evergreenGenerationDueAt, nextEvergreenRunAt } from './scheduling';
+import type { EvergreenVariant } from './types';
 import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 
 function engagement(metrics: unknown): number | null {
@@ -76,28 +79,77 @@ export async function processEvergreenEvaluations(workspaceId: string) {
         continue;
       }
       const performanceIndex = occurrenceValue / sourceValue;
-      const nextUnderperforming = performanceIndex < 0.6
-        ? consecutiveUnderperformingRuns + 1
-        : 0;
+      const healthy = performanceIndex >= UNDERPERFORMANCE_INDEX;
+      const nextUnderperforming = healthy ? 0 : consecutiveUnderperformingRuns + 1;
       consecutiveUnderperformingRuns = nextUnderperforming;
       const shouldPause = nextUnderperforming >= 2 && queue.status === 'active';
       const batch = adminDb.batch();
+
+      // Per-caption retirement: a caption that misses twice in a row is
+      // switched off while other captions remain, so one stale angle does
+      // not drag the whole queue into a pause.
+      const variantId = typeof run.variantId === 'string' ? run.variantId : '';
+      let retiredVariant = false;
+      if (variantId) {
+        const variantsSnap = await queueDoc.ref.collection('variants').where('enabled', '==', true).get();
+        const variantRef = queueDoc.ref.collection('variants').doc(variantId);
+        const variantSnap = variantsSnap.docs.find((doc) => doc.id === variantId) ?? await variantRef.get();
+        const variant = variantSnap.exists ? (variantSnap.data() as Partial<EvergreenVariant>) : null;
+        if (variant) {
+          const next = nextVariantState({
+            consecutiveUnderperformingRuns: variant.consecutiveUnderperformingRuns ?? 0,
+            healthy,
+            enabledVariants: variantsSnap.size,
+          });
+          retiredVariant = next.retire;
+          batch.update(variantRef, {
+            consecutiveUnderperformingRuns: next.consecutiveUnderperformingRuns,
+            ...(next.retire ? { enabled: false, retiredReason: 'UNDERPERFORMED', retiredAt: now.toISOString() } : {}),
+            updatedAt: now.toISOString(),
+          });
+        }
+      }
+
+      // Adaptive cadence: move the interval and, when the next occurrence has
+      // not been generated yet, the next run date with it.
+      const cadenceUpdate: Record<string, unknown> = {};
+      if ((queue.cadenceMode ?? 'fixed') === 'adaptive') {
+        const nextInterval = adaptInterval({ intervalDays: queue.intervalDays, healthy, floorDays: cadenceFloorDays(queue.channels) });
+        if (nextInterval !== queue.intervalDays) {
+          cadenceUpdate.intervalDays = nextInterval;
+          cadenceUpdate.cadenceHistory = [...(queue.cadenceHistory ?? []).slice(-19), {
+            at: now.toISOString(), from: queue.intervalDays, to: nextInterval, reason: healthy ? 'HEALTHY' : 'UNDERPERFORMED',
+          }];
+          const plannedAt = typeof run.plannedAt === 'string' ? new Date(run.plannedAt) : null;
+          if (plannedAt && queue.status === 'active' && queue.nextRunAt) {
+            const candidate = nextEvergreenRunAt({ after: plannedAt, intervalDays: nextInterval, timeZone: queue.timeZone, localHour: queue.localHour, localMinute: queue.localMinute });
+            const leadMs = 48 * 60 * 60 * 1000;
+            if (candidate.getTime() > now.getTime() + leadMs && candidate.toISOString() !== queue.nextRunAt) {
+              cadenceUpdate.nextRunAt = candidate.toISOString();
+              await markWorkspaceDue(workspaceId, evergreenGenerationDueAt(candidate), 'evergreen_queue');
+            }
+          }
+          queue.intervalDays = nextInterval;
+        }
+      }
       batch.update(runDoc.ref, {
         status: 'evaluated',
         performanceIndex,
-        reason: performanceIndex < 0.6 ? 'UNDERPERFORMED' : 'HEALTHY',
+        reason: healthy ? 'HEALTHY' : 'UNDERPERFORMED',
+        retiredVariant,
         evaluatedAt: now.toISOString(),
         updatedAt: now.toISOString(),
       });
       batch.update(queueDoc.ref, {
         consecutiveUnderperformingRuns: nextUnderperforming,
+        ...cadenceUpdate,
         updatedAt: now.toISOString(),
       });
       await batch.commit();
       if (shouldPause) {
         await pauseEvergreenQueueForSystem(workspaceId, queue.id, 'PERFORMANCE_DECAY');
       }
-      if (performanceIndex < 0.6) {
+      if (!healthy) {
         await enqueueWebhookEvent(workspaceId, 'evergreen.run.underperformed', {
           queueId: queue.id,
           runId: runDoc.id,

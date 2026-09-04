@@ -99,7 +99,7 @@ export default function TikTokDirectPostPanel({
 
   if (creatorInfo.status === "loading") {
     return (
-      <div className="rounded-xl border border-border/40 p-4 space-y-3">
+      <div className="rounded-xl border border-border p-4 space-y-3">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-9 w-full" />
         <Skeleton className="h-4 w-56" />
@@ -152,14 +152,14 @@ export default function TikTokDirectPostPanel({
   };
 
   return (
-    <div className="rounded-xl border border-border/40 p-4 space-y-5">
+    <div className="rounded-xl border border-border p-4 space-y-5">
       {/* Which account this publishes to — required before every post. */}
       <div className="flex items-center gap-3">
         {info.creatorAvatarUrl ? (
           <img
             src={info.creatorAvatarUrl}
             alt=""
-            className="w-9 h-9 rounded-full object-cover border border-border/40"
+            className="w-9 h-9 rounded-full object-cover border border-border"
           />
         ) : (
           <div className="w-9 h-9 rounded-full bg-muted" />
@@ -168,7 +168,7 @@ export default function TikTokDirectPostPanel({
           <p className="text-sm font-medium text-foreground truncate">
             {info.creatorNickname || info.creatorUsername || t("unknownCreator")}
           </p>
-          <p className="text-[11px] text-muted-foreground truncate">{t("postingTo")}</p>
+          <p className="text-xs text-muted-foreground truncate">{t("postingTo")}</p>
         </div>
       </div>
 
@@ -201,7 +201,7 @@ export default function TikTokDirectPostPanel({
           })}
         </select>
         {state.brandedContent && (
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {t("privacy.brandedContentPrivateHint")}
           </p>
         )}
@@ -248,7 +248,7 @@ export default function TikTokDirectPostPanel({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <Label htmlFor="tiktok-disclosure">{t("disclosure.label")}</Label>
-            <p className="text-[11px] text-muted-foreground mt-0.5">{t("disclosure.description")}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("disclosure.description")}</p>
           </div>
           <Switch
             id="tiktok-disclosure"
@@ -266,7 +266,7 @@ export default function TikTokDirectPostPanel({
         </div>
 
         {state.commercialContentDisclosure && (
-          <div className="space-y-2.5 ps-1 border-s border-border/40 ms-1 pl-3">
+          <div className="space-y-2.5 ps-1 border-s border-border ms-1 pl-3">
             <div className="space-y-1">
               <InteractionCheckbox
                 id="tiktok-your-brand"
@@ -275,7 +275,7 @@ export default function TikTokDirectPostPanel({
                 onChange={(checked) => patch({ yourBrand: checked })}
               />
               {state.yourBrand && (
-                <p className="text-[11px] text-muted-foreground ps-6">
+                <p className="text-xs text-muted-foreground ps-6">
                   {t("disclosure.yourBrandNotice")}
                 </p>
               )}
@@ -289,14 +289,14 @@ export default function TikTokDirectPostPanel({
                 onChange={handleBrandedContentChange}
               />
               {state.brandedContent && (
-                <p className="text-[11px] text-muted-foreground ps-6">
+                <p className="text-xs text-muted-foreground ps-6">
                   {t("disclosure.brandedContentNotice")}
                 </p>
               )}
             </div>
 
             {!state.yourBrand && !state.brandedContent && (
-              <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>
+              <p className="text-xs text-mk-warn">
                 {t("disclosure.selectionRequired")}
               </p>
             )}
@@ -305,7 +305,7 @@ export default function TikTokDirectPostPanel({
       </div>
 
       {/* Compliance declaration — exact wording required by TikTok. */}
-      <p className="text-[11px] text-muted-foreground leading-relaxed">
+      <p className="text-xs text-muted-foreground leading-relaxed">
         {consentVariant === "brandedContent" ? (
           t.rich("consent.brandedContent", {
             music: (chunks) => <ConsentLink href={MUSIC_USAGE_CONFIRMATION_URL}>{chunks}</ConsentLink>,
@@ -318,10 +318,10 @@ export default function TikTokDirectPostPanel({
         )}
       </p>
 
-      <p className="text-[11px] text-muted-foreground">{t("processingNotice")}</p>
+      <p className="text-xs text-muted-foreground">{t("processingNotice")}</p>
 
       {info.maxVideoPostDurationSec !== null && mediaKind === "video" && (
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("maxDuration", { seconds: info.maxVideoPostDurationSec })}
         </p>
       )}

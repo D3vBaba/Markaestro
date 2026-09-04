@@ -26,7 +26,8 @@
     "preview": "プレビュー",
     "viewLivePost": "公開済みの投稿を見る",
     "untitledPost": "無題の投稿",
-    "failedToPublish": "公開に失敗しました"
+    "failedToPublish": "公開に失敗しました",
+    "evergreen": "Evergreen"
   },
   "dayPanel": {
     "today": "今日",
@@ -82,5 +83,14 @@
   "postNotFoundToast": "その投稿を開けませんでした。もう一度お試しください。",
   "viewAllPostsOnDay": "この日の投稿{count}件をすべて見る",
   "viewAllPostsOnDate": "{date}の投稿{count}件をすべて見る",
-  "moreCount": "他{count}件"
+  "moreCount": "他{count}件",
+  "listEmpty": "この月にはまだ予約済み・公開済みの投稿がありません。",
+  "moreChannels": "+{count}件",
+  "title": "カレンダー",
+  "views": {
+    "list": "リスト",
+    "month": "月",
+    "week": "週"
+  },
+  "weekOf": "{date}の週"
 }

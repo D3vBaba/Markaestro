@@ -42,7 +42,7 @@ export default function TagSelect({
   return (
     <div className="space-y-2">
       <div
-        className="flex min-h-9 flex-wrap gap-1.5 rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+        className="flex min-h-9 flex-wrap gap-1.5 rounded-lg border border-input bg-card px-3 py-2 text-sm"
         aria-live="polite"
       >
         {tags.length === 0 ? (
@@ -51,7 +51,7 @@ export default function TagSelect({
           tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 rounded-md bg-foreground px-2 py-0.5 text-xs font-medium text-background"
+              className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-foreground"
             >
               {labelByValue.get(tag) ?? tag}
               {!disabled && (
@@ -61,7 +61,7 @@ export default function TagSelect({
                   onClick={() => remove(tag)}
                   className="-m-1 p-1.5 transition-opacity hover:opacity-70"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="size-3" />
                 </button>
               )}
             </span>

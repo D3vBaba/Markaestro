@@ -138,7 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -147,7 +148,8 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "{provider}に接続",
@@ -206,6 +208,10 @@
       },
       "linkedin_community": {
         "0": "公開したい会社ページの管理者権限を持つLinkedInアカウント。"
+      },
+      "x": {
+        "0": "サインインできるXアカウント。",
+        "1": "Xの開発者アクセスで投稿の公開とメディアのアップロードが許可されている必要があります。利用はX APIの料金と制限の対象です。"
       }
     },
     "features": {
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "管理するページの一覧取得",
         "description": "管理している会社ページを一覧表示し、このブランドが投稿するページを選べるようにします。"
+      },
+      "media_write": {
+        "description": "Markaestroから公開する投稿に添付された画像、GIF、動画をアップロードします。",
+        "title": "メディアのアップロード"
+      },
+      "offline_access": {
+        "description": "不在時でも予約投稿が公開されるようアクセスを更新します。",
+        "title": "接続を維持"
+      },
+      "tweet_read": {
+        "description": "投稿履歴とパフォーマンス計測のために、あなたの投稿とその公開エンゲージメントを読み取ります。",
+        "title": "投稿の読み取り"
+      },
+      "tweet_write": {
+        "description": "Markaestroから公開する投稿を作成・削除します。",
+        "title": "投稿の公開"
+      },
+      "users_read": {
+        "description": "連携アカウントを表示するために、XアカウントのID、ユーザー名、名前、プロフィール画像を読み取ります。",
+        "title": "アカウント情報の読み取り"
       }
     },
     "outcome": {

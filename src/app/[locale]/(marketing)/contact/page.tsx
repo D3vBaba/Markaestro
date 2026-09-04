@@ -78,8 +78,7 @@ export default function ContactPage() {
 
       {/* Contact Channels */}
       <section
-        className="border-t"
-        style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
+        className="border-t bg-card border-border"
       >
         <div className="mx-auto max-w-7xl px-6 py-20">
           <div className="grid gap-6 sm:grid-cols-3">
@@ -219,11 +218,11 @@ export default function ContactPage() {
                         placeholder={t("form.messagePlaceholder")}
                         required
                         rows={6}
-                        className="flex w-full rounded-xl border border-input bg-background px-4 py-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        className="flex w-full rounded-xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       />
                     </div>
 
-                    <Button type="submit" disabled={sending} className="h-11 w-full rounded-xl">
+                    <Button type="submit" disabled={sending} className="h-11 w-full rounded-lg">
                       {sending ? t("form.sending") : t("form.submit")}
                     </Button>
 
@@ -241,8 +240,7 @@ export default function ContactPage() {
 
       {/* FAQ */}
       <section
-        className="border-t"
-        style={{ background: "var(--mk-surface)", borderColor: "var(--mk-rule)" }}
+        className="border-t bg-background border-border"
       >
         <div className="mx-auto max-w-3xl px-6 py-24 lg:py-32">
           <div className="text-center">
@@ -279,8 +277,7 @@ export default function ContactPage() {
 
       {/* CTA */}
       <section
-        className="border-t"
-        style={{ background: "var(--mk-ink)", borderColor: "var(--mk-rule)" }}
+        className="border-t bg-foreground border-border"
       >
         <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
@@ -302,8 +299,7 @@ export default function ContactPage() {
               <NextLink href="/onboarding">
                 <Button
                   size="lg"
-                  className="h-11 px-7 rounded-lg text-[13.5px]"
-                  style={{ background: "var(--mk-paper)", color: "var(--mk-ink)" }}
+                  className="h-11 px-7 rounded-lg text-[13.5px] bg-card text-foreground"
                 >
                   {t("cta.button")}
                 </Button>

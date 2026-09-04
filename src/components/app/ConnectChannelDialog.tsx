@@ -100,13 +100,13 @@ export default function ConnectChannelDialog({
             <div className="px-5 sm:px-6 py-5 space-y-6 max-h-[min(60dvh,560px)] overflow-y-auto">
               {/* Step list */}
               <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <h3 className="text-xs font-medium text-muted-foreground">
                   {t("dialog.stepsTitle")}
                 </h3>
                 <ol className="mt-3 space-y-3">
                   {[0, 1, 2].map((index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold font-mono">
+                      <span className="mt-0.5 w-5 shrink-0 font-mono text-xs tabular-nums text-mk-ink-40">
                         {index + 1}
                       </span>
                       <div className="min-w-0">
@@ -127,8 +127,8 @@ export default function ConnectChannelDialog({
               {/* Permission list */}
               <section>
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  <ShieldCheck className="size-4 text-primary" aria-hidden />
+                  <h3 className="text-xs font-medium text-muted-foreground">
                     {t("dialog.permissionsTitle")}
                   </h3>
                 </div>
@@ -136,13 +136,13 @@ export default function ConnectChannelDialog({
                 <ul className="mt-3 divide-y divide-border/50 rounded-xl border border-border/60 bg-muted/20">
                   {permissions.map((item) => (
                     <li key={item.scope} className="flex items-start gap-3 px-3.5 py-3">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--mk-pos)]" aria-hidden />
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[color:var(--mk-pos)]" aria-hidden />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                           <p className="text-sm font-semibold text-foreground">
                             {t(`permissions.${item.key}.title`)}
                           </p>
-                          <code className="text-[10.5px] text-muted-foreground/80">{item.scope}</code>
+                          <code className="text-[11px] text-mk-ink-40">{item.scope}</code>
                         </div>
                         <p className="mt-0.5 text-[12.5px] leading-relaxed text-muted-foreground">
                           {t(`permissions.${item.key}.description`)}
@@ -158,7 +158,7 @@ export default function ConnectChannelDialog({
 
               {/* Requirements */}
               <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <h3 className="text-xs font-medium text-muted-foreground">
                   {t("dialog.requirementsTitle")}
                 </h3>
                 <ul className="mt-2.5 space-y-1.5">
@@ -185,7 +185,7 @@ export default function ConnectChannelDialog({
                 className="text-xs font-medium text-primary underline-offset-2 hover:underline inline-flex items-center gap-1 whitespace-nowrap"
               >
                 {t("dialog.learnMore")}
-                <ArrowUpRight className="h-3 w-3" aria-hidden />
+                <ArrowUpRight className="size-3" aria-hidden />
               </Link>
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => onOpenChange(false)} disabled={opening}>
@@ -201,13 +201,13 @@ export default function ConnectChannelDialog({
                 >
                   {opening ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                      <Loader2 className="size-4 animate-spin" aria-hidden />
                       {t("dialog.opening", { provider: providerName })}
                     </>
                   ) : (
                     <>
                       {t("dialog.continue", { provider: providerName })}
-                      <ArrowUpRight className="h-4 w-4" aria-hidden />
+                      <ArrowUpRight className="size-4" aria-hidden />
                     </>
                   )}
                 </Button>

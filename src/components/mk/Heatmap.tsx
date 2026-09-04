@@ -5,7 +5,7 @@ export function Heatmap({
   days,
   hours,
   max,
-  color = "var(--mk-ink)",
+  color = "var(--mk-accent)",
   height = 160,
 }: {
   data: number[][];
@@ -27,8 +27,7 @@ export function Heatmap({
       {hours.map((h, i) => (
         <div
           key={i}
-          className="text-center font-mono text-[9px]"
-          style={{ color: "var(--mk-ink-40)", letterSpacing: "0.08em" }}
+          className="text-center font-mono text-[9px] text-mk-ink-40"
         >
           {h}
         </div>
@@ -36,10 +35,9 @@ export function Heatmap({
       {days.map((d, di) => (
         <Fragment key={d}>
           <div
-            className="flex items-center font-mono text-[9px]"
-            style={{ color: "var(--mk-ink-40)", letterSpacing: "0.08em" }}
+            className="flex items-center font-mono text-[9px] text-mk-ink-40"
           >
-            {d.toUpperCase()}
+            {d}
           </div>
           {hours.map((_, hi) => {
             const v = data[di]?.[hi] ?? 0;

@@ -23,7 +23,7 @@ type Channel = SocialChannel;
 
 // Shared pill button style — mirrors PostCard's footer actions.
 const pillBtn =
-  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-accent bg-mk-paper";
+  "inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-lg border border-border bg-card text-xs font-medium text-foreground transition-colors whitespace-nowrap hover:bg-muted";
 
 type PlatformPost = {
   externalId: string;
@@ -77,27 +77,23 @@ function StateCard({
       }}
     >
       <div
-        className="mx-auto h-11 w-11 rounded-xl grid place-items-center mb-3.5"
-        style={{ background: "var(--mk-panel)" }}
+        className="mx-auto h-11 w-11 rounded-lg grid place-items-center mb-3.5 bg-muted"
       >
         {icon}
       </div>
       <p
-        className="text-[14px] font-medium m-0"
-        style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+        className="text-[14px] font-medium m-0 text-foreground"
       >
         {title}
       </p>
       <p
-        className="mt-1 mb-0 text-[13px] max-w-md mx-auto leading-relaxed"
-        style={{ color: "var(--mk-ink-60)" }}
+        className="mt-1 mb-0 text-[13px] max-w-md mx-auto leading-relaxed text-muted-foreground"
       >
         {body}
       </p>
       {detail && (
         <p
-          className="mt-2 mb-0 font-mono text-[11px] max-w-md mx-auto wrap-break-word"
-          style={{ color: "var(--mk-ink-40)" }}
+          className="mt-2 mb-0 font-mono text-xs max-w-md mx-auto wrap-break-word text-mk-ink-40"
         >
           {detail}
         </p>
@@ -131,7 +127,7 @@ function ChannelStates({
         title={t("states.notConnectedTitle", { channel: label })}
         body={t("states.notConnectedBody", { channel: label })}
       >
-        <Button size="sm" className="rounded-lg" asChild>
+        <Button size="sm" asChild>
           <Link href={connectHref}>{t("states.connect", { channel: label })}</Link>
         </Button>
       </StateCard>
@@ -145,10 +141,10 @@ function ChannelStates({
         title={t("states.authTitle", { channel: label })}
         body={t("states.authBody", { channel: label })}
       >
-        <Button size="sm" className="rounded-lg" asChild>
+        <Button size="sm" asChild>
           <Link href={connectHref}>{t("states.reconnect", { channel: label })}</Link>
         </Button>
-        <Button size="sm" variant="outline" className="rounded-lg" onClick={onRetry}>
+        <Button size="sm" variant="outline" onClick={onRetry}>
           {t("states.checkAgain")}
         </Button>
       </StateCard>
@@ -176,11 +172,11 @@ function ChannelStates({
     return (
       <StateCard
         tone="error"
-        icon={<AlertCircle className="h-5 w-5" style={{ color: "var(--mk-ink-60)" }} />}
+        icon={<AlertCircle className="size-5 text-muted-foreground" />}
         title={t("states.errorTitle", { channel: label })}
         body={t("states.errorBody", { channel: label })}
       >
-        <Button size="sm" variant="outline" className="rounded-lg" onClick={onRetry}>
+        <Button size="sm" variant="outline" onClick={onRetry}>
           {t("states.tryAgain")}
         </Button>
       </StateCard>
@@ -194,7 +190,7 @@ function ChannelStates({
       title={t("states.emptyTitle", { channel: label })}
       body={t("states.emptyBody", { channel: label })}
     >
-      <Button size="sm" variant="outline" className="rounded-lg" onClick={onRetry}>
+      <Button size="sm" variant="outline" onClick={onRetry}>
         {t("refresh")}
       </Button>
     </StateCard>
@@ -229,17 +225,17 @@ function PlatformPostCard({
   };
 
   return (
-    <div className="group border border-border/50 rounded-xl overflow-hidden bg-card hover:border-border/80 hover:shadow-xs transition-[border-color,box-shadow] flex flex-col">
+    <div className="group border border-border rounded-xl overflow-hidden bg-card hover:border-border/80 transition-[border-color,box-shadow] flex flex-col">
       {/* Header row */}
       <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border/30">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/70">
+          <span className="text-xs font-medium text-foreground/70">
             {getSocialChannelLabel(post.channel)}
           </span>
           {post.publishedAt && (
             <>
               <span className="w-px h-3 bg-border/60" />
-              <span className="text-[11px] text-muted-foreground truncate">
+              <span className="text-xs text-muted-foreground truncate">
                 {new Date(post.publishedAt).toLocaleDateString(locale, {
                   month: "short",
                   day: "numeric",
@@ -249,7 +245,7 @@ function PlatformPostCard({
             </>
           )}
         </div>
-        <span className="text-[10px] uppercase tracking-wider font-medium text-muted-foreground shrink-0">
+        <span className="text-xs font-medium text-muted-foreground shrink-0">
           {post.mediaType !== "unknown" ? post.mediaType : ""}
         </span>
       </div>
@@ -298,14 +294,14 @@ function PlatformPostCard({
         )}
         {post.canDelete ? (
           <button
-            className="inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-full border text-[11px] font-medium transition-colors whitespace-nowrap hover:bg-mk-panel border-mk-rule text-mk-neg bg-mk-paper disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 px-3 py-2 sm:py-1 min-h-9 sm:min-h-0 rounded-lg border border-border bg-card text-xs font-medium text-mk-neg transition-colors whitespace-nowrap hover:bg-mk-neg-soft disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() => setConfirmDelete(true)}
             disabled={deleting}
           >
             {deleting ? t("deleting") : t("delete")}
           </button>
         ) : (
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {noDeleteHints[post.channel] || t("noDeleteDefault")}
           </span>
         )}
@@ -440,7 +436,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
           <button
             key={c}
             onClick={() => setChannel(c)}
-            className={`px-3 py-2 sm:py-1.5 min-h-9 sm:min-h-0 rounded-full border text-[12px] font-medium transition-colors whitespace-nowrap ${
+            className={`px-3 py-2 sm:py-1.5 min-h-9 sm:min-h-0 rounded-lg border text-[13px] font-medium transition-colors whitespace-nowrap ${
               channel === c
                 ? "border-foreground bg-foreground text-background"
                 : "border-mk-rule text-mk-ink-60 bg-mk-paper hover:bg-mk-panel"
@@ -452,7 +448,7 @@ export default function PlatformPostsTab({ productId }: { productId: string }) {
         <button
           onClick={fetchPosts}
           disabled={loading}
-          className="ms-auto px-3 py-2 sm:py-1.5 min-h-9 sm:min-h-0 rounded-full border border-mk-rule text-[12px] font-medium text-mk-accent bg-mk-paper hover:bg-mk-panel transition-colors disabled:opacity-60"
+          className="ms-auto px-3 py-2 sm:py-1.5 min-h-9 sm:min-h-0 rounded-lg border border-border bg-card text-[13px] font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-60"
         >
           {t("refresh")}
         </button>

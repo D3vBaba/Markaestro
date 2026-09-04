@@ -1,6 +1,15 @@
 import type { SocialChannel } from '@/lib/schemas';
 import type { EvergreenQueueStatus, EvergreenReviewPolicy, EvergreenScheduleMode } from './schemas';
 
+export type EvergreenCadenceMode = 'fixed' | 'adaptive';
+
+export type EvergreenCadenceChange = {
+  at: string;
+  from: number;
+  to: number;
+  reason: 'HEALTHY' | 'UNDERPERFORMED' | 'COLLISION';
+};
+
 export type EvergreenEvidence = {
   capturedAt: string;
   sourcePublishedAt: string;
@@ -37,6 +46,8 @@ export type EvergreenQueue = {
   localHour: number;
   localMinute: number;
   scheduleMode: EvergreenScheduleMode;
+  cadenceMode?: EvergreenCadenceMode;
+  cadenceHistory?: EvergreenCadenceChange[];
   reviewPolicy: EvergreenReviewPolicy;
   expiresAt: string | null;
   nextRunAt: string | null;
@@ -56,6 +67,10 @@ export type EvergreenVariant = {
   caption: string;
   enabled: boolean;
   position: number;
+  /** Weak runs in a row for this caption; two retires it while others remain. */
+  consecutiveUnderperformingRuns?: number;
+  retiredReason?: string | null;
+  retiredAt?: string | null;
   createdAt: string;
   updatedAt: string;
 };

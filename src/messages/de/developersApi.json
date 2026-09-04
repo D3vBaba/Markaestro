@@ -22,7 +22,7 @@
       {
         "method": "GET",
         "path": "/api/connect/v1/social-accounts",
-        "note": "Listet verbundene Facebook-, Instagram-, TikTok-, LinkedIn- und Threads-Ziele als flache Konten auf, jeweils mit ihrem Produkt beschriftet, damit Clients gruppieren und unterscheiden können. Jeder Kanal ist ein eigener dedizierter Pfad, keine kanalübergreifende Verteilung."
+        "note": "Listet verbundene Facebook-, Instagram-, TikTok- und LinkedIn-Ziele als flache Konten auf, jeweils mit ihrem Produkt gekennzeichnet, damit Clients gruppieren und unterscheiden können. Jeder Kanal hat seinen eigenen Pfad, kein kanalübergreifendes Fan-out."
       },
       {
         "method": "GET",
@@ -223,11 +223,15 @@
       },
       {
         "name": "TikTok",
-        "rule": "Mindestens ein Bild oder Video. Bis zu 10 Bilder oder 1 Video. Standardmäßig manuelle Veröffentlichung; aktivierte Beiträge gehen an den Posteingang des Creators auf TikTok, niemals als öffentlicher Direct Post."
+        "rule": "Mindestens ein Bild oder Video. Bis zu 35 Bilder oder 1 Video. Standardmäßig manuelles Posten; freigegebene Beiträge gehen in den TikTok-Posteingang des Creators oder mit TikTok postMode direct_post direkt ins Profil."
       },
       {
         "name": "LinkedIn",
         "rule": "Text, einzelnes Bild, einzelnes Video oder organische Multi-Bild-Beiträge mit bis zu 20 Bildern. Ziele auf das verbundene Profil oder eine verwaltete Seite."
+      },
+      {
+        "name": "X",
+        "rule": "Text, bis zu vier Bilder, ein GIF oder ein Video. Antwortkontrollen gelten pro Beitrag, und die Veröffentlichung wird blockiert, wenn das X-Kostenbudget des Workspace aufgebraucht ist."
       }
     ]
   },

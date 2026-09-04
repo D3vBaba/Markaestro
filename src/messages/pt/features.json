@@ -10,17 +10,17 @@
       "title": "Publicação Multicanal",
       "description": "Escreva uma vez, publique em todo lugar. Crie um único post e adapte-o para Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest com um clique. Agende para o horário ideal ou publique instantaneamente.",
       "details": [
-        "Editor unificado com pré-visualização por canal",
-        "Gerenciamento de mídia por arrastar e soltar",
-        "Agendamento em massa para calendários de conteúdo",
-        "Redimensionamento automático de imagens para as especificações da plataforma"
+        "Compositor unificado com pré-visualização por canal",
+        "Gestão de media por arrastar e largar",
+        "Reagendamento, mudanças de estado e eliminações em massa",
+        "Limites de caracteres e verificações de media por canal antes de publicar"
       ]
     },
     {
       "title": "Upload e Biblioteca de Mídia",
       "description": "Traga suas próprias fotos, vídeos e ativos de marca. O Markaestro os armazena por workspace e os anexa a posts com um único arraste.",
       "details": [
-        "Suporte a JPG, PNG, WebP, MP4, MOV e WebM",
+        "Suporte para JPG, PNG, WebP, GIF, MP4, MOV e WebM",
         "Até 250 MB por vídeo, 10 MB por imagem",
         "Verificações de formato por canal antes de publicar",
         "Reutilize mídia enviada em vários posts"
@@ -30,20 +30,20 @@
       "title": "Pré-visualizações Multicanal",
       "description": "Veja como cada post vai ficar em cada rede antes de publicar: Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest têm sua própria pré-visualização. Legendas, proporções, limites de caracteres e especificações de mídia são renderizados em tempo real.",
       "details": [
-        "Pré-visualizações precisas por plataforma",
+        "Pré-visualizações por plataforma, incluindo posicionamentos de anúncios",
         "Contagem de caracteres da legenda em tempo real",
-        "Orientação de proporção por canal",
-        "Detecte problemas de formatação antes de publicar"
+        "Regras de quantidade e formato de media por canal",
+        "Detete problemas de formatação antes de saírem"
       ]
     },
     {
       "title": "Painel de Publicação",
       "description": "Veja cada rascunho, post agendado e estado de publicação em uma única visão do workspace, sem alternar entre plataformas.",
       "details": [
-        "Filas de rascunho, agendado e publicado",
-        "Status de publicação por canal",
-        "Fluxo de nova tentativa para posts com falha",
-        "Visão geral de conteúdo em nível de workspace"
+        "Vistas de rascunhos, agendados, publicados e na plataforma",
+        "Estado de publicação e detalhe de erros por canal",
+        "Fila “Para publicar” para canais onde uma pessoa publica nativamente",
+        "Visão geral da atividade do workspace no painel"
       ]
     },
     {
@@ -57,15 +57,25 @@
       ]
     },
     {
-      "title": "API e Agentes de IA",
-      "description": "Tudo o que o painel faz, seu software também pode fazer. Gere uma chave de API, entregue-a a um agente de IA ou a um script, e deixe que ele descubra contas, envie mídia, agende posts, publique e reporte de volta, em qualquer plano, sem custo extra.",
+      "title": "Intelligent Evergreen",
+      "description": "Transforme uma publicação madura e medida numa política recorrente que você controla. Alterne legendas aprovadas, reveja cada execução ou pré-aprove a fila, e deixe o Markaestro pausar a sequência quando o desempenho comparável decair.",
       "details": [
-        "Chaves vinculadas a uma única marca, com expiração opcional",
-        "Gravações idempotentes para que uma nova tentativa nunca publique em duplicidade",
-        "Execuções de publicação assíncronas mais webhooks assinados com HMAC",
-        "Manual-first no Meta e no TikTok, um humano ainda publica"
+        "Elegibilidade apoiada nos resultados medidos da publicação de origem",
+        "Horários fixos ou aprendidos com recorrência segura face à hora de verão",
+        "Modos de rever cada execução ou pré-aprovar",
+        "Avaliação a sete dias com uma pausa prudente após duas execuções fracas"
+      ]
+    },
+    {
+      "title": "API e Agentes de IA",
+      "description": "Tudo o que o painel faz, o seu software também pode fazer. Gere uma chave de API, entregue-a a um agente de IA ou a um script e deixe-o descobrir contas, carregar media, agendar publicações, publicar e reportar, em todos os planos pagos sem custo adicional.",
+      "details": [
+        "Chaves limitadas a uma única marca, com expiração opcional",
+        "Escritas idempotentes para que uma nova tentativa nunca publique em duplicado",
+        "Execuções de publicação assíncronas, webhooks assinados com HMAC e um servidor MCP para Claude Code, claude.ai e Cursor",
+        "Meta e TikTok manuais por defeito: uma pessoa publica, a menos que ative uma publicação"
       ],
-      "codeLabel": "agende um post a partir de qualquer coisa que fale HTTP",
+      "codeLabel": "Agende um post a partir de qualquer coisa que fale HTTP",
       "agentGuideLink": "Leia o guia do agente de IA →"
     }
   ],
@@ -76,11 +86,15 @@
     },
     {
       "title": "Agendamento e Calendário",
-      "description": "Organize posts em um calendário unificado em todos os seus canais. Reagende com um arraste, duplique posts com um clique e mantenha uma visão clara do que será publicado e quando."
+      "description": "Agende publicações num calendário unificado para todos os seus canais. Reagende arrastando, mova um lote de publicações de uma vez e mantenha uma visão clara do que sai e quando."
     },
     {
       "title": "Acesso Baseado em Função",
-      "description": "Controle quem pode publicar, editar ou visualizar com funções em três níveis: Proprietário, Administrador e Membro. Mantenha configurações sensíveis protegidas enquanto sua equipe trabalha com agilidade."
+      "description": "Controle quem pode publicar, editar ou ver com quatro funções: Owner, Admin, Member e Analyst. Mantenha as definições sensíveis protegidas enquanto a sua equipa avança depressa."
+    },
+    {
+      "title": "Perfis de marca",
+      "description": "Analise um site para extrair nome, descrição, cores, logótipo e tom para um perfil de marca e depois afine a voz, a identidade e o conhecimento. Cada publicação e cada rascunho do Intelligence assenta nesse perfil."
     }
   ],
   "platformSection": {
@@ -123,27 +137,23 @@
     "tabs": [
       {
         "title": "Visão geral",
-        "body": "Banner do objetivo, KPIs medidos, comparação de plataformas por publicação e uma lista de prontidão que mostra exatamente quais recursos estão ativos e quantos dados cada um ainda precisa."
-      },
-      {
-        "title": "Público",
-        "body": "Declare seu objetivo, mercados, fuso horário, pilares e voz. Links curtos rastreados contam cliques sem armazenar dados pessoais e ligam as conversões à publicação."
+        "body": "Faixa de objetivo, KPIs medidos, comparação de plataformas por publicação, uma lista de prontidão que mostra quais as funcionalidades ativas e quantos dados cada uma ainda precisa, e Ask Markaestro para perguntas respondidas apenas com os registos desta marca."
       },
       {
         "title": "Conteúdo",
         "body": "Suas publicações classificadas pela métrica que você escolheu, os padrões detectados em cada uma e uma explicação Por que funcionou baseada nos números daquela publicação em relação à média da sua conta."
       },
       {
-        "title": "Oportunidades",
-        "body": "Sugestões apoiadas em evidência que você pode aceitar, fixar ou dispensar, cada uma com um botão Criar rascunho. Aceitar nunca cria nem agenda uma publicação."
+        "title": "Playbook",
+        "body": "Oportunidades apoiadas em evidência que pode aceitar, fixar ou dispensar, cada uma com um botão “Redigir isto”, mais os padrões que se repetem nos seus dados com tamanho da amostra, efeito e intervalo de confiança explicados de forma clara. Aceitar nunca cria nem agenda uma publicação."
       },
       {
-        "title": "Guia",
-        "body": "Padrões que se repetem nos seus dados com o tamanho da amostra, o efeito e o intervalo de confiança explicados em palavras simples, mais as publicações por trás de cada um."
+        "title": "Público",
+        "body": "Declare seu objetivo, mercados, fuso horário, pilares e voz. Links curtos rastreados contam cliques sem armazenar dados pessoais e ligam as conversões à publicação."
       },
       {
-        "title": "Experimentos e perguntas",
-        "body": "Publicações A/B pareadas com um vencedor medido, e perguntas respondidas apenas com os registros desta marca, citando os dados usados."
+        "title": "Experimentos",
+        "body": "Publicações A/B emparelhadas com um vencedor medido, disponíveis no plano Business."
       }
     ],
     "principlesTitle": "Regras que ela nunca quebra",

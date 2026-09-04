@@ -355,7 +355,7 @@
     "engagements": "Interazioni",
     "conversions": "Conversioni",
     "engagementRate": "Tasso di interazione",
-    "perPost": "per post"
+    "perPost": "Per post"
   },
   "platforms": {
     "title": "Prestazioni per piattaforma",
@@ -413,7 +413,7 @@
     "observations": "{count} post",
     "liftUp": "+{value}% rispetto alla tua media",
     "liftDown": "{value}% rispetto alla tua media",
-    "estimate": "circa {value} {metric} per post",
+    "estimate": "Circa {value} {metric} per post",
     "timezone": "Orari in {timeZone}",
     "accountMean": "La tua media: {value} {metric} per post"
   },
@@ -788,16 +788,16 @@
     "quota": "Hai esaurito i turni Ask Markaestro di questo mese. Riprova il mese prossimo o fai upgrade.",
     "unavailable": "Ask Markaestro non è ancora disponibile per questo workspace.",
     "tools": {
-      "audience_performance": "istantanee del pubblico",
-      "audience_alignment": "allineamento del pubblico",
-      "top_posts": "post migliori per visualizzazioni",
-      "pillar_performance": "prestazioni per pilastro dei contenuti",
-      "hook_performance": "prestazioni per gancio",
-      "timing_performance": "prestazioni per giorno e ora",
-      "drift": "eventi di deriva del pubblico",
-      "learnings": "apprendimenti della strategia",
+      "audience_performance": "Istantanee del pubblico",
+      "audience_alignment": "Allineamento del pubblico",
+      "top_posts": "Post migliori per visualizzazioni",
+      "pillar_performance": "Prestazioni per pilastro dei contenuti",
+      "hook_performance": "Prestazioni per gancio",
+      "timing_performance": "Prestazioni per giorno e ora",
+      "drift": "Eventi di deriva del pubblico",
+      "learnings": "Apprendimenti della strategia",
       "campaigns": "campagne",
-      "platform_comparisons": "confronto per piattaforma",
+      "platform_comparisons": "Confronto per piattaforma",
       "experiments": "esperimenti"
     },
     "examples": [

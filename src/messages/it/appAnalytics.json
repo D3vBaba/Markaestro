@@ -46,24 +46,24 @@
     "kpis": {
       "views": {
         "label": "Visualizzazioni",
-        "sub": "vs periodo precedente"
+        "sub": "Vs periodo precedente"
       },
       "reach": {
         "label": "Copertura",
-        "sub": "account unici raggiunti"
+        "sub": "Account unici raggiunti"
       },
       "engagement": {
         "label": "Engagement",
-        "sub": "mi piace + commenti + condivisioni + salvataggi"
+        "sub": "Mi piace + commenti + condivisioni + salvataggi"
       },
       "engagementRate": {
         "label": "Tasso di engagement",
-        "sub": "engagement ÷ copertura",
-        "subViews": "interazioni ÷ visualizzazioni (copertura non riportata)"
+        "sub": "Engagement ÷ copertura",
+        "subViews": "Interazioni ÷ visualizzazioni (copertura non riportata)"
       },
       "followers": {
         "label": "Follower",
-        "sub": "tutti i canali collegati"
+        "sub": "Tutti i canali collegati"
       }
     },
     "insights": {
@@ -86,7 +86,7 @@
         "publish": "Quanto hanno ottenuto finora i post pubblicati ogni giorno",
         "activity": "Cosa è successo ogni giorno su tutti i post"
       },
-      "compare": "vs periodo precedente",
+      "compare": "Vs periodo precedente",
       "previous": "Periodo precedente",
       "noteActivity": "Raggruppato per il giorno in cui le piattaforme hanno riportato i numeri.",
       "activityEmpty": "L'attività si accumula dal prossimo aggiornamento. Il raggruppamento per pubblicazione contiene lo storico."
@@ -150,7 +150,7 @@
     "notEnoughVariety": "Non c'è ancora abbastanza varietà",
     "publishAtLeastTwo": "Pubblica almeno due formati di contenuto (immagini, video, caroselli, testo) per confrontarli.",
     "postsCount": "{count, plural, one {# post} other {# post}}",
-    "avgEng": "eng. medio"
+    "avgEng": "Eng. medio"
   },
   "trendChart": {
     "noData": "Nessun dato per questo periodo, per ora.",

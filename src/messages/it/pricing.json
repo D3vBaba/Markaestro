@@ -30,43 +30,41 @@
       ]
     },
     "starter": {
-      "description": "Per marketer indipendenti che pubblicano su Meta e TikTok.",
+      "description": "Per marketer singoli che programmano su tutte le piattaforme.",
       "features": [
-        "5 canali social",
-        "Post illimitati",
-        "10 GB di archiviazione",
-        "1 membro del team",
-        "Calendario editoriale",
-        "1 workspace",
-        "Voce del brand (1 profilo)",
-        "Analisi (finestra di 7 giorni)"
+        "2 brand su tutte le 7 piattaforme",
+        "Fino a 8 canali per brand",
+        "Post programmati illimitati",
+        "Calendario dei contenuti",
+        "Voce del brand per brand",
+        "10 GB di spazio",
+        "API di pubblicazione completa",
+        "Analytics (finestra di 30 giorni)"
       ]
     },
     "pro": {
-      "description": "Per team in crescita che hanno bisogno di collaborazione e programmazione.",
+      "description": "Per team in crescita che gestiscono più brand.",
       "features": [
-        "15 canali social",
-        "Post illimitati",
-        "100 GB di archiviazione",
-        "5 membri del team",
+        "6 brand",
+        "5 membri del team con ruoli",
         "5 workspace",
-        "Voce del brand + identità del brand",
-        "Programmazione intelligente",
-        "Analisi (finestra di 90 giorni)",
-        "Supporto prioritario"
+        "Consigli sugli orari migliori per pubblicare",
+        "Voce del brand + identità del brand (logo e colori)",
+        "100 GB di spazio",
+        "Analytics (finestra di 1 anno)",
+        "Supporto prioritario",
+        "10 code Intelligent Evergreen per brand"
       ]
     },
     "business": {
-      "description": "Per agenzie che gestiscono più brand su larga scala.",
+      "description": "Per agenzie che gestiscono molti brand su larga scala.",
       "features": [
-        "50 canali social",
-        "Post illimitati",
-        "Archiviazione illimitata",
-        "Membri del team illimitati",
-        "Tutto ciò che è incluso in Pro",
-        "Workspace illimitati",
-        "Storico analisi illimitato + esportazione CSV",
-        "Supporto prioritario"
+        "20 brand",
+        "Membri del team e workspace illimitati",
+        "Spazio illimitato",
+        "Cronologia analytics illimitata + esportazione CSV",
+        "Supporto prioritario",
+        "Code Intelligent Evergreen illimitate"
       ]
     }
   },
@@ -92,19 +90,22 @@
         "name": "Pubblicazione",
         "features": [
           {
-            "name": "Canali social"
+            "name": "Brand"
           },
           {
-            "name": "Post al mese"
+            "name": "Canali per brand"
           },
           {
-            "name": "Calendario editoriale"
+            "name": "Piattaforme (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)"
           },
           {
-            "name": "Programmazione in blocco"
+            "name": "Post programmati"
           },
           {
-            "name": "Programmazione intelligente"
+            "name": "Calendario dei contenuti"
+          },
+          {
+            "name": "Consigli sugli orari migliori per pubblicare"
           }
         ]
       },
@@ -196,7 +197,7 @@
     },
     {
       "q": "Cosa si intende per 'canale social'?",
-      "a": "Ogni account social connesso conta come un canale. Ad esempio, una Pagina Facebook, un account Instagram Business e un account TikTok sarebbero 3 canali."
+      "a": "Ogni account social collegato conta come un canale. Ad esempio, una pagina Facebook, un account Instagram e un account TikTok sono 3 canali. I piani a pagamento consentono fino a 8 canali per brand."
     },
     {
       "q": "Come funziona l'archiviazione?",
@@ -216,7 +217,7 @@
     },
     {
       "q": "Il mio agente IA o il mio software può usare Markaestro?",
-      "a": "Sì, su ogni piano senza costi aggiuntivi. Qualsiasi amministratore del workspace può generare chiavi API da Impostazioni → API e consegnarne una a un agente IA, uno script o uno strumento di programmazione già pronto. Ogni chiave è vincolata a un singolo brand, ha solo gli ambiti che selezioni e può avere una scadenza. Consulta la guida per agenti IA per le definizioni degli strumenti e una guida rapida funzionante in quattro comandi."
+      "a": "Sì, su ogni piano a pagamento senza costi aggiuntivi. Qualsiasi amministratore del workspace può generare chiavi API da Impostazioni → API e affidarne una a un agente IA, a uno script o a uno strumento di programmazione già pronto. Ogni chiave è legata a un singolo brand, porta solo gli ambiti che selezioni e può avere una scadenza. I client MCP come Claude Code possono invece accedere dal browser. Consulta la guida per agenti IA per le definizioni degli strumenti e un avvio rapido in quattro comandi."
     },
     {
       "q": "Offrite sconti per organizzazioni no-profit o startup?",

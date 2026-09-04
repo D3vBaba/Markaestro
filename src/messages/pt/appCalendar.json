@@ -26,7 +26,8 @@
     "preview": "Pré-visualização",
     "viewLivePost": "Ver publicação ao vivo",
     "untitledPost": "Publicação sem título",
-    "failedToPublish": "Falha ao publicar"
+    "failedToPublish": "Falha ao publicar",
+    "evergreen": "Evergreen"
   },
   "dayPanel": {
     "today": "Hoje",
@@ -82,5 +83,14 @@
   "postNotFoundToast": "Não foi possível abrir essa publicação. Tente novamente.",
   "viewAllPostsOnDay": "Ver {count, plural, one {# publicação} other {# publicações}} deste dia",
   "viewAllPostsOnDate": "Ver {count, plural, one {# publicação} other {# publicações}} de {date}",
-  "moreCount": "+{count} mais"
+  "moreCount": "+{count} mais",
+  "listEmpty": "Ainda não há nada agendado nem publicado este mês.",
+  "moreChannels": "+{count} mais",
+  "title": "Calendário",
+  "views": {
+    "list": "Lista",
+    "month": "Mês",
+    "week": "Semana"
+  },
+  "weekOf": "Semana de {date}"
 }

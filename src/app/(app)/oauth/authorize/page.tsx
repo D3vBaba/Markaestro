@@ -182,9 +182,9 @@ function AuthorizeContent() {
 
   let body: React.ReactNode;
   if (!request.valid) {
-    body = <p className="text-sm text-destructive">{t("invalidRequest")}</p>;
+    body = <p className="m-0 text-sm text-mk-neg" role="alert">{t("invalidRequest")}</p>;
   } else if (clientError) {
-    body = <p className="text-sm text-destructive">{clientError}</p>;
+    body = <p className="m-0 text-sm text-mk-neg" role="alert">{clientError}</p>;
   } else if (redirecting) {
     body = <p className="text-sm text-muted-foreground">{t("redirecting", { client: clientName })}</p>;
   } else if (!workspacesLoading && adminWorkspaces.length === 0) {
@@ -196,7 +196,7 @@ function AuthorizeContent() {
           <Label htmlFor="agent-workspace">{t("workspaceLabel")}</Label>
           <select
             id="agent-workspace"
-            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
             value={workspaceId}
             onChange={(e) => {
               setWorkspaceId(e.target.value);
@@ -217,12 +217,12 @@ function AuthorizeContent() {
           ) : products.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {t("noBrands")}{" "}
-              <Link href="/products" className="text-primary hover:underline">{t("createBrand")}</Link>
+              <Link href="/products" className="text-mk-accent underline-offset-4 hover:underline">{t("createBrand")}</Link>
             </p>
           ) : (
             <select
               id="agent-brand"
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-9 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               disabled={submitting}
@@ -237,9 +237,9 @@ function AuthorizeContent() {
 
         <div className="space-y-2">
           <Label>{t("scopesLabel")}</Label>
-          <div className="space-y-2 rounded-md border border-border p-3">
+          <div className="divide-y divide-border rounded-lg border border-border">
             {scopes.map((scope) => (
-              <label key={scope} className="flex items-center gap-2 text-sm">
+              <label key={scope} className="flex items-center gap-2.5 px-3 py-2.5 text-sm">
                 <Checkbox
                   checked={granted.has(scope)}
                   onCheckedChange={() => toggleScope(scope)}
@@ -252,7 +252,7 @@ function AuthorizeContent() {
           </div>
         </div>
 
-        {submitError && <p className="text-sm text-destructive">{submitError}</p>}
+        {submitError && <p className="m-0 text-sm text-mk-neg" role="alert">{submitError}</p>}
 
         <div className="flex items-center justify-end gap-2">
           <Button variant="outline" onClick={deny} disabled={submitting}>
@@ -270,26 +270,22 @@ function AuthorizeContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-4 py-10">
+    <div className="min-h-dvh bg-background px-4 py-10">
       <div className="mx-auto w-full max-w-md">
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="mb-5 flex items-start gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-              <KeyRound className="h-5 w-5" aria-hidden />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold text-foreground">
-                {t("title", { client: clientName })}
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("subtitle", { client: clientName })}
-              </p>
-            </div>
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+          <div className="mb-6">
+            <KeyRound className="mb-4 size-6 text-mk-ink-60" strokeWidth={1.75} aria-hidden />
+            <h1 className="m-0 text-xl font-semibold tracking-tight text-foreground text-balance">
+              {t("title", { client: clientName })}
+            </h1>
+            <p className="m-0 mt-1.5 text-[13px] leading-5 text-muted-foreground">
+              {t("subtitle", { client: clientName })}
+            </p>
           </div>
           {body}
         </div>
         <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
-          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           <span>{t("footer")}</span>
         </p>
       </div>
@@ -299,7 +295,7 @@ function AuthorizeContent() {
 
 export default function AuthorizePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <Suspense fallback={<div className="min-h-dvh bg-background" />}>
       <AuthorizeContent />
     </Suspense>
   );

@@ -86,8 +86,8 @@
       "title": "3. Plan het in, en houd het in de gaten",
       "description": "Aanmaken is standaard concept-first. Stuur in plaats daarvan <code>is_draft: false</code> met een <code>scheduled_at</code>-tijdstempel om de post op de kalender te zetten."
     },
-    "bashLabel": "bash",
-    "responseLabel": "antwoord"
+    "bashLabel": "Bash",
+    "responseLabel": "Antwoord"
   },
   "toolDefs": {
     "eyebrow": "Direct bruikbaar",
@@ -98,13 +98,13 @@
     "schemasLabel": "tools.json",
     "briefTitle": "Agent-samenvatting",
     "briefDescription": "Plak dit in je system prompt. Het codeert het gedrag dat een betrouwbare publicatieagent onderscheidt van een agent die dubbel post en te vroeg de overwinning uitroept.",
-    "briefLabel": "system prompt",
+    "briefLabel": "System prompt",
     "briefFooter": "Je agent kan dit ook zelf ophalen: <code>curl https://markaestro.com/llms.txt</code> retourneert een platte-tekst-samenvatting van de hele API, endpoints, regels en foutafhandeling, klein genoeg om in de context te passen."
   },
   "recipes": {
     "eyebrow": "Recepten",
     "title": "De vier workflows die agents daadwerkelijk uitvoeren",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "publish": {
       "title": "Publiceer en bevestig",
       "description": "Maak een concept aan, publiceer het expliciet, peil vervolgens de run. De enige eerlijke manier om de operator te vertellen dat een post is uitgegaan."
@@ -266,7 +266,7 @@
     "installDescription": "In Claude Code is de plugin de hele installatie: hij bundelt de agent-skill en de serverconfiguratie. Elke andere MCP-client neemt de server-URL op in zijn gebruikelijke configuratie.",
     "headlessTitle": "Zonder browser",
     "headlessDescription": "Een CI-job, een cron-worker of een client die geen browser kan openen, geeft in plaats daarvan een API-sleutel van de werkruimte mee als bearer-header. Beide routes komen uit op dezelfde server met dezelfde rechten.",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "configLabel": "MCP-configuratie (json)",
     "flowTitle": "Wat er gebeurt als de client verbinding maakt",
     "flowIntro": "Vijf stappen, allemaal afgehandeld door de client en de browser. Jij ziet alleen de toestemmingspagina.",
@@ -317,6 +317,6 @@
     ],
     "endpointsTitle": "Eindpunten",
     "endpointsDescription": "Voor wie een MCP-client bouwt of de flow controleert. Alles is vindbaar via de twee well-known-documenten; niets hiervan hoeft met de hand te worden geconfigureerd.",
-    "endpointsLabel": "referentie"
+    "endpointsLabel": "Referentie"
   }
 }

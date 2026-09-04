@@ -1,7 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getAllMatchingDocs } from '@/lib/firestore-pagination';
 import type { NormalizedPostMetrics } from '@/lib/platform/types';
-import type { EvergreenRun } from './types';
+import type { EvergreenRun, EvergreenVariant } from './types';
 
 export type EvergreenMetricTotals = {
   views: number | null;
@@ -22,6 +22,18 @@ export type EvergreenRunAnalytics = {
   attributedConversions: number;
 };
 
+export type EvergreenVariantAnalytics = {
+  variantId: string;
+  caption: string;
+  enabled: boolean;
+  retiredReason: string | null;
+  runs: number;
+  evaluated: number;
+  underperforming: number;
+  averageIndex: number | null;
+  metrics: EvergreenMetricTotals;
+};
+
 export type EvergreenQueueAnalytics = {
   queueId: string;
   source: EvergreenMetricTotals;
@@ -40,6 +52,7 @@ export type EvergreenQueueAnalytics = {
     needsReview: number;
   };
   recentRuns: EvergreenRunAnalytics[];
+  variants: EvergreenVariantAnalytics[];
 };
 
 const ENGAGEMENT_FIELDS = ['likes', 'comments', 'shares', 'saves'] as const;
@@ -103,8 +116,12 @@ export async function getEvergreenQueueAnalytics(
   if (!queueSnap.exists) throw new Error('NOT_FOUND');
   const queue = queueSnap.data() as Record<string, unknown>;
 
-  const runDocs = await getAllMatchingDocs(queueRef.collection('runs').orderBy('plannedAt', 'asc'));
+  const [runDocs, variantDocs] = await Promise.all([
+    getAllMatchingDocs(queueRef.collection('runs').orderBy('plannedAt', 'asc')),
+    queueRef.collection('variants').orderBy('position', 'asc').get(),
+  ]);
   const runs = runDocs.map((doc) => ({ id: doc.id, ...doc.data() }) as EvergreenRun);
+  const variants = variantDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as EvergreenVariant);
   const occurrenceIds = [...new Set(runs
     .map((run) => run.occurrencePostId)
     .filter((id): id is string => typeof id === 'string' && id.length > 0))];
@@ -182,5 +199,36 @@ export async function getEvergreenQueueAnalytics(
       needsReview: runs.filter((run) => run.status === 'needs_review').length,
     },
     recentRuns: runAnalytics.slice(-10).reverse(),
+    variants: scoreVariants(variants, runs, runAnalytics),
   };
+}
+
+/**
+ * Which caption is pulling its weight. Runs carry the variant they used, so
+ * the scoreboard is a group-by; an index is only averaged over evaluated runs.
+ */
+export function scoreVariants(
+  variants: EvergreenVariant[],
+  runs: EvergreenRun[],
+  runAnalytics: EvergreenRunAnalytics[],
+): EvergreenVariantAnalytics[] {
+  const byRun = new Map(runAnalytics.map((row) => [row.runId, row]));
+  return variants.map((variant) => {
+    const own = runs.filter((run) => run.variantId === variant.id);
+    const evaluated = own.filter((run) => run.status === 'evaluated' && typeof run.performanceIndex === 'number');
+    const average = evaluated.length > 0
+      ? evaluated.reduce((total, run) => total + (run.performanceIndex ?? 0), 0) / evaluated.length
+      : null;
+    return {
+      variantId: variant.id,
+      caption: variant.caption,
+      enabled: variant.enabled,
+      retiredReason: variant.retiredReason ?? null,
+      runs: own.length,
+      evaluated: evaluated.length,
+      underperforming: own.filter((run) => run.reason === 'UNDERPERFORMED').length,
+      averageIndex: average === null ? null : Math.round(average * 100) / 100,
+      metrics: combineEvergreenMetricTotals(own.map((run) => byRun.get(run.id)?.metrics).filter((m): m is EvergreenMetricTotals => Boolean(m))),
+    };
+  });
 }

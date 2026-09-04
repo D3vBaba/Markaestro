@@ -22,7 +22,7 @@
       {
         "method": "GET",
         "path": "/api/connect/v1/social-accounts",
-        "note": "Toont verbonden Facebook-, Instagram-, TikTok-, LinkedIn- en Threads-bestemmingen als platte accounts, elk gelabeld met het bijbehorende product zodat clients kunnen groeperen en onderscheiden. Elk kanaal heeft zijn eigen toegewijde pad, geen doorstroom tussen kanalen."
+        "note": "Toont gekoppelde Facebook-, Instagram-, TikTok- en LinkedIn-bestemmingen als platte accounts, elk gelabeld met het product zodat clients kunnen groeperen en onderscheiden. Elk kanaal heeft zijn eigen pad, geen fan-out over kanalen."
       },
       {
         "method": "GET",
@@ -223,11 +223,15 @@
       },
       {
         "name": "TikTok",
-        "rule": "Minstens één afbeelding of video. Tot 10 afbeeldingen of 1 video. Standaard handmatig plaatsen; aangemelde posts gaan naar de inbox van de maker, nooit een openbare Direct Post."
+        "rule": "Minstens één afbeelding of video. Tot 35 afbeeldingen of 1 video. Standaard handmatig plaatsen; vrijgegeven posts gaan naar de TikTok-inbox van de maker, of rechtstreeks naar het profiel met TikTok postMode direct_post."
       },
       {
         "name": "LinkedIn",
         "rule": "Tekst, enkele afbeelding, enkele video, of organische posts met meerdere afbeeldingen tot 20 afbeeldingen. Richt je op het verbonden Profiel of een beheerde Pagina."
+      },
+      {
+        "name": "X",
+        "rule": "Tekst, tot vier afbeeldingen, één GIF of één video. Antwoordinstellingen gelden per post en publiceren wordt geblokkeerd zodra het X-kostenbudget van de workspace op is."
       }
     ]
   },

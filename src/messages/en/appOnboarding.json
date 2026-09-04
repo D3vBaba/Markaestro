@@ -1,23 +1,23 @@
 {
   "questionCounter": "Question {current} / {total}",
-  "signOut": "Sign out",
-  "signIn": "Sign in",
+  "signOut": "Sign Out",
+  "signIn": "Sign In",
   "back": "← Back",
   "continue": "Continue",
-  "skipForNow": "Skip for now",
+  "skipForNow": "Skip for Now",
   "takes2Minutes": "Takes 2 minutes · No card required",
   "quiz": {
     "marketing": {
-      "eyebrow": "Let's build your engine",
+      "eyebrow": "Let's Build Your Engine",
       "title": "What are you marketing?",
       "subtitle": "Markaestro adapts to whatever you're growing.",
       "options": {
         "product": {
-          "label": "An app or product",
+          "label": "An App or Product",
           "desc": "Software, e-commerce, or something you've built"
         },
         "business": {
-          "label": "A business",
+          "label": "A Business",
           "desc": "A company, shop, or local service"
         },
         "personal": {
@@ -31,7 +31,7 @@
       }
     },
     "role": {
-      "eyebrow": "Your seat",
+      "eyebrow": "Your Seat",
       "title": "What's your role?",
       "subtitle": "We'll tailor everything to how you actually work.",
       "options": {
@@ -54,11 +54,11 @@
       }
     },
     "teamSize": {
-      "eyebrow": "Your team",
+      "eyebrow": "Your Team",
       "title": "Who's behind the posting?",
       "options": {
         "solo": {
-          "label": "Just me",
+          "label": "Just Me",
           "desc": "And honestly, it's a lot"
         },
         "small": {
@@ -76,26 +76,26 @@
       }
     },
     "goal": {
-      "eyebrow": "The mission",
+      "eyebrow": "The Mission",
       "title": "What are you really after?",
       "subtitle": "It shapes your setup and the plan we recommend.",
       "options": {
         "social": {
-          "label": "Grow my following",
+          "label": "Grow My Following",
           "desc": "More reach, more engagement"
         },
         "sales": {
-          "label": "Drive more sales",
+          "label": "Drive More Sales",
           "desc": "Turn posts into pipeline"
         },
         "time": {
-          "label": "Win back my time",
+          "label": "Win Back My Time",
           "desc": "Stop drowning in content"
         }
       }
     },
     "channels": {
-      "eyebrow": "Your stage",
+      "eyebrow": "Your Stage",
       "title": "Where does your audience live?",
       "subtitle": "Pick all that apply. You'll publish to each in one click.",
       "options": {
@@ -123,35 +123,35 @@
       }
     },
     "postingToday": {
-      "eyebrow": "Be honest",
+      "eyebrow": "Be Honest",
       "title": "How are you posting today?",
       "subtitle": "Most teams tell us this is the painful part.",
       "options": {
         "manual": {
-          "label": "Manually in each app",
+          "label": "Manually in Each App",
           "desc": "Logging in everywhere, one by one"
         },
         "spreadsheet": {
-          "label": "Spreadsheets & reminders",
+          "label": "Spreadsheets & Reminders",
           "desc": "Sticky notes and hope"
         },
         "tool": {
-          "label": "Another scheduling tool",
+          "label": "Another Scheduling Tool",
           "desc": "One I've quietly outgrown"
         },
         "starting": {
-          "label": "Barely posting at all",
+          "label": "Barely Posting at All",
           "desc": "No real system yet"
         }
       }
     },
     "frequency": {
-      "eyebrow": "The cadence you want",
+      "eyebrow": "The Cadence You Want",
       "title": "How often do you want to show up?",
       "subtitle": "We'll keep you on schedule automatically.",
       "options": {
         "daily": {
-          "label": "Every day",
+          "label": "Every Day",
           "desc": "Stay top of mind"
         },
         "few": {
@@ -159,64 +159,64 @@
           "desc": "Steady wins the race"
         },
         "weekly": {
-          "label": "About once a week",
+          "label": "About Once a Week",
           "desc": "Quality over noise"
         },
         "unsure": {
-          "label": "Not sure yet",
+          "label": "Not Sure Yet",
           "desc": "Tell me what actually works"
         }
       }
     },
     "challenge": {
-      "eyebrow": "The real problem",
+      "eyebrow": "The Real Problem",
       "title": "What keeps tripping you up?",
       "subtitle": "This is the thing we're going to fix for you.",
       "options": {
         "consistency": {
-          "label": "Staying consistent",
+          "label": "Staying Consistent",
           "desc": "I start strong, then go quiet"
         },
         "time": {
-          "label": "Finding the time",
+          "label": "Finding the Time",
           "desc": "There's never enough of it"
         },
         "ideas": {
-          "label": "Coming up with content",
+          "label": "Coming Up with Content",
           "desc": "I keep running dry on ideas"
         },
         "juggling": {
-          "label": "Juggling channels",
+          "label": "Juggling Channels",
           "desc": "Too many platforms to keep up with"
         }
       }
     },
     "contentTypes": {
-      "eyebrow": "Your voice",
+      "eyebrow": "Your Voice",
       "title": "What do you want to post?",
       "subtitle": "Pick all that apply. We'll help you fill the calendar.",
       "options": {
         "product": {
-          "label": "Product & promotions"
+          "label": "Product & Promotions"
         },
         "educational": {
-          "label": "Tips & education"
+          "label": "Tips & Education"
         },
         "bts": {
-          "label": "Behind the scenes"
+          "label": "Behind the Scenes"
         },
         "news": {
-          "label": "News & updates"
+          "label": "News & Updates"
         }
       }
     },
     "hoursPerWeek": {
-      "eyebrow": "The hidden cost",
+      "eyebrow": "The Hidden Cost",
       "title": "How many hours a week vanish into this?",
       "subtitle": "Be honest, it's almost always more than it feels.",
       "options": {
         "lt2": {
-          "label": "Under 2 hours"
+          "label": "Under 2 Hours"
         },
         "2to5": {
           "label": "2–5 hours"
@@ -277,28 +277,28 @@
   },
   "marketingCopy": {
     "product": {
-      "eyebrow": "Your product",
-      "title": "Add the product you're marketing",
+      "eyebrow": "Your Product",
+      "title": "Add the Product You're Marketing",
       "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now. You can always do it later."
     },
     "business": {
-      "eyebrow": "Your business",
-      "title": "Add the business you're marketing",
+      "eyebrow": "Your Business",
+      "title": "Add the Business You're Marketing",
       "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now. You can always do it later."
     },
     "personal": {
-      "eyebrow": "Your brand",
-      "title": "Set up your personal brand",
+      "eyebrow": "Your Brand",
+      "title": "Set Up Your Personal Brand",
       "sub": "Have a website or portfolio? Scan it to auto-fill. No site? Enter your details manually. It takes a minute."
     },
     "clients": {
-      "eyebrow": "Your first client",
-      "title": "Add your first client's brand",
+      "eyebrow": "Your First Client",
+      "title": "Add Your First Client's Brand",
       "sub": "Start with one client: scan their website to auto-fill, or enter the details manually. You can add more brands anytime."
     },
     "fallback": {
-      "eyebrow": "Your brand",
-      "title": "Add the brand you're marketing",
+      "eyebrow": "Your Brand",
+      "title": "Add the Brand You're Marketing",
       "sub": "Scan your website to auto-fill the details, add it manually, or skip this for now. You can always do it later."
     }
   },
@@ -320,17 +320,17 @@
     "contact": "Contact",
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
-    "getStarted": "Get Started",
-    "signIn": "Sign In",
-    "createAccount": "Create Account",
+    "getStarted": "Get started",
+    "signIn": "Sign in",
+    "createAccount": "Create account",
     "copyright": "© {year} Markaestro. All rights reserved.",
     "terms": "Terms",
     "privacy": "Privacy"
   },
   "register": {
     "yourPlanIsReady": "Your plan is ready",
-    "titleEmail": "Save your plan & claim your time back",
-    "titleCode": "Check your inbox",
+    "titleEmail": "Save Your Plan & Claim Your Time Back",
+    "titleCode": "Check Your Inbox",
     "subtitleEmail": "No password needed. Enter your email and we'll send a one-time code. Already have an account? The same code signs you in.",
     "subtitleCode": "We sent a 6-digit code to {email}.",
     "waitingInWorkspace": "Waiting in your workspace",
@@ -363,8 +363,8 @@
     }
   },
   "product": {
-    "scanWebsite": "Scan a website",
-    "enterManually": "Enter manually",
+    "scanWebsite": "Scan a Website",
+    "enterManually": "Enter Manually",
     "websiteUrl": "Website URL",
     "urlPlaceholder": "yourbrand.com",
     "scanning": "Scanning…",
@@ -372,11 +372,11 @@
     "scan": "Scan",
     "scanHelp": "We read your site and fill in the name, description, logo, and brand colours.",
     "autoDetected": "Auto-detected",
-    "brandName": "Brand name",
+    "brandName": "Brand Name",
     "description": "Description",
-    "targetAudience": "Target audience",
+    "targetAudience": "Target Audience",
     "targetAudiencePlaceholder": "e.g. B2B SaaS founders",
-    "brandTone": "Brand tone",
+    "brandTone": "Brand Tone",
     "brandTonePlaceholder": "e.g. bold, direct",
     "brandColorDetected": "Brand colour detected:",
     "manualBrandNamePlaceholder": "e.g. Acme CRM",
@@ -387,36 +387,36 @@
     "couldntSaveBrand": "Couldn't save your brand. You can add it later from the dashboard."
   },
   "socials": {
-    "connectYourAccounts": "Connect your accounts",
-    "addSocialAccounts": "Add your social accounts",
+    "connectYourAccounts": "Connect Your Accounts",
+    "addSocialAccounts": "Add Your Social Accounts",
     "subtitle": "Connect the platforms you want to post to. You can always add or change this from your settings later.",
     "connected": "Connected",
     "connect": "Connect",
     "redirecting": "Redirecting…",
     "otherChannelsNote": "TikTok, Threads, and Pinterest can be connected per-brand from your dashboard.",
-    "skipAndContinue": "Skip and continue",
+    "skipAndContinue": "Skip and Continue",
     "couldNotInitiate": "Could not initiate connection. Please try again.",
     "connectedToast": "{label} connected",
     "connectFailedToast": "Failed to connect {provider}"
   },
   "generating": {
-    "title": "Preparing your workspace",
+    "title": "Preparing Your Workspace",
     "subtitle": "Setting up your dashboard around {challenge}, the problem you came here to solve.",
     "takesAMoment": "This takes just a moment"
   },
   "paywall": {
-    "youllGetBackPrefix": "You'll get back about",
+    "youllGetBackPrefix": "You'll Get Back About",
     "hoursAWeek": "hours a week",
     "startTrialSuffix": "Start your {days}-day free trial to publish, and everything else you create.",
     "firstPostReady": "Your workspace is ready inside your dashboard.",
-    "subscribeToPublish": "Subscribe to publish",
+    "subscribeToPublish": "Subscribe to Publish",
     "postReadyOneStepAway": "Your workspace is ready. One step away",
     "justNow": "Just now",
     "like": "Like",
     "comment": "Comment",
     "share": "Share",
-    "recommendedForYou": "Recommended for you",
-    "basedOnAnswers": "Based on your answers",
+    "recommendedForYou": "Recommended for You",
+    "basedOnAnswers": "Based on Your Answers",
     "monthly": "Monthly",
     "annual": "Annual",
     "saveAnnual": "· save 17%",
@@ -429,7 +429,7 @@
     "billedAnnually": ", billed annually",
     "annualSavingsNote": "Annual billing saves you 17% compared to monthly",
     "settingUp": "Setting up…",
-    "startTrialButton": "Start {days}-Day Free Trial: {plan}",
+    "startTrialButton": "Start {days}-day Free Trial: {plan}",
     "cardRequired": "Card required · Cancel anytime before the trial ends",
     "checkoutFailed": "Failed to start checkout. Please try again.",
     "checkoutSignedOut": "Your session ended. Sign in again to start your trial.",

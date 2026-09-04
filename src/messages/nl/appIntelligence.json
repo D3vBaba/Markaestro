@@ -355,7 +355,7 @@
     "engagements": "Interacties",
     "conversions": "Conversies",
     "engagementRate": "Betrokkenheidspercentage",
-    "perPost": "per post"
+    "perPost": "Per post"
   },
   "platforms": {
     "title": "Platformprestaties",
@@ -413,7 +413,7 @@
     "observations": "{count} posts",
     "liftUp": "+{value}% t.o.v. je gemiddelde",
     "liftDown": "{value}% t.o.v. je gemiddelde",
-    "estimate": "ongeveer {value} {metric} per post",
+    "estimate": "Ongeveer {value} {metric} per post",
     "timezone": "Tijden in {timeZone}",
     "accountMean": "Je gemiddelde: {value} {metric} per post"
   },
@@ -788,16 +788,16 @@
     "quota": "Je Ask Markaestro-beurten voor deze maand zijn op. Probeer volgende maand of upgrade.",
     "unavailable": "Ask Markaestro is nog niet beschikbaar voor deze werkruimte.",
     "tools": {
-      "audience_performance": "doelgroepmomentopnames",
-      "audience_alignment": "doelgroep-afstemming",
-      "top_posts": "topposts op weergaven",
-      "pillar_performance": "prestaties per contentpijler",
-      "hook_performance": "prestaties per openingszin",
-      "timing_performance": "prestaties per weekdag en uur",
-      "drift": "verschuivingen in de doelgroep",
-      "learnings": "inzichten uit het draaiboek",
+      "audience_performance": "Doelgroepmomentopnames",
+      "audience_alignment": "Doelgroep-afstemming",
+      "top_posts": "Topposts op weergaven",
+      "pillar_performance": "Prestaties per contentpijler",
+      "hook_performance": "Prestaties per openingszin",
+      "timing_performance": "Prestaties per weekdag en uur",
+      "drift": "Verschuivingen in de doelgroep",
+      "learnings": "Inzichten uit het draaiboek",
       "campaigns": "campagnes",
-      "platform_comparisons": "vergelijking per platform",
+      "platform_comparisons": "Vergelijking per platform",
       "experiments": "experimenten"
     },
     "examples": [

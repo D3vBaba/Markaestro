@@ -158,10 +158,10 @@ export default function DevelopersApiPage() {
             className="mt-8 rounded-xl border p-5"
             style={{ borderColor: "var(--mk-accent)", background: "var(--mk-accent-soft)" }}
           >
-            <p className="text-sm font-semibold" style={{ color: "var(--mk-accent)" }}>
+            <p className="text-sm font-semibold text-mk-accent">
               {t("hero.agentCallout.title")}
             </p>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed" style={{ color: "var(--mk-ink-80)" }}>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-mk-ink-80">
               {t.rich("hero.agentCallout.body", {
                 agentLink: (chunks) => <Link href="/developers/agents" className="underline underline-offset-2">{chunks}</Link>,
                 llmsLink: (chunks) => <a href="/llms.txt" className="underline underline-offset-2">{chunks}</a>,
@@ -170,8 +170,7 @@ export default function DevelopersApiPage() {
           </div>
 
           <div
-            className="mt-4 rounded-xl border p-5"
-            style={{ borderColor: "var(--mk-rule)" }}
+            className="mt-4 rounded-xl border p-5 border-border"
           >
             <p className="text-sm font-semibold">{t("specCallout.title")}</p>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">

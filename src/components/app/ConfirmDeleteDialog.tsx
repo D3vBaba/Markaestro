@@ -72,7 +72,7 @@ export default function ConfirmDeleteDialog({
           <DialogTitle>
             {name ? t("titleNamed", { entity: entityLabel }) : t("titleGeneric", { entity: entityLabel })}
           </DialogTitle>
-          <DialogDescription className="pt-1 leading-relaxed">
+          <DialogDescription>
             {name ? (
               t.rich("descriptionNamed", {
                 name: () => <span className="font-semibold text-foreground">{name}</span>,
@@ -84,7 +84,7 @@ export default function ConfirmDeleteDialog({
         </DialogHeader>
 
         {warning && (
-          <p className="text-sm text-destructive/90 bg-destructive/5 border border-destructive/10 rounded-lg px-3 py-2.5 leading-relaxed">
+          <p className="m-0 rounded-lg bg-mk-neg-soft px-3 py-2.5 text-[13px] leading-5 text-mk-neg">
             {warning}
           </p>
         )}
@@ -121,7 +121,7 @@ export default function ConfirmDeleteDialog({
             onClick={handleConfirm}
             disabled={loading || !typedMatch}
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin me-1.5" />}
+            {loading && <Loader2 className="size-4 animate-spin me-1.5" />}
             {confirmLabel || t("deleteDefault")}
           </Button>
         </DialogFooter>

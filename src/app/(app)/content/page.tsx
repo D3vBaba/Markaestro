@@ -1,56 +1,38 @@
 "use client";
 
 import { useState, useEffect, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/app/PageHeader";
 import BrandSwitcher from "@/components/app/BrandSwitcher";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import Select from "@/components/app/Select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiGet, getApiWorkspaceId, subscribeApiWorkspaceId } from "@/lib/api-client";
 import CreateTab from "./_components/CreateTab";
 import DraftsTab from "./_components/DraftsTab";
 import ScheduledTab from "./_components/ScheduledTab";
 import PublishedTab from "./_components/PublishedTab";
 import PlatformPostsTab from "./_components/PlatformPostsTab";
-import EvergreenTab from "./_components/EvergreenTab";
 
 const STORAGE_KEY = "markaestro_default_product";
 
 type Product = { id: string; name: string };
 
-const TAB_IDS = ["create", "drafts", "scheduled", "published", "evergreen", "on-platform"] as const;
-
-// ── Persistent product context bar ───────────────────────────────────────────
-
-function ProductContextBar({
-  products,
-  productId,
-  onChange,
-}: {
-  products: Array<{ id: string; name: string }>;
-  productId: string;
-  onChange: (id: string) => void;
-}) {
-  const t = useTranslations("content.page.productBar");
-  return (
-    <BrandSwitcher
-      label={t("brand")}
-      emptyLabel={t("noBrandSelected")}
-      products={products}
-      value={productId}
-      onChange={onChange}
-    />
-  );
-}
+const TAB_IDS = ["create", "drafts", "scheduled", "published", "on-platform"] as const;
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function PostsPage() {
   const t = useTranslations("content.page");
+  const tBar = useTranslations("content.page.productBar");
   const tabs = TAB_IDS.map((value) => ({
     value,
     label: t(`tabs.${value === "on-platform" ? "onPlatform" : value}`),
   }));
+  const router = useRouter();
+  // Evergreen moved to its own page; keep the old tab link working.
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tab") === "evergreen") router.replace("/evergreen");
+  }, [router]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window === "undefined") return "create";
@@ -105,46 +87,27 @@ export default function PostsPage() {
       <PageHeader
         title={t("title")}
         subtitle={t("subtitle")}
+        action={
+          <BrandSwitcher
+            label={tBar("brand")}
+            emptyLabel={tBar("noBrandSelected")}
+            products={products}
+            value={productId}
+            onChange={handleProductChange}
+          />
+        }
       />
 
-      {/* Persistent product context */}
-      <ProductContextBar
-        products={products}
-        productId={productId}
-        onChange={handleProductChange}
-      />
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 min-w-0 w-full">
-        {/* Mobile + Tablet: dropdown select */}
-        <div className="lg:hidden">
-          <Select value={activeTab} onChange={(e) => setActiveTab(e.target.value)}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0 gap-6">
+        {/* One scrollable underline row on every width; the active tab stays in view. */}
+        <div className="-mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
+          <TabsList variant="line" className="scrollbar-hide w-full overflow-x-auto">
             {tabs.map((tab) => (
-              <option key={tab.value} value={tab.value}>
+              <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.label}
-              </option>
+              </TabsTrigger>
             ))}
-          </Select>
-        </div>
-
-        {/* Desktop: tab bar */}
-        <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 w-fit">
-          {tabs.map((tab) => {
-            const active = activeTab === tab.value;
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => setActiveTab(tab.value)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                  active
-                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+          </TabsList>
         </div>
 
         <TabsContent value="create" className="mt-0">
@@ -172,10 +135,6 @@ export default function PostsPage() {
 
         <TabsContent value="published" className="mt-0">
           <PublishedTab key={workspaceId} refreshKey={refreshKey} productId={productId} onCreatePost={goToCreate} />
-        </TabsContent>
-
-        <TabsContent value="evergreen" className="mt-0">
-          <EvergreenTab key={workspaceId} productId={productId} />
         </TabsContent>
 
         <TabsContent value="on-platform" className="mt-0">

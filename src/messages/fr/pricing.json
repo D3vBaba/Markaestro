@@ -30,43 +30,41 @@
       ]
     },
     "starter": {
-      "description": "Pour les indépendants du marketing qui publient sur Meta et TikTok.",
+      "description": "Pour les marketeurs solo qui planifient sur toutes les plateformes.",
       "features": [
-        "5 canaux sociaux",
-        "Publications illimitées",
-        "10 Go de stockage",
-        "1 membre d'équipe",
+        "2 marques sur les 7 plateformes",
+        "Jusqu'à 8 canaux par marque",
+        "Publications planifiées illimitées",
         "Calendrier de contenu",
-        "1 espace de travail",
-        "Voix de marque (1 profil)",
-        "Analyses (fenêtre de 7 jours)"
+        "Voix de marque par marque",
+        "10 Go de stockage",
+        "API de publication complète",
+        "Analytics (fenêtre de 30 jours)"
       ]
     },
     "pro": {
-      "description": "Pour les équipes en croissance qui ont besoin de collaboration et de programmation.",
+      "description": "Pour les équipes en croissance qui gèrent plusieurs marques.",
       "features": [
-        "15 canaux sociaux",
-        "Publications illimitées",
-        "100 Go de stockage",
-        "5 membres d'équipe",
+        "6 marques",
+        "5 membres d'équipe avec rôles",
         "5 espaces de travail",
-        "Voix de marque + identité de marque",
-        "Programmation intelligente",
-        "Analyses (fenêtre de 90 jours)",
-        "Support prioritaire"
+        "Recommandations des meilleurs horaires",
+        "Voix de marque + identité de marque (logo et couleurs)",
+        "100 Go de stockage",
+        "Analytics (fenêtre de 1 an)",
+        "Support prioritaire",
+        "10 files Intelligent Evergreen par marque"
       ]
     },
     "business": {
-      "description": "Pour les agences qui gèrent plusieurs marques à grande échelle.",
+      "description": "Pour les agences qui gèrent de nombreuses marques à grande échelle.",
       "features": [
-        "50 canaux sociaux",
-        "Publications illimitées",
+        "20 marques",
+        "Membres d'équipe et espaces de travail illimités",
         "Stockage illimité",
-        "Membres d'équipe illimités",
-        "Tout ce qui est inclus dans Pro",
-        "Espaces de travail illimités",
-        "Historique d'analyses illimité + export CSV",
-        "Support prioritaire"
+        "Historique analytics illimité + export CSV",
+        "Support prioritaire",
+        "Files Intelligent Evergreen illimitées"
       ]
     }
   },
@@ -92,19 +90,22 @@
         "name": "Publication",
         "features": [
           {
-            "name": "Canaux sociaux"
+            "name": "Marques"
           },
           {
-            "name": "Publications par mois"
+            "name": "Canaux par marque"
+          },
+          {
+            "name": "Plateformes (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)"
+          },
+          {
+            "name": "Publications planifiées"
           },
           {
             "name": "Calendrier de contenu"
           },
           {
-            "name": "Programmation en masse"
-          },
-          {
-            "name": "Programmation intelligente"
+            "name": "Recommandations des meilleurs horaires"
           }
         ]
       },
@@ -196,7 +197,7 @@
     },
     {
       "q": "Qu'est-ce qui compte comme « canal social » ?",
-      "a": "Chaque compte social connecté compte comme un canal. Par exemple, une page Facebook, un compte professionnel Instagram et un compte TikTok représenteraient 3 canaux."
+      "a": "Chaque compte social connecté compte pour un canal. Par exemple, une page Facebook, un compte Instagram et un compte TikTok font 3 canaux. Les forfaits payants autorisent jusqu'à 8 canaux par marque."
     },
     {
       "q": "Comment fonctionne le stockage ?",
@@ -216,7 +217,7 @@
     },
     {
       "q": "Mon agent IA ou mon propre logiciel peut-il utiliser Markaestro ?",
-      "a": "Oui, sur tous les forfaits et sans coût supplémentaire. Tout administrateur d'espace de travail peut générer des clés API depuis Paramètres → API et en confier une à un agent IA, un script ou un outil de programmation externe. Chaque clé est limitée à une seule marque, ne comporte que les permissions cochées, et peut avoir une date d'expiration. Consultez le guide pour agents IA pour les définitions d'outils et un démarrage rapide en quatre commandes."
+      "a": "Oui, sur tous les forfaits payants sans coût supplémentaire. Tout administrateur d'espace de travail peut générer des clés API dans Paramètres → API et en confier une à un agent IA, un script ou un outil de planification du marché. Chaque clé est liée à une seule marque, ne porte que les portées que vous cochez et peut avoir une date d'expiration. Les clients MCP comme Claude Code peuvent se connecter via le navigateur. Consultez le guide des agents IA pour les définitions d'outils et un démarrage rapide en quatre commandes."
     },
     {
       "q": "Proposez-vous des réductions pour les associations ou les startups ?",

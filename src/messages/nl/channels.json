@@ -6,9 +6,21 @@
     "subtitle": "Verbind één keer en publiceer naar elk groot platform. Markaestro regelt de API-verschillen, tekenlimieten en mediavereisten, zodat jij je kunt richten op de boodschap."
   },
   "stats": [
-    { "value": "6", "label": "Sociale Kanalen", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
-    { "value": "1", "label": "Dashboard", "sub": "Gecombineerde publicatieworkflow" },
-    { "value": "0", "label": "Handmatige Tokens", "sub": "Volledig OAuth, volledig geautomatiseerd" }
+    {
+      "value": "7",
+      "label": "Sociale Kanalen",
+      "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest, X"
+    },
+    {
+      "value": "1",
+      "label": "Dashboard",
+      "sub": "Gecombineerde publicatieworkflow"
+    },
+    {
+      "value": "0",
+      "label": "Handmatige Tokens",
+      "sub": "Volledig OAuth, volledig geautomatiseerd"
+    }
   ],
   "channels": [
     {
@@ -16,39 +28,39 @@
       "category": "Sociaal",
       "description": "Bereik miljarden mensen op 's werelds grootste sociale netwerk. Publiceer naar Pagina's en beheer feedposts met volledige creatieve controle.",
       "capabilities": [
-        "Pagina-feedposts met rijke media",
-        "Linkposts met voorbeeldkaarten",
+        "Paginaposts met rijke media",
+        "Posts met alleen tekst",
         "Foto- en videopublicatie",
-        "Carrousel- en meerdere-afbeeldingenposts",
-        "Plannen voor optimale betrokkenheid",
-        "Targeting per pagina, per merk"
+        "Carrousels en posts met meerdere afbeeldingen tot 10 items",
+        "Inplannen vanuit de gedeelde kalender",
+        "Eén pagina per merk"
       ],
       "connection": "OAuth via Meta Business Suite"
     },
     {
       "name": "Instagram",
       "category": "Sociaal",
-      "description": "Publiceer rechtstreeks vanuit Markaestro naar zakelijke Instagram-accounts. Feedposts, carrousels en Verhalen met automatisch geformatteerde media voor elke plaatsing.",
+      "description": "Publiceer rechtstreeks vanuit Markaestro op professionele Instagram-accounts. Feedposts, carrousels, Reels en Stories via de officiële API.",
       "capabilities": [
-        "Feedposts met enkele afbeelding of video",
-        "Carrouselposts (tot 10 dia's)",
-        "Automatisch bijsnijden naar 1:1- en 4:5-verhoudingen",
-        "Onderschrift met hashtagoptimalisatie",
-        "Plannen op de beste momenten voor betrokkenheid",
-        "Instagram-login voor zelfstandige zakelijke accounts"
+        "Feedposts met één afbeelding of video",
+        "Carrouselposts (tot 10 slides)",
+        "Losse video's worden als Reels gepubliceerd",
+        "Stories met één afbeelding of video",
+        "Inplannen vanuit de gedeelde kalender",
+        "Instagram-login voor losse professionele accounts"
       ],
-      "connection": "OAuth via Instagram Login or Meta Login"
+      "connection": "OAuth via Instagram-login"
     },
     {
       "name": "TikTok",
       "category": "Sociaal",
-      "description": "Bereik Gen Z en meer op het snelst groeiende kortevideoplatform. Markaestro stuurt foto's en video's door naar de TikTok-inbox van de maker en houdt bij wanneer ze klaar zijn voor definitieve afronding op TikTok.",
+      "description": "Bereik Gen Z en verder op het snelst groeiende korte-videoplatform. Standaard geeft Markaestro foto's en video's door aan de TikTok-inbox van de maker om af te ronden en te plaatsen; Direct Post naar het profiel is per post beschikbaar.",
       "capabilities": [
-        "Overdracht van video's en foto's naar de inbox",
-        "Afronding door de maker binnen TikTok",
-        "Geplande levering naar de TikTok-inbox",
+        "Video- en fotoposts",
+        "Standaard overdracht naar de inbox, Direct Post per post",
+        "Geplande aflevering in TikTok",
         "Snelle statuscontrole na overdracht",
-        "Statusbewaking binnen Markaestro"
+        "Statusweergave in Markaestro"
       ],
       "connection": "OAuth via TikTok for Developers"
     },
@@ -85,7 +97,7 @@
       "category": "Ontdekking",
       "description": "Pin je afbeeldingen en video's op een bord dat je kiest bij het verbinden. Je onderschrift wordt de pinbeschrijving, en alles wordt gepubliceerd via de officiële Pinterest-API.",
       "capabilities": [
-        "Afbeeldingspins",
+        "Afbeeldingspins en carrousels tot 5 afbeeldingen",
         "Videopins met uploadstatuscontrole",
         "Bord gekozen op moment van verbinding",
         "Onderschrift wordt de pinbeschrijving",
@@ -93,6 +105,20 @@
         "Plannen vanuit de gedeelde kalender"
       ],
       "connection": "OAuth via Pinterest"
+    },
+    {
+      "name": "X",
+      "category": "Sociaal",
+      "description": "Post op X vanuit dezelfde composer als elk ander kanaal. Tekst, afbeeldingen, GIF's en video gaan via de officiële X-API, met antwoordinstellingen per post en live statistieken die terugkomen in Analytics.",
+      "capabilities": [
+        "Tekstposts tot 280 tekens",
+        "Tot vier afbeeldingen, één GIF of één video",
+        "Antwoordinstellingen per post",
+        "Live poststatistieken en accountbereik",
+        "Uitgavenbescherming voor de X-API per workspace",
+        "Inplannen vanuit de gedeelde kalender"
+      ],
+      "connection": "OAuth via X"
     }
   ],
   "capabilitiesLabel": "Mogelijkheden",
@@ -101,9 +127,21 @@
     "titleLead": "Verbonden in",
     "titleHighlight": "drie stappen",
     "steps": [
-      { "step": "01", "title": "Verbinden", "desc": "Klik op 'Verbinden' bij elk kanaal. Autoriseer via OAuth. Markaestro slaat je tokens veilig op en vernieuwt ze automatisch." },
-      { "step": "02", "title": "Aanmaken", "desc": "Schrijf je content in de gecombineerde editor. Bekijk het voorbeeld op elk platform voordat je publiceert." },
-      { "step": "03", "title": "Publiceren", "desc": "Klik op publiceren of plan het voor later in. Markaestro regelt opmaak, mediaspecificaties en API-aanroepen voor elk kanaal." }
+      {
+        "step": "01",
+        "title": "Verbinden",
+        "desc": "Klik op 'Verbinden' bij elk kanaal. Autoriseer via OAuth. Markaestro slaat je tokens veilig op en vernieuwt ze automatisch."
+      },
+      {
+        "step": "02",
+        "title": "Aanmaken",
+        "desc": "Schrijf je content in de gecombineerde editor. Bekijk het voorbeeld op elk platform voordat je publiceert."
+      },
+      {
+        "step": "03",
+        "title": "Publiceren",
+        "desc": "Klik op publiceren of plan het voor later in. Markaestro regelt opmaak, mediaspecificaties en API-aanroepen voor elk kanaal."
+      }
     ]
   },
   "cta": {

@@ -110,5 +110,17 @@
       "fallbackInviter": "Ein Teammitglied",
       "summary": "{inviter} hat dich eingeladen, {workspaceName} auf Markaestro {roleLabel} beizutreten. Akzeptiere, indem du dich unter {url} anmeldest"
     }
+  },
+  "intelligenceDigest": {
+    "subject": "Your week on Markaestro",
+    "preheader": "This week against last week, and the one move to make next.",
+    "intro": "Here is how each brand did this week compared with last week, with the next move Markaestro suggests.",
+    "posts": "Posts",
+    "views": "Views",
+    "engagements": "Engagements",
+    "move": "Next move:",
+    "window": "Best window:",
+    "cta": "Open Intelligence",
+    "footerNote": "You receive this weekly summary because you are an owner or admin of this workspace."
   }
 }

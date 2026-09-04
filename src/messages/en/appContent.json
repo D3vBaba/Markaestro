@@ -28,11 +28,11 @@
     "audience": "Audience:"
   },
   "markPostedDialog": {
-    "title": "Mark as posted",
+    "title": "Mark as Posted",
     "description": "Confirm you published this post on {channel} yourself. Paste the link to the live post if you have it. It connects the post to its analytics later.",
     "urlPlaceholder": "https://www.{channel}.com/… (optional)",
     "cancel": "Cancel",
-    "confirm": "Mark as posted",
+    "confirm": "Mark as Posted",
     "toasts": {
       "marked": "Marked as posted",
       "failed": "Failed to mark as posted"
@@ -40,7 +40,7 @@
   },
   "publishedTab": {
     "empty": "No published posts yet.",
-    "createPost": "Create a post",
+    "createPost": "Create a Post",
     "toasts": {
       "deleted": "Post deleted",
       "deleteFailed": "Failed to delete post",
@@ -50,29 +50,28 @@
   "evergreenTab": {
     "title": "Intelligent Evergreen",
     "description": "Turn proven posts into governed, measurable queues. Markaestro preserves the source, creates a new occurrence for each run, and pauses weak sequences automatically.",
-    "newQueue": "New queue",
+    "newQueue": "New Queue",
     "selectBrand": "Select a brand to manage its evergreen queues.",
     "loading": "Loading evergreen queues...",
     "loadFailed": "Could not load evergreen queues",
-    "sourcePost": "Proven source post",
-    "choosePost": "Choose a published post",
-    "queueName": "Queue name",
+    "sourcePost": "Proven Source Post",
+    "choosePost": "Choose a Published Post",
+    "queueName": "Queue Name",
     "defaultName": "{channel} evergreen queue",
     "variant": "Caption variant",
     "variants": "Caption variants",
     "variantNumber": "Caption variant {number}",
     "addVariant": "Add variant",
     "removeVariant": "Remove",
-    "interval": "Minimum days between runs",
-    "reviewPolicy": "Approval policy",
-    "approveFuture": "Approve future runs now",
-    "reviewEach": "Review every occurrence",
-    "eligible": "Eligible evidence found",
-    "notEligible": "Not eligible yet",
+    "interval": "Minimum Days Between Runs",
+    "reviewPolicy": "Approval Policy",
+    "approveFuture": "Approve Future Runs Now",
+    "reviewEach": "Review Every Occurrence",
+    "eligible": "Eligible Evidence Found",
+    "notEligible": "Not Eligible Yet",
     "previewFailed": "Could not check this post",
     "cancel": "Cancel",
     "saving": "Creating...",
-    "create": "Create queue",
     "created": "Evergreen queue created",
     "createFailed": "Could not create the queue",
     "actionFailed": "Could not update the queue",
@@ -87,13 +86,13 @@
       "loading": "Loading queue performance...",
       "loadFailed": "Could not load queue performance",
       "unavailable": "Not available",
-      "views": "Lifetime views",
+      "views": "Lifetime Views",
       "engagements": "Engagements",
-      "trackedClicks": "Tracked clicks",
+      "trackedClicks": "Tracked Clicks",
       "conversions": "Conversions",
-      "measured": "Measured runs",
-      "needsReview": "Needs review",
-      "recentRuns": "Recent runs",
+      "measured": "Measured Runs",
+      "needsReview": "Needs Review",
+      "recentRuns": "Recent Runs",
       "noRuns": "No occurrences have been created yet.",
       "noOutcome": "Awaiting a mature performance result"
     },
@@ -112,7 +111,110 @@
       "pauseSuccess": "Queue paused",
       "resumeSuccess": "Queue resumed",
       "archiveSuccess": "Queue archived"
-    }
+    },
+    "picker": {
+      "search": "Search Published Posts",
+      "filters": {
+        "suggested": "Suggested",
+        "eligible": "Ready",
+        "all": "All Published"
+      },
+      "suggested": "Suggested",
+      "notReady": "Not ready",
+      "mediaOnly": "Media Only",
+      "engagements": "Engagements",
+      "views": "Views",
+      "rate": "Rate",
+      "noSuggested": "No standout posts yet. Posts need seven days of measured results before they can be suggested.",
+      "noMatches": "No published posts match.",
+      "reasons": {
+        "SOURCE_NOT_PUBLISHED": "Not published yet",
+        "SOURCE_PUBLISH_DATE_MISSING": "Publish date unknown",
+        "SOURCE_METRICS_IMMATURE": "Published less than seven days ago",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "No measured views or engagement yet",
+        "SOURCE_HAS_NO_CHANNEL": "No channel on this post"
+      }
+    },
+    "sourceHint": "Pick the post this queue repeats. Suggested posts earned the most from their audience and are at least a week old.",
+    "selectedSource": "Selected Post",
+    "changeSource": "Change",
+    "pageTitle": "Evergreen",
+    "pageSubtitle": "Repeat what already worked. Proven posts come back on a schedule, with fresh captions, and pause themselves when they stop earning.",
+    "summary": {
+      "title": "What Evergreen earned",
+      "window": "Last {days} days",
+      "occurrences": "Reposts published",
+      "views": "Views",
+      "engagements": "Engagements",
+      "clicks": "Tracked clicks",
+      "conversions": "Conversions",
+      "perPost": "Per repost vs per fresh post",
+      "evergreenLabel": "Evergreen",
+      "freshLabel": "Fresh posts",
+      "empty": "No reposts have published in this window yet."
+    },
+    "suggestions": {
+      "title": "Worth repeating",
+      "subtitle": "Your strongest measured posts that are not in a queue yet.",
+      "make": "Make evergreen",
+      "empty": "Nothing to suggest yet. Posts need seven days of measured results first."
+    },
+    "reviews": {
+      "title": "Waiting for your review",
+      "subtitle": "Occurrences from queues that review every run.",
+      "approve": "Approve",
+      "skip": "Skip",
+      "edit": "Edit in Drafts",
+      "plannedFor": "Planned for {date}",
+      "approved": "Occurrence scheduled",
+      "skipped": "Occurrence skipped",
+      "failed": "Could not update this occurrence",
+      "empty": "Nothing is waiting for review."
+    },
+    "queues": {
+      "title": "Your queues",
+      "upcoming": "Next runs",
+      "cadence": {
+        "fixed": "Fixed cadence",
+        "adaptive": "Adaptive cadence"
+      },
+      "cadenceChanged": "Cadence moved from {from} to {to} days after a {reason} run",
+      "reasonHealthy": "strong",
+      "reasonWeak": "weak",
+      "variantsTitle": "Caption scoreboard",
+      "variantRuns": "{count, plural, one {# run} other {# runs}}",
+      "variantIndex": "avg index",
+      "variantRetired": "Retired after two weak runs",
+      "variantNoRuns": "Not used yet",
+      "shifted": "Moved {days, plural, one {# day} other {# days}} to avoid a fresh post"
+    },
+    "createFlow": {
+      "title": "New evergreen queue",
+      "subtitle": "Pick a proven post, choose how it comes back, and let the numbers decide when it stops.",
+      "sourceStep": "Source post",
+      "captionsStep": "Captions",
+      "scheduleStep": "Schedule",
+      "suggestCaptions": "Suggest captions",
+      "suggesting": "Writing captions",
+      "suggestHint": "Four rewrites in your brand voice: a new hook, a shorter cut, a question, and a different call to action. Tick the ones you want.",
+      "suggestFailed": "Could not write captions right now",
+      "angles": {
+        "new_hook": "New hook",
+        "shorter": "Shorter",
+        "question": "Question",
+        "different_cta": "Different call to action"
+      },
+      "useVariant": "Use",
+      "duplicateWarning": "Identical to a post published on {date}. Platforms penalise repeats; change a few words.",
+      "channelsTitle": "Channels",
+      "channelsHint": "The source channels are selected. Add another connected channel to repost there too.",
+      "channelNotReady": "Not connected",
+      "cadenceTitle": "Cadence",
+      "cadenceAdaptive": "Adaptive: tighten after a strong run, stretch after a weak one",
+      "cadenceFixed": "Fixed: always the same gap",
+      "nextDates": "First runs"
+    },
+    "create": "Create queue"
   },
   "scheduledTab": {
     "empty": "Nothing scheduled yet.",
@@ -138,13 +240,13 @@
       "rescheduleFailed": "Failed to reschedule"
     },
     "selection": {
-      "selectMode": "Select posts",
+      "selectMode": "Select Posts",
       "cancelSelection": "Cancel",
       "selectAll": "Select all on this page",
-      "clear": "Clear selection",
+      "clear": "Clear Selection",
       "count": "{count} selected",
       "reschedule": "Reschedule",
-      "moveToDrafts": "Move to drafts",
+      "moveToDrafts": "Move to Drafts",
       "delete": "Delete",
       "confirmDeleteBody": "This cannot be undone. Posts already published are not affected."
     },
@@ -167,10 +269,10 @@
       "loadFailed": "Failed to load drafts",
       "deleted": "Draft deleted",
       "deleteFailed": "Failed to delete",
-      "addingToQueue": "Adding to your To Post queue…",
+      "addingToQueue": "Adding to your To post queue…",
       "pushingTikTok": "Pushing to TikTok inbox…",
       "publishingPost": "Publishing post…",
-      "addedToQueue": "Added to your To Post queue. Post it natively, then mark it as posted.",
+      "addedToQueue": "Added to your To post queue. Post it natively, then mark it as posted.",
       "tiktokInboxConfirmed": "TikTok confirmed inbox delivery. Open the TikTok app to finalize and post.",
       "tiktokProcessing": "TikTok accepted the upload and is still processing it.",
       "stillProcessing": "Post submitted and still processing.",
@@ -185,13 +287,13 @@
   "channelSelector": {
     "channels": "Channels",
     "selectedCount": "{count} selected",
-    "postTo": "Post to",
+    "postTo": "Post To",
     "defaultReason": "Connect this channel in brand settings.",
-    "productSettings": "Brand settings"
+    "productSettings": "Brand Settings"
   },
   "scheduleSheet": {
     "eyebrow": "Schedule",
-    "title": "Schedule post",
+    "title": "Schedule Post",
     "description": "Pick a date and time, or use AI-suggested optimal slots.",
     "tiktokNoteLabel": "TikTok finishes in the TikTok app.",
     "tiktokNoteBody": "At the scheduled time, Markaestro pushes the media to your TikTok inbox, then marks it ready once you can open TikTok to finish caption, privacy, and posting.",
@@ -201,14 +303,14 @@
     "show": "Show",
     "basedOnData": "Based on industry engagement data for {channel}",
     "thisChannel": "this channel",
-    "orPickManually": "or pick manually",
+    "orPickManually": "Or pick manually",
     "timeLabel": "Time",
     "timezoneNote": "Schedules use your local timezone ({timezone}) and are stored in UTC.",
     "headsUp": "Heads up:",
-    "collisionNote": "another post is already scheduled around this time ({date}{channel}). You can still schedule both.",
+    "collisionNote": "Another post is already scheduled around this time ({date}{channel}). You can still schedule both.",
     "onChannel": " on {channel}",
     "scheduleFor": "Schedule for {date} at {time}",
-    "selectDate": "Select a date"
+    "selectDate": "Select a Date"
   },
   "postEditSheet": {
     "caption": "Caption",
@@ -238,16 +340,16 @@
     }
   },
   "postCard": {
-    "readyToPost": "Ready to post",
+    "readyToPost": "Ready to Post",
     "readyInTikTok": "Ready in TikTok",
     "partiallyFailed": "Partially failed",
     "text": "Text",
     "preview": "Preview",
     "view": "View",
-    "copyCaption": "Copy caption",
-    "downloadMedia": "Download media",
+    "copyCaption": "Copy Caption",
+    "downloadMedia": "Download Media",
     "downloading": "Downloading…",
-    "markAsPosted": "Mark as posted",
+    "markAsPosted": "Mark as Posted",
     "edit": "Edit",
     "publish": "Publish",
     "publishing": "Publishing…",
@@ -270,11 +372,11 @@
   "platformPostsTab": {
     "refresh": "Refresh",
     "liveFrom": "Live posts from your connected {channel} account, including posts published outside Markaestro.",
-    "loadMore": "Load more",
+    "loadMore": "Load More",
     "loading": "Loading…",
     "noCaption": "No caption",
     "view": "View",
-    "copyCaption": "Copy caption",
+    "copyCaption": "Copy Caption",
     "deleting": "Deleting…",
     "delete": "Delete",
     "noDeleteHints": {
@@ -290,13 +392,13 @@
       "authTitle": "{channel} needs to be reconnected",
       "authBody": "The {channel} connection has expired, so we can't browse its posts right now. Reconnect it from brand settings to pick up where you left off.",
       "reconnect": "Reconnect {channel}",
-      "checkAgain": "Check again",
-      "unsupportedTitle": "Browsing {channel} posts isn't available",
+      "checkAgain": "Check Again",
+      "unsupportedTitle": "Browsing {channel} Posts Isn't Available",
       "linkedinPartnerBody": "LinkedIn only lets approved partner apps browse account posts. Anything you publish through Markaestro still appears in your Published tab.",
       "unsupportedBody": "{channel} doesn't let apps browse account posts. Anything you publish through Markaestro still appears in your Published tab.",
       "errorTitle": "Couldn't load {channel} posts",
       "errorBody": "{channel} didn't respond as expected. This is usually temporary. Give it another try in a moment.",
-      "tryAgain": "Try again",
+      "tryAgain": "Try Again",
       "emptyTitle": "No posts on {channel} yet",
       "emptyBody": "When this account publishes, through Markaestro or directly on {channel}, its posts will appear here."
     },
@@ -350,7 +452,7 @@
       "tiktokSending": "Sending to TikTok. Markaestro is waiting for TikTok to confirm inbox delivery.",
       "tiktokDirectSending": "Publishing to TikTok. Markaestro is waiting for TikTok to finish processing.",
       "stillProcessing": "Post submitted and still processing.",
-      "tiktokInboxConfirmed": "TikTok confirmed inbox delivery. Open TikTok Inbox, finish the caption, and tap Post.",
+      "tiktokInboxConfirmed": "TikTok confirmed inbox delivery. Open TikTok inbox, finish the caption, and tap Post.",
       "tiktokDirectPosted": "Posted to TikTok. It may take a few minutes to appear on your profile.",
       "postedToMultiple": "Posted to {channels}!",
       "postedSuccess": "Posted successfully!",
@@ -358,21 +460,21 @@
     }
   },
   "crop": {
-    "title": "Crop images",
+    "title": "Crop Images",
     "descriptionSingle": "Choose the framing before this image is uploaded.",
     "descriptionBatch": "All {count} images share one shape, so networks accept them as a set. Frame each one below.",
     "zoom": "Zoom",
-    "reset": "Reset framing",
+    "reset": "Reset Framing",
     "previous": "Back",
     "next": "Next",
     "position": "{current} of {total}",
     "cancel": "Cancel",
-    "confirm": "{count, plural, one {Use image} other {Use # images}}"
+    "confirm": "{count, plural, one {Use Image} other {Use # Images}}"
   },
   "tiktokDirectPost": {
     "postingTo": "Posting to this TikTok account",
     "unknownCreator": "TikTok account",
-    "retry": "Try again",
+    "retry": "Try Again",
     "errors": {
       "generic": "Could not load your TikTok account details. Try again.",
       "postingBlockedHint": "You can still send this post to your TikTok inbox and finish it from the TikTok app."
@@ -385,22 +487,22 @@
         "PUBLIC_TO_EVERYONE": "Everyone",
         "MUTUAL_FOLLOW_FRIENDS": "Friends",
         "FOLLOWER_OF_CREATOR": "Followers",
-        "SELF_ONLY": "Only me"
+        "SELF_ONLY": "Only Me"
       }
     },
     "interactions": {
-      "label": "Allow users to",
+      "label": "Allow Users To",
       "allowComment": "Comment",
       "allowDuet": "Duet",
       "allowStitch": "Stitch",
-      "disabledByAccount": "Turned off in your TikTok account settings"
+      "disabledByAccount": "Turned Off in Your TikTok Account Settings"
     },
     "disclosure": {
-      "label": "Disclose post content",
+      "label": "Disclose Post Content",
       "description": "Turn on to declare that this post promotes a brand, product, or service.",
-      "yourBrand": "Your brand",
+      "yourBrand": "Your Brand",
       "yourBrandNotice": "Your photo/video will be labeled as “Promotional content”. This cannot be changed once posted.",
-      "brandedContent": "Branded content",
+      "brandedContent": "Branded Content",
       "brandedContentNotice": "Your photo/video will be labeled as “Paid partnership”. This cannot be changed once posted.",
       "selectionRequired": "You need to indicate if your content promotes yourself, a third party, or both."
     },
@@ -410,10 +512,10 @@
     },
     "processingNotice": "After you post, it may take a few minutes for TikTok to process the content before it appears on your profile.",
     "maxDuration": "Maximum video length for this account: {seconds} seconds.",
-    "modeLabel": "How this posts to TikTok",
-    "modeInbox": "Send to TikTok inbox",
+    "modeLabel": "How This Posts to TikTok",
+    "modeInbox": "Send to TikTok Inbox",
     "modeInboxHint": "You finish the caption and post from the TikTok app, where you can add sounds from TikTok's library.",
-    "modeDirect": "Post directly to TikTok",
+    "modeDirect": "Post Directly to TikTok",
     "modeDirectHint": "Markaestro publishes to your profile using the settings below. The post uses your video's own audio: TikTok library sounds can only be added in the app.",
     "blockers": {
       "privacyNotSelected": "Select who can view this post before publishing.",

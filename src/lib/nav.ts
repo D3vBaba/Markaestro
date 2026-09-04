@@ -25,6 +25,7 @@ export const navigationGroups: NavGroup[] = [
             { id: "brands", href: "/products" },
             { id: "posts", href: "/content" },
             { id: "calendar", href: "/calendar" },
+            { id: "evergreen", href: "/evergreen" },
         ],
     },
     {
@@ -40,8 +41,13 @@ export const settingsItem: NavItem = {
     href: "/settings",
 };
 
-export function navigationGroupsForUser(email?: string | null, uid?: string | null): NavGroup[] {
-    if (canAccessIntelligencePreview({ email, uid })) return navigationGroups;
+export function navigationGroupsForUser(
+    email?: string | null,
+    uid?: string | null,
+    /** Server-side allowlist verdict, when the caller has one (see useIntelligencePreviewAccess). */
+    serverVerdict?: boolean | null,
+): NavGroup[] {
+    if (serverVerdict === true || canAccessIntelligencePreview({ email, uid })) return navigationGroups;
     return navigationGroups.map((group) => ({
         ...group,
         items: group.items.filter((item) => item.href !== "/intelligence"),

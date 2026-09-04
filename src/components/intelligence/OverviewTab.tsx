@@ -5,10 +5,11 @@ import { ArrowRight, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ReadinessPanel } from "./ReadinessPanel";
 import { AskMarkaestro } from "./AskMarkaestro";
+import { WeekPulse } from "./WeekPulse";
 import { ChannelDot, EmptyState, Figure, INSET, PhaseGate, SURFACE, Section, TYPE, phasesOf } from "./shared";
 import { useIntelligenceCopy } from "./copy";
 import { useIntelligenceFormat } from "./format";
-import type { IntelligenceOverview, LearningRow } from "./types";
+import type { ExperimentDraft, IntelligenceOverview, LearningRow } from "./types";
 
 function strongestLearning(learnings: LearningRow[]): LearningRow | null {
   const rank = { potentially_strong: 3, moderate: 2, directional: 1, insufficient: 0 } as const;
@@ -40,10 +41,10 @@ function BriefingCell({
       <button
         type="button"
         onClick={onOpen}
-        className="mt-auto inline-flex items-center gap-1 self-start pt-1 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
+        className="mt-auto inline-flex items-center gap-1 self-start pt-1 text-xs font-semibold text-mk-accent hover:underline"
       >
         {cta}
-        <ArrowRight className="h-3 w-3" aria-hidden="true" />
+        <ArrowRight className="size-3" aria-hidden="true" />
       </button>
     </div>
   );
@@ -52,9 +53,11 @@ function BriefingCell({
 export function OverviewTab({
   data,
   onNavigate,
+  onTest,
 }: {
   data: IntelligenceOverview;
   onNavigate: (tab: string) => void;
+  onTest?: (draft: ExperimentDraft) => void;
 }) {
   const t = useTranslations("intelligence");
   const fmt = useIntelligenceFormat();
@@ -100,17 +103,17 @@ export function OverviewTab({
             <button
               type="button"
               onClick={() => onNavigate("audience")}
-              className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-2 text-[11px] font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-border bg-card px-2 text-[11px] font-medium text-mk-ink-80 hover:bg-muted/60"
               title={t("objective.change")}
             >
-              <Target className="h-3 w-3" aria-hidden="true" />
+              <Target className="size-3" aria-hidden="true" />
               {t("objective.title")} {t(`objective.names.${objective.objective}`)}
             </button>
           ) : undefined
         }
       >
         {objective?.fallback && (
-          <p className="mb-4 rounded-xl border border-amber-200/70 bg-amber-50/80 px-3 py-2 text-xs leading-relaxed text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
+          <p className="mb-4 rounded-xl border border-mk-warn/30 bg-mk-warn-soft px-3 py-2 text-xs leading-relaxed text-mk-warn">
             {t("objective.fallback", { requested: t(`objective.names.${objective.requested}`), metric: metricName })}
           </p>
         )}
@@ -175,8 +178,10 @@ export function OverviewTab({
         </div>
       </Section>
 
+      {data.pulse && <WeekPulse pulse={data.pulse} objectiveMetric={objective?.metric || "views"} />}
+
       <PhaseGate enabled={phases.strategist !== false && phases.advanced} feature="intelligenceStrategist">
-        <AskMarkaestro productId={data.productId || ""} posts={posts} />
+        <AskMarkaestro productId={data.productId || ""} posts={posts} onTest={phases.experiments ? onTest : undefined} />
       </PhaseGate>
 
       <div className={cn("grid grid-cols-2 gap-x-4 gap-y-5 p-5 sm:p-6 md:grid-cols-3 xl:grid-cols-6", SURFACE)}>
@@ -198,7 +203,7 @@ export function OverviewTab({
         {data.channels.length === 0 ? (
           <p className={TYPE.hint}>{t("platforms.empty")}</p>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+          <div className="divide-y divide-border">
             <div className={cn("hidden grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))] gap-3 pb-3 sm:grid", TYPE.meta)}>
               <span>{t("platforms.colPlatform")}</span>
               <span className="text-end">{t("platforms.colPosts")}</span>
@@ -210,7 +215,7 @@ export function OverviewTab({
               const measured = Math.max(channel.measuredViews ?? 0, channel.measuredEngagements ?? 0);
               const cell = (label: string, value: string) => (
                 <div className="flex justify-between sm:block sm:text-end">
-                  <span className="text-xs text-slate-400 sm:hidden">{label}</span>
+                  <span className="text-xs text-mk-ink-40 sm:hidden">{label}</span>
                   <span className={cn("text-sm", TYPE.figure)}>{value}</span>
                 </div>
               );

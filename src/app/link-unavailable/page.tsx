@@ -20,29 +20,19 @@ export const metadata: Metadata = {
  */
 export default function LinkUnavailablePage() {
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-5"
-      style={{ background: "var(--mk-surface)" }}
-    >
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-5">
       <div className="mx-auto max-w-md text-center">
         <Image
           src="/markaestro-logo-transparent.png"
           alt="Markaestro"
-          width={40}
-          height={40}
-          className="mx-auto object-contain mb-7"
+          width={32}
+          height={32}
+          className="mx-auto mb-8 size-8 object-contain"
         />
-        <p className="mk-eyebrow">Link</p>
-        <h1
-          className="mt-5 text-[26px] sm:text-[30px] font-semibold leading-[1.1]"
-          style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
-        >
+        <h1 className="m-0 text-2xl font-semibold leading-tight tracking-tight text-foreground text-balance sm:text-3xl">
           This link is temporarily unavailable
         </h1>
-        <p
-          className="mt-3 text-[14px] leading-relaxed"
-          style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-        >
+        <p className="m-0 mt-3 text-[15px] leading-6 text-mk-ink-80 text-pretty">
           We could not look up where this link goes. Nothing is wrong with the
           link itself, so refreshing in a moment will usually work.
         </p>

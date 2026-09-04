@@ -162,7 +162,7 @@ function ArmMediaField({
       {mediaUrls.length > 0 ? (
         <div className="grid grid-cols-3 gap-2">
           {mediaUrls.map((url, i) => (
-            <div key={`${url}-${i}`} className="relative aspect-square overflow-hidden rounded-lg border border-slate-200/80 dark:border-slate-800/80">
+            <div key={`${url}-${i}`} className="relative aspect-square overflow-hidden rounded-lg border border-border">
               {isVideoMediaUrl(url) ? (
                 <video src={url} className="h-full w-full object-cover" />
               ) : (
@@ -171,7 +171,7 @@ function ArmMediaField({
               <button
                 type="button"
                 onClick={() => onChange(mediaUrls.filter((_, idx) => idx !== i))}
-                className="absolute end-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs text-white hover:bg-black/80"
+                className="absolute end-1 top-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-xs text-white hover:bg-black/80"
                 aria-label={t("removeMedia")}
               >
                 ×
@@ -182,7 +182,7 @@ function ArmMediaField({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="aspect-square rounded-lg border-2 border-dashed border-slate-200 text-xs text-slate-400 dark:border-slate-700"
+              className="aspect-square rounded-lg border border-border bg-muted/60 text-xs text-muted-foreground transition-colors hover:bg-muted"
               disabled={uploading}
             >
               {t("addMedia")}
@@ -194,7 +194,7 @@ function ArmMediaField({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="w-full rounded-xl border-2 border-dashed border-slate-200 px-3 py-4 text-center text-slate-500 transition-colors hover:border-slate-300 dark:border-slate-700 dark:text-slate-400"
+          className="w-full rounded-xl border border-border bg-muted/60 px-3 py-4 text-center text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <p className="text-xs">{allowVideo ? t("dropImagesOrVideos") : t("dropImages")}</p>
           <p className={cn("mt-1", TYPE.hint)}>
@@ -222,13 +222,13 @@ function ArmMediaField({
         type="button"
         variant="outline"
         size="sm"
-        className="h-8 w-full text-xs"
+        className="h-8 w-full"
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading || mediaUrls.length >= mediaLimit}
       >
         {uploading ? (
           <>
-            <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="me-1.5 size-3.5 animate-spin" />
             {t("uploading")}
           </>
         ) : (
@@ -360,11 +360,11 @@ function ArmComposer({
         <p className={TYPE.strong}>{t("armCompose", { arm })}</p>
         <span className={TYPE.meta}>{arm === "A" ? t("armControl") : t("armVariant")}</span>
       </div>
-      <Textarea rows={4} value={content} onChange={(e) => onContent(e.target.value)} placeholder={t("captionPlaceholder")} className="rounded-xl bg-white text-[13px] dark:bg-slate-900" />
+      <Textarea rows={4} value={content} onChange={(e) => onContent(e.target.value)} placeholder={t("captionPlaceholder")} className="rounded-xl bg-card text-[13px]" />
       <ArmMediaField platform={platform} mediaUrls={media} onChange={onMedia} />
       <div>
         <label className={TYPE.meta}>{scheduleLabel}</label>
-        <Input type="datetime-local" value={when} onChange={(e) => onWhen(e.target.value)} aria-label={scheduleLabel} className="mt-1 rounded-xl bg-white dark:bg-slate-900" />
+        <Input type="datetime-local" value={when} onChange={(e) => onWhen(e.target.value)} aria-label={scheduleLabel} className="mt-1 rounded-xl bg-card" />
       </div>
     </div>
   );
@@ -375,17 +375,23 @@ export default function ExperimentBoard({
   experiments,
   loading,
   focusExperimentId,
+  initialDraft,
 }: {
   productId: string;
   experiments: ExperimentItem[];
   loading?: boolean;
   focusExperimentId?: string | null;
+  /** Seeds name, hypothesis and platform; the parent remounts the board per draft. */
+  initialDraft?: { name: string; hypothesis: string; platform?: string | null } | null;
 }) {
   const t = useTranslations("intelligence.experiments");
   const fmt = useIntelligenceFormat();
-  const [name, setName] = useState("");
-  const [hypothesis, setHypothesis] = useState("");
-  const [platform, setPlatform] = useState<(typeof socialChannels)[number]>("instagram");
+  const seededPlatform = initialDraft?.platform && (socialChannels as readonly string[]).includes(initialDraft.platform)
+    ? initialDraft.platform as (typeof socialChannels)[number]
+    : "instagram";
+  const [name, setName] = useState(initialDraft?.name ?? "");
+  const [hypothesis, setHypothesis] = useState(initialDraft?.hypothesis ?? "");
+  const [platform, setPlatform] = useState<(typeof socialChannels)[number]>(seededPlatform);
   const [durationDays, setDurationDays] = useState(7);
   const [armAContent, setArmAContent] = useState("");
   const [armBContent, setArmBContent] = useState("");
@@ -396,7 +402,7 @@ export default function ExperimentBoard({
   const [creating, setCreating] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<ExperimentItem | null>(null);
   // `undefined` = the user has not chosen (open the focused or newest one), `null` = collapsed.
-  const [chosenComposer, setComposer] = useState<boolean | undefined>(undefined);
+  const [chosenComposer, setComposer] = useState<boolean | undefined>(initialDraft ? true : undefined);
   const [chosenExpandedId, setExpandedId] = useState<string | null | undefined>(undefined);
   const focused = focusExperimentId && experiments.some((item) => item.id === focusExperimentId) ? focusExperimentId : null;
   const expandedId = chosenExpandedId === undefined ? focused ?? experiments[0]?.id ?? null : chosenExpandedId;
@@ -507,10 +513,10 @@ export default function ExperimentBoard({
             type="button"
             size="sm"
             variant={composerOpen ? "outline" : "default"}
-            className="h-8 gap-1.5 rounded-xl text-xs font-semibold"
+            className="h-8"
             onClick={() => setComposer(!composerOpen)}
           >
-            {composerOpen ? <ChevronDown className="h-3.5 w-3.5 rotate-180" aria-hidden="true" /> : <Plus className="h-3.5 w-3.5" aria-hidden="true" />}
+            {composerOpen ? <ChevronDown className="size-3.5 rotate-180" aria-hidden="true" /> : <Plus className="size-3.5" aria-hidden="true" />}
             {composerOpen ? t("closeComposer") : t("newExperiment")}
           </Button>
         }
@@ -564,8 +570,8 @@ export default function ExperimentBoard({
               {mediaRequired && <li>{t("mediaRequiredHint")}</li>}
             </ul>
 
-            <Button type="button" className="h-9 w-fit rounded-xl text-xs font-semibold" disabled={!canCreate || creating} onClick={() => void create()}>
-              {creating && <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />}
+            <Button type="button" className="w-fit" disabled={!canCreate || creating} onClick={() => void create()}>
+              {creating && <Loader2 className="me-1.5 size-3.5 animate-spin" />}
               {creating ? t("creating") : t("createPaired")}
             </Button>
           </div>
@@ -578,7 +584,7 @@ export default function ExperimentBoard({
             <EmptyState icon={FlaskConical} title={t("emptyTitle")} body={t("emptyPaired")} />
           )
         ) : (
-          <ul className={cn("divide-y divide-slate-100 dark:divide-slate-800/80", composerOpen && "mt-6 border-t border-slate-100 pt-2 dark:border-slate-800/80")}>
+          <ul className={cn("divide-y divide-border", composerOpen &&"mt-6 border-t border-mk-rule-soft pt-2")}>
             {experiments.map((item) => {
               const open = expandedId === item.id;
               const status = statusOf(item);
@@ -607,7 +613,7 @@ export default function ExperimentBoard({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-8 px-2 text-xs text-slate-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 dark:hover:text-rose-400"
+                        className="h-8 px-2 text-muted-foreground hover:bg-mk-neg-soft hover:text-mk-neg"
                         onClick={(event) => {
                           event.stopPropagation();
                           setPendingDelete(item);
@@ -618,10 +624,10 @@ export default function ExperimentBoard({
                       <button
                         type="button"
                         onClick={() => setExpandedId(open ? null : item.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                        className="flex size-8 items-center justify-center rounded-lg text-mk-ink-40 hover:bg-muted hover:text-mk-ink-80"
                         aria-label={open ? t("collapse") : t("expand")}
                       >
-                        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} aria-hidden="true" />
+                        <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} aria-hidden="true" />
                       </button>
                     </div>
                   </div>

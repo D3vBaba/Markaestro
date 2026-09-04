@@ -46,24 +46,24 @@
     "kpis": {
       "views": {
         "label": "Visualizações",
-        "sub": "vs. período anterior"
+        "sub": "Vs. período anterior"
       },
       "reach": {
         "label": "Alcance",
-        "sub": "contas únicas alcançadas"
+        "sub": "Contas únicas alcançadas"
       },
       "engagement": {
         "label": "Engajamento",
-        "sub": "curtidas + comentários + compartilhamentos + salvamentos"
+        "sub": "Curtidas + comentários + compartilhamentos + salvamentos"
       },
       "engagementRate": {
         "label": "Taxa de engajamento",
-        "sub": "engajamento ÷ alcance",
-        "subViews": "engajamentos ÷ visualizações (alcance não informado)"
+        "sub": "Engajamento ÷ alcance",
+        "subViews": "Engajamentos ÷ visualizações (alcance não informado)"
       },
       "followers": {
         "label": "Seguidores",
-        "sub": "todos os canais conectados"
+        "sub": "Todos os canais conectados"
       }
     },
     "insights": {
@@ -86,7 +86,7 @@
         "publish": "O que os posts publicados em cada dia ganharam até agora",
         "activity": "O que aconteceu em cada dia, em todos os posts"
       },
-      "compare": "vs período anterior",
+      "compare": "Vs período anterior",
       "previous": "Período anterior",
       "noteActivity": "Agrupado pelo dia em que as plataformas informaram os números.",
       "activityEmpty": "A atividade se acumula a partir da próxima coleta. O agrupamento por publicação tem o histórico."
@@ -150,7 +150,7 @@
     "notEnoughVariety": "Ainda não há variedade suficiente",
     "publishAtLeastTwo": "Publique pelo menos dois formatos de conteúdo (imagens, vídeos, carrosséis, texto) para compará-los.",
     "postsCount": "{count, plural, one {# postagem} other {# postagens}}",
-    "avgEng": "engaj. médio"
+    "avgEng": "Engaj. médio"
   },
   "trendChart": {
     "noData": "Ainda não há dados para este período.",

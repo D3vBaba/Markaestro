@@ -21,6 +21,7 @@ import type { PlanTier, BillingInterval } from "@/lib/stripe/plans";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { Check } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -147,10 +148,9 @@ function ProgressBar({ step }: { step: number }) {
   const idx = FLOW_STEPS.indexOf(step);
   const pct = idx === -1 ? 0 : Math.round(((idx + 1) / FLOW_STEPS.length) * 100);
   return (
-    <div className="h-px w-full" style={{ background: "var(--mk-rule)" }}>
+    <div className="h-0.5 w-full bg-border">
       <motion.div
-        className="h-full"
-        style={{ background: "var(--mk-accent)" }}
+        className="h-full bg-foreground"
         animate={{ width: `${pct}%` }}
         transition={{ duration: 0.4, ease }}
       />
@@ -163,7 +163,7 @@ function ProgressBar({ step }: { step: number }) {
 function AutoDetectedBadge() {
   const t = useTranslations("onboarding.product");
   return (
-    <span className="ms-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary align-middle">
+    <span className="ms-2 rounded-md bg-muted px-1.5 py-0.5 text-[11.5px] font-medium leading-4 text-mk-ink-80 align-middle">
       {t("autoDetected")}
     </span>
   );
@@ -192,25 +192,22 @@ function SelectionTile({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.28, ease }}
-      className="w-full rounded-xl p-4 sm:p-5 text-start transition-colors duration-150 min-h-[72px] active:scale-[0.99]"
-      style={{
-        background: selected ? "var(--mk-panel)" : "var(--mk-paper)",
-        border: `1px solid ${selected ? "var(--mk-ink)" : "var(--mk-rule)"}`,
-      }}
+      className={cn(
+        "min-h-[72px] w-full rounded-xl border p-4 text-start transition-[background-color,border-color,transform] duration-150 active:scale-[0.99] sm:p-5",
+        selected ? "border-foreground bg-muted/60" : "border-border bg-card hover:border-mk-ink-20",
+      )}
       onClick={onClick}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
           <p
-            className="text-[15px] font-medium leading-snug"
-            style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+            className="text-[15px] font-medium leading-snug text-foreground"
           >
             {label}
           </p>
           {desc && (
             <p
-              className="text-[13px] mt-0.5 leading-relaxed"
-              style={{ color: "var(--mk-ink-60)" }}
+              className="text-[13px] mt-0.5 leading-relaxed text-muted-foreground"
             >
               {desc}
             </p>
@@ -218,26 +215,16 @@ function SelectionTile({
         </div>
         <div
           className={cn(
-            "shrink-0 transition-colors h-5 w-5 flex items-center justify-center",
+            "flex size-5 shrink-0 items-center justify-center border-[1.5px] transition-colors",
             multi ? "rounded" : "rounded-full",
+            selected ? "border-foreground" : "border-mk-ink-20",
+            multi && selected && "bg-foreground",
           )}
-          style={{
-            border: `1.5px solid ${selected ? "var(--mk-ink)" : "var(--mk-ink-20)"}`,
-            background: multi && selected ? "var(--mk-ink)" : "transparent",
-          }}
         >
-          {multi && selected && (
-            <span
-              className="text-[10px] font-bold leading-none"
-              style={{ color: "var(--mk-paper)" }}
-            >
-              ✓
-            </span>
-          )}
+          {multi && selected && <Check className="size-3 text-background" strokeWidth={3} aria-hidden />}
           {!multi && selected && (
             <div
-              className="h-2.5 w-2.5 rounded-full"
-              style={{ background: "var(--mk-ink)" }}
+              className="h-2.5 w-2.5 rounded-full bg-foreground"
             />
           )}
         </div>
@@ -276,7 +263,7 @@ function PostPreviewCard({
       <div className="p-6">
         <div className="flex items-center gap-3 mb-4">
           <div
-            className="h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
+            className="size-10 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0"
             style={{ backgroundColor: primaryColor }}
           >
             {productName.slice(0, 2).toUpperCase()}
@@ -316,7 +303,7 @@ function OnboardingFooter() {
                 height={28}
                 className="object-contain"
               />
-              <span className="text-sm font-bold tracking-tight">Markaestro</span>
+              <span className="text-sm font-semibold tracking-tight">Markaestro</span>
             </div>
             <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
               {t("tagline")}
@@ -324,7 +311,7 @@ function OnboardingFooter() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">
+            <p className="text-xs font-medium text-foreground">
               {t("product")}
             </p>
             <div className="mt-5 flex flex-col gap-3">
@@ -335,7 +322,7 @@ function OnboardingFooter() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">
+            <p className="text-xs font-medium text-foreground">
               {t("company")}
             </p>
             <div className="mt-5 flex flex-col gap-3">
@@ -346,7 +333,7 @@ function OnboardingFooter() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">
+            <p className="text-xs font-medium text-foreground">
               {t("getStarted")}
             </p>
             <div className="mt-5 flex flex-col gap-3">
@@ -557,8 +544,8 @@ export default function OnboardingPage() {
 
   if (authLoading || (user && subLoading)) {
     return (
-      <div className="min-h-screen grid place-items-center bg-background">
-        <div className="h-8 w-8 rounded-lg bg-primary animate-pulse" />
+      <div className="min-h-dvh grid place-items-center bg-background">
+        <div className="size-8 rounded-lg bg-primary animate-pulse" />
       </div>
     );
   }
@@ -843,29 +830,20 @@ export default function OnboardingPage() {
   const currentQuestionMeta = step < QUIZ_COUNT ? QUIZ_QUESTIONS_META[step] : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-dvh flex flex-col bg-background">
 
       {/* ── Header — minimal onboarding chrome ──────────────────────────── */}
-      <header
-        className="sticky top-0 z-50 border-b backdrop-blur-md"
-        style={{
-          background: "color-mix(in oklch, var(--mk-paper) 92%, transparent)",
-          borderColor: "var(--mk-rule)",
-        }}
-      >
+      <header className="mk-glass sticky top-0 z-30 border-b border-border">
         <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/markaestro-logo-transparent.png"
               alt="Markaestro"
-              width={28}
-              height={28}
-              className="object-contain"
+              width={24}
+              height={24}
+              className="size-6 object-contain"
             />
-            <span
-              className="text-[15px] font-semibold tracking-tight"
-              style={{ color: "var(--mk-ink)", letterSpacing: "-0.015em" }}
-            >
+            <span className="text-[14px] font-semibold tracking-tight text-foreground">
               Markaestro
             </span>
           </Link>
@@ -873,16 +851,14 @@ export default function OnboardingPage() {
           <div className="flex items-center gap-4">
             {step < QUIZ_COUNT && (
               <span
-                className="hidden sm:inline font-mono text-[10.5px] uppercase tabular-nums"
-                style={{ color: "var(--mk-ink-40)", letterSpacing: "0.14em" }}
+                className="hidden sm:inline font-mono text-xs tabular-nums text-mk-ink-40"
               >
                 {t("questionCounter", { current: step + 1, total: QUIZ_COUNT })}
               </span>
             )}
             {user ? (
               <button
-                className="text-[12.5px] transition-colors"
-                style={{ color: "var(--mk-ink-60)" }}
+                className="text-[12.5px] transition-colors text-muted-foreground"
                 onClick={logout}
               >
                 {t("signOut")}
@@ -890,8 +866,7 @@ export default function OnboardingPage() {
             ) : (
               <Link
                 href="/login"
-                className="text-[12.5px] transition-colors"
-                style={{ color: "var(--mk-ink-60)" }}
+                className="text-[12.5px] transition-colors text-muted-foreground"
               >
                 {t("signIn")}
               </Link>
@@ -927,7 +902,7 @@ export default function OnboardingPage() {
                   )}
                   {step === 0 && (
                     <div
-                      className="mt-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase"
+                      className="mt-5 inline-flex items-center gap-2 rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-mk-ink-80"
                       style={{
                         border: "1px solid color-mix(in oklch, var(--mk-accent) 24%, var(--mk-rule))",
                         background: "var(--mk-accent-soft)",
@@ -980,7 +955,7 @@ export default function OnboardingPage() {
                   <div className="mt-8">
                     <Button
                       size="lg"
-                      className="w-full h-12 rounded-xl text-base"
+                      className="w-full h-12 text-base"
                       onClick={() => setStep(step + 1)}
                     >
                       {Array.isArray(answers[currentQuestionMeta.id]) &&
@@ -1034,8 +1009,7 @@ export default function OnboardingPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, ease }}
-                    className="mb-6 rounded-xl border p-5"
-                    style={{ background: "var(--mk-panel)", borderColor: "var(--mk-rule)" }}
+                    className="mb-6 rounded-xl border p-5 bg-muted border-border"
                   >
                     <p className="mk-eyebrow mb-3">{t("register.waitingInWorkspace")}</p>
                     <div className="flex flex-col gap-2.5">
@@ -1049,10 +1023,9 @@ export default function OnboardingPage() {
                       ].map((item) => (
                         <div key={item} className="flex items-start gap-2.5">
                           <span
-                            className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0"
-                            style={{ background: "var(--mk-accent)" }}
+                            className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 bg-mk-accent"
                           />
-                          <p className="text-[14px] leading-snug" style={{ color: "var(--mk-ink-80)" }}>
+                          <p className="text-[14px] leading-snug text-mk-ink-80">
                             {item}
                           </p>
                         </div>
@@ -1061,7 +1034,7 @@ export default function OnboardingPage() {
                   </motion.div>
                 )}
 
-                <div className="rounded-xl border p-5 sm:p-6">
+                <div className="rounded-xl border border-border bg-card p-5 sm:p-6">
                   <div className="flex flex-col gap-3">
                     {regStage === "email" ? (
                       <Input
@@ -1070,8 +1043,7 @@ export default function OnboardingPage() {
                         placeholder={t("register.emailPlaceholder")}
                         type="email"
                         autoComplete="email"
-                        className="h-11 rounded-lg"
-                        style={{ fontSize: "16px" }}
+                        className="h-11"
                         onKeyDown={(e) => e.key === "Enter" && !regBusy && handleSendRegCode()}
                       />
                     ) : (
@@ -1096,7 +1068,7 @@ export default function OnboardingPage() {
 
                     {regStage === "email" ? (
                       <Button
-                        className="h-11 w-full rounded-lg text-[14px]"
+                        className="h-11 w-full text-[14px]"
                         disabled={regBusy}
                         onClick={handleSendRegCode}
                       >
@@ -1105,7 +1077,7 @@ export default function OnboardingPage() {
                     ) : (
                       <>
                         <Button
-                          className="h-11 w-full rounded-lg text-[14px]"
+                          className="h-11 w-full text-[14px]"
                           disabled={regBusy || regCode.length < 6}
                           onClick={handleVerifyRegCode}
                         >
@@ -1121,8 +1093,7 @@ export default function OnboardingPage() {
                           </button>
                           <button
                             type="button"
-                            className="text-[12px] font-medium hover:underline disabled:opacity-50 disabled:no-underline"
-                            style={{ color: "var(--mk-accent)" }}
+                            className="text-[12px] font-medium hover:underline disabled:opacity-50 disabled:no-underline text-mk-accent"
                             disabled={regBusy || regCooldown > 0}
                             onClick={handleSendRegCode}
                           >
@@ -1132,39 +1103,38 @@ export default function OnboardingPage() {
                       </>
                     )}
                     {regStage === "email" && (
-                      <p className="text-center text-[12px]" style={{ color: "var(--mk-ink-40)" }}>
+                      <p className="text-center text-[12px] text-mk-ink-40">
                         {t("register.freeTrialNote")}
                       </p>
                     )}
                   </div>
 
                   <div className="relative my-5 flex items-center gap-3">
-                    <span className="flex-1 h-px" style={{ background: "var(--mk-rule)" }} />
+                    <span className="flex-1 h-px bg-border" />
                     <span
-                      className="font-mono text-[9.5px] uppercase"
-                      style={{ color: "var(--mk-ink-40)", letterSpacing: "0.18em" }}
+                      className="font-mono text-xs text-mk-ink-40"
                     >
                       {t("register.orContinueWith")}
                     </span>
-                    <span className="flex-1 h-px" style={{ background: "var(--mk-rule)" }} />
+                    <span className="flex-1 h-px bg-border" />
                   </div>
 
                   <Button
                     variant="outline"
-                    className="h-11 w-full rounded-lg gap-2 text-[13.5px]"
+                    className="h-11 w-full text-[13.5px]"
                     disabled={regBusy}
                     onClick={() => handleSocialRegister()}
                   >
-                    <svg className="h-4 w-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    <svg className="size-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                     {t("register.continueWithGoogle")}
                   </Button>
                 </div>
 
-                <p className="mt-5 text-center text-[11.5px]" style={{ color: "var(--mk-ink-40)" }}>
+                <p className="mt-5 text-center text-[11.5px] text-mk-ink-40">
                   {t("register.agreeTermsPrefix")}{" "}
-                  <Link href="/terms" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>{t("register.terms")}</Link>{" "}
+                  <Link href="/terms" className="hover:underline text-muted-foreground">{t("register.terms")}</Link>{" "}
                   {t("register.and")}{" "}
-                  <Link href="/privacy" className="hover:underline" style={{ color: "var(--mk-ink-60)" }}>{t("register.privacyPolicy")}</Link>.
+                  <Link href="/privacy" className="hover:underline text-muted-foreground">{t("register.privacyPolicy")}</Link>.
                 </p>
 
                 <button
@@ -1196,19 +1166,16 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* Mode toggle */}
-                <div
-                  className="grid grid-cols-2 gap-1 rounded-lg p-1 mb-6"
-                  style={{ background: "var(--mk-panel)", border: "1px solid var(--mk-rule)" }}
-                >
+                <div className="mb-6 grid grid-cols-2 gap-0.5 rounded-lg bg-muted p-0.5">
                   {(["scan", "manual"] as const).map((m) => (
                     <button
                       key={m}
-                      className="h-9 rounded-[6px] text-[13px] font-medium transition-colors"
-                      style={{
-                        background: productMode === m ? "var(--mk-paper)" : "transparent",
-                        color: productMode === m ? "var(--mk-ink)" : "var(--mk-ink-60)",
-                        border: productMode === m ? "1px solid var(--mk-rule)" : "1px solid transparent",
-                      }}
+                      className={cn(
+                        "h-8 rounded-md text-[13px] font-medium transition-colors",
+                        productMode === m
+                          ? "bg-card text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.06),0_0_0_1px_var(--mk-rule)]"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
                       onClick={() => setProductMode(m)}
                     >
                       {m === "scan" ? t("product.scanWebsite") : t("product.enterManually")}
@@ -1217,7 +1184,7 @@ export default function OnboardingPage() {
                 </div>
 
                 {productMode === "scan" ? (
-                  <div className="rounded-xl border p-5 sm:p-6 space-y-5">
+                  <div className="space-y-5 rounded-xl border border-border bg-card p-5 sm:p-6">
                     <div>
                       <label className="text-sm font-medium text-foreground block mb-2">
                         {t("product.websiteUrl")}
@@ -1232,7 +1199,7 @@ export default function OnboardingPage() {
                           onKeyDown={(e) => e.key === "Enter" && !scanning && scanUrl()}
                         />
                         <Button
-                          className="h-12 rounded-lg shrink-0 text-sm font-medium w-28 px-0 sm:w-auto sm:px-5"
+                          className="h-12 text-sm w-28 px-0 sm:w-auto sm:px-5"
                           onClick={scanUrl}
                           disabled={scanning || !productUrl.trim()}
                           variant={scanDone ? "outline" : "default"}
@@ -1311,7 +1278,7 @@ export default function OnboardingPage() {
                         {primaryColor && (
                           <div className="flex items-center gap-3 pt-1">
                             <div
-                              className="h-9 w-9 rounded-lg border shrink-0"
+                              className="size-9 rounded-lg border shrink-0"
                               style={{ backgroundColor: primaryColor }}
                             />
                             <p className="text-sm text-muted-foreground">
@@ -1324,7 +1291,7 @@ export default function OnboardingPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="rounded-xl border p-5 sm:p-6 space-y-4">
+                  <div className="space-y-4 rounded-xl border border-border bg-card p-5 sm:p-6">
                     <div>
                       <label className="text-sm font-medium block mb-2">{t("product.brandName")}</label>
                       <Input
@@ -1379,7 +1346,7 @@ export default function OnboardingPage() {
                 <div className="mt-8 flex flex-col gap-3">
                   <Button
                     size="lg"
-                    className="w-full h-12 rounded-xl text-base"
+                    className="w-full h-12 text-base"
                     onClick={handleProductContinue}
                     disabled={busy}
                   >
@@ -1440,13 +1407,13 @@ export default function OnboardingPage() {
                           <p className="text-xs text-muted-foreground/70 mt-0.5">{tSocialProviders(`${providerId}.note`)}</p>
                         </div>
                         {isConnected ? (
-                          <span className="text-sm font-medium text-emerald-600 shrink-0">
+                          <span className="text-sm font-medium text-mk-pos shrink-0">
                             {t("socials.connected")}
                           </span>
                         ) : (
                           <Button
                             variant="outline"
-                            className="rounded-lg text-sm h-10 px-5 shrink-0"
+                            className="text-sm h-10 px-5"
                             onClick={() => setConnectRequest({ provider: providerId, mode: "connect" })}
                             disabled={isConnecting}
                           >
@@ -1465,7 +1432,7 @@ export default function OnboardingPage() {
                 <div className="mt-8 flex flex-col gap-3">
                   <Button
                     size="lg"
-                    className="w-full h-12 rounded-xl text-base"
+                    className="w-full h-12 text-base"
                     onClick={() => setStep(PAYWALL_STEP)}
                   >
                     {Object.keys(connected).length > 0
@@ -1496,13 +1463,13 @@ export default function OnboardingPage() {
                     initial={{ scale: 0.7, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: "spring", stiffness: 280, delay: 0.1 }}
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-full mb-6"
+                    className="inline-flex size-12 items-center justify-center rounded-full mb-6"
                     style={{
                       background: "color-mix(in oklch, var(--mk-pos) 12%, var(--mk-paper))",
                       border: "1px solid color-mix(in oklch, var(--mk-pos) 26%, var(--mk-rule))",
                     }}
                   >
-                    <span className="font-bold text-base" style={{ color: "var(--mk-pos)" }}>
+                    <span className="font-semibold text-base text-mk-pos">
                       ✓
                     </span>
                   </motion.div>
@@ -1530,7 +1497,7 @@ export default function OnboardingPage() {
                       locked
                     />
                   ) : (
-                    <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-10 text-center text-base text-muted-foreground">
+                    <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
                       {t("paywall.firstPostReady")}
                     </div>
                   )}
@@ -1557,7 +1524,7 @@ export default function OnboardingPage() {
                           className={cn(
                             "px-6 py-2.5 text-sm font-medium transition-colors",
                             interval === iv
-                              ? "bg-primary text-white"
+                              ? "bg-primary text-primary-foreground"
                               : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                           )}
                           onClick={() => setInterval(iv)}
@@ -1585,25 +1552,25 @@ export default function OnboardingPage() {
                           className={cn(
                             "rounded-xl border p-5 text-start transition-[color,background-color,border-color,transform] duration-150 relative active:scale-[0.99]",
                             isSelected
-                              ? "border-primary bg-primary/3 shadow-sm"
-                              : "border-border/60 hover:border-foreground/30"
+                              ? "border-foreground bg-muted/60"
+                              : "border-border bg-card hover:border-mk-ink-20"
                           )}
                           onClick={() => setSelectedTier(tierKey)}
                         >
                           {plan.badge && isSelected && (
-                            <span className="absolute -top-2.5 start-3 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wide">
+                            <span className="absolute -top-2.5 start-3 rounded-md bg-foreground px-2 py-0.5 text-[11.5px] font-medium leading-4 text-background">
                               {plan.badge}
                             </span>
                           )}
                           <div className="flex items-center justify-between mb-3">
                             <p className="text-sm font-semibold text-foreground">{plan.name}</p>
                             {isSelected && (
-                              <span className="text-[10px] font-bold text-primary uppercase tracking-wide">
+                              <span className="text-xs font-medium text-foreground">
                                 {t("paywall.selected")}
                               </span>
                             )}
                           </div>
-                          <p className="text-2xl font-bold text-foreground">${price}</p>
+                          <p className="text-2xl font-semibold text-foreground">${price}</p>
                           <p className="text-xs text-muted-foreground">{t("paywall.perMonth")}</p>
                           {interval === "annual" && (
                             <p className="text-xs text-muted-foreground mt-1 line-through">
@@ -1616,7 +1583,7 @@ export default function OnboardingPage() {
                   </div>
 
                   {/* Trial messaging — both intervals now have trial */}
-                  <p className="text-center text-sm font-medium mt-4 text-emerald-600">
+                  <p className="text-center text-sm font-medium mt-4 text-mk-pos">
                     {t("paywall.trialAllPlans", { days: TRIAL_DAYS, dayAfter: TRIAL_DAYS + 1 })}
                   </p>
                   <p className="text-center text-xs text-muted-foreground mt-1.5">
@@ -1634,7 +1601,7 @@ export default function OnboardingPage() {
 
                   <Button
                     size="lg"
-                    className="w-full mt-6 h-13 rounded-xl px-3 sm:px-6 text-[14px] sm:text-base"
+                    className="mt-6 w-full"
                     onClick={handleCheckout}
                     disabled={busy || freeBusy}
                   >
@@ -1649,7 +1616,7 @@ export default function OnboardingPage() {
                   {/* Free plan — deliberately low-emphasis escape hatch: lets
                       the user into the app without checkout, with the free
                       limits spelled out so the choice is informed. */}
-                  <div className="mt-8 border-t pt-6 text-center" style={{ borderColor: "var(--mk-rule)" }}>
+                  <div className="mt-8 border-t pt-6 text-center border-border">
                     <p className="text-sm font-medium text-foreground">
                       {t("paywall.freeOption.title")}
                     </p>
@@ -1658,7 +1625,7 @@ export default function OnboardingPage() {
                     </p>
                     <Button
                       variant="ghost"
-                      className="mt-3 h-10 rounded-lg px-5 text-[13px] text-muted-foreground hover:text-foreground"
+                      className="mt-3 h-10 px-5 text-muted-foreground"
                       onClick={handleContinueFree}
                       disabled={busy || freeBusy}
                     >

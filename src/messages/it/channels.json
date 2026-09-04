@@ -6,9 +6,21 @@
     "subtitle": "Connettiti una volta e pubblica su ogni piattaforma principale. Markaestro gestisce le differenze tra le API, i limiti di caratteri e i requisiti dei contenuti così puoi concentrarti sul messaggio."
   },
   "stats": [
-    { "value": "6", "label": "Canali Social", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
-    { "value": "1", "label": "Dashboard", "sub": "Workflow di pubblicazione unificato" },
-    { "value": "0", "label": "Token Manuali", "sub": "Completamente OAuth, completamente automatizzato" }
+    {
+      "value": "7",
+      "label": "Canali Social",
+      "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest, X"
+    },
+    {
+      "value": "1",
+      "label": "Dashboard",
+      "sub": "Workflow di pubblicazione unificato"
+    },
+    {
+      "value": "0",
+      "label": "Token Manuali",
+      "sub": "Completamente OAuth, completamente automatizzato"
+    }
   ],
   "channels": [
     {
@@ -16,39 +28,39 @@
       "category": "Social",
       "description": "Raggiungi miliardi di persone sul più grande social network al mondo. Pubblica sulle Pagine e gestisci i post del feed con pieno controllo creativo.",
       "capabilities": [
-        "Post del feed della Pagina con contenuti multimediali ricchi",
-        "Post con link e schede di anteprima",
+        "Post di pagina con contenuti multimediali",
+        "Post di solo testo",
         "Pubblicazione di foto e video",
-        "Post con carousel e più immagini",
-        "Programmazione per il massimo coinvolgimento",
-        "Targeting per pagina, per ogni brand"
+        "Caroselli e post multi-immagine fino a 10 elementi",
+        "Programmazione dal calendario condiviso",
+        "Una pagina per brand"
       ],
       "connection": "OAuth via Meta Business Suite"
     },
     {
       "name": "Instagram",
       "category": "Social",
-      "description": "Pubblica su account Instagram Business direttamente da Markaestro. Post del feed, carousel e Storie con contenuti formattati automaticamente per ogni posizionamento.",
+      "description": "Pubblica su account Instagram professionali direttamente da Markaestro. Post del feed, caroselli, Reels e Stories tramite l'API ufficiale.",
       "capabilities": [
-        "Post del feed con immagine o video singoli",
-        "Post carousel (fino a 10 slide)",
-        "Ritaglio automatico alle proporzioni 1:1 e 4:5",
-        "Didascalia con ottimizzazione degli hashtag",
-        "Programmazione nei migliori orari di coinvolgimento",
-        "Login Instagram per account professionali indipendenti"
+        "Post del feed con una singola immagine o video",
+        "Caroselli (fino a 10 slide)",
+        "I video singoli vengono pubblicati come Reels",
+        "Stories con una singola immagine o video",
+        "Programmazione dal calendario condiviso",
+        "Accesso Instagram per account professionali autonomi"
       ],
-      "connection": "OAuth via Instagram Login or Meta Login"
+      "connection": "OAuth tramite accesso Instagram"
     },
     {
       "name": "TikTok",
       "category": "Social",
-      "description": "Raggiungi la Gen Z e oltre sulla piattaforma di contenuti brevi in più rapida crescita. Markaestro invia foto e video alla casella in arrivo TikTok del creator, poi monitora quando sono pronti per il completamento finale su TikTok.",
+      "description": "Raggiungi la Gen Z e oltre sulla piattaforma di video brevi in più rapida crescita. Per impostazione predefinita Markaestro consegna foto e video alla inbox TikTok del creator per completare e pubblicare; Direct Post sul profilo è disponibile per singolo post.",
       "capabilities": [
-        "Trasferimento in casella in arrivo di video e foto",
-        "Completamento da parte del creator all'interno di TikTok",
-        "Consegna programmata nella casella in arrivo TikTok",
-        "Verifica rapida dello stato dopo il trasferimento",
-        "Monitoraggio dello stato all'interno di Markaestro"
+        "Post video e foto",
+        "Consegna alla inbox per impostazione predefinita, Direct Post per post",
+        "Consegna programmata su TikTok",
+        "Verifica rapida dello stato dopo la consegna",
+        "Monitoraggio dello stato in Markaestro"
       ],
       "connection": "OAuth via TikTok for Developers"
     },
@@ -85,7 +97,7 @@
       "category": "Scoperta",
       "description": "Pinna le tue immagini e i tuoi video su una bacheca che scegli al momento della connessione. La tua didascalia diventa la descrizione del pin, e tutto viene pubblicato tramite l'API ufficiale di Pinterest.",
       "capabilities": [
-        "Pin di immagini",
+        "Pin immagine e caroselli fino a 5 immagini",
         "Pin di video con verifica dello stato di caricamento",
         "Bacheca scelta al momento della connessione",
         "La didascalia diventa la descrizione del pin",
@@ -93,6 +105,20 @@
         "Programmazione dal calendario condiviso"
       ],
       "connection": "OAuth via Pinterest"
+    },
+    {
+      "name": "X",
+      "category": "Social",
+      "description": "Pubblica su X dallo stesso compositore di ogni altro canale. Testo, immagini, GIF e video partono tramite l'API ufficiale di X, con controlli sulle risposte per post e metriche in tempo reale riportate in Analytics.",
+      "capabilities": [
+        "Post di testo fino a 280 caratteri",
+        "Fino a quattro immagini, una GIF o un video",
+        "Controlli sulle risposte per post",
+        "Metriche dei post in tempo reale e pubblico dell'account",
+        "Protezione della spesa per l'API di X a livello di workspace",
+        "Programmazione dal calendario condiviso"
+      ],
+      "connection": "OAuth tramite X"
     }
   ],
   "capabilitiesLabel": "Funzionalità",
@@ -101,9 +127,21 @@
     "titleLead": "Connesso in",
     "titleHighlight": "tre passaggi",
     "steps": [
-      { "step": "01", "title": "Connetti", "desc": "Clicca su 'Connetti' su qualsiasi canale. Autorizza tramite OAuth. Markaestro archivia in modo sicuro e rinnova automaticamente i tuoi token." },
-      { "step": "02", "title": "Crea", "desc": "Scrivi i tuoi contenuti nell'editor unificato. Visualizza l'anteprima di come appariranno su ciascuna piattaforma prima di pubblicare." },
-      { "step": "03", "title": "Pubblica", "desc": "Premi pubblica o programma per dopo. Markaestro gestisce la formattazione, le specifiche dei contenuti e le chiamate API per ogni canale." }
+      {
+        "step": "01",
+        "title": "Connetti",
+        "desc": "Clicca su 'Connetti' su qualsiasi canale. Autorizza tramite OAuth. Markaestro archivia in modo sicuro e rinnova automaticamente i tuoi token."
+      },
+      {
+        "step": "02",
+        "title": "Crea",
+        "desc": "Scrivi i tuoi contenuti nell'editor unificato. Visualizza l'anteprima di come appariranno su ciascuna piattaforma prima di pubblicare."
+      },
+      {
+        "step": "03",
+        "title": "Pubblica",
+        "desc": "Premi pubblica o programma per dopo. Markaestro gestisce la formattazione, le specifiche dei contenuti e le chiamate API per ogni canale."
+      }
     ]
   },
   "cta": {

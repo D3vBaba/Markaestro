@@ -7,7 +7,6 @@ import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   PRODUCT_CATEGORY_OPTIONS,
-  categoryColor,
   categoryLabel,
 } from "./categories";
 
@@ -63,14 +62,13 @@ export default function CategorySelect({
         <span className="flex min-w-0 items-center gap-2">
           <span
             className="h-2.5 w-2.5 shrink-0 rounded-full"
-            style={{ background: value ? categoryColor(value) : "var(--mk-ink-20)" }}
           />
           <span className={cn("truncate", !value && "text-muted-foreground")}>
             {value ? categoryLabel(value, t) : tSelect("selectCategory")}
           </span>
         </span>
         <ChevronDown
-          className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")}
+          className={cn("size-4 text-muted-foreground transition-transform", open && "rotate-180")}
         />
       </button>
 
@@ -82,8 +80,7 @@ export default function CategorySelect({
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.14, ease: "easeOut" }}
             role="listbox"
-            className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-border/60 shadow-xl"
-            style={{ background: "var(--mk-surface)" }}
+            className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-border/60 shadow-xl bg-background"
           >
             <div className="max-h-64 overflow-y-auto p-1">
               {PRODUCT_CATEGORY_OPTIONS.map((opt) => {
@@ -106,11 +103,10 @@ export default function CategorySelect({
                   >
                     <span
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ background: opt.color }}
                     />
                     <span className="flex-1 truncate">{categoryLabel(opt.value, t)}</span>
                     {selected && (
-                      <Check className="h-4 w-4 shrink-0" style={{ color: "var(--mk-accent)" }} />
+                      <Check className="size-4 shrink-0 text-mk-accent" />
                     )}
                   </button>
                 );

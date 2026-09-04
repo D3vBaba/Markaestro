@@ -9,7 +9,7 @@ const TOOLTIP_STYLE = {
   border: "1px solid var(--mk-rule)",
   borderRadius: 8,
   boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
-  color: "var(--mk-ink)",
+  color: "var(--mk-accent)",
   fontSize: 12,
   padding: "6px 10px",
 } as const;
@@ -28,7 +28,7 @@ export function TrendChart({
   dataKey,
   name,
   height = 220,
-  color = "var(--mk-ink)",
+  color = "var(--mk-accent)",
   locale,
   compare,
   compareName,
@@ -76,7 +76,7 @@ export function TrendChart({
           dy={8}
           minTickGap={24}
           tick={{ fontFamily: "var(--font-mono)", letterSpacing: "0.06em" }}
-          tickFormatter={(v) => shortDate(String(v), locale).toUpperCase()}
+          tickFormatter={(v) => shortDate(String(v), locale)}
         />
         <YAxis
           stroke="var(--mk-ink-40)"
@@ -160,7 +160,7 @@ export function FollowerTrendChart({
           dy={8}
           minTickGap={24}
           tick={{ fontFamily: "var(--font-mono)", letterSpacing: "0.06em" }}
-          tickFormatter={(v) => shortDate(String(v), locale).toUpperCase()}
+          tickFormatter={(v) => shortDate(String(v), locale)}
         />
         <YAxis
           stroke="var(--mk-ink-40)"

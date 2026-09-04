@@ -10,17 +10,17 @@
       "title": "Multichannel-Veröffentlichung",
       "description": "Einmal verfassen, überall veröffentlichen. Schreibe einen Beitrag und passe ihn mit einem Klick für Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest an. Plane für den optimalen Zeitpunkt oder veröffentliche sofort.",
       "details": [
-        "Einheitlicher Editor mit Vorschau pro Kanal",
-        "Medienverwaltung per Drag & Drop",
-        "Massenplanung für Content-Kalender",
-        "Automatische Größenanpassung von Bildern an Plattformvorgaben"
+        "Ein Composer mit Vorschau pro Kanal",
+        "Medienverwaltung per Drag-and-drop",
+        "Massenweise umplanen, Status ändern und löschen",
+        "Zeichenlimits und Medienprüfungen pro Kanal vor dem Veröffentlichen"
       ]
     },
     {
       "title": "Medien-Upload & Bibliothek",
       "description": "Bring deine eigene Fotografie, Videos und Markenmaterialien mit. Markaestro speichert sie pro Arbeitsbereich und fügt sie Beiträgen mit einem einzigen Zug hinzu.",
       "details": [
-        "Unterstützt JPG, PNG, WebP, MP4, MOV und WebM",
+        "Unterstützt JPG, PNG, WebP, GIF, MP4, MOV und WebM",
         "Bis zu 250 MB pro Video, 10 MB pro Bild",
         "Formatprüfung pro Kanal vor der Veröffentlichung",
         "Hochgeladene Inhalte in mehreren Beiträgen wiederverwenden"
@@ -30,20 +30,20 @@
       "title": "Multichannel-Vorschauen",
       "description": "Sieh dir an, wie jeder Beitrag auf jedem Netzwerk aussehen wird, bevor du veröffentlichst: Facebook, Instagram, TikTok, LinkedIn, Threads und Pinterest haben jeweils eine eigene Vorschau. Texte, Seitenverhältnisse, Zeichenlimits und Medienspezifikationen werden live dargestellt.",
       "details": [
-        "Pixelgenaue Vorschauen pro Plattform",
-        "Live-Zeichenzähler für Texte",
-        "Hinweise zum Seitenverhältnis pro Kanal",
-        "Formatierungsprobleme erkennen, bevor sie live gehen"
+        "Vorschau pro Plattform, inklusive Anzeigenplatzierungen",
+        "Zeichenzähler für die Caption in Echtzeit",
+        "Medienanzahl und Formatregeln pro Kanal",
+        "Formatierungsprobleme abfangen, bevor sie live gehen"
       ]
     },
     {
       "title": "Veröffentlichungs-Dashboard",
       "description": "Sieh jeden Entwurf, geplanten Beitrag und Veröffentlichungsstatus in einer einzigen Arbeitsbereichsansicht, ohne zwischen Plattformen zu wechseln.",
       "details": [
-        "Warteschlangen für Entwürfe, geplante und veröffentlichte Beiträge",
-        "Veröffentlichungsstatus pro Kanal",
-        "Wiederholungs-Workflow für fehlgeschlagene Beiträge",
-        "Inhaltsübersicht auf Arbeitsbereichsebene"
+        "Ansichten für Entwürfe, geplante, veröffentlichte und On-Platform-Beiträge",
+        "Veröffentlichungsstatus und Fehlerdetails pro Kanal",
+        "Warteschlange „Zu posten“ für Kanäle, auf denen ein Mensch nativ postet",
+        "Aktivitätsübersicht auf Workspace-Ebene im Dashboard"
       ]
     },
     {
@@ -57,15 +57,25 @@
       ]
     },
     {
-      "title": "API & KI-Agenten",
-      "description": "Alles, was das Dashboard kann, kann deine Software auch. Erstelle einen API-Schlüssel, gib ihn an einen KI-Agenten oder ein Skript weiter und lass ihn Konten entdecken, Inhalte hochladen, Beiträge planen, veröffentlichen und zurückmelden, in jedem Tarif, ohne Aufpreis.",
+      "title": "Intelligent Evergreen",
+      "description": "Mache aus einem reifen, gemessenen Beitrag eine wiederkehrende Regel, die du kontrollierst. Rotiere freigegebene Captions, prüfe jeden Lauf oder gib die Warteschlange im Voraus frei, und lass Markaestro die Serie pausieren, wenn die vergleichbare Leistung nachlässt.",
       "details": [
-        "Schlüssel auf eine einzelne Marke beschränkt, mit optionalem Ablaufdatum",
-        "Idempotente Schreibvorgänge, sodass ein Wiederholungsversuch nie doppelt postet",
-        "Asynchrone Veröffentlichungsläufe plus HMAC-signierte Webhooks",
-        "Grundsätzlich manuell bei Meta und TikTok, ein Mensch postet weiterhin"
+        "Eignung gestützt auf die gemessenen Ergebnisse des Ursprungsbeitrags",
+        "Feste oder gelernte Zeiten mit sommerzeitsicherer Wiederholung",
+        "Modi „Jeden Lauf prüfen“ und „Im Voraus freigeben“",
+        "Sieben-Tage-Auswertung mit vorsichtiger Pause nach zwei schwachen Läufen"
+      ]
+    },
+    {
+      "title": "API & KI-Agenten",
+      "description": "Alles, was das Dashboard kann, kann auch deine Software. Erzeuge einen API-Schlüssel, gib ihn einem KI-Agenten oder Skript, und lass ihn Konten finden, Medien hochladen, Beiträge planen, veröffentlichen und berichten, in jedem bezahlten Plan ohne Aufpreis.",
+      "details": [
+        "Schlüssel auf eine einzelne Marke beschränkt, optional mit Ablaufdatum",
+        "Idempotente Schreibvorgänge, damit ein Retry nie doppelt postet",
+        "Asynchrone Veröffentlichungsläufe, HMAC-signierte Webhooks und ein MCP-Server für Claude Code, claude.ai und Cursor",
+        "Meta und TikTok standardmäßig manuell: Ein Mensch postet, sofern du einen Beitrag nicht freigibst"
       ],
-      "codeLabel": "plane einen Beitrag von allem, was HTTP spricht",
+      "codeLabel": "Plane einen Beitrag von allem, was HTTP spricht",
       "agentGuideLink": "KI-Agenten-Leitfaden lesen →"
     }
   ],
@@ -76,11 +86,15 @@
     },
     {
       "title": "Planung & Kalender",
-      "description": "Reihe Beiträge in einem einheitlichen Kalender über alle deine Kanäle ein. Verschiebe per Drag & Drop, dupliziere Beiträge mit einem Klick und behalte den Überblick, was wann veröffentlicht wird."
+      "description": "Plane Beiträge in einem gemeinsamen Kalender über alle Kanäle. Verschiebe per Drag-and-drop, plane mehrere Beiträge auf einmal um und behalte im Blick, was wann rausgeht."
     },
     {
       "title": "Rollenbasierter Zugriff",
-      "description": "Steuere mit drei Rollenstufen, wer veröffentlichen, bearbeiten oder nur ansehen darf: Inhaber, Administrator und Mitglied. Halte sensible Einstellungen geschützt, während dein Team schnell vorankommt."
+      "description": "Steuere mit vier Rollen, wer veröffentlichen, bearbeiten oder nur ansehen darf: Owner, Admin, Member und Analyst. Sensible Einstellungen bleiben geschützt, während dein Team schnell arbeitet."
+    },
+    {
+      "title": "Markenprofile",
+      "description": "Scanne eine Website, um Name, Beschreibung, Farben, Logo und Tonalität in ein Markenprofil zu übernehmen, und verfeinere dann Stimme, Identität und Wissen. Jeder Beitrag und jeder Intelligence-Entwurf stützt sich auf dieses Profil."
     }
   ],
   "platformSection": {
@@ -123,27 +137,23 @@
     "tabs": [
       {
         "title": "Übersicht",
-        "body": "Zielbanner, gemessene KPIs, Plattformvergleich pro Beitrag und eine Bereitschaftsliste, die genau zeigt, welche Funktionen aktiv sind und wie viele Daten jede noch braucht."
-      },
-      {
-        "title": "Zielgruppe",
-        "body": "Gib Ziel, Märkte, Zeitzone, Säulen und Stimme an. Getrackte Kurzlinks zählen Klicks ohne personenbezogene Daten und führen Konversionen auf den Beitrag zurück."
+        "body": "Zielbanner, gemessene KPIs, Plattformvergleich pro Beitrag, eine Bereitschaftsliste, die zeigt, welche Funktionen aktiv sind und wie viele Daten jede noch braucht, sowie Ask Markaestro für Fragen, die nur aus den Daten dieser Marke beantwortet werden."
       },
       {
         "title": "Inhalte",
         "body": "Deine Beiträge sortiert nach der Kennzahl deiner Wahl, die in jedem Beitrag erkannten Muster und eine Erklärung „Warum es funktioniert hat“, die auf den Zahlen dieses Beitrags im Vergleich zu deinem Kontodurchschnitt beruht."
       },
       {
-        "title": "Chancen",
-        "body": "Belegte Vorschläge, die du übernehmen, anheften oder verwerfen kannst, jeder mit einem Button „Entwurf erstellen“. Übernehmen erstellt oder plant nie einen Beitrag."
+        "title": "Playbook",
+        "body": "Belegte Chancen, die du annehmen, anpinnen oder verwerfen kannst, jede mit einem Button „Entwurf erstellen“, plus die Muster, die sich in deinen Daten wiederholen, mit Stichprobengröße, Effekt und Konfidenzbereich in klaren Worten. Annehmen erstellt oder plant nie einen Beitrag."
       },
       {
-        "title": "Leitfaden",
-        "body": "Muster, die sich in deinen Daten wiederholen, mit Stichprobe, Effekt und Konfidenzbereich in klaren Worten, plus die Beiträge hinter jedem Muster."
+        "title": "Zielgruppe",
+        "body": "Gib Ziel, Märkte, Zeitzone, Säulen und Stimme an. Getrackte Kurzlinks zählen Klicks ohne personenbezogene Daten und führen Konversionen auf den Beitrag zurück."
       },
       {
-        "title": "Experimente und Ask",
-        "body": "Gepaarte A/B-Beiträge mit gemessenem Sieger und Fragen, die nur aus den Daten dieser Marke beantwortet werden, mit Nennung der verwendeten Daten."
+        "title": "Experimente",
+        "body": "Gepaarte A/B-Beiträge mit gemessenem Gewinner, verfügbar im Business-Plan."
       }
     ],
     "principlesTitle": "Regeln, die es nie bricht",

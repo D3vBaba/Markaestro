@@ -307,7 +307,7 @@ export default function ImageCropDialog({
         >
           {!current ? (
             <div className="absolute inset-0 grid place-items-center">
-              {decoding && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+              {decoding && <Loader2 className="size-5 animate-spin text-muted-foreground" />}
             </div>
           ) : (
             <img
@@ -343,7 +343,7 @@ export default function ImageCropDialog({
             disabled={!current}
             onClick={() => setCropAt(index, identityCrop())}
           >
-            <RotateCcw className="h-4 w-4" />
+            <RotateCcw className="size-4" />
           </Button>
         </div>
 
@@ -382,7 +382,7 @@ export default function ImageCropDialog({
             onClick={handleConfirm}
             disabled={rendering || decoding || images.length === 0}
           >
-            {rendering && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {rendering && <Loader2 className="mr-2 size-4 animate-spin" />}
             {t("confirm", { count: images.length })}
           </Button>
         </DialogFooter>

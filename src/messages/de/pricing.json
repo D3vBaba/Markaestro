@@ -30,43 +30,41 @@
       ]
     },
     "starter": {
-      "description": "Für Einzelmarketer, die auf Meta und TikTok veröffentlichen.",
+      "description": "Für Solo-Marketer, die auf allen Plattformen planen.",
       "features": [
-        "5 soziale Kanäle",
-        "Unbegrenzte Beiträge",
-        "10 GB Speicher",
-        "1 Teammitglied",
+        "2 Marken auf allen 7 Plattformen",
+        "Bis zu 8 Kanäle pro Marke",
+        "Unbegrenzt geplante Beiträge",
         "Content-Kalender",
-        "1 Arbeitsbereich",
-        "Markenstimme (1 Profil)",
-        "Analysen (7-Tage-Fenster)"
+        "Markenstimme pro Marke",
+        "10 GB Speicher",
+        "Vollständige Publishing-API",
+        "Analysen (30-Tage-Fenster)"
       ]
     },
     "pro": {
-      "description": "Für wachsende Teams, die Zusammenarbeit und Planung benötigen.",
+      "description": "Für wachsende Teams mit mehreren Marken.",
       "features": [
-        "15 soziale Kanäle",
-        "Unbegrenzte Beiträge",
+        "6 Marken",
+        "5 Teammitglieder mit Rollen",
+        "5 Workspaces",
+        "Empfehlungen für die beste Posting-Zeit",
+        "Markenstimme + Markenidentität (Logo & Farben)",
         "100 GB Speicher",
-        "5 Teammitglieder",
-        "5 Arbeitsbereiche",
-        "Markenstimme + Markenidentität",
-        "Intelligente Planung",
-        "Analysen (90-Tage-Fenster)",
-        "Priorisierter Support"
+        "Analysen (1-Jahres-Fenster)",
+        "Priorisierter Support",
+        "10 Intelligent-Evergreen-Warteschlangen pro Marke"
       ]
     },
     "business": {
-      "description": "Für Agenturen, die mehrere Marken im großen Maßstab verwalten.",
+      "description": "Für Agenturen, die viele Marken im großen Stil betreuen.",
       "features": [
-        "50 soziale Kanäle",
-        "Unbegrenzte Beiträge",
+        "20 Marken",
+        "Unbegrenzt Teammitglieder & Workspaces",
         "Unbegrenzter Speicher",
-        "Unbegrenzte Teammitglieder",
-        "Alles aus Pro",
-        "Unbegrenzte Arbeitsbereiche",
-        "Unbegrenzter Analyseverlauf + CSV-Export",
-        "Priorisierter Support"
+        "Unbegrenzte Analysehistorie + CSV-Export",
+        "Priorisierter Support",
+        "Unbegrenzt Intelligent-Evergreen-Warteschlangen"
       ]
     }
   },
@@ -92,19 +90,22 @@
         "name": "Veröffentlichung",
         "features": [
           {
-            "name": "Soziale Kanäle"
+            "name": "Marken"
           },
           {
-            "name": "Beiträge pro Monat"
+            "name": "Kanäle pro Marke"
+          },
+          {
+            "name": "Plattformen (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)"
+          },
+          {
+            "name": "Geplante Beiträge"
           },
           {
             "name": "Content-Kalender"
           },
           {
-            "name": "Massenplanung"
-          },
-          {
-            "name": "Intelligente Planung"
+            "name": "Empfehlungen für die beste Posting-Zeit"
           }
         ]
       },
@@ -196,7 +197,7 @@
     },
     {
       "q": "Was zählt als „sozialer Kanal“?",
-      "a": "Jedes verbundene soziale Konto zählt als ein Kanal. Zum Beispiel wären eine Facebook-Seite, ein geschäftliches Instagram-Konto und ein TikTok-Konto 3 Kanäle."
+      "a": "Jedes verbundene Social-Konto zählt als ein Kanal. Eine Facebook-Seite, ein Instagram-Konto und ein TikTok-Konto wären zum Beispiel 3 Kanäle. Bezahlte Pläne erlauben bis zu 8 Kanäle pro Marke."
     },
     {
       "q": "Wie funktioniert der Speicher?",
@@ -216,7 +217,7 @@
     },
     {
       "q": "Kann mein KI-Agent oder meine eigene Software Markaestro nutzen?",
-      "a": "Ja, in jedem Tarif und ohne Aufpreis. Jeder Administrator eines Arbeitsbereichs kann API-Schlüssel unter Einstellungen → API erstellen und an einen KI-Agenten, ein Skript oder ein vorgefertigtes Planungstool weitergeben. Jeder Schlüssel ist an eine einzelne Marke gebunden, enthält nur die von dir ausgewählten Berechtigungen und kann ein Ablaufdatum erhalten. Im Leitfaden für KI-Agenten findest du die Tool-Definitionen und einen funktionierenden Schnellstart mit vier Befehlen."
+      "a": "Ja, in jedem bezahlten Plan ohne Aufpreis. Jeder Workspace-Admin kann unter Einstellungen → API Schlüssel erzeugen und sie einem KI-Agenten, einem Skript oder einem fertigen Planungstool geben. Jeder Schlüssel ist an eine einzelne Marke gebunden, trägt nur die Scopes, die du auswählst, und kann ein Ablaufdatum bekommen. MCP-Clients wie Claude Code können sich stattdessen über den Browser anmelden. Die Tool-Definitionen und einen funktionierenden Vier-Befehle-Schnellstart findest du im KI-Agenten-Leitfaden."
     },
     {
       "q": "Bietet ihr Rabatte für gemeinnützige Organisationen oder Startups an?",

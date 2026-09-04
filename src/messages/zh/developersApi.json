@@ -22,7 +22,7 @@
       {
         "method": "GET",
         "path": "/api/connect/v1/social-accounts",
-        "note": "以扁平账号列表的形式列出已连接的 Facebook、Instagram、TikTok、LinkedIn 和 Threads 发布目标，每个账号都会标注所属产品，方便客户端分组和区分。每个渠道都拥有各自独立的路径，不会产生跨渠道扩散。"
+        "note": "以扁平账号列表返回已连接的 Facebook、Instagram、TikTok 和 LinkedIn 目标，每个都标注所属产品，便于客户端分组和区分。每个渠道有各自的专用路径，不做跨渠道扇出。"
       },
       {
         "method": "GET",
@@ -223,11 +223,15 @@
       },
       {
         "name": "TikTok",
-        "rule": "至少需要一张图片或一个视频。最多 10 张图片或 1 个视频。默认为手动发布；选用 API 后的内容将发送至创作者的 TikTok 收件箱，绝不会成为公开的 Direct Post。"
+        "rule": "至少一张图片或一个视频。最多 35 张图片或 1 个视频。默认人工发布；选择开启的帖子会进入创作者的 TikTok 收件箱，或通过 TikTok 的 postMode direct_post 直接发布到主页。"
       },
       {
         "name": "LinkedIn",
         "rule": "支持文字、单图、单视频，或最多 20 张图片的原生多图内容。可定向到已连接的个人资料，或已管理的主页。"
+      },
+      {
+        "name": "X",
+        "rule": "文本、最多四张图片、一个 GIF 或一个视频。回复权限按帖子应用；当工作区的 X 成本预算耗尽时，发布会被阻止。"
       }
     ]
   },

@@ -46,24 +46,24 @@
     "kpis": {
       "views": {
         "label": "Vues",
-        "sub": "vs période précédente"
+        "sub": "Vs période précédente"
       },
       "reach": {
         "label": "Portée",
-        "sub": "comptes uniques atteints"
+        "sub": "Comptes uniques atteints"
       },
       "engagement": {
         "label": "Engagement",
-        "sub": "mentions J'aime + commentaires + partages + enregistrements"
+        "sub": "Mentions J'aime + commentaires + partages + enregistrements"
       },
       "engagementRate": {
         "label": "Taux d'engagement",
-        "sub": "engagement ÷ portée",
-        "subViews": "engagements ÷ vues (portée non rapportée)"
+        "sub": "Engagement ÷ portée",
+        "subViews": "Engagements ÷ vues (portée non rapportée)"
       },
       "followers": {
         "label": "Abonnés",
-        "sub": "tous canaux connectés"
+        "sub": "Tous canaux connectés"
       }
     },
     "insights": {
@@ -86,7 +86,7 @@
         "publish": "Ce que les posts publiés chaque jour ont gagné jusqu'ici",
         "activity": "Ce qui s'est passé chaque jour, tous posts confondus"
       },
-      "compare": "vs période précédente",
+      "compare": "Vs période précédente",
       "previous": "Période précédente",
       "noteActivity": "Regroupé par le jour où les plateformes ont rapporté les chiffres.",
       "activityEmpty": "L'activité se construit à partir du prochain relevé. Le regroupement par publication contient l'historique."
@@ -150,7 +150,7 @@
     "notEnoughVariety": "Pas encore assez de variété",
     "publishAtLeastTwo": "Publiez au moins deux formats de contenu (images, vidéos, carrousels, texte) pour les comparer.",
     "postsCount": "{count, plural, one {# post} other {# posts}}",
-    "avgEng": "eng. moy."
+    "avgEng": "Eng. moy."
   },
   "trendChart": {
     "noData": "Aucune donnée pour cette période pour l'instant.",

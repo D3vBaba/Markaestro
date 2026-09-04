@@ -7,7 +7,8 @@
       "drafts": "Concepten",
       "scheduled": "Gepland",
       "published": "Gepubliceerd",
-      "onPlatform": "Op platform"
+      "onPlatform": "Op platform",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "Merk",
@@ -133,11 +134,11 @@
     "show": "Tonen",
     "basedOnData": "Gebaseerd op branchegegevens over betrokkenheid voor {channel}",
     "thisChannel": "dit kanaal",
-    "orPickManually": "of handmatig kiezen",
+    "orPickManually": "Of handmatig kiezen",
     "timeLabel": "Tijd",
     "timezoneNote": "Planningen gebruiken je lokale tijdzone ({timezone}) en worden opgeslagen in UTC.",
     "headsUp": "Let op:",
-    "collisionNote": "er staat al een ander bericht gepland rond dit tijdstip ({date}{channel}). Je kunt nog steeds beide plannen.",
+    "collisionNote": "Er staat al een ander bericht gepland rond dit tijdstip ({date}{channel}). Je kunt nog steeds beide plannen.",
     "onChannel": " op {channel}",
     "scheduleFor": "Plannen voor {date} om {time}",
     "selectDate": "Selecteer een datum"
@@ -354,5 +355,98 @@
       "videoTooLong": "Deze video is langer dan de limiet van {maxSeconds} seconden voor dit account.",
       "creatorInfoUnavailable": "De gegevens van je TikTok-account konden niet worden geladen, dus deze post kan niet rechtstreeks worden geplaatst."
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "Kon de wachtrij niet bijwerken",
+    "actions": {
+      "activate": "Activeren",
+      "activateSuccess": "Wachtrij geactiveerd",
+      "archive": "Archiveren",
+      "archiveSuccess": "Wachtrij gearchiveerd",
+      "pause": "Pauzeren",
+      "pauseSuccess": "Wachtrij gepauzeerd",
+      "resume": "Hervatten",
+      "resumeSuccess": "Wachtrij hervat"
+    },
+    "addVariant": "Variant toevoegen",
+    "analytics": {
+      "conversions": "Conversies",
+      "details": "Prestaties",
+      "engagements": "Interacties",
+      "loadFailed": "Kon de prestaties van de wachtrij niet laden",
+      "loading": "Prestaties van de wachtrij laden...",
+      "measured": "Gemeten runs",
+      "needsReview": "Beoordeling nodig",
+      "noOutcome": "Wacht op een volwassen prestatieresultaat",
+      "noRuns": "Er zijn nog geen herhalingen gemaakt.",
+      "recentRuns": "Recente runs",
+      "trackedClicks": "Gevolgde klikken",
+      "unavailable": "Niet beschikbaar",
+      "views": "Totale weergaven"
+    },
+    "approveFuture": "Toekomstige runs nu goedkeuren",
+    "cancel": "Annuleren",
+    "changeSource": "Wijzigen",
+    "choosePost": "Kies een gepubliceerde post",
+    "create": "Wachtrij maken",
+    "createFailed": "Kon de wachtrij niet maken",
+    "created": "Evergreen-wachtrij gemaakt",
+    "defaultName": "{channel} evergreen-wachtrij",
+    "description": "Maak van bewezen posts beheerde, meetbare wachtrijen. Markaestro bewaart de bron, maakt voor elke run een nieuwe herhaling en pauzeert zwakke reeksen automatisch.",
+    "eligible": "Geschikt bewijs gevonden",
+    "empty": "Nog geen evergreen-wachtrijen voor dit merk.",
+    "everyDays": "Elke {count} dagen",
+    "interval": "Minimum aantal dagen tussen runs",
+    "loadFailed": "Kon de evergreen-wachtrijen niet laden",
+    "loading": "Evergreen-wachtrijen laden...",
+    "newQueue": "Nieuwe wachtrij",
+    "nextRun": "Volgende run: {date}",
+    "notEligible": "Nog niet geschikt",
+    "notScheduled": "Activeer deze wachtrij om de eerste run in te plannen.",
+    "pausedReason": "Gepauzeerd: {reason}",
+    "picker": {
+      "engagements": "Interacties",
+      "filters": {
+        "all": "Alle gepubliceerde",
+        "eligible": "Klaar",
+        "suggested": "Voorgesteld"
+      },
+      "mediaOnly": "Alleen met media",
+      "noMatches": "Geen gepubliceerde posts gevonden.",
+      "noSuggested": "Nog geen opvallende posts. Posts hebben zeven dagen gemeten resultaten nodig voordat ze voorgesteld kunnen worden.",
+      "notReady": "Niet klaar",
+      "rate": "Ratio",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "Geen kanaal op deze post",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Nog geen gemeten weergaven of interacties",
+        "SOURCE_METRICS_IMMATURE": "Minder dan zeven dagen geleden gepubliceerd",
+        "SOURCE_NOT_PUBLISHED": "Nog niet gepubliceerd",
+        "SOURCE_PUBLISH_DATE_MISSING": "Publicatiedatum onbekend"
+      },
+      "search": "Zoek in gepubliceerde posts",
+      "suggested": "Voorgesteld",
+      "views": "Weergaven"
+    },
+    "previewFailed": "Kon deze post niet controleren",
+    "queueName": "Naam van de wachtrij",
+    "removeVariant": "Verwijderen",
+    "reviewEach": "Elke herhaling beoordelen",
+    "reviewPolicy": "Goedkeuringsbeleid",
+    "runs": "{count, plural, one {# run} other {# runs}} gemaakt",
+    "saving": "Bezig met maken...",
+    "selectBrand": "Selecteer een merk om zijn evergreen-wachtrijen te beheren.",
+    "selectedSource": "Geselecteerde post",
+    "sourceHint": "Kies de post die deze wachtrij herhaalt. Voorgestelde posts haalden het meest uit hun publiek en zijn minstens een week oud.",
+    "sourcePost": "Bewezen bronpost",
+    "statuses": {
+      "active": "Actief",
+      "archived": "Gearchiveerd",
+      "draft": "Concept",
+      "paused": "Gepauzeerd"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "Bijschriftvariant",
+    "variantNumber": "Bijschriftvariant {number}",
+    "variants": "Bijschriftvarianten"
   }
 }

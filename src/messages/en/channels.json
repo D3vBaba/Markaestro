@@ -1,14 +1,26 @@
 {
   "hero": {
     "eyebrow": "Channels",
-    "titleLead": "Reach your audience",
-    "titleHighlight": "everywhere",
+    "titleLead": "Reach Your Audience",
+    "titleHighlight": "Everywhere",
     "subtitle": "Connect once and publish to every major platform. Markaestro handles the API differences, character limits, and media requirements so you can focus on the message."
   },
   "stats": [
-    { "value": "6", "label": "Social Channels", "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest" },
-    { "value": "1", "label": "Dashboard", "sub": "Unified publishing workflow" },
-    { "value": "0", "label": "Manual Tokens", "sub": "Fully OAuth, fully automated" }
+    {
+      "value": "7",
+      "label": "Social Channels",
+      "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest, X"
+    },
+    {
+      "value": "1",
+      "label": "Dashboard",
+      "sub": "Unified publishing workflow"
+    },
+    {
+      "value": "0",
+      "label": "Manual Tokens",
+      "sub": "Fully OAuth, fully automated"
+    }
   ],
   "channels": [
     {
@@ -17,36 +29,36 @@
       "description": "Reach billions on the world's largest social network. Publish to Pages and manage feed posts with full creative control.",
       "capabilities": [
         "Page feed posts with rich media",
-        "Link posts with preview cards",
+        "Text-only posts",
         "Photo and video publishing",
-        "Carousel and multi-image posts",
-        "Scheduling for optimal engagement",
-        "Per-page targeting per brand"
+        "Carousel and multi-image posts up to 10 items",
+        "Scheduling from the shared calendar",
+        "One Page per brand"
       ],
       "connection": "OAuth via Meta Business Suite"
     },
     {
       "name": "Instagram",
       "category": "Social",
-      "description": "Publish to Instagram Business accounts directly from Markaestro. Feed posts, carousels, and Stories with auto-formatted media for every placement.",
+      "description": "Publish to Instagram professional accounts directly from Markaestro. Feed posts, carousels, Reels, and Stories over the official API.",
       "capabilities": [
         "Single image and video feed posts",
         "Carousel posts (up to 10 slides)",
-        "Auto-crop to 1:1 and 4:5 ratios",
-        "Caption with hashtag optimization",
-        "Scheduling for best engagement times",
+        "Single videos publish as Reels",
+        "Stories with a single image or video",
+        "Scheduling from the shared calendar",
         "Instagram Login for standalone professional accounts"
       ],
-      "connection": "OAuth via Instagram Login or Meta Login"
+      "connection": "OAuth via Instagram Login"
     },
     {
       "name": "TikTok",
       "category": "Social",
-      "description": "Reach Gen Z and beyond on the fastest-growing short-form platform. Markaestro pushes photos and videos into the creator's TikTok inbox, then tracks when they're ready for final completion in TikTok.",
+      "description": "Reach Gen Z and beyond on the fastest-growing short-form platform. By default Markaestro hands photos and videos to the creator's TikTok inbox to finish and post; Direct Post to the profile is available per post.",
       "capabilities": [
-        "Video and photo inbox handoff",
-        "Creator completion inside TikTok",
-        "Scheduled delivery into TikTok inbox",
+        "Video and photo posts",
+        "Inbox handoff by default, Direct Post per post",
+        "Scheduled delivery into TikTok",
         "Fast status polling after handoff",
         "Status tracking inside Markaestro"
       ],
@@ -85,7 +97,7 @@
       "category": "Discovery",
       "description": "Pin your images and video to a board you choose when you connect. Your caption becomes the pin description, and everything publishes over the official Pinterest API.",
       "capabilities": [
-        "Image pins",
+        "Image pins and carousels up to 5 images",
         "Video pins with upload status polling",
         "Board picked at connection time",
         "Caption becomes the pin description",
@@ -93,23 +105,49 @@
         "Scheduling from the shared calendar"
       ],
       "connection": "OAuth via Pinterest"
+    },
+    {
+      "name": "X",
+      "category": "Social",
+      "description": "Post to X from the same composer as every other channel. Text, images, GIFs, and video go out over the official X API, with reply controls per post and live metrics pulled back into Analytics.",
+      "capabilities": [
+        "Text posts up to 280 characters",
+        "Up to four images, one GIF, or one video",
+        "Reply controls per post",
+        "Live post metrics and account audience",
+        "Workspace spend protection for the X API",
+        "Scheduling from the shared calendar"
+      ],
+      "connection": "OAuth via X"
     }
   ],
   "capabilitiesLabel": "Capabilities",
   "howItWorks": {
     "eyebrow": "How It Works",
     "titleLead": "Connected in",
-    "titleHighlight": "three steps",
+    "titleHighlight": "Three Steps",
     "steps": [
-      { "step": "01", "title": "Connect", "desc": "Click 'Connect' on any channel. Authorize via OAuth. Markaestro securely stores and auto-refreshes your tokens." },
-      { "step": "02", "title": "Create", "desc": "Write your content in the unified composer. Preview how it looks on each platform before publishing." },
-      { "step": "03", "title": "Publish", "desc": "Hit publish or schedule for later. Markaestro handles formatting, media specs, and API calls for every channel." }
+      {
+        "step": "01",
+        "title": "Connect",
+        "desc": "Click 'Connect' on any channel. Authorize via OAuth. Markaestro securely stores and auto-refreshes your tokens."
+      },
+      {
+        "step": "02",
+        "title": "Create",
+        "desc": "Write your content in the unified composer. Preview how it looks on each platform before publishing."
+      },
+      {
+        "step": "03",
+        "title": "Publish",
+        "desc": "Hit publish or schedule for later. Markaestro handles formatting, media specs, and API calls for every channel."
+      }
     ]
   },
   "cta": {
-    "title": "Connect your first channel in under two minutes",
+    "title": "Connect Your First Channel in Under Two Minutes",
     "subtitle": "Click, authorize, and start publishing, no developer setup required. Once a channel is connected, your team publishes from the dashboard and your AI agent can publish to the same channel through the API.",
-    "primaryButton": "Get started free",
-    "secondaryButton": "Automate it with an agent"
+    "primaryButton": "Get Started Free",
+    "secondaryButton": "Automate It with an Agent"
   }
 }

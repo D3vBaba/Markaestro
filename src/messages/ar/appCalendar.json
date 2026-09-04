@@ -26,7 +26,8 @@
     "preview": "معاينة",
     "viewLivePost": "عرض المنشور المباشر",
     "untitledPost": "منشور بلا عنوان",
-    "failedToPublish": "فشل النشر"
+    "failedToPublish": "فشل النشر",
+    "evergreen": "Evergreen"
   },
   "dayPanel": {
     "today": "اليوم",
@@ -82,5 +83,14 @@
   "postNotFoundToast": "تعذّر فتح هذا المنشور. يُرجى المحاولة مرة أخرى.",
   "viewAllPostsOnDay": "عرض جميع منشورات هذا اليوم ({count})",
   "viewAllPostsOnDate": "عرض جميع منشورات {date} ({count})",
-  "moreCount": "+{count} إضافية"
+  "moreCount": "+{count} إضافية",
+  "listEmpty": "لا شيء مجدول أو منشور في هذا الشهر بعد.",
+  "moreChannels": "+{count} أخرى",
+  "title": "التقويم",
+  "views": {
+    "list": "قائمة",
+    "month": "شهر",
+    "week": "أسبوع"
+  },
+  "weekOf": "أسبوع {date}"
 }

@@ -92,7 +92,7 @@ function ChannelIcon({ channel, size = 14 }: { channel: string; size?: number })
       </svg>
     );
   }
-  if (channel === "x") return <span style={{ fontSize: size - 2 }} className="font-bold leading-none">X</span>;
+  if (channel ==="x") return <span style={{ fontSize: size - 2 }} className="font-semibold leading-none">X</span>;
   return null;
 }
 
@@ -104,6 +104,7 @@ export default function ChannelSelector({
   onSelectedChannelsChange,
   channelDestinations,
   onChannelDestinationsChange,
+  onChannelLabelsChange,
 }: {
   value: string;
   onChange: (channel: string) => void;
@@ -113,11 +114,27 @@ export default function ChannelSelector({
   /** Which linked account each channel posts to, keyed by channel. */
   channelDestinations?: Record<string, string>;
   onChannelDestinationsChange?: (destinations: Record<string, string>) => void;
+  /** Connected account label per channel (page name, handle, board), so previews can show it. */
+  onChannelLabelsChange?: (labels: Record<string, string>) => void;
 }) {
   const t = useTranslations("content.channelSelector");
   const [managedChannels, setManagedChannels] = useState<ChannelInfo[]>(fallbackChannels);
   const [loadedProductKey, setLoadedProductKey] = useState<string | null>(null);
   const productKey = productId ?? "";
+
+  useEffect(() => {
+    if (!onChannelLabelsChange) return;
+    const labels: Record<string, string> = {};
+    for (const item of managedChannels) {
+      const chosen = channelDestinations?.[item.channel];
+      const destination = chosen
+        ? item.destinations?.find((d) => d.destinationId === chosen)
+        : undefined;
+      const label = destination?.label ?? item.destinationLabel;
+      if (label) labels[item.channel] = label;
+    }
+    onChannelLabelsChange(labels);
+  }, [managedChannels, channelDestinations, onChannelLabelsChange]);
 
   useEffect(() => {
     let cancelled = false;
@@ -246,9 +263,9 @@ export default function ChannelSelector({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("channels")}</label>
+        <label className="text-[13px] font-medium text-foreground">{t("channels")}</label>
         {onSelectedChannelsChange && (
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {t("selectedCount", { count: selected.length })}
           </span>
         )}
@@ -268,10 +285,10 @@ export default function ChannelSelector({
               title={state !== "ready" ? channelReason(ch.channel) : ch.destinationLabel ?? undefined}
               className={`relative flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm transition-colors ${
                 isSelected && !disabled
-                  ? (colors?.active ?? "border-foreground bg-foreground text-background") + " font-medium shadow-sm"
+                  ? (colors?.active ?? "border-foreground bg-foreground text-background") + " font-medium "
                   : disabled
-                  ? "border-border/40 text-muted-foreground/50 cursor-not-allowed bg-muted/20"
-                  : "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+                  ? "border-border text-muted-foreground/50 cursor-not-allowed bg-muted/20"
+                  : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
               }`}
             >
               <ChannelIcon channel={ch.channel} size={13} />
@@ -293,8 +310,8 @@ export default function ChannelSelector({
         })}
       </div>
       {channelsNeedingDestination.length > 0 && onChannelDestinationsChange && (
-        <div className="space-y-2 rounded-lg border border-border/50 p-2.5">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="space-y-2 rounded-lg border border-border p-2.5">
+          <p className="text-xs font-medium text-muted-foreground">
             {t("postTo")}
           </p>
           {channelsNeedingDestination.map((ch) => {
@@ -304,7 +321,7 @@ export default function ChannelSelector({
               <label key={ch} className="flex items-center gap-2 text-[12px]">
                 <span className="w-20 shrink-0 text-muted-foreground">{info?.label ?? ch}</span>
                 <select
-                  className="min-w-0 flex-1 rounded-md border border-border/60 bg-transparent px-2 py-1 text-[12px]"
+                  className="min-w-0 flex-1 rounded-md border border-border bg-transparent px-2 py-1 text-[12px]"
                   value={channelDestinations?.[ch] ?? destinations[0].destinationId ?? ""}
                   onChange={(e) =>
                     onChannelDestinationsChange({
@@ -325,7 +342,7 @@ export default function ChannelSelector({
         </div>
       )}
       {productId && selectedState === "needs_setup" && (
-        <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>
+        <p className="text-xs text-mk-warn">
           {channelReason(value)}{" "}
           <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
             {t("productSettings")}
@@ -333,7 +350,7 @@ export default function ChannelSelector({
         </p>
       )}
       {productId && selectedState === "disconnected" && (
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {channelReason(value)}{" "}
           <Link href="/products" className="underline underline-offset-2 hover:opacity-80">
             {t("productSettings")}

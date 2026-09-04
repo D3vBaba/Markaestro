@@ -45,35 +45,35 @@ export default function InboxMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full" aria-label={t("title")}>
-          <Bell className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="relative" aria-label={t("title")}>
+          <Bell className="size-[18px]" strokeWidth={1.75} />
           {unread > 0 && (
-            <span className="absolute end-1.5 top-1.5 h-2 w-2 rounded-full bg-blue-600" aria-hidden />
+            <span className="absolute end-2 top-2 size-2 rounded-full bg-mk-accent ring-2 ring-card" aria-hidden />
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
-        <DropdownMenuLabel>{t("title")}</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-[13px] font-semibold">{t("title")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {items.length === 0 ? (
-          <div className="px-2 py-4 text-sm text-muted-foreground">{t("empty")}</div>
+          <div className="px-2 py-6 text-center text-[13px] text-muted-foreground">{t("empty")}</div>
         ) : (
           items.slice(0, 8).map((item) => (
             <DropdownMenuItem
               key={item.id}
-              className="flex cursor-pointer flex-col items-start gap-0.5 py-2.5"
+              className="flex cursor-pointer flex-col items-start gap-0.5 py-2"
               onSelect={() => {
                 void markRead(item.id);
               }}
             >
               {item.href ? (
                 <Link href={item.href} className="w-full space-y-0.5">
-                  <span className={`block text-sm ${item.readAt ? "font-normal" : "font-semibold"}`}>{item.title}</span>
+                  <span className={`block text-[13px] ${item.readAt ? "font-normal text-mk-ink-80" : "font-semibold text-foreground"}`}>{item.title}</span>
                   <span className="line-clamp-2 block text-xs text-muted-foreground">{item.body}</span>
                 </Link>
               ) : (
                 <>
-                  <span className={`text-sm ${item.readAt ? "font-normal" : "font-semibold"}`}>{item.title}</span>
+                  <span className={`text-[13px] ${item.readAt ? "font-normal text-mk-ink-80" : "font-semibold text-foreground"}`}>{item.title}</span>
                   <span className="line-clamp-2 text-xs text-muted-foreground">{item.body}</span>
                 </>
               )}

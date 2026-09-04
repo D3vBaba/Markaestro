@@ -86,7 +86,7 @@
       "title": "3. 排期，然后跟踪",
       "description": "创建操作默认以草稿优先。改为发送 <code>is_draft: false</code> 并附带 <code>scheduled_at</code> 时间戳，即可将内容排入日历。"
     },
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "responseLabel": "响应"
   },
   "toolDefs": {
@@ -104,7 +104,7 @@
   "recipes": {
     "eyebrow": "示例场景",
     "title": "代理实际运行的四种工作流",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "publish": {
       "title": "发布并确认",
       "description": "创建草稿，显式发布，然后轮询任务状态。这是向操作者确认内容已成功发出的唯一可靠方式。"
@@ -266,7 +266,7 @@
     "installDescription": "在 Claude Code 中，插件就是全部配置：它打包了代理技能和服务器条目。其他 MCP 客户端在常规配置中填入服务器 URL 即可。",
     "headlessTitle": "没有浏览器时",
     "headlessDescription": "CI 任务、cron 工作进程或无法打开浏览器的客户端，可以改为在 Bearer 头中传入工作区 API 密钥。两条路径到达的是同一台服务器，权限也相同。",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "configLabel": "MCP 配置 (json)",
     "flowTitle": "客户端连接时会发生什么",
     "flowIntro": "五个步骤全部由客户端和浏览器处理。你只会看到同意页面。",

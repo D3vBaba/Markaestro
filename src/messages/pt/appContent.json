@@ -7,7 +7,8 @@
       "drafts": "Rascunhos",
       "scheduled": "Agendadas",
       "published": "Publicadas",
-      "onPlatform": "Na plataforma"
+      "onPlatform": "Na plataforma",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "Marca",
@@ -133,11 +134,11 @@
     "show": "Mostrar",
     "basedOnData": "Com base em dados de engajamento do setor para {channel}",
     "thisChannel": "este canal",
-    "orPickManually": "ou escolher manualmente",
+    "orPickManually": "Ou escolher manualmente",
     "timeLabel": "Horário",
     "timezoneNote": "Os agendamentos usam seu fuso horário local ({timezone}) e são armazenados em UTC.",
     "headsUp": "Atenção:",
-    "collisionNote": "outra publicação já está agendada perto deste horário ({date}{channel}). Você ainda pode agendar as duas.",
+    "collisionNote": "Outra publicação já está agendada perto deste horário ({date}{channel}). Você ainda pode agendar as duas.",
     "onChannel": " em {channel}",
     "scheduleFor": "Agendar para {date} às {time}",
     "selectDate": "Selecione uma data"
@@ -354,5 +355,98 @@
       "videoTooLong": "Este vídeo excede o limite de {maxSeconds} segundos desta conta.",
       "creatorInfoUnavailable": "Não foi possível carregar os dados da sua conta do TikTok, então esta publicação não pode ser publicada diretamente."
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "Não foi possível atualizar a fila",
+    "actions": {
+      "activate": "Ativar",
+      "activateSuccess": "Fila ativada",
+      "archive": "Arquivar",
+      "archiveSuccess": "Fila arquivada",
+      "pause": "Pausar",
+      "pauseSuccess": "Fila em pausa",
+      "resume": "Retomar",
+      "resumeSuccess": "Fila retomada"
+    },
+    "addVariant": "Adicionar variante",
+    "analytics": {
+      "conversions": "Conversões",
+      "details": "Desempenho",
+      "engagements": "Interações",
+      "loadFailed": "Não foi possível carregar o desempenho da fila",
+      "loading": "A carregar o desempenho da fila...",
+      "measured": "Execuções medidas",
+      "needsReview": "Precisa de revisão",
+      "noOutcome": "A aguardar um resultado de desempenho maduro",
+      "noRuns": "Ainda não foram criadas ocorrências.",
+      "recentRuns": "Execuções recentes",
+      "trackedClicks": "Cliques rastreados",
+      "unavailable": "Não disponível",
+      "views": "Visualizações totais"
+    },
+    "approveFuture": "Aprovar já as execuções futuras",
+    "cancel": "Cancelar",
+    "changeSource": "Alterar",
+    "choosePost": "Escolha uma publicação publicada",
+    "create": "Criar fila",
+    "createFailed": "Não foi possível criar a fila",
+    "created": "Fila evergreen criada",
+    "defaultName": "Fila evergreen de {channel}",
+    "description": "Transforme publicações comprovadas em filas governadas e mensuráveis. O Markaestro preserva a origem, cria uma nova ocorrência em cada execução e pausa automaticamente as sequências fracas.",
+    "eligible": "Evidência elegível encontrada",
+    "empty": "Esta marca ainda não tem filas evergreen.",
+    "everyDays": "A cada {count} dias",
+    "interval": "Dias mínimos entre execuções",
+    "loadFailed": "Não foi possível carregar as filas evergreen",
+    "loading": "A carregar filas evergreen...",
+    "newQueue": "Nova fila",
+    "nextRun": "Próxima execução: {date}",
+    "notEligible": "Ainda não elegível",
+    "notScheduled": "Ative esta fila para agendar a primeira execução.",
+    "pausedReason": "Em pausa: {reason}",
+    "picker": {
+      "engagements": "Interações",
+      "filters": {
+        "all": "Todas as publicadas",
+        "eligible": "Prontas",
+        "suggested": "Sugeridas"
+      },
+      "mediaOnly": "Só com media",
+      "noMatches": "Nenhuma publicação corresponde.",
+      "noSuggested": "Ainda não há publicações em destaque. As publicações precisam de sete dias de resultados medidos antes de poderem ser sugeridas.",
+      "notReady": "Não pronta",
+      "rate": "Taxa",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "Esta publicação não tem canal",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Ainda sem visualizações nem interação medidas",
+        "SOURCE_METRICS_IMMATURE": "Publicada há menos de sete dias",
+        "SOURCE_NOT_PUBLISHED": "Ainda não publicada",
+        "SOURCE_PUBLISH_DATE_MISSING": "Data de publicação desconhecida"
+      },
+      "search": "Pesquisar publicações publicadas",
+      "suggested": "Sugerida",
+      "views": "Visualizações"
+    },
+    "previewFailed": "Não foi possível verificar esta publicação",
+    "queueName": "Nome da fila",
+    "removeVariant": "Remover",
+    "reviewEach": "Rever cada ocorrência",
+    "reviewPolicy": "Política de aprovação",
+    "runs": "{count, plural, one {# execução criada} other {# execuções criadas}}",
+    "saving": "A criar...",
+    "selectBrand": "Selecione uma marca para gerir as suas filas evergreen.",
+    "selectedSource": "Publicação selecionada",
+    "sourceHint": "Escolha a publicação que esta fila repete. As sugeridas foram as que mais conquistaram a sua audiência e têm pelo menos uma semana.",
+    "sourcePost": "Publicação de origem comprovada",
+    "statuses": {
+      "active": "Ativa",
+      "archived": "Arquivada",
+      "draft": "Rascunho",
+      "paused": "Em pausa"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "Variante da legenda",
+    "variantNumber": "Variante da legenda {number}",
+    "variants": "Variantes da legenda"
   }
 }

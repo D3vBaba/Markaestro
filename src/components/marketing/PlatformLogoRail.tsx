@@ -15,7 +15,7 @@ const platforms = [
 export default function PlatformLogoRail({ label }: { label: string }) {
   return (
     <div className="mx-auto mt-10 max-w-4xl">
-      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-mk-ink-40">
+      <p className="text-center text-xs font-medium text-muted-foreground">
         {label}
       </p>
       <div className="mk-logo-marquee mt-4 overflow-hidden" role="list" aria-label={label}>
@@ -29,7 +29,7 @@ export default function PlatformLogoRail({ label }: { label: string }) {
               {platforms.map((platform) => (
                 <div
                   key={`${setIndex}-${platform.provider}`}
-                  className="flex min-w-[148px] items-center gap-3 rounded-2xl border border-mk-rule bg-mk-paper px-4 py-3 shadow-sm"
+                  className="flex min-w-[148px] items-center gap-3 rounded-xl border border-mk-rule bg-mk-paper px-4 py-3"
                   role={setIndex === 0 ? "listitem" : undefined}
                 >
                   <ChannelGlyph provider={platform.provider} size={36} />

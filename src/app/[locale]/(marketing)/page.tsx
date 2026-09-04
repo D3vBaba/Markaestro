@@ -3,17 +3,18 @@
 import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { ArrowRight } from "lucide-react";
 import MarketingLayout from "@/components/layout/MarketingLayout";
 import { useOptionalAuth } from "@/components/providers/AuthProvider";
 import CopyBlock from "@/components/marketing/CopyBlock";
-import PlatformLogoRail from "@/components/marketing/PlatformLogoRail";
-import ProductShowcaseCarousel, {
-  type ShowcaseSlide,
-} from "@/components/marketing/ProductShowcaseCarousel";
+import Screenshot from "@/components/marketing/Screenshot";
+import Underline from "@/components/marketing/Underline";
+import Faq, { type FaqItem } from "@/components/marketing/Faq";
+import WallOfLove from "@/components/marketing/WallOfLove";
+import { ChannelGlyph } from "@/components/app/ChannelGlyph";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-
-const ease = [0.25, 0.46, 0.45, 0.94] as const;
+import { cn } from "@/lib/utils";
 
 // Deliberately the shortest true version of the integration: discover, then
 // schedule. Anything longer stops reading as "this is easy" on a landing page.
@@ -34,580 +35,243 @@ curl -X POST "$MARKAESTRO_URL/api/connect/v1/posts" \\
     "scheduled_at": "2026-08-14T15:00:00.000Z"
   }'`;
 
-type Stat = { value: string; label: string; sub?: string };
-type FeatureItem = { title: string; desc: string };
-type ChannelItem = { name: string; desc: string };
-type ComposerRow = { label: string; value: string };
+type ProofItem = { value: string; label: string };
+type WhoItem = { title: string; desc: string };
+type Tile = { id: "calendar" | "composer" | "analytics" | "brands" | "intelligence"; label: string; title: string; desc: string };
+
+/** Folder under public/marketing holding the current capture set; bump when screenshots are re-captured so cached optimized images refresh. */
+const SHOT_VERSION = "20260904c";
+
+const TILE_IMAGES: Record<Tile["id"], { src: string; span: string }> = {
+  calendar: { src: `/marketing/${SHOT_VERSION}/calendar.png`, span: "lg:col-span-7" },
+  composer: { src: `/marketing/${SHOT_VERSION}/composer.png`, span: "lg:col-span-5" },
+  analytics: { src: `/marketing/${SHOT_VERSION}/analytics.png`, span: "lg:col-span-5" },
+  brands: { src: `/marketing/${SHOT_VERSION}/brands.png`, span: "lg:col-span-7" },
+  intelligence: { src: `/marketing/${SHOT_VERSION}/intelligence.png`, span: "lg:col-span-12" },
+};
+
+const CHANNEL_WALL = ["instagram", "meta", "tiktok", "threads", "pinterest", "linkedin", "x"] as const;
+
+function SectionTitle({ children, sub, className }: { children: React.ReactNode; sub?: string; className?: string }) {
+  return (
+    <div className={cn("mx-auto max-w-2xl text-center", className)}>
+      <h2 className="m-0 text-3xl font-extrabold leading-[1.1] tracking-tight text-foreground text-balance sm:text-4xl lg:text-[44px]">
+        {children}
+      </h2>
+      {sub ? <p className="m-0 mx-auto mt-4 max-w-xl text-[17px] leading-7 text-mk-ink-80 text-pretty">{sub}</p> : null}
+    </div>
+  );
+}
 
 export default function LandingPage() {
   const t = useTranslations("home");
+  const tPricing = useTranslations("pricing");
   const { user } = useOptionalAuth();
-  const heroStats = t.raw("hero.stats") as Stat[];
-  const featureItems = t.raw("featuresPreview.items") as FeatureItem[];
-  const channelItems = t.raw("channelsPreview.channels") as ChannelItem[];
-  const channelStats = t.raw("channelsPreview.stats") as Stat[];
-  const composerRows = t.raw("composerPreview.rows") as ComposerRow[];
-  const composerBullets = t.raw("composerPreview.bullets") as string[];
+  const proof = t.raw("proof.items") as ProofItem[];
+  const whoFor = t.raw("whoFor.items") as WhoItem[];
+  const tiles = t.raw("bento.tiles") as Tile[];
+  const extras = t.raw("channelWall.extras") as { label: string }[];
   const agentBullets = t.raw("agentSection.bullets") as string[];
-  const intelligenceItems = t.raw("intelligencePreview.items") as Array<{ title: string; desc: string }>;
-  const showcaseSlides: ShowcaseSlide[] = [
-    {
-      id: "composer",
-      kind: "composer",
-      eyebrow: t("composerPreview.eyebrow"),
-      title: `${t("composerPreview.titleLead")} ${t("composerPreview.titleHighlight")}`,
-      description: t("composerPreview.subtitle"),
-    },
-    {
-      id: "calendar",
-      kind: "calendar",
-      eyebrow: featureItems[3].title,
-      title: featureItems[3].title,
-      description: featureItems[3].desc,
-    },
-    {
-      id: "intelligence",
-      kind: "intelligence",
-      eyebrow: t("intelligencePreview.eyebrow"),
-      title: `${t("intelligencePreview.titleLead")} ${t("intelligencePreview.titleHighlight")}`,
-      description: t("intelligencePreview.subtitle"),
-    },
-  ];
+  const faqs = (tPricing.raw("faqs") as FaqItem[]).slice(0, 5);
+  const heroTitle = t("hero.title");
+  const highlight = t("hero.highlight");
+  const [before, after] = heroTitle.includes(highlight) ? heroTitle.split(highlight) : [heroTitle, ""];
 
   return (
     <MarketingLayout>
-      {/* ─── Hero ─── */}
-      <section className="relative overflow-hidden">
-        <div className="relative mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28 lg:py-36">
-          <motion.div
-            className="mx-auto max-w-3xl text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease }}
-          >
-            <div
-              className="mb-7 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-[10.5px] uppercase"
-              style={{
-                border: "1px solid color-mix(in oklch, var(--mk-accent) 24%, var(--mk-rule))",
-                background: "var(--mk-accent-soft)",
-                color: "var(--mk-accent)",
-                letterSpacing: "0.14em",
-              }}
-            >
-              {t("hero.badge")}
-            </div>
-            <h1
-              className="text-[40px] sm:text-[56px] lg:text-[72px] font-semibold leading-[1.05]"
-              style={{ color: "var(--mk-ink)", letterSpacing: "-0.035em" }}
-            >
-              {t("hero.titleLead")}{" "}
-              <span style={{ color: "var(--mk-accent)" }}>{t("hero.titleHighlight")}</span>
-            </h1>
-            <p
-              className="mt-6 text-[15px] sm:text-[17px] lg:text-[18px] leading-relaxed max-w-2xl mx-auto"
-              style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-            >
-              {t("hero.subtitle")}
-            </p>
-            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      {/* Hero: one message, one action, then the product itself. */}
+      <section className="mx-auto max-w-7xl px-5 pb-16 pt-16 sm:px-8 sm:pt-24 lg:pb-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="m-0 text-4xl font-extrabold leading-[1.05] tracking-tight text-foreground text-balance sm:text-6xl lg:text-7xl">
+            {before}
+            <span className="relative inline-block whitespace-nowrap">
+              {highlight}
+              <Underline />
+            </span>
+            {after}
+          </h1>
+          <p className="m-0 mx-auto mt-6 max-w-2xl text-lg leading-7 text-mk-ink-80 text-pretty sm:text-xl sm:leading-8">
+            {t("hero.subtitle2")}
+          </p>
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button size="lg" className="h-12 px-6 text-[15px]" asChild>
               <NextLink href="/onboarding">
-                <Button size="lg" className="h-11 px-7 rounded-lg text-[13.5px]">
-                  {t("hero.primaryButton")}
-                </Button>
+                {t("hero.primaryButton")}
+                <ArrowRight className="size-4" />
               </NextLink>
-              <Link href="/features">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="h-11 px-7 rounded-lg text-[13.5px]"
-                >
-                  {t("hero.secondaryButton")}
-                </Button>
-              </Link>
-            </div>
-            {!user && (
-              <p
-                className="mt-5 text-[13px]"
-                style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-              >
-                {t("hero.signInPrompt")}{" "}
-                <NextLink
-                  href="/login"
-                  className="font-medium underline underline-offset-4 transition-colors"
-                  style={{ color: "var(--mk-ink)" }}
-                >
-                  {t("hero.signInLink")}
-                </NextLink>
-              </p>
-            )}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.24, duration: 0.5, ease }}
-          >
-            <PlatformLogoRail label={t("channelsPreview.eyebrow")} />
-          </motion.div>
-
-          <motion.div
-            className="mx-auto mt-12 max-w-6xl"
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.34, duration: 0.6, ease }}
-          >
-            <ProductShowcaseCarousel
-              slides={showcaseSlides}
-              composerRows={composerRows}
-              intelligenceItems={intelligenceItems}
-            />
-          </motion.div>
-
-          {/* Hero stats */}
-          <motion.div
-            className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-xl"
-            style={{
-              background: "var(--mk-rule)",
-              border: "1px solid var(--mk-rule)",
-            }}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5, ease }}
-          >
-            {heroStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="px-5 py-7 text-center"
-                style={{ background: "var(--mk-paper)" }}
-              >
-                <p
-                  className="text-[28px] sm:text-[32px] font-semibold mk-figure"
-                  style={{ color: "var(--mk-accent)", letterSpacing: "-0.03em" }}
-                >
-                  {stat.value}
-                </p>
-                <p className="mt-2 mk-eyebrow">{stat.label}</p>
-              </div>
-            ))}
-          </motion.div>
-
-        </div>
-      </section>
-
-      {/* ─── Features Preview ─── */}
-      <section
-        className="border-t"
-        style={{
-          borderColor: "var(--mk-rule)",
-          background: "var(--mk-paper)",
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="mk-eyebrow">{t("featuresPreview.eyebrow")}</p>
-            <h2
-              className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
-              style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
-            >
-              {t("featuresPreview.titleLead")}{" "}
-              <span style={{ color: "var(--mk-accent)" }}>{t("featuresPreview.titleHighlight")}</span>
-            </h2>
-            <p
-              className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
-              style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-            >
-              {t("featuresPreview.subtitle")}
+            </Button>
+            <Button size="lg" variant="outline" className="h-12 px-6 text-[15px]" asChild>
+              <Link href="/features">{t("hero.secondaryButton")}</Link>
+            </Button>
+          </div>
+          {!user && (
+            <p className="m-0 mt-5 text-sm text-muted-foreground">
+              {t("hero.signInPrompt")}{" "}
+              <NextLink href="/login" className="font-medium text-foreground underline underline-offset-4">
+                {t("hero.signInLink")}
+              </NextLink>
             </p>
-          </div>
+          )}
+        </div>
 
-          <div className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {featureItems.map(({ title, desc }) => (
-              <div
-                key={title}
-                className="rounded-xl p-6"
-                style={{
-                  background: "var(--mk-paper)",
-                  border: "1px solid var(--mk-rule)",
-                }}
-              >
-                <h3
-                  className="text-[14px] font-semibold"
-                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
-                >
-                  {title}
-                </h3>
-                <p
-                  className="mt-2.5 text-[13px] leading-relaxed"
-                  style={{ color: "var(--mk-ink-60)" }}
-                >
-                  {desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <Link href="/features">
-              <Button variant="outline" className="rounded-lg h-9 text-[13px]">
-                {t("featuresPreview.exploreButton")}
-              </Button>
-            </Link>
-          </div>
+        <div className="mx-auto mt-14 max-w-6xl">
+          <Screenshot src={`/marketing/${SHOT_VERSION}/dashboard.png`} alt={t("hero.screenshotAlt")} width={1269} height={840} priority />
         </div>
       </section>
 
-      {/* ─── Intelligence Preview ─── */}
-      <section
-        className="border-t"
-        style={{ borderColor: "var(--mk-rule)", background: "var(--mk-surface)" }}
-      >
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="mk-eyebrow">{t("intelligencePreview.eyebrow")}</p>
-            <h2
-              className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
-              style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
-            >
-              {t("intelligencePreview.titleLead")}{" "}
-              <span style={{ color: "var(--mk-accent)" }}>{t("intelligencePreview.titleHighlight")}</span>
-            </h2>
-            <p
-              className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
-              style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-            >
-              {t("intelligencePreview.subtitle")}
-            </p>
-          </div>
-
-          <div className="mt-14 grid gap-3 sm:grid-cols-3">
-            {intelligenceItems.map(({ title, desc }) => (
-              <div
-                key={title}
-                className="rounded-xl p-6"
-                style={{ background: "var(--mk-paper)", border: "1px solid var(--mk-rule)" }}
-              >
-                <h3 className="text-[14px] font-semibold" style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}>
-                  {title}
-                </h3>
-                <p className="mt-2.5 text-[13px] leading-relaxed" style={{ color: "var(--mk-ink-60)" }}>
-                  {desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <Link href="/features#intelligence">
-              <Button variant="outline" className="rounded-lg h-9 text-[13px]">
-                {t("intelligencePreview.exploreButton")}
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Channels Preview ─── */}
-      <section
-        className="border-t"
-        style={{
-          borderColor: "var(--mk-rule)",
-          background: "var(--mk-surface)",
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
-          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="mk-eyebrow">{t("channelsPreview.eyebrow")}</p>
-              <h2
-                className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
-                style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
-              >
-                {t("channelsPreview.titleLead")}{" "}
-                <span style={{ color: "var(--mk-accent)" }}>{t("channelsPreview.titleHighlight")}</span>
-              </h2>
-              <p
-                className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
-                style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-              >
-                {t("channelsPreview.subtitle")}
-              </p>
-              <div className="mt-8 flex flex-col gap-4">
-                {channelItems.map((ch) => (
-                  <div key={ch.name} className="flex items-start gap-3">
-                    <div
-                      className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ background: "var(--mk-accent)" }}
-                    />
+      {/* Proof strip: true product facts, one marquee. Platform logos live in the channel wall below. */}
+      <section className="border-y border-border bg-card py-12">
+        <p className="m-0 text-center text-sm font-medium text-muted-foreground">{t("proof.label")}</p>
+        <div className="mk-logo-marquee mt-6 overflow-hidden" aria-label={t("proof.label")}>
+          <div className="mk-logo-marquee-track flex w-max">
+            {[0, 1].map((setIndex) => (
+              <div key={setIndex} className="flex shrink-0 gap-4 pe-4" aria-hidden={setIndex === 1 ? true : undefined}>
+                {proof.map((item) => (
+                  <div key={`${setIndex}-${item.label}`} className="flex w-[260px] flex-col justify-between rounded-2xl border border-border bg-background p-5">
                     <div>
-                      <p
-                        className="text-[13.5px] font-semibold"
-                        style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
-                      >
-                        {ch.name}
-                      </p>
-                      <p
-                        className="text-[13px] mt-0.5"
-                        style={{ color: "var(--mk-ink-60)" }}
-                      >
-                        {ch.desc}
-                      </p>
+                      <p className="m-0 text-2xl font-extrabold tracking-tight text-foreground">{item.value}</p>
+                      <p className="m-0 mt-1 text-sm leading-5 text-mk-ink-80">{item.label}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-8">
-                <Link href="/channels">
-                  <Button variant="outline" className="rounded-lg h-9 text-[13px]">
-                    {t("channelsPreview.seeAllButton")}
-                  </Button>
-                </Link>
-              </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <div className="grid grid-cols-2 gap-3">
-              {channelStats.map((item) => (
-                <div
-                  key={item.label}
-                  className="rounded-xl p-6"
-                  style={{
-                    background: "var(--mk-paper)",
-                    border: "1px solid var(--mk-rule)",
-                  }}
+      {/* Who is it for */}
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
+        <SectionTitle>{t("whoFor.title")}</SectionTitle>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {whoFor.map((item, i) => (
+            <div key={item.title} className={cn("rounded-2xl border border-border p-7", i % 2 === 0 ? "bg-card" : "bg-mk-accent-soft/60")}>
+              <h3 className="m-0 text-xl font-bold tracking-tight text-foreground">{item.title}</h3>
+              <p className="m-0 mt-3 text-[15px] leading-6 text-mk-ink-80">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Feature bento with real screenshots */}
+      <section className="border-t border-border bg-card">
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
+          <SectionTitle>{t("bento.title")}</SectionTitle>
+          <div className="mt-14 grid gap-5 lg:grid-cols-12">
+            {tiles.map((tile, i) => {
+              const image = TILE_IMAGES[tile.id];
+              const wide = tile.id === "intelligence";
+              return (
+                <article
+                  key={tile.id}
+                  className={cn(
+                    "flex flex-col overflow-hidden rounded-2xl border border-border",
+                    i % 2 === 0 ? "bg-background" : "bg-mk-accent-soft/50",
+                    image.span,
+                    wide && "lg:flex-row lg:items-center",
+                  )}
                 >
-                  <p
-                    className="text-[36px] font-semibold mk-figure"
-                    style={{ color: "var(--mk-accent)", letterSpacing: "-0.035em" }}
-                  >
-                    {item.value}
-                  </p>
-                  <p
-                    className="mt-2 text-[12.5px] font-semibold"
-                    style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
-                  >
-                    {item.label}
-                  </p>
-                  <p
-                    className="mt-0.5 text-[11.5px]"
-                    style={{ color: "var(--mk-ink-60)" }}
-                  >
-                    {item.sub}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Composer Preview ─── */}
-      <section
-        className="border-t"
-        style={{
-          borderColor: "var(--mk-rule)",
-          background: "var(--mk-paper)",
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
-          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
-            <div className="order-2 lg:order-1">
-              <div
-                className="rounded-xl p-6"
-                style={{
-                  background: "var(--mk-surface)",
-                  border: "1px solid var(--mk-rule)",
-                }}
-              >
-                <div className="flex items-center gap-2 mk-eyebrow">
-                  <span
-                    className="w-1.5 h-1.5 rounded-full inline-block"
-                    style={{ background: "var(--mk-accent)" }}
-                  />
-                  {t("composerPreview.panelLabel")}
-                </div>
-                <div className="mt-5 flex flex-col gap-2.5 font-mono text-[12px]">
-                  {composerRows.map((row) => (
-                    <div
-                      key={row.label}
-                      className="rounded-lg px-3.5 py-3"
-                      style={{
-                        background: "var(--mk-paper)",
-                        border: "1px solid var(--mk-rule)",
-                      }}
-                    >
-                      <span
-                        className="font-semibold"
-                        style={{ color: "var(--mk-ink)" }}
-                      >
-                        {row.label}:
-                      </span>{" "}
-                      <span style={{ color: "var(--mk-ink-60)" }}>{row.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <p className="mk-eyebrow">{t("composerPreview.eyebrow")}</p>
-              <h2
-                className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
-                style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
-              >
-                {t("composerPreview.titleLead")}{" "}
-                <span style={{ color: "var(--mk-accent)" }}>{t("composerPreview.titleHighlight")}</span>
-              </h2>
-              <p
-                className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
-                style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-              >
-                {t("composerPreview.subtitle")}
-              </p>
-              <div className="mt-8 flex flex-col gap-4">
-                {composerBullets.map((item) => (
-                  <div key={item} className="flex items-start gap-3">
-                    <div
-                      className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ background: "var(--mk-accent)" }}
-                    />
-                    <p
-                      className="text-[13.5px]"
-                      style={{ color: "var(--mk-ink-80)", letterSpacing: "-0.005em" }}
-                    >
-                      {item}
-                    </p>
+                  <div className={cn("p-7 sm:p-8", wide && "lg:w-2/5")}>
+                    <Badge variant="accent">{tile.label}</Badge>
+                    <h3 className="m-0 mt-4 text-2xl font-bold tracking-tight text-foreground">{tile.title}</h3>
+                    <p className="m-0 mt-3 max-w-md text-[15px] leading-6 text-mk-ink-80">{tile.desc}</p>
                   </div>
-                ))}
-              </div>
-              <div className="mt-8">
-                <Link href="/features">
-                  <Button variant="outline" className="rounded-lg h-9 text-[13px]">
-                    {t("composerPreview.seeFeaturesButton")}
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── AI Agents ─── */}
-      <section
-        className="border-t"
-        style={{
-          borderColor: "var(--mk-rule)",
-          background: "var(--mk-surface)",
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
-          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="mk-eyebrow">{t("agentSection.eyebrow")}</p>
-              <h2
-                className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
-                style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
-              >
-                {t("agentSection.titleLead")}{" "}
-                <span style={{ color: "var(--mk-accent)" }}>{t("agentSection.titleHighlight")}</span>
-              </h2>
-              <p
-                className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
-                style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
-              >
-                {t("agentSection.subtitle")}
-              </p>
-              <div className="mt-8 flex flex-col gap-4">
-                {agentBullets.map((item) => (
-                  <div key={item} className="flex items-start gap-3">
-                    <div
-                      className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ background: "var(--mk-accent)" }}
+                  <div className={cn("relative mt-auto ps-7 sm:ps-8", wide ? "lg:w-3/5 lg:ps-0 lg:pe-8 lg:py-8" : "")}>
+                    <Screenshot
+                      src={image.src}
+                      alt={tile.title}
+                      width={1245}
+                      height={860}
+                      className={cn("rounded-tr-none rounded-br-none border-r-0 shadow-lg", wide && "lg:rounded-xl lg:border-r")}
                     />
-                    <p
-                      className="text-[13.5px]"
-                      style={{ color: "var(--mk-ink-80)", letterSpacing: "-0.005em" }}
-                    >
-                      {item}
-                    </p>
                   </div>
-                ))}
-              </div>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/developers/agents">
-                  <Button className="rounded-lg h-9 text-[13px]">
-                    {t("agentSection.primaryButton")}
-                  </Button>
-                </Link>
-                <Link href="/developers/api">
-                  <Button variant="outline" className="rounded-lg h-9 text-[13px]">
-                    {t("agentSection.secondaryButton")}
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            <CopyBlock code={agentSnippet} label={t("agentSection.codeLabel")} />
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ─── CTA ─── */}
-      <section
-        className="border-t"
-        style={{
-          borderColor: "var(--mk-rule)",
-          background: "var(--mk-ink)",
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
-          <div className="mx-auto max-w-2xl text-center">
-            <p
-              className="mk-eyebrow"
-              style={{ color: "color-mix(in oklch, var(--mk-paper) 50%, transparent)" }}
-            >
-              {t("cta.eyebrow")}
-            </p>
-            <h2
-              className="mt-3 text-[30px] sm:text-[36px] font-semibold leading-[1.1]"
-              style={{ color: "var(--mk-paper)", letterSpacing: "-0.03em" }}
-            >
-              {t("cta.title")}
+      {/* Channel wall: static offset rows, no second marquee */}
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
+        <SectionTitle sub={t("channelWall.subtitle")}>{t("channelWall.title")}</SectionTitle>
+        <div className="mx-auto mt-12 flex max-w-4xl flex-wrap justify-center gap-3 sm:gap-4">
+          {CHANNEL_WALL.map((provider) => (
+            <div key={provider} className="flex size-24 flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card sm:size-28">
+              <ChannelGlyph provider={provider} size={56} />
+            </div>
+          ))}
+          {extras.map((extra) => (
+            <div key={extra.label} className="flex size-24 items-center justify-center rounded-2xl border border-border bg-mk-accent-soft/60 px-2 text-center text-sm font-semibold text-foreground sm:size-28">
+              {extra.label}
+            </div>
+          ))}
+        </div>
+        <div className="mt-10 text-center">
+          <Button variant="outline" asChild>
+            <Link href="/channels">{t("channelsPreview.seeAllButton")}</Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* AI agents */}
+      <section className="border-t border-border bg-card">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-2 lg:items-center">
+          <div>
+            <h2 className="m-0 text-3xl font-extrabold leading-[1.1] tracking-tight text-foreground text-balance sm:text-4xl">
+              {t("agentSection.titleLead")} {t("agentSection.titleHighlight")}
             </h2>
-            <p
-              className="mt-4 text-[14px] sm:text-[15px] leading-relaxed"
-              style={{
-                color: "color-mix(in oklch, var(--mk-paper) 70%, transparent)",
-                letterSpacing: "-0.005em",
-              }}
-            >
-              {t("cta.subtitle")}
-            </p>
-            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <NextLink href="/onboarding">
-                <Button
-                  size="lg"
-                  className="h-11 px-7 rounded-lg text-[13.5px]"
-                  style={{
-                    background: "var(--mk-paper)",
-                    color: "var(--mk-ink)",
-                  }}
-                >
-                  {t("cta.primaryButton")}
-                </Button>
-              </NextLink>
-              <Link href="/contact">
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  className="h-11 px-7 rounded-lg text-[13.5px]"
-                  style={{
-                    color: "color-mix(in oklch, var(--mk-paper) 80%, transparent)",
-                  }}
-                >
-                  {t("cta.secondaryButton")}
-                </Button>
-              </Link>
+            <p className="m-0 mt-4 max-w-xl text-[17px] leading-7 text-mk-ink-80 text-pretty">{t("agentSection.subtitle")}</p>
+            <ul className="m-0 mt-8 grid list-none gap-3 p-0">
+              {agentBullets.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-[15px] leading-6 text-mk-ink-80">
+                  <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-mk-accent" aria-hidden />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/developers/agents">{t("agentSection.primaryButton")}</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/developers/api">{t("agentSection.secondaryButton")}</Link>
+              </Button>
             </div>
           </div>
+          <CopyBlock code={agentSnippet} label={t("agentSection.codeLabel")} />
+        </div>
+      </section>
+
+      {/* CTA band */}
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24">
+        <div className="flex flex-col items-start gap-8 rounded-3xl bg-mk-accent px-8 py-12 text-white sm:px-12 lg:flex-row lg:items-center lg:justify-between lg:py-16">
+          <div className="max-w-xl">
+            <h2 className="m-0 text-3xl font-extrabold leading-[1.1] tracking-tight text-balance sm:text-4xl">{t("ctaBand.title")}</h2>
+            <p className="m-0 mt-3 text-[17px] leading-7 text-white/85">{t("ctaBand.subtitle")}</p>
+          </div>
+          <Button size="lg" className="h-12 shrink-0 bg-white px-6 text-[15px] text-mk-accent hover:bg-white/90" asChild>
+            <NextLink href="/onboarding">
+              {t("ctaBand.button")}
+              <ArrowRight className="size-4" />
+            </NextLink>
+          </Button>
+        </div>
+      </section>
+
+      <WallOfLove title={t("wallOfLove.title")} />
+
+      {/* FAQ */}
+      <section className="border-t border-border bg-card">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-[1fr_2fr]">
+          <div>
+            <h2 className="m-0 text-3xl font-extrabold leading-[1.1] tracking-tight text-foreground text-balance sm:text-4xl">{t("faq.title")}</h2>
+            <Link href="/pricing" className="mt-4 inline-flex items-center gap-1.5 text-[15px] font-medium text-mk-accent underline-offset-4 hover:underline">
+              {t("faq.more")}
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
+          <Faq items={faqs} />
         </div>
       </section>
     </MarketingLayout>

@@ -4,10 +4,9 @@ import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
 
-import { Suspense, useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +15,13 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/app/PageHeader";
+import Section from "@/components/app/Section";
+import Notice from "@/components/app/Notice";
+import EmptyState from "@/components/app/EmptyState";
+import FormField from "@/components/app/FormField";
+import { StatGrid, StatTile } from "@/components/app/StatTile";
 import Select from "@/components/app/Select";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
 import ConnectChannelDialog, { type ConnectDialogRequest } from "@/components/app/ConnectChannelDialog";
@@ -35,14 +40,14 @@ import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { PLANS, PLAN_TIERS } from "@/lib/stripe/plans";
 import type { BillingInterval, PlanTier } from "@/lib/stripe/plans";
 import { cn } from "@/lib/utils";
-import { pillStyle } from "@/components/mk/pills";
+import { Status } from "@/components/mk/Status";
+import { Channel } from "@/components/mk/Channel";
 import { resolveChannelStatus, type ChannelStatus } from "@/lib/integrations/channel-status";
 import { userFacingError } from "@/lib/user-facing-errors";
 import {
-  User, Shield, Zap, Link2, Users, Building2, CreditCard,
-  Pencil, Check, X, Loader2, KeyRound, Mail, BarChart3,
+  Link2, Pencil, Check, X, Loader2, KeyRound, Mail,
   Copy, Webhook, BookOpen, ExternalLink, Trash2, RefreshCw,
-  Archive, ArchiveRestore, Plus, Minus,
+  Archive, ArchiveRestore, Plus, Minus, Users,
 } from "lucide-react";
 
 type Member = {
@@ -128,7 +133,7 @@ function ApiTrendBars({ points, requestsLabel }: { points: ApiClientTrendPoint[]
       {points.map((point) => (
         <div key={point.date} className="flex-1">
           <div
-            className="w-full rounded-t-sm bg-primary/60 transition-colors"
+            className="w-full rounded-t-sm bg-mk-accent/70"
             style={{ height: `${Math.max((point.requests / max) * 100, point.requests > 0 ? 10 : 2)}%` }}
             title={`${point.label}: ${point.requests} ${requestsLabel}`}
           />
@@ -196,15 +201,68 @@ const WEBHOOK_EVENT_OPTIONS = [
 ] as const;
 
 const TABS = [
-  { id: 'account', icon: User },
-  { id: 'usage', icon: BarChart3 },
-  { id: 'integrations', icon: Link2 },
-  { id: 'team', icon: Users },
-  { id: 'workspaces', icon: Building2 },
-  { id: 'api', icon: KeyRound },
-  { id: 'billing', icon: CreditCard },
+  { id: 'account' },
+  { id: 'usage' },
+  { id: 'integrations' },
+  { id: 'team' },
+  { id: 'workspaces' },
+  { id: 'api' },
+  { id: 'billing' },
 ] as const;
 type Tab = typeof TABS[number]['id'];
+
+/* ─── Shared row primitives ────────────────────────────────────────────────── */
+
+/**
+ * One row of a settings group: label and helper text on the left, the
+ * control on the right. Stacks on small screens. Rows share `divide-y`
+ * inside a bordered Section instead of each becoming a card.
+ */
+function SettingsRow({
+  title,
+  description,
+  children,
+  className,
+}: {
+  title: ReactNode;
+  description?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:px-5",
+        className,
+      )}
+    >
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium text-foreground">{title}</div>
+        {description ? (
+          <div className="mt-0.5 text-[13px] leading-5 text-muted-foreground text-pretty">{description}</div>
+        ) : null}
+      </div>
+      {children ? <div className="flex shrink-0 flex-wrap items-center gap-2">{children}</div> : null}
+    </div>
+  );
+}
+
+/** Structural skeleton that matches the SettingsRow layout. */
+function RowSkeletons({ rows = 3, control = true }: { rows?: number; control?: boolean }) {
+  return (
+    <div className="divide-y divide-border">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center justify-between gap-4 px-4 py-4 sm:px-5">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-3 w-56" />
+          </div>
+          {control ? <Skeleton className="h-8 w-20" /> : null}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   return (
@@ -236,34 +294,17 @@ function SettingsPageContent() {
 
   return (
     <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
-
-      {/* Tab bar */}
-      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 mb-6 overflow-x-auto scrollbar-hide w-fit max-w-full">
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          const active = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              data-tab={tab.id}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                active
-                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              <Icon
-                className={`h-3.5 w-3.5 ${active ? "text-blue-600 dark:text-blue-400" : "text-slate-400"}`}
-              />
-
-              {t(`tabs.${tab.id}`)}
-            </button>
-          );
-        })}
-      </div>
-
+      <PageHeader title={t("title")} subtitle={t("subtitle")}>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as Tab)}>
+          <TabsList variant="line" className="w-full overflow-x-auto scrollbar-hide">
+            {TABS.map((tab) => (
+              <TabsTrigger key={tab.id} value={tab.id} data-tab={tab.id}>
+                {t(`tabs.${tab.id}`)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </PageHeader>
 
       {activeTab === 'account' && <AccountTab />}
       {activeTab === 'usage' && <UsageTab onUpgrade={() => setActiveTab('billing')} />}
@@ -375,187 +416,161 @@ function AccountTab() {
   }
 
   return (
-    <div className="grid gap-5">
+    <div className="space-y-8">
       {/* Profile */}
-      <Card className="border-border/30">
-        <CardHeader>
-          <CardTitle>{t("profile.title")}</CardTitle>
-          <CardDescription>{t("profile.description")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-start gap-4">
-            {/* Avatar */}
-            {user.photoURL ? (
-              <img
-                src={user.photoURL}
-                alt={displayName}
-                className="h-14 w-14 rounded-full object-cover border"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <span className="text-lg font-bold text-primary">{initials}</span>
-              </div>
-            )}
-            <div className="flex-1 min-w-0 space-y-3">
-              <div>
-                <p className="text-sm font-medium">{displayName}</p>
-                <p className="text-sm text-muted-foreground">{email}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {providers.map((p) => (
-                  <Badge key={p} variant="outline" className="text-xs font-normal">
-                    {isEmailCodeLabel(p) ? <KeyRound className="h-3 w-3 me-1" /> : null}
-                    {isGoogleLabel(p) ? <Mail className="h-3 w-3 me-1" /> : null}
-                    {p}
-                  </Badge>
-                ))}
-                {workspace && (
-                  <Badge className="bg-primary/10 text-primary border-0 text-xs font-normal capitalize">
-                    {workspace.role}
-                  </Badge>
-                )}
-              </div>
+      <Section title={t("profile.title")} description={t("profile.description")} bordered>
+        <div className="flex items-start gap-4 px-4 py-4 sm:px-5">
+          {user.photoURL ? (
+            <img
+              src={user.photoURL}
+              alt={displayName}
+              className="size-12 shrink-0 rounded-full border border-border object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="grid size-12 shrink-0 place-items-center rounded-full bg-muted">
+              <span className="text-sm font-semibold text-mk-ink-80">{initials}</span>
+            </div>
+          )}
+          <div className="min-w-0 flex-1 space-y-3">
+            <div className="min-w-0">
+              <p className="m-0 truncate text-sm font-medium text-foreground">{displayName}</p>
+              <p className="m-0 truncate text-[13px] text-muted-foreground">{email}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {providers.map((p) => (
+                <Badge key={p} variant="outline">
+                  {isEmailCodeLabel(p) ? <KeyRound /> : null}
+                  {isGoogleLabel(p) ? <Mail /> : null}
+                  {p}
+                </Badge>
+              ))}
+              {workspace && (
+                <Badge variant="accent" className="capitalize">
+                  {workspace.role}
+                </Badge>
+              )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
 
       {/* Language */}
-      <Card className="border-border/30">
-        <CardContent className="pt-6">
+      <Section bordered>
+        <div className="px-4 py-4 sm:px-5">
           <AppLocaleSwitcher />
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
 
       {/* Security */}
-      <Card className="border-border/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            {t("security.title")}
-          </CardTitle>
-          <CardDescription>{t("security.description")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">{t("security.passwordlessTitle")}</p>
-            <p className="text-xs text-muted-foreground">
-              {t("security.passwordlessDescription")}
-            </p>
-          </div>
+      <Section title={t("security.title")} description={t("security.description")} bordered>
+        <div className="divide-y divide-border">
+          <SettingsRow
+            title={t("security.passwordlessTitle")}
+            description={t("security.passwordlessDescription")}
+          />
 
           {canChangeEmail && (
-            <div className="rounded-xl border p-4 space-y-3">
-              <div>
-                <p className="text-sm font-medium">{t("security.changeEmailTitle")}</p>
-                <p className="text-xs text-muted-foreground">
-                  {t("security.changeEmailDescription")}
-                </p>
-              </div>
+            <div className="px-4 py-4 sm:px-5">
               {pendingEmailChange ? (
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full px-2.5 py-1 text-xs break-all" style={pillStyle("warn")}>
-                      {t("security.codeSentTo", { email: pendingEmailChange })}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={handleResendEmailChange}
-                      disabled={resendingEmailChange}
-                    >
-                      {resendingEmailChange ? t("security.resending") : t("security.resend")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={() => { setPendingEmailChange(null); setEmailChangeCode(''); }}
-                    >
-                      {t("security.cancel")}
-                    </Button>
+                <FormField
+                  label={t("security.changeEmailTitle")}
+                  htmlFor="account-email-code"
+                  description={t("security.changeEmailDescription")}
+                >
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="warning" className="whitespace-normal break-all">
+                        {t("security.codeSentTo", { email: pendingEmailChange })}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        onClick={handleResendEmailChange}
+                        disabled={resendingEmailChange}
+                      >
+                        {resendingEmailChange ? t("security.resending") : t("security.resend")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => { setPendingEmailChange(null); setEmailChangeCode(''); }}
+                      >
+                        {t("security.cancel")}
+                      </Button>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Input
+                        id="account-email-code"
+                        value={emailChangeCode}
+                        onChange={(e) => setEmailChangeCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        placeholder="123456"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        className="text-center font-mono sm:max-w-[160px]"
+                        onKeyDown={(e) => e.key === 'Enter' && handleConfirmEmailChange()}
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={handleConfirmEmailChange}
+                        disabled={confirmingEmailChange || emailChangeCode.length < 6}
+                      >
+                        {confirmingEmailChange ? t("security.confirming") : t("security.confirmChange")}
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-3">
+                </FormField>
+              ) : (
+                <FormField
+                  label={t("security.changeEmailTitle")}
+                  htmlFor="account-new-email"
+                  description={t("security.changeEmailDescription")}
+                >
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Input
-                      value={emailChangeCode}
-                      onChange={(e) => setEmailChangeCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      placeholder="123456"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      className="h-10 rounded-xl text-center font-mono tracking-[0.3em] sm:max-w-[160px]"
-                      onKeyDown={(e) => e.key === 'Enter' && handleConfirmEmailChange()}
+                      id="account-new-email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder={t("security.newEmailPlaceholder")}
+                      type="email"
+                      className="sm:max-w-[360px]"
                     />
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="shrink-0 h-10"
-                      onClick={handleConfirmEmailChange}
-                      disabled={confirmingEmailChange || emailChangeCode.length < 6}
+                      onClick={handleEmailChange}
+                      disabled={changingEmail || !newEmail.trim()}
                     >
-                      {confirmingEmailChange ? t("security.confirming") : t("security.confirmChange")}
+                      {changingEmail ? t("security.sending") : t("security.sendCode")}
                     </Button>
                   </div>
-                </div>
-              ) : (
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    placeholder={t("security.newEmailPlaceholder")}
-                    type="email"
-                    className="h-10 rounded-xl"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 h-10"
-                    onClick={handleEmailChange}
-                    disabled={changingEmail || !newEmail.trim()}
-                  >
-                    {changingEmail ? t("security.sending") : t("security.sendCode")}
-                  </Button>
-                </div>
+                </FormField>
               )}
             </div>
           )}
 
-          <div className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium">{t("security.signOutTitle")}</p>
-              <p className="text-xs text-muted-foreground">
-                {t("security.signOutDescription")}
-              </p>
-            </div>
-            <Button variant="outline" size="sm" className="shrink-0" onClick={logout}>
+          <SettingsRow
+            title={t("security.signOutTitle")}
+            description={t("security.signOutDescription")}
+          >
+            <Button variant="outline" size="sm" onClick={logout}>
               {t("security.signOut")}
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </SettingsRow>
+        </div>
+      </Section>
 
       {/* Danger zone */}
-      <Card className="border-destructive/20">
-        <CardHeader>
-          <CardTitle className="text-destructive">{t("dangerZone.title")}</CardTitle>
-          <CardDescription>{t("dangerZone.description")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-xl border border-destructive/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium">{t("dangerZone.deleteTitle")}</p>
-              <p className="text-xs text-muted-foreground">
-                {t("dangerZone.deleteDescription")}
-              </p>
-            </div>
-            <Button variant="destructive" size="sm" className="shrink-0" onClick={() => setDeleteAccountOpen(true)}>
-              {t("dangerZone.deleteAccount")}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <Section title={t("dangerZone.title")} description={t("dangerZone.description")} bordered>
+        <SettingsRow
+          title={t("dangerZone.deleteTitle")}
+          description={t("dangerZone.deleteDescription")}
+        >
+          <Button variant="outline" size="sm" className="text-mk-neg" onClick={() => setDeleteAccountOpen(true)}>
+            {t("dangerZone.deleteAccount")}
+          </Button>
+        </SettingsRow>
+      </Section>
 
       <ConfirmDeleteDialog
         open={deleteAccountOpen}
@@ -572,6 +587,24 @@ function AccountTab() {
 }
 
 /* ─── Usage Tab ────────────────────────────────────────────────────────────── */
+
+/** Label row plus a 6px bar; the hue carries how close to the limit you are. */
+function MeterBar({ pct, tone }: { pct: number; tone: "accent" | "warn" | "neg" | "pos" }) {
+  const fill = {
+    accent: "bg-mk-accent",
+    warn: "bg-mk-warn",
+    neg: "bg-mk-neg",
+    pos: "bg-mk-pos",
+  }[tone];
+  return (
+    <div className="h-1.5 overflow-hidden rounded-sm bg-muted">
+      <div
+        className={cn("h-full w-full origin-left rounded-sm transition-transform duration-300 ease-out-quart rtl:origin-right", fill)}
+        style={{ transform: `scaleX(${pct / 100})` }}
+      />
+    </div>
+  );
+}
 
 function UsageMeter({
   label,
@@ -594,19 +627,14 @@ function UsageMeter({
   const isFull = pct >= 100;
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">{label}</p>
+    <div className="space-y-2 px-4 py-4 sm:px-5">
+      <div className="flex items-center justify-between gap-4">
+        <p className="m-0 text-sm font-medium text-foreground">{label}</p>
         <p
-          className="text-sm tabular-nums"
-          style={{
-            color: isFull
-              ? "var(--mk-neg)"
-              : isHigh
-              ? "var(--mk-warn)"
-              : "var(--mk-ink-60)",
-            fontWeight: isFull ? 500 : 400,
-          }}
+          className={cn(
+            "m-0 text-[13px] tabular-nums",
+            isFull ? "font-medium text-mk-neg" : isHigh ? "text-mk-warn" : "text-muted-foreground",
+          )}
         >
           {unavailable ? (
             <span className="text-muted-foreground">{t("notAvailable")}</span>
@@ -620,28 +648,9 @@ function UsageMeter({
         </p>
       </div>
       {!unavailable && !unlimited && (
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full w-full rounded-full origin-left rtl:origin-right transition-transform duration-300 ease-out-quart"
-            style={{
-              transform: `scaleX(${pct / 100})`,
-              background: isFull
-                ? "var(--mk-neg)"
-                : isHigh
-                ? "var(--mk-warn)"
-                : "var(--mk-accent)",
-            }}
-          />
-        </div>
+        <MeterBar pct={pct} tone={isFull ? "neg" : isHigh ? "warn" : "accent"} />
       )}
-      {unlimited && (
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full rounded-full w-[15%]"
-            style={{ background: "var(--mk-pos)" }}
-          />
-        </div>
-      )}
+      {unlimited && <MeterBar pct={15} tone="pos" />}
     </div>
   );
 }
@@ -671,19 +680,14 @@ function StorageMeter({
   const isFull = pct >= 100;
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">{t("storage")}</p>
+    <div className="space-y-2 px-4 py-4 sm:px-5">
+      <div className="flex items-center justify-between gap-4">
+        <p className="m-0 text-sm font-medium text-foreground">{t("storage")}</p>
         <p
-          className="text-sm tabular-nums"
-          style={{
-            color: isFull
-              ? "var(--mk-neg)"
-              : isHigh
-              ? "var(--mk-warn)"
-              : "var(--mk-ink-60)",
-            fontWeight: isFull ? 500 : 400,
-          }}
+          className={cn(
+            "m-0 text-[13px] tabular-nums",
+            isFull ? "font-medium text-mk-neg" : isHigh ? "text-mk-warn" : "text-muted-foreground",
+          )}
         >
           {unlimited
             ? t("storageUsed", { current: formatGb(current, locale) })
@@ -694,23 +698,9 @@ function StorageMeter({
         </p>
       </div>
       {unlimited ? (
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
-          <div className="h-full rounded-full w-[15%]" style={{ background: "var(--mk-pos)" }} />
-        </div>
+        <MeterBar pct={15} tone="pos" />
       ) : (
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full w-full rounded-full origin-left rtl:origin-right transition-transform duration-300 ease-out-quart"
-            style={{
-              transform: `scaleX(${pct / 100})`,
-              background: isFull
-                ? "var(--mk-neg)"
-                : isHigh
-                ? "var(--mk-warn)"
-                : "var(--mk-accent)",
-            }}
-          />
-        </div>
+        <MeterBar pct={pct} tone={isFull ? "neg" : isHigh ? "warn" : "accent"} />
       )}
     </div>
   );
@@ -741,25 +731,23 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
 
   if (loading) {
     return (
-      <div className="grid gap-5">
-        <Card className="border-border/30">
-          <CardHeader>
-            <Skeleton className="h-5 w-44" />
-            <Skeleton className="h-4 w-56" />
-          </CardHeader>
-          <CardContent className="space-y-5">
+      <div className="space-y-8">
+        <Section title={t("title")} bordered>
+          <div className="divide-y divide-border">
             {[0, 1].map((i) => (
-              <div key={i} className="space-y-2">
+              <div key={i} className="space-y-3 px-4 py-4 sm:px-5">
                 <div className="flex justify-between">
                   <Skeleton className="h-4 w-32" />
                   <Skeleton className="h-4 w-16" />
                 </div>
-                <Skeleton className="h-2 w-full rounded-full" />
+                <Skeleton className="h-1.5 w-full rounded-sm" />
               </div>
             ))}
-            <Skeleton className="h-4 w-48" />
-          </CardContent>
-        </Card>
+          </div>
+        </Section>
+        <Section title={t("planLimitsTitle")} bordered>
+          <RowSkeletons rows={2} control={false} />
+        </Section>
       </div>
     );
   }
@@ -767,23 +755,14 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
   const month = new Date().toLocaleDateString(locale, { month: "long", year: "numeric" });
 
   return (
-    <div className="grid gap-5">
-      <Card className="border-border/30">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-4 w-4" />
-                {t("title")}
-              </CardTitle>
-              <CardDescription>{month} · {plan.name}</CardDescription>
-            </div>
-            {status?.trialing && (
-              <Badge className="bg-primary/10 text-primary border-0">{t("trial")}</Badge>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-5">
+    <div className="space-y-8">
+      <Section
+        title={t("title")}
+        description={`${month}, ${plan.name}`}
+        action={status?.trialing ? <Badge variant="accent">{t("trial")}</Badge> : undefined}
+        bordered
+      >
+        <div className="divide-y divide-border">
           {/* Brands (products vs plan limit, add-on packs included) */}
           <UsageMeter
             label={t("brandsRegistered")}
@@ -801,15 +780,6 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
             />
           )}
 
-          {/* The media library sits directly under the storage meter: the
-              meter says how full you are, this is how you do something
-              about it. */}
-          {usage?.storage && (
-            <div className="border-t border-border/30 pt-5">
-              <MediaLibrary />
-            </div>
-          )}
-
           {/* Posts — metered on the free tier only; paid tiers are unlimited */}
           {(usage?.posts.limit ?? plan.limits.postsPerMonth) !== -1 && (
             <UsageMeter
@@ -819,31 +789,36 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
               locale={locale}
             />
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
+
+      {/* The media library sits directly under the storage meter: the
+          meter says how full you are, this is how you do something
+          about it. */}
+      {usage?.storage && (
+        <Section bordered contentClassName="p-4 sm:p-5">
+          <MediaLibrary />
+        </Section>
+      )}
 
       {/* Plan limits summary */}
-      <Card className="border-border/30">
-        <CardHeader>
-          <CardTitle>{t("planLimitsTitle")}</CardTitle>
-          <CardDescription>{t("planLimitsDescription", { plan: plan.name })}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+      <Section title={t("planLimitsTitle")} description={t("planLimitsDescription", { plan: plan.name })} bordered>
+        <div className="divide-y divide-border">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-2.5 px-4 py-4 sm:grid-cols-2 sm:px-5">
             {plan.features.map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm">
-                <Check className="h-3.5 w-3.5 text-mk-pos shrink-0" />
-                <span className="text-muted-foreground">{f}</span>
+              <div key={f} className="flex items-start gap-2 text-sm">
+                <Check className="mt-0.5 size-3.5 shrink-0 text-mk-pos" />
+                <span className="text-mk-ink-80">{f}</span>
               </div>
             ))}
           </div>
-          <div className="mt-4 pt-4 border-t">
+          <div className="px-4 py-3 sm:px-5">
             <Button variant="outline" size="sm" onClick={onUpgrade}>
               {t("upgradePlan")}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
     </div>
   );
 }
@@ -852,14 +827,14 @@ function UsageTab({ onUpgrade }: { onUpgrade: () => void }) {
 
 // Each product links its own individual account per channel — nothing is shared
 // across products, and Facebook and Instagram are separate links.
-const PRODUCT_CHANNELS: { provider: string; channelKey: string }[] = [
-  { provider: "meta", channelKey: "meta" },
-  { provider: "instagram", channelKey: "instagram" },
-  { provider: "tiktok", channelKey: "tiktok" },
-  { provider: "threads", channelKey: "threads" },
-  { provider: "pinterest", channelKey: "pinterest" },
-  { provider: "linkedin", channelKey: "linkedin" },
-  { provider: "x", channelKey: "x" },
+const PRODUCT_CHANNELS: { provider: string; channelKey: string; iconKey: string }[] = [
+  { provider: "meta", channelKey: "meta", iconKey: "facebook" },
+  { provider: "instagram", channelKey: "instagram", iconKey: "instagram" },
+  { provider: "tiktok", channelKey: "tiktok", iconKey: "tiktok" },
+  { provider: "threads", channelKey: "threads", iconKey: "threads" },
+  { provider: "pinterest", channelKey: "pinterest", iconKey: "pinterest" },
+  { provider: "linkedin", channelKey: "linkedin", iconKey: "linkedin" },
+  { provider: "x", channelKey: "x", iconKey: "x" },
 ];
 
 /** One linked account/Page/board for a channel. */
@@ -950,33 +925,31 @@ function ManualPostingCard() {
   };
 
   return (
-    <Card className="border-border/30">
-      <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
-        <CardDescription>
-          {t("description")}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-2.5">
+    <Section title={t("title")} description={t("description")} bordered>
+      <div className="divide-y divide-border">
         {MANUAL_POSTING_CHANNELS.map((channel) => (
-          <div key={channel.id} className="flex items-center justify-between gap-3 rounded-xl border p-3.5">
-            <div className="min-w-0">
-              <p className="text-sm font-medium">{tChannels(channel.id)}</p>
-              <p className="text-xs text-muted-foreground">
-                {enabled.has(channel.id)
-                  ? t("manualStatus")
-                  : t("automatedStatus")}
-              </p>
+          <div key={channel.id} className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <Channel channel={channel.id} size={24} />
+              <div className="min-w-0">
+                <p className="m-0 text-sm font-medium text-foreground">{tChannels(channel.id)}</p>
+                <p className="m-0 mt-0.5 text-[13px] leading-5 text-muted-foreground">
+                  {enabled.has(channel.id)
+                    ? t("manualStatus")
+                    : t("automatedStatus")}
+                </p>
+              </div>
             </div>
             <Switch
               checked={enabled.has(channel.id)}
               disabled={!canManage || loading || savingChannel === channel.id}
               onCheckedChange={() => toggleChannel(channel.id)}
+              aria-label={tChannels(channel.id)}
             />
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </Section>
   );
 }
 
@@ -1159,15 +1132,11 @@ function IntegrationsTab() {
 
   if (productsLoading || (!!productIds && connLoading && !connData)) {
     return (
-      <div className="grid gap-5">
+      <div className="space-y-8">
         {[0, 1].map((i) => (
-          <Card key={i} className="border-border/30">
-            <CardHeader><Skeleton className="h-5 w-48" /></CardHeader>
-            <CardContent className="space-y-2">
-              <Skeleton className="h-14 w-full" />
-              <Skeleton className="h-14 w-full" />
-            </CardContent>
-          </Card>
+          <Section key={i} bordered>
+            <RowSkeletons rows={3} />
+          </Section>
         ))}
       </div>
     );
@@ -1175,48 +1144,50 @@ function IntegrationsTab() {
 
   if (products.length === 0) {
     return (
-      <Card className="border-border/30">
-        <CardHeader>
-          <CardTitle>{t("noProductsTitle")}</CardTitle>
-          <CardDescription>{t("noProductsDescription")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/products"><Button>{t("createBrand")}</Button></Link>
-        </CardContent>
-      </Card>
+      <div className="space-y-8">
+        <ManualPostingCard />
+        <EmptyState
+          icon={Link2}
+          title={t("noProductsTitle")}
+          description={t("noProductsDescription")}
+          action={
+            <Button asChild>
+              <Link href="/products">{t("createBrand")}</Link>
+            </Button>
+          }
+        />
+      </div>
     );
   }
 
   return (
-    <div className="grid gap-5">
+    <div className="space-y-8">
       <ManualPostingCard />
 
-      <p className="text-sm text-muted-foreground">
+      <p className="m-0 text-[13px] leading-5 text-muted-foreground text-pretty">
         {t("linkDescription")}
       </p>
 
       {products.map((product) => (
-        <Card key={product.id} className="border-border/30">
-          <CardHeader>
-            <CardTitle>{product.name}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2.5">
+        <Section key={product.id} title={product.name} bordered>
+          <div className="divide-y divide-border">
             {connectOutcome && (connectOutcome.productId ?? product.id) === product.id && (() => {
               const entry = (connsByProduct[product.id] || []).find((c) => c.provider === connectOutcome.outcome.provider);
               const account = entry?.username
                 ? `@${entry.username}`
                 : entry?.pageName || entry?.boardName || entry?.linkedinDestinationName || null;
               return (
-                <ConnectionOutcomeCard
-                  outcome={connectOutcome.outcome}
-                  brandName={product.name}
-                  account={account}
-                  grantedScopes={entry?.grantedScopes}
-                  onDismiss={() => setConnectOutcome(null)}
-                  onTryAgain={() => connect(connectOutcome.outcome.provider, product.id, connectOutcome.outcome.linkedinMode ?? undefined)}
-                  onChoosePages={() => setPagePickerProduct(product.id)}
-                  className="mb-1"
-                />
+                <div className="p-4 sm:p-5">
+                  <ConnectionOutcomeCard
+                    outcome={connectOutcome.outcome}
+                    brandName={product.name}
+                    account={account}
+                    grantedScopes={entry?.grantedScopes}
+                    onDismiss={() => setConnectOutcome(null)}
+                    onTryAgain={() => connect(connectOutcome.outcome.provider, product.id, connectOutcome.outcome.linkedinMode ?? undefined)}
+                    onChoosePages={() => setPagePickerProduct(product.id)}
+                  />
+                </div>
               );
             })()}
             {PRODUCT_CHANNELS.map((ch) => {
@@ -1225,88 +1196,93 @@ function IntegrationsTab() {
               const accounts = channelAccounts(product.id, ch.provider);
               const channelLabel = t(`channels.${ch.channelKey}.label`);
               return (
-                <div key={ch.provider} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3.5">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-medium">{channelLabel}</p>
-                      {st.state === "connected" && <Badge className="border-0" style={pillStyle("pos")}>{t("linked")}</Badge>}
-                      {st.state === "needs-page" && (
-                        <Badge className="border-0" style={pillStyle("warn")}>
-                          {ch.provider === "pinterest" ? t("pickBoard") : ch.provider === "linkedin" ? t("pickTarget") : t("pickPage")}
-                        </Badge>
+                <div key={ch.provider} className="px-4 py-4 sm:px-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <Channel channel={ch.iconKey} size={24} />
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="m-0 text-sm font-medium text-foreground">{channelLabel}</p>
+                          {st.state === "connected" && <Badge variant="positive">{t("linked")}</Badge>}
+                          {st.state === "needs-page" && (
+                            <Badge variant="warning">
+                              {ch.provider === "pinterest" ? t("pickBoard") : ch.provider === "linkedin" ? t("pickTarget") : t("pickPage")}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="m-0 mt-0.5 truncate text-[13px] leading-5 text-muted-foreground">
+                          {st.state === "connected" ? (st.label || t("linkedAndReady")) : t(`channels.${ch.channelKey}.sub`)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap items-center gap-2">
+                      {st.state === "connected" ? (
+                        <>
+                          {ch.provider === "meta" && (
+                            <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>
+                              {t("addPage")}
+                            </Button>
+                          )}
+                          {/* Reconnect re-runs OAuth in place. Unlinking first is
+                              never required and would drop this brand's Pages. */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => connect(ch.provider, product.id, undefined, "reconnect")}
+                          >
+                            {ch.provider === "meta" ? t("reconnectAddAccount") : t("reconnect")}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-mk-neg"
+                            disabled={isBusy}
+                            onClick={() => setDisconnectTarget({ productId: product.id, provider: ch.provider, label: `${channelLabel} · ${product.name}` })}
+                          >
+                            {isBusy ? t("unlinking") : accounts.length > 1 ? t("unlinkAll") : t("unlink")}
+                          </Button>
+                        </>
+                      ) : st.state === "needs-page" ? (
+                        ch.provider === "pinterest" ? (
+                          <Button size="sm" asChild><Link href="/products">{t("chooseBoard")}</Link></Button>
+                        ) : ch.provider === "linkedin" ? (
+                          <Button size="sm" asChild><Link href="/products">{t("chooseTarget")}</Link></Button>
+                        ) : (
+                          <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>{t("choosePage")}</Button>
+                        )
+                      ) : ch.provider === "linkedin" ? (
+                        <>
+                          <Button size="sm" onClick={() => connect(ch.provider, product.id, "profile")}>{t("profileButton")}</Button>
+                          <Button size="sm" variant="outline" onClick={() => connect(ch.provider, product.id, "community")}>{t("pagesButton")}</Button>
+                        </>
+                      ) : (
+                        <Button size="sm" onClick={() => connect(ch.provider, product.id)}>{t("link")}</Button>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {st.state === "connected" ? (st.label || t("linkedAndReady")) : t(`channels.${ch.channelKey}.sub`)}
-                    </p>
-                  </div>
-                  <div className="shrink-0">
-                    {st.state === "connected" ? (
-                      <div className="flex gap-2">
-                        {ch.provider === "meta" && (
-                          <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>
-                            {t("addPage")}
-                          </Button>
-                        )}
-                        {/* Reconnect re-runs OAuth in place. Unlinking first is
-                            never required and would drop this brand's Pages. */}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => connect(ch.provider, product.id, undefined, "reconnect")}
-                        >
-                          {ch.provider === "meta" ? t("reconnectAddAccount") : t("reconnect")}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={isBusy}
-                          onClick={() => setDisconnectTarget({ productId: product.id, provider: ch.provider, label: `${channelLabel} · ${product.name}` })}
-                        >
-                          {isBusy ? t("unlinking") : accounts.length > 1 ? t("unlinkAll") : t("unlink")}
-                        </Button>
-                      </div>
-                    ) : st.state === "needs-page" ? (
-                      ch.provider === "pinterest" ? (
-                        <Link href="/products"><Button size="sm">{t("chooseBoard")}</Button></Link>
-                      ) : ch.provider === "linkedin" ? (
-                        <Link href="/products"><Button size="sm">{t("chooseTarget")}</Button></Link>
-                      ) : (
-                        <Button size="sm" onClick={() => setPagePickerProduct(product.id)}>{t("choosePage")}</Button>
-                      )
-                    ) : ch.provider === "linkedin" ? (
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => connect(ch.provider, product.id, "profile")}>{t("profileButton")}</Button>
-                        <Button size="sm" variant="outline" onClick={() => connect(ch.provider, product.id, "community")}>{t("pagesButton")}</Button>
-                      </div>
-                    ) : (
-                      <Button size="sm" onClick={() => connect(ch.provider, product.id)}>{t("link")}</Button>
-                    )}
                   </div>
                   {accounts.length > 0 && (
-                    <div className="w-full space-y-1.5">
+                    <div className="mt-3 flex flex-col gap-1">
                       {accounts.map((account) => {
                         const label = account.label || account.destinationId || t("linkedAccountFallback");
                         const accountBusy = busy === `${product.id}:${ch.provider}:${account.destinationId}`;
                         return (
                           <div
                             key={account.connectionId}
-                            className="flex items-center gap-2 rounded-lg border border-border/40 px-2.5 py-1.5"
+                            className="flex items-center gap-2 rounded-lg bg-muted px-3 py-1.5"
                           >
-                            <span className="min-w-0 flex-1 truncate text-[12px]">{label}</span>
+                            <span className="min-w-0 flex-1 truncate text-[13px] text-mk-ink-80">{label}</span>
                             {account.enabled === false && (
-                              <Badge className="border-0 text-[10px] shrink-0" style={pillStyle("warn")}>
+                              <Badge variant="warning">
                                 {account.status === "revoked" ? t("reconnect") : account.status}
                               </Badge>
                             )}
                             <Button
                               variant="ghost"
-                              size="sm"
-                              className="h-7 px-2 text-[11px]"
+                              size="xs"
                               disabled={accountBusy}
                               onClick={() => unlinkAccount(product.id, ch.provider, account.destinationId!, label)}
                             >
-                              {accountBusy ? "…" : t("unlink")}
+                              {accountBusy ? t("unlinking") : t("unlink")}
                             </Button>
                           </div>
                         );
@@ -1316,8 +1292,8 @@ function IntegrationsTab() {
                 </div>
               );
             })}
-          </CardContent>
-        </Card>
+          </div>
+        </Section>
       ))}
 
       {/* Meta Facebook Page picker */}
@@ -1329,40 +1305,39 @@ function IntegrationsTab() {
               {t("pagePicker.description")}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+          <div className="max-h-[50vh] overflow-y-auto">
             {pages === null ? (
-              <>
-                <Skeleton className="h-14 w-full" />
-                <Skeleton className="h-14 w-full" />
-              </>
+              <RowSkeletons rows={2} />
             ) : pagesError && pages.length === 0 ? (
-              <p className="text-sm text-mk-warn">{pagesError}</p>
+              <Notice tone="warning">{pagesError}</Notice>
             ) : pages.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t("pagePicker.noneFound")}</p>
+              <p className="m-0 text-[13px] text-muted-foreground">{t("pagePicker.noneFound")}</p>
             ) : (
-              pages.map((pg) => (
-                <button
-                  key={pg.id}
-                  type="button"
-                  disabled={!!selectingPage || linkedPageIds.includes(pg.id)}
-                  onClick={() => selectPage(pg)}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border p-3.5 text-start transition-colors hover:border-primary/50 disabled:opacity-60"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{pg.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {pg.accountLabel ? `via ${pg.accountLabel}` : t("channels.meta.label")}
-                    </p>
-                  </div>
-                  <span className="text-xs text-primary shrink-0">
-                    {linkedPageIds.includes(pg.id)
-                      ? t("linked")
-                      : selectingPage === pg.id
-                      ? t("pagePicker.linking")
-                      : t("link")}
-                  </span>
-                </button>
-              ))
+              <div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
+                {pages.map((pg) => (
+                  <button
+                    key={pg.id}
+                    type="button"
+                    disabled={!!selectingPage || linkedPageIds.includes(pg.id)}
+                    onClick={() => selectPage(pg)}
+                    className="flex w-full items-center justify-between gap-3 px-4 py-3 text-start transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-60"
+                  >
+                    <div className="min-w-0">
+                      <p className="m-0 truncate text-sm font-medium text-foreground">{pg.name}</p>
+                      <p className="m-0 truncate text-[13px] text-muted-foreground">
+                        {pg.accountLabel ? `via ${pg.accountLabel}` : t("channels.meta.label")}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-[13px] font-medium text-mk-accent">
+                      {linkedPageIds.includes(pg.id)
+                        ? t("linked")
+                        : selectingPage === pg.id
+                        ? t("pagePicker.linking")
+                        : t("link")}
+                    </span>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         </DialogContent>
@@ -1542,201 +1517,181 @@ function TeamTab() {
     analyst: t("roles.analyst"),
   };
 
+  const canInviteMore = canInvite && (limit === -1 || seatsUsed < limit);
+  const limitHit = canInvite && limit !== -1 && seatsUsed >= limit;
+
   return (
-    <div className="grid gap-5">
-      <Card className="border-border/30">
-        <CardHeader>
-          <CardTitle>{t("membersTitle")}</CardTitle>
-          <CardDescription>
-            {limit === -1
-              ? t("unlimitedMembers", { plan: plan.name })
-              : t("memberCount", { count: membersLoading ? "…" : seatsUsed, limit, plan: plan.name })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Member list */}
-          <div className="rounded-xl border divide-y divide-border/40">
-            {membersLoading && (
-              <>
-                {[0, 1].map((i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-3">
-                    <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-                    <div className="space-y-1.5">
-                      <Skeleton className="h-4 w-48" />
-                      <Skeleton className="h-3 w-32" />
-                    </div>
+    <div className="space-y-8">
+      <Section
+        title={t("membersTitle")}
+        description={
+          limit === -1
+            ? t("unlimitedMembers", { plan: plan.name })
+            : t("memberCount", { count: membersLoading ? "…" : seatsUsed, limit, plan: plan.name })
+        }
+        bordered
+      >
+        <div className="divide-y divide-border">
+          {membersLoading && <RowSkeletons rows={2} />}
+          {!membersLoading && members.length === 0 && (
+            <EmptyState compact icon={Users} title={t("noMembers")} className="rounded-none border-0" />
+          )}
+          {members.map((m) => {
+            const isSelf = m.uid === user?.uid;
+            const canManageThisRole = isOwner && !isSelf && m.role !== 'owner';
+            return (
+              <div key={m.uid} className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="grid size-8 shrink-0 place-items-center rounded-full bg-muted">
+                    <span className="text-xs font-semibold text-mk-ink-80">
+                      {m.email.slice(0, 2).toUpperCase()}
+                    </span>
                   </div>
-                ))}
-              </>
-            )}
-            {!membersLoading && members.length === 0 && (
-              <p className="text-sm text-muted-foreground px-4 py-3">{t("noMembers")}</p>
-            )}
-            {members.map((m) => {
-              const isSelf = m.uid === user?.uid;
-              const canManageThisRole = isOwner && !isSelf && m.role !== 'owner';
-              return (
-                <div key={m.uid} className="flex items-center justify-between px-4 py-3 gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                      <span className="text-xs font-semibold text-muted-foreground">
-                        {m.email.slice(0, 2).toUpperCase()}
-                      </span>
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <p className="m-0 truncate text-sm font-medium text-foreground">{m.email}</p>
+                      {isSelf && <Badge variant="accent">{t("youBadge")}</Badge>}
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {m.email}
-                        {isSelf && (
-                          <Badge className="ml-2 bg-primary/10 text-primary border-0 align-middle">{t("youBadge")}</Badge>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {t(`roleLabels.${m.role}`)}
-                        {roleDescriptions[m.role] ? `: ${roleDescriptions[m.role]}` : ""}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {canManageThisRole && (
-                      <div className="w-28 hidden sm:block">
-                        <Select
-                          value={m.role}
-                          disabled={roleSaving === m.uid}
-                          onChange={(e) => changeRole(m.uid, e.target.value as 'admin' | 'member' | 'analyst')}
-                        >
-                          <option value="member">{t("roleLabels.member")}</option>
-                          <option value="analyst">{t("roleLabels.analyst")}</option>
-                          <option value="admin">{t("roleLabels.admin")}</option>
-                        </Select>
-                      </div>
-                    )}
-                    {canManageThisRole && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs text-muted-foreground shrink-0"
-                        onClick={() => setTransferTarget({ uid: m.uid, email: m.email })}
-                      >
-                        {t("makeOwner")}
-                      </Button>
-                    )}
-                    {canInvite && m.role !== 'owner' && !isSelf && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs text-muted-foreground hover:text-mk-neg shrink-0"
-                        onClick={() => setRemoveTarget({ uid: m.uid, email: m.email })}
-                        disabled={removing === m.uid}
-                      >
-                        {removing === m.uid ? t("removing") : t("remove")}
-                      </Button>
-                    )}
+                    <p className="m-0 mt-0.5 text-[13px] leading-5 text-muted-foreground">
+                      {t(`roleLabels.${m.role}`)}
+                      {roleDescriptions[m.role] ? `: ${roleDescriptions[m.role]}` : ""}
+                    </p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Pending invitations */}
-          {pendingInvites.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">{t("pendingTitle")}</p>
-              <div className="rounded-xl border divide-y divide-border/40">
-                {pendingInvites.map((inv) => (
-                  <div key={inv.id} className="flex items-center justify-between px-4 py-3 gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{inv.email}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {t(`roleLabels.${inv.role}`)} · <Badge variant="outline" className="align-middle text-[10px]">{t("pendingBadge")}</Badge>
-                      </p>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  {canManageThisRole && (
+                    <div className="w-32">
+                      <Select
+                        size="sm"
+                        value={m.role}
+                        disabled={roleSaving === m.uid}
+                        onChange={(e) => changeRole(m.uid, e.target.value as 'admin' | 'member' | 'analyst')}
+                        aria-label={t("roles.title")}
+                      >
+                        <option value="member">{t("roleLabels.member")}</option>
+                        <option value="analyst">{t("roleLabels.analyst")}</option>
+                        <option value="admin">{t("roleLabels.admin")}</option>
+                      </Select>
                     </div>
-                    {canInvite && (
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-xs text-muted-foreground shrink-0"
-                          disabled={inviteBusyEmail === inv.email}
-                          onClick={() => invite(inv.email, inv.role)}
-                        >
-                          {t("resend")}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-xs text-muted-foreground hover:text-mk-neg shrink-0"
-                          disabled={inviteBusyEmail === inv.email}
-                          onClick={() => revokeInvite(inv.email)}
-                        >
-                          {t("revoke")}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  )}
+                  {canManageThisRole && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setTransferTarget({ uid: m.uid, email: m.email })}
+                    >
+                      {t("makeOwner")}
+                    </Button>
+                  )}
+                  {canInvite && m.role !== 'owner' && !isSelf && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-mk-neg"
+                      onClick={() => setRemoveTarget({ uid: m.uid, email: m.email })}
+                      disabled={removing === m.uid}
+                    >
+                      {removing === m.uid ? t("removing") : t("remove")}
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })}
 
           {/* Invite form */}
-          {canInvite && (limit === -1 || seatsUsed < limit) && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">{t("inviteLabel")}</p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  type="email"
-                  placeholder={t("emailPlaceholder")}
-                  value={inviteEmail}
-                  onChange={(e) => { setInviteEmail(e.target.value); if (inviteEmailError) setInviteEmailError(null); }}
-                  onKeyDown={(e) => e.key === 'Enter' && invite()}
-                  className="flex-1"
-                />
-                <div className="sm:w-32">
-                  <Select
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member' | 'analyst')}
-                  >
-                    <option value="member">{t("roleLabels.member")}</option>
-                    <option value="analyst">{t("roleLabels.analyst")}</option>
-                    {isOwner && <option value="admin">{t("roleLabels.admin")}</option>}
-                  </Select>
+          {canInviteMore && (
+            <div className="px-4 py-4 sm:px-5">
+              <FormField label={t("inviteLabel")} htmlFor="team-invite-email" error={inviteEmailError}>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    id="team-invite-email"
+                    type="email"
+                    placeholder={t("emailPlaceholder")}
+                    value={inviteEmail}
+                    onChange={(e) => { setInviteEmail(e.target.value); if (inviteEmailError) setInviteEmailError(null); }}
+                    onKeyDown={(e) => e.key === 'Enter' && invite()}
+                    aria-invalid={inviteEmailError ? true : undefined}
+                    className="flex-1"
+                  />
+                  <div className="sm:w-36">
+                    <Select
+                      value={inviteRole}
+                      onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member' | 'analyst')}
+                      aria-label={t("roles.title")}
+                    >
+                      <option value="member">{t("roleLabels.member")}</option>
+                      <option value="analyst">{t("roleLabels.analyst")}</option>
+                      {isOwner && <option value="admin">{t("roleLabels.admin")}</option>}
+                    </Select>
+                  </div>
+                  <Button onClick={() => invite()} disabled={inviting || !inviteEmail.trim()}>
+                    {inviting ? t("inviting") : t("invite")}
+                  </Button>
                 </div>
-                <Button onClick={() => invite()} disabled={inviting || !inviteEmail.trim()}>
-                  {inviting ? t("inviting") : t("invite")}
-                </Button>
-              </div>
-              {inviteEmailError && (
-                <p className="text-xs text-mk-neg">{inviteEmailError}</p>
-              )}
+              </FormField>
             </div>
           )}
 
-          {canInvite && limit !== -1 && seatsUsed >= limit && (
-            <p className="text-xs text-muted-foreground pt-1">
+          {limitHit && (
+            <p className="m-0 px-4 py-3 text-[13px] leading-5 text-muted-foreground sm:px-5">
               {t("limitReached")}{' '}
-              <Link href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</Link> {t("toInviteMore")}
+              <Link href="/settings?tab=billing" className="text-mk-accent hover:underline">{t("upgradePlan")}</Link> {t("toInviteMore")}
             </p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
 
-      {/* Roles reference */}
-      <Card className="border-border/30">
-        <CardHeader>
-          <CardTitle>{t("roles.title")}</CardTitle>
-          <CardDescription>{t("roles.description")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {(["owner", "admin", "member", "analyst"] as const).map((role) => (
-              <div key={role} className="rounded-lg border p-3">
-                <p className="text-sm font-medium">{t(`roleLabels.${role}`)}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{roleDescriptions[role]}</p>
+      {/* Pending invitations */}
+      {pendingInvites.length > 0 && (
+        <Section title={t("pendingTitle")} bordered>
+          <div className="divide-y divide-border">
+            {pendingInvites.map((inv) => (
+              <div key={inv.id} className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
+                <div className="min-w-0">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <p className="m-0 truncate text-sm font-medium text-foreground">{inv.email}</p>
+                    <Badge variant="secondary">{t("pendingBadge")}</Badge>
+                  </div>
+                  <p className="m-0 mt-0.5 text-[13px] leading-5 text-muted-foreground">
+                    {t(`roleLabels.${inv.role}`)}
+                  </p>
+                </div>
+                {canInvite && (
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={inviteBusyEmail === inv.email}
+                      onClick={() => invite(inv.email, inv.role)}
+                    >
+                      {t("resend")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-mk-neg"
+                      disabled={inviteBusyEmail === inv.email}
+                      onClick={() => revokeInvite(inv.email)}
+                    >
+                      {t("revoke")}
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </Section>
+      )}
+
+      {/* Roles reference */}
+      <Section title={t("roles.title")} description={t("roles.description")} bordered>
+        <div className="divide-y divide-border">
+          {(["owner", "admin", "member", "analyst"] as const).map((role) => (
+            <SettingsRow key={role} title={t(`roleLabels.${role}`)} description={roleDescriptions[role]} />
+          ))}
+        </div>
+      </Section>
 
       <ConfirmDeleteDialog
         open={!!removeTarget}
@@ -1753,7 +1708,7 @@ function TeamTab() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t("transferDialog.title")}</DialogTitle>
-            <DialogDescription className="pt-1 leading-relaxed">
+            <DialogDescription>
               {t("transferDialog.description", { email: transferTarget?.email ?? '' })}
             </DialogDescription>
           </DialogHeader>
@@ -1762,7 +1717,7 @@ function TeamTab() {
               {t("transferDialog.cancel")}
             </Button>
             <Button onClick={confirmTransferOwnership} disabled={transferring}>
-              {transferring ? <Loader2 className="h-4 w-4 animate-spin" /> : t("transferDialog.confirm")}
+              {transferring ? <Loader2 className="size-4 animate-spin" /> : t("transferDialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1880,25 +1835,24 @@ function WorkspacesTab() {
   }
 
   return (
-    <div className="grid gap-5">
-      <Card className="border-border/30">
-        <CardHeader>
-          <CardTitle>{t("title")}</CardTitle>
-          <CardDescription>
-            {limit === -1
-              ? t("unlimitedWorkspaces", { plan: plan.name })
-              : t("ownedCount", { count: ownedCount, limit, plan: plan.name })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Workspace list */}
-          <div className="rounded-xl border divide-y divide-border/40">
-            {workspaces.map((ws) => (
-              <div key={ws.id} className="flex items-center gap-3 px-4 py-3">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-primary">{ws.name.slice(0, 2).toUpperCase()}</span>
+    <div className="space-y-8">
+      <Section
+        title={t("title")}
+        description={
+          limit === -1
+            ? t("unlimitedWorkspaces", { plan: plan.name })
+            : t("ownedCount", { count: ownedCount, limit, plan: plan.name })
+        }
+        bordered
+      >
+        <div className="divide-y divide-border">
+          {workspaces.map((ws) => (
+            <div key={ws.id} className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted">
+                  <span className="text-xs font-semibold text-mk-ink-80">{ws.name.slice(0, 2).toUpperCase()}</span>
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   {editingId === ws.id ? (
                     <div className="flex items-center gap-2">
                       <Input
@@ -1908,112 +1862,115 @@ function WorkspacesTab() {
                           if (e.key === 'Enter') renameWorkspace(ws.id);
                           if (e.key === 'Escape') setEditingId(null);
                         }}
-                        className="h-8 text-sm"
+                        className="h-8 max-w-[320px]"
+                        aria-label={t("namePlaceholder")}
                         autoFocus
                       />
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 shrink-0"
+                        size="icon-sm"
                         onClick={() => renameWorkspace(ws.id)}
                         disabled={saving}
                       >
-                        {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                        {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
                       </Button>
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 shrink-0"
+                        size="icon-sm"
                         onClick={() => setEditingId(null)}
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <X className="size-3.5" />
                       </Button>
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-medium truncate">{ws.name}</p>
+                      <div className="flex min-w-0 items-center gap-1">
+                        <p className="m-0 truncate text-sm font-medium text-foreground">{ws.name}</p>
                         {ws.role === 'owner' && (
-                          <button
-                            className="text-muted-foreground hover:text-foreground transition-colors p-2 -m-1 grid place-items-center"
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className="text-mk-ink-40 hover:text-foreground"
                             onClick={() => { setEditingId(ws.id); setEditName(ws.name); }}
                           >
-                            <Pencil className="h-3 w-3" />
-                          </button>
+                            <Pencil className="size-3" />
+                          </Button>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground">{t(`roleLabels.${ws.role}`)}</p>
+                      <p className="m-0 text-[13px] leading-5 text-muted-foreground">{t(`roleLabels.${ws.role}`)}</p>
                     </>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {ws.id === current?.id ? (
-                    <Badge className="bg-primary/10 text-primary border-0 shrink-0">{t("active")}</Badge>
-                  ) : (
-                    <Button variant="outline" size="sm" className="shrink-0" onClick={() => switchWorkspace(ws.id)}>
-                      {t("switch")}
-                    </Button>
-                  )}
-                  {ws.role !== 'owner' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-muted-foreground hover:text-mk-neg shrink-0"
-                      onClick={() => setLeaveTarget(ws)}
-                    >
-                      {t("leave")}
-                    </Button>
-                  )}
-                  {ws.role === 'owner' && workspaces.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-mk-neg shrink-0"
-                      onClick={() => setDeleteTarget(ws)}
-                      aria-label={t("deleteAria", { name: ws.name })}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
-                </div>
               </div>
-            ))}
-          </div>
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
+                {ws.id === current?.id ? (
+                  <Badge variant="accent">{t("active")}</Badge>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => switchWorkspace(ws.id)}>
+                    {t("switch")}
+                  </Button>
+                )}
+                {ws.role !== 'owner' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-mk-neg"
+                    onClick={() => setLeaveTarget(ws)}
+                  >
+                    {t("leave")}
+                  </Button>
+                )}
+                {ws.role === 'owner' && workspaces.length > 1 && (
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
+                    className="text-mk-neg"
+                    onClick={() => setDeleteTarget(ws)}
+                    aria-label={t("deleteAria", { name: ws.name })}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
 
           {/* Create workspace */}
           {canCreate && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">{t("createLabel")}</p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder={t("namePlaceholder")}
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && createWorkspace()}
-                  className="flex-1"
-                />
-                <Button onClick={createWorkspace} disabled={creating || !newName.trim()}>
-                  {creating ? t("creating") : t("create")}
-                </Button>
-              </div>
+            <div className="px-4 py-4 sm:px-5">
+              <FormField label={t("createLabel")} htmlFor="workspace-new-name">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    id="workspace-new-name"
+                    placeholder={t("namePlaceholder")}
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && createWorkspace()}
+                    className="flex-1 sm:max-w-[360px]"
+                  />
+                  <Button onClick={createWorkspace} disabled={creating || !newName.trim()}>
+                    {creating ? t("creating") : t("create")}
+                  </Button>
+                </div>
+              </FormField>
             </div>
           )}
 
           {!canCreate && (
-            <p className="text-xs text-muted-foreground pt-1">
+            <p className="m-0 px-4 py-3 text-[13px] leading-5 text-muted-foreground sm:px-5">
               {t("limitReached")}{' '}
-              <Link href="/settings?tab=billing" className="text-primary hover:underline">{t("upgradePlan")}</Link> {t("toCreateMore")}
+              <Link href="/settings?tab=billing" className="text-mk-accent hover:underline">{t("upgradePlan")}</Link> {t("toCreateMore")}
             </p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
 
       {/* Leave workspace */}
       <Dialog open={!!leaveTarget} onOpenChange={(open) => { if (!open) setLeaveTarget(null); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t("leaveDialog.title")}</DialogTitle>
-            <DialogDescription className="pt-1 leading-relaxed">
+            <DialogDescription>
               {t("leaveDialog.description", { name: leaveTarget?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
@@ -2022,7 +1979,7 @@ function WorkspacesTab() {
               {t("leaveDialog.cancel")}
             </Button>
             <Button variant="destructive" onClick={confirmLeaveWorkspace} disabled={leaving}>
-              {leaving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("leaveDialog.confirm")}
+              {leaving ? <Loader2 className="size-4 animate-spin" /> : t("leaveDialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2043,6 +2000,34 @@ function WorkspacesTab() {
 }
 
 /* ─── API Access Tab ───────────────────────────────────────────────────── */
+
+/** Scope / event checklist used by the create and edit dialogs. */
+function ScopeChecklist({
+  options,
+  selected,
+  onToggle,
+  labelFor,
+}: {
+  options: readonly { id: string; labelKey: string }[];
+  selected: string[];
+  onToggle: (id: string, checked: boolean) => void;
+  labelFor: (labelKey: string) => string;
+}) {
+  return (
+    <div className="grid gap-2.5 rounded-xl border border-border p-3">
+      {options.map((option) => (
+        <Label key={option.id} className="justify-start gap-2.5">
+          <Checkbox
+            checked={selected.includes(option.id)}
+            onCheckedChange={(checked) => onToggle(option.id, checked === true)}
+          />
+          <span>{labelFor(option.labelKey)}</span>
+          <span className="font-mono text-xs text-mk-ink-40">{option.id}</span>
+        </Label>
+      ))}
+    </div>
+  );
+}
 
 function ApiAccessTab() {
   const t = useTranslations("settings.api");
@@ -2367,14 +2352,9 @@ function ApiAccessTab() {
 
   if (!canManage) {
     return (
-      <div className="grid gap-5">
-        <Card className="border-border/30">
-          <CardHeader>
-            <CardTitle>{t("restricted.title")}</CardTitle>
-            <CardDescription>{t("restricted.description")}</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <Notice tone="neutral" icon={KeyRound} title={t("restricted.title")}>
+        {t("restricted.description")}
+      </Notice>
     );
   }
 
@@ -2385,417 +2365,366 @@ function ApiAccessTab() {
     ? apiClientUsage
     : apiClientUsage.filter((client) => !client.archived);
 
+  const archivedToggle = archivedClientCount > 0 ? (
+    <Button variant="ghost" size="sm" onClick={() => setShowArchived((prev) => !prev)}>
+      <Archive className="size-3.5" />
+      {showArchived ? t("keysSection.hideArchived") : t("keysSection.showArchived", { count: archivedClientCount })}
+    </Button>
+  ) : null;
+
   return (
-    <div className="grid gap-5">
-      <Card className="border-border/30">
-        <CardHeader>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <KeyRound className="h-4 w-4" />
-                {t("title")}
-              </CardTitle>
-              <CardDescription>
-                {t("description")}
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap gap-2">
+    <div className="space-y-8">
+      <Section
+        title={t("title")}
+        description={t("description")}
+        action={
+          <>
+            <Button variant="outline" size="sm" asChild>
               <a href="/developers/api" target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="sm">
-                  <BookOpen className="me-1.5 h-3.5 w-3.5" />
-                  {t("viewDocs")}
-                </Button>
+                <BookOpen className="size-3.5" />
+                {t("viewDocs")}
               </a>
-              <Button size="sm" onClick={() => setCreateKeyOpen(true)}>
-                {t("createKey")}
+            </Button>
+            <Button size="sm" onClick={() => setCreateKeyOpen(true)}>
+              {t("createKey")}
+            </Button>
+          </>
+        }
+      >
+        <StatGrid columns={4}>
+          <StatTile
+            label={t("stats.requestsThisMonth")}
+            value={usageTotals.currentMonthRequests.toLocaleString(locale)}
+            sub={formatMonthKey(apiClientUsage[0]?.usage.currentMonth || new Date().toISOString().slice(0, 7), locale)}
+            loading={loading}
+          />
+          <StatTile
+            label={t("stats.queuedPublishes")}
+            value={usageTotals.publishQueued.toLocaleString(locale)}
+            sub={t("stats.allKeysInWorkspace")}
+            loading={loading}
+          />
+          <StatTile
+            label={t("stats.completedOutcomes")}
+            value={(usageTotals.publishSucceeded + usageTotals.publishActionRequired).toLocaleString(locale)}
+            sub={loading
+              ? t("stats.outcomesLoading")
+              : t("stats.outcomesBreakdown", { succeeded: usageTotals.publishSucceeded.toLocaleString(locale), actionRequired: usageTotals.publishActionRequired.toLocaleString(locale) })}
+            loading={loading}
+          />
+          <StatTile
+            label={t("stats.failures")}
+            value={usageTotals.publishFailed.toLocaleString(locale)}
+            sub={t("stats.trackedAtCompletion")}
+            loading={loading}
+          />
+        </StatGrid>
+      </Section>
+
+      {/* API keys */}
+      <Section
+        title={t("keysSection.title")}
+        description={t("keysSection.description")}
+        action={archivedToggle ?? undefined}
+        bordered
+      >
+        {loading ? (
+          <RowSkeletons rows={3} />
+        ) : visibleClients.length === 0 ? (
+          <EmptyState
+            compact
+            icon={KeyRound}
+            title={apiClientUsage.length === 0 ? t("keysSection.empty") : t("keysSection.emptyFiltered")}
+            className="rounded-none border-0"
+            action={
+              apiClientUsage.length === 0 ? (
+                <Button size="sm" onClick={() => setCreateKeyOpen(true)}>{t("createKey")}</Button>
+              ) : (
+                archivedToggle
+              )
+            }
+          />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("keysSection.columns.name")}</TableHead>
+                <TableHead>{t("keysSection.columns.usage")}</TableHead>
+                <TableHead>{t("keysSection.columns.publishOutcomes")}</TableHead>
+                <TableHead>{t("keysSection.columns.scopes")}</TableHead>
+                <TableHead>{t("keysSection.columns.status")}</TableHead>
+                <TableHead>{t("keysSection.columns.lastUsed")}</TableHead>
+                <TableHead className="text-end">{t("keysSection.columns.actions")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {visibleClients.map((client) => (
+                <TableRow key={client.id}>
+                  <TableCell className="min-w-[220px] align-top">
+                    <div className="space-y-2">
+                      <div>
+                        <p className="m-0 font-medium text-foreground">{client.name}</p>
+                        <p className="m-0 font-mono text-xs text-muted-foreground">{client.keyPrefix}…</p>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {client.productId && (
+                          <Badge variant="outline">
+                            {t("keysSection.brandBadge", { name: productNameById(client.productId) ?? "" })}
+                          </Badge>
+                        )}
+                        {client.origin === 'oauth' && (
+                          <Badge variant="secondary">
+                            {t("keysSection.agentBadge")}
+                          </Badge>
+                        )}
+                      </div>
+                      <ApiTrendBars points={client.trend} requestsLabel={t("keysSection.requestsThisMonth")} />
+                      <p className="m-0 text-xs text-mk-ink-40">{t("keysSection.trendCaption")}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="min-w-[180px] align-top">
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p className="m-0"><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.request || 0).toLocaleString(locale)}</span> {t("keysSection.requestsThisMonth")}</p>
+                      <p className="m-0"><span className="font-medium text-foreground tabular-nums">{client.usage.totalRequests.toLocaleString(locale)}</span> {t("keysSection.totalRequests")}</p>
+                      <p className="m-0">{t("keysSection.uploadsAndPosts", { uploads: (client.usage.currentMonthCounts.media_upload || 0).toLocaleString(locale), posts: (client.usage.currentMonthCounts.post_create || 0).toLocaleString(locale) })}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="min-w-[200px] align-top">
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p className="m-0"><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString(locale)}</span> {t("keysSection.queued")}</p>
+                      <p className="m-0"><span className="font-medium text-mk-pos tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString(locale)}</span> {t("keysSection.directPublish")}</p>
+                      <p className="m-0"><span className="font-medium text-mk-warn tabular-nums">{((client.usage.currentMonthCounts.publish_action_required || 0) + (client.usage.currentMonthCounts.publish_exported_for_review || 0)).toLocaleString(locale)}</span> {t("keysSection.actionRequired")}</p>
+                      <p className="m-0"><span className="font-medium text-mk-neg tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString(locale)}</span> {t("keysSection.failed")}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[320px] whitespace-normal align-top">
+                    <div className="flex flex-wrap gap-1.5">
+                      {client.scopes.map((scope) => (
+                        <Badge key={scope} variant="outline" className="font-mono font-normal">{scope}</Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top">
+                    <div className="flex flex-col items-start gap-1.5">
+                      <Status value={client.status} label={t(`keysSection.statusLabels.${client.status}`)} />
+                      {client.archived && (
+                        <Badge variant="secondary">{t("keysSection.archivedBadge")}</Badge>
+                      )}
+                      {client.expiresAt ? (
+                        new Date(client.expiresAt).getTime() <= nowAtMount ? (
+                          <Badge variant="negative">{t("keysSection.expiredBadge")}</Badge>
+                        ) : (
+                          <p className="m-0 text-xs text-muted-foreground">{t("keysSection.expires", { date: formatShortDate(client.expiresAt, locale) })}</p>
+                        )
+                      ) : (
+                        <p className="m-0 text-xs text-muted-foreground">{t("keysSection.neverExpires")}</p>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top text-muted-foreground">
+                    {client.lastUsedAt ? new Date(client.lastUsedAt).toLocaleString(locale) : t("keysSection.never")}
+                  </TableCell>
+                  <TableCell className="align-top text-end">
+                    <div className="flex justify-end gap-1">
+                      {client.archived ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => archiveClient(client.id, false)}
+                          disabled={archivingClient === client.id}
+                        >
+                          <ArchiveRestore className="size-3.5" />
+                          {archivingClient === client.id ? t("keysSection.restoring") : t("keysSection.unarchive")}
+                        </Button>
+                      ) : (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEditClient(client)}
+                            disabled={client.status !== 'active'}
+                          >
+                            <Pencil className="size-3.5" />
+                            {t("keysSection.editPermissions")}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setRotateTarget(client)}
+                            disabled={client.status !== 'active' || rotatingClient}
+                          >
+                            <RefreshCw className="size-3.5" />
+                            {t("keysSection.rotate")}
+                          </Button>
+                          {client.status === 'revoked' ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => archiveClient(client.id, true)}
+                              disabled={archivingClient === client.id}
+                            >
+                              <Archive className="size-3.5" />
+                              {archivingClient === client.id ? t("keysSection.archiving") : t("keysSection.archive")}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-mk-neg hover:text-mk-neg"
+                              onClick={() => revokeClient(client.id)}
+                              disabled={revokingClient === client.id}
+                            >
+                              <Trash2 className="size-3.5" />
+                              {revokingClient === client.id ? t("keysSection.revoking") : t("keysSection.revoke")}
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Section>
+
+      {/* Webhook endpoints */}
+      <Section
+        title={t("webhooksSection.title")}
+        description={t("webhooksSection.description")}
+        action={
+          <Button variant="outline" size="sm" onClick={() => setCreateWebhookOpen(true)}>
+            <Webhook className="size-3.5" />
+            {t("webhooksSection.addWebhook")}
+          </Button>
+        }
+        bordered
+      >
+        {loading ? (
+          <RowSkeletons rows={2} />
+        ) : webhookEndpoints.length === 0 ? (
+          <EmptyState
+            compact
+            icon={Webhook}
+            title={t("webhooksSection.empty")}
+            className="rounded-none border-0"
+            action={
+              <Button variant="outline" size="sm" onClick={() => setCreateWebhookOpen(true)}>
+                {t("webhooksSection.addWebhook")}
               </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-            <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">{t("infoCards.videoSupportTitle")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("infoCards.videoSupportDescription")}
-              </p>
-            </div>
-            <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">{t("infoCards.mediaCapsTitle")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("infoCards.mediaCapsDescription")}
-              </p>
-            </div>
-            <div className="rounded-xl border p-4">
-              <p className="text-sm font-medium">{t("infoCards.inboxTitle")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("infoCards.inboxDescription")}
-              </p>
-            </div>
-          </div>
+            }
+          />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("webhooksSection.columns.endpoint")}</TableHead>
+                <TableHead>{t("webhooksSection.columns.events")}</TableHead>
+                <TableHead>{t("webhooksSection.columns.status")}</TableHead>
+                <TableHead className="text-end">{t("webhooksSection.columns.actions")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {webhookEndpoints.map((endpoint) => (
+                <TableRow key={endpoint.id}>
+                  <TableCell className="max-w-[320px] whitespace-normal align-top">
+                    <div className="flex items-start gap-2">
+                      <div className="min-w-0">
+                        <p className="m-0 break-all font-medium text-foreground">{endpoint.url}</p>
+                        <p className="m-0 text-xs text-muted-foreground">{t("webhooksSection.created", { date: new Date(endpoint.createdAt).toLocaleString(locale) })}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className="shrink-0 text-mk-ink-40 hover:text-foreground"
+                        onClick={() => copyText(endpoint.url, t("toasts.webhookUrlCopied"), t("toasts.webhookUrlCopyFailed"))}
+                      >
+                        <Copy className="size-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[320px] whitespace-normal align-top">
+                    <div className="flex flex-wrap gap-1.5">
+                      {endpoint.events.map((eventName) => (
+                        <Badge key={eventName} variant="outline" className="font-mono font-normal">{eventName}</Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top">
+                    <div className="space-y-1.5">
+                      <Status value={endpoint.status} label={t(`webhooksSection.statusLabels.${endpoint.status}`)} />
+                      {endpoint.health && (
+                        <div className="text-xs text-muted-foreground">
+                          {endpoint.health.delivered24h === 0 && endpoint.health.failed24h === 0 ? (
+                            <p className="m-0">{t("webhooksSection.health.quiet")}</p>
+                          ) : (
+                            <p className="m-0 flex flex-wrap items-center gap-x-2">
+                              <span>{t("webhooksSection.health.delivered", { count: endpoint.health.delivered24h })}</span>
+                              <span className={endpoint.health.failed24h > 0 ? "text-mk-neg" : undefined}>
+                                {t("webhooksSection.health.failed", { count: endpoint.health.failed24h })}
+                              </span>
+                              <span>{t("webhooksSection.health.window")}</span>
+                            </p>
+                          )}
+                          <p className="m-0">
+                            {endpoint.health.lastSuccessAt
+                              ? t("webhooksSection.health.lastSuccess", { date: new Date(endpoint.health.lastSuccessAt).toLocaleString(locale) })
+                              : t("webhooksSection.health.lastSuccessNever")}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-top text-end">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => sendWebhookTest(endpoint.id)}
+                        disabled={endpoint.status !== 'active' || sendingTestWebhook === endpoint.id}
+                      >
+                        {sendingTestWebhook === endpoint.id
+                          ? t("webhooksSection.sendingTest")
+                          : t("webhooksSection.sendTest")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDeliveries(endpoint)}
+                      >
+                        {t("webhooksSection.deliveries")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-mk-neg hover:text-mk-neg"
+                        onClick={() => disableWebhook(endpoint.id)}
+                        disabled={endpoint.status !== 'active' || disablingWebhook === endpoint.id}
+                      >
+                        {disablingWebhook === endpoint.id ? t("webhooksSection.disabling") : t("webhooksSection.disable")}
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Section>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-xl border p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.requestsThisMonth")}</p>
-              {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.currentMonthRequests.toLocaleString(locale)}</p>
-              )}
-              <p className="mt-1 text-xs text-muted-foreground">{formatMonthKey(apiClientUsage[0]?.usage.currentMonth || new Date().toISOString().slice(0, 7), locale)}</p>
-            </div>
-            <div className="rounded-xl border p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.queuedPublishes")}</p>
-              {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.publishQueued.toLocaleString(locale)}</p>
-              )}
-              <p className="mt-1 text-xs text-muted-foreground">{t("stats.allKeysInWorkspace")}</p>
-            </div>
-            <div className="rounded-xl border p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.completedOutcomes")}</p>
-              {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">
-                  {(usageTotals.publishSucceeded + usageTotals.publishActionRequired).toLocaleString(locale)}
-                </p>
-              )}
-              <p className="mt-1 text-xs text-muted-foreground">
-                {loading
-                  ? t("stats.outcomesLoading")
-                  : t("stats.outcomesBreakdown", { succeeded: usageTotals.publishSucceeded.toLocaleString(locale), actionRequired: usageTotals.publishActionRequired.toLocaleString(locale) })}
-              </p>
-            </div>
-            <div className="rounded-xl border p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("stats.failures")}</p>
-              {loading ? <Skeleton className="mt-2 h-8 w-16" /> : (
-                <p className="mt-2 text-2xl font-semibold tabular-nums">{usageTotals.publishFailed.toLocaleString(locale)}</p>
-              )}
-              <p className="mt-1 text-xs text-muted-foreground">{t("stats.trackedAtCompletion")}</p>
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="py-10 flex items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <>
-              <div className="rounded-xl border">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b px-4 py-3">
-                  <div>
-                    <p className="text-sm font-medium">{t("keysSection.title")}</p>
-                    <p className="text-xs text-muted-foreground">{t("keysSection.description")}</p>
-                  </div>
-                  {archivedClientCount > 0 && (
-                    <Button variant="ghost" size="sm" className="shrink-0 self-start sm:self-auto" onClick={() => setShowArchived((prev) => !prev)}>
-                      <Archive className="me-1.5 h-3.5 w-3.5" />
-                      {showArchived ? t("keysSection.hideArchived") : t("keysSection.showArchived", { count: archivedClientCount })}
-                    </Button>
-                  )}
-                </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("keysSection.columns.name")}</TableHead>
-                      <TableHead>{t("keysSection.columns.usage")}</TableHead>
-                      <TableHead>{t("keysSection.columns.publishOutcomes")}</TableHead>
-                      <TableHead>{t("keysSection.columns.scopes")}</TableHead>
-                      <TableHead>{t("keysSection.columns.status")}</TableHead>
-                      <TableHead>{t("keysSection.columns.lastUsed")}</TableHead>
-                      <TableHead className="text-end">{t("keysSection.columns.actions")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {visibleClients.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="py-6 text-center text-muted-foreground">
-                          {apiClientUsage.length === 0 ? t("keysSection.empty") : t("keysSection.emptyFiltered")}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      visibleClients.map((client) => (
-                        <TableRow key={client.id}>
-                          <TableCell className="min-w-[220px]">
-                            <div className="space-y-2">
-                              <p className="font-medium">{client.name}</p>
-                              <p className="text-xs text-muted-foreground">{client.keyPrefix}…</p>
-                              {client.productId && (
-                                <Badge variant="outline" className="font-normal text-[10px]">
-                                  {t("keysSection.brandBadge", { name: productNameById(client.productId) ?? "" })}
-                                </Badge>
-                              )}
-                              {client.origin === 'oauth' && (
-                                <Badge variant="secondary" className="ms-1 font-normal text-[10px]">
-                                  {t("keysSection.agentBadge")}
-                                </Badge>
-                              )}
-                              <ApiTrendBars points={client.trend} requestsLabel={t("keysSection.requestsThisMonth")} />
-                              <p className="text-[11px] text-muted-foreground">{t("keysSection.trendCaption")}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="min-w-[180px]">
-                            <div className="space-y-1 text-xs text-muted-foreground">
-                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.request || 0).toLocaleString(locale)}</span> {t("keysSection.requestsThisMonth")}</p>
-                              <p><span className="font-medium text-foreground tabular-nums">{client.usage.totalRequests.toLocaleString(locale)}</span> {t("keysSection.totalRequests")}</p>
-                              <p>{t("keysSection.uploadsAndPosts", { uploads: (client.usage.currentMonthCounts.media_upload || 0).toLocaleString(locale), posts: (client.usage.currentMonthCounts.post_create || 0).toLocaleString(locale) })}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="min-w-[200px]">
-                            <div className="space-y-1 text-xs text-muted-foreground">
-                              <p><span className="font-medium text-foreground tabular-nums">{(client.usage.currentMonthCounts.publish_queued || 0).toLocaleString(locale)}</span> {t("keysSection.queued")}</p>
-                              <p><span className="font-medium text-mk-pos tabular-nums">{(client.usage.currentMonthCounts.publish_succeeded || 0).toLocaleString(locale)}</span> {t("keysSection.directPublish")}</p>
-                              <p><span className="font-medium text-primary tabular-nums">{((client.usage.currentMonthCounts.publish_action_required || 0) + (client.usage.currentMonthCounts.publish_exported_for_review || 0)).toLocaleString(locale)}</span> {t("keysSection.actionRequired")}</p>
-                              <p><span className="font-medium text-mk-neg tabular-nums">{(client.usage.currentMonthCounts.publish_failed || 0).toLocaleString(locale)}</span> {t("keysSection.failed")}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="max-w-[320px] whitespace-normal">
-                            <div className="flex flex-wrap gap-1.5">
-                              {client.scopes.map((scope) => (
-                                <Badge key={scope} variant="outline" className="font-normal">{scope}</Badge>
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col items-start gap-1.5">
-                              <Badge
-                                className="border-0"
-                                style={pillStyle(client.status === 'active' ? "pos" : "neutral")}
-                              >
-                                {t(`keysSection.statusLabels.${client.status}`)}
-                              </Badge>
-                              {client.archived && (
-                                <Badge className="border-0" style={pillStyle("neutral")}>{t("keysSection.archivedBadge")}</Badge>
-                              )}
-                              {client.expiresAt ? (
-                                new Date(client.expiresAt).getTime() <= nowAtMount ? (
-                                  <Badge className="border-0" style={pillStyle("neg")}>{t("keysSection.expiredBadge")}</Badge>
-                                ) : (
-                                  <p className="text-[11px] text-muted-foreground">{t("keysSection.expires", { date: formatShortDate(client.expiresAt, locale) })}</p>
-                                )
-                              ) : (
-                                <p className="text-[11px] text-muted-foreground">{t("keysSection.neverExpires")}</p>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {client.lastUsedAt ? new Date(client.lastUsedAt).toLocaleString(locale) : t("keysSection.never")}
-                          </TableCell>
-                          <TableCell className="text-end">
-                            <div className="flex justify-end gap-1.5">
-                              {client.archived ? (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => archiveClient(client.id, false)}
-                                  disabled={archivingClient === client.id}
-                                >
-                                  <ArchiveRestore className="me-1.5 h-3.5 w-3.5" />
-                                  {archivingClient === client.id ? t("keysSection.restoring") : t("keysSection.unarchive")}
-                                </Button>
-                              ) : (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => openEditClient(client)}
-                                    disabled={client.status !== 'active'}
-                                  >
-                                    <Pencil className="me-1.5 h-3.5 w-3.5" />
-                                    {t("keysSection.editPermissions")}
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setRotateTarget(client)}
-                                    disabled={client.status !== 'active' || rotatingClient}
-                                  >
-                                    <RefreshCw className="me-1.5 h-3.5 w-3.5" />
-                                    {t("keysSection.rotate")}
-                                  </Button>
-                                  {client.status === 'revoked' ? (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => archiveClient(client.id, true)}
-                                      disabled={archivingClient === client.id}
-                                    >
-                                      <Archive className="me-1.5 h-3.5 w-3.5" />
-                                      {archivingClient === client.id ? t("keysSection.archiving") : t("keysSection.archive")}
-                                    </Button>
-                                  ) : (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-mk-neg hover:text-mk-neg"
-                                      onClick={() => revokeClient(client.id)}
-                                      disabled={revokingClient === client.id}
-                                    >
-                                      <Trash2 className="me-1.5 h-3.5 w-3.5" />
-                                      {revokingClient === client.id ? t("keysSection.revoking") : t("keysSection.revoke")}
-                                    </Button>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-                      </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-
-              <div className="rounded-xl border">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b px-4 py-3">
-                  <div>
-                    <p className="text-sm font-medium">{t("webhooksSection.title")}</p>
-                    <p className="text-xs text-muted-foreground">{t("webhooksSection.description")}</p>
-                  </div>
-                  <Button variant="outline" size="sm" className="shrink-0 self-start sm:self-auto" onClick={() => setCreateWebhookOpen(true)}>
-                    <Webhook className="me-1.5 h-3.5 w-3.5" />
-                    {t("webhooksSection.addWebhook")}
-                  </Button>
-                </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("webhooksSection.columns.endpoint")}</TableHead>
-                      <TableHead>{t("webhooksSection.columns.events")}</TableHead>
-                      <TableHead>{t("webhooksSection.columns.status")}</TableHead>
-                      <TableHead className="text-end">{t("webhooksSection.columns.actions")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {webhookEndpoints.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="py-6 text-center text-muted-foreground">
-                          {t("webhooksSection.empty")}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      webhookEndpoints.map((endpoint) => (
-                        <TableRow key={endpoint.id}>
-                          <TableCell className="max-w-[320px] whitespace-normal">
-                            <div className="flex items-start gap-2">
-                              <div className="min-w-0">
-                                <p className="font-medium break-all">{endpoint.url}</p>
-                                <p className="text-xs text-muted-foreground">{t("webhooksSection.created", { date: new Date(endpoint.createdAt).toLocaleString(locale) })}</p>
-                              </div>
-                              <button
-                                className="text-muted-foreground hover:text-foreground transition-colors p-2 -m-1.5 grid place-items-center shrink-0"
-                                onClick={() => copyText(endpoint.url, t("toasts.webhookUrlCopied"), t("toasts.webhookUrlCopyFailed"))}
-                              >
-                                <Copy className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </TableCell>
-                          <TableCell className="max-w-[320px] whitespace-normal">
-                            <div className="flex flex-wrap gap-1.5">
-                              {endpoint.events.map((eventName) => (
-                                <Badge key={eventName} variant="outline" className="font-normal">{eventName}</Badge>
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1.5">
-                              <Badge
-                                className="border-0"
-                                style={pillStyle(endpoint.status === 'active' ? "pos" : "neutral")}
-                              >
-                                {t(`webhooksSection.statusLabels.${endpoint.status}`)}
-                              </Badge>
-                              {endpoint.health && (
-                                <div className="text-xs text-muted-foreground">
-                                  {endpoint.health.delivered24h === 0 && endpoint.health.failed24h === 0 ? (
-                                    <p>{t("webhooksSection.health.quiet")}</p>
-                                  ) : (
-                                    <p className="flex flex-wrap items-center gap-x-2">
-                                      <span>{t("webhooksSection.health.delivered", { count: endpoint.health.delivered24h })}</span>
-                                      <span className={endpoint.health.failed24h > 0 ? "text-mk-neg" : undefined}>
-                                        {t("webhooksSection.health.failed", { count: endpoint.health.failed24h })}
-                                      </span>
-                                      <span>{t("webhooksSection.health.window")}</span>
-                                    </p>
-                                  )}
-                                  <p>
-                                    {endpoint.health.lastSuccessAt
-                                      ? t("webhooksSection.health.lastSuccess", { date: new Date(endpoint.health.lastSuccessAt).toLocaleString(locale) })
-                                      : t("webhooksSection.health.lastSuccessNever")}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-end">
-                            <div className="flex items-center justify-end gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => sendWebhookTest(endpoint.id)}
-                                disabled={endpoint.status !== 'active' || sendingTestWebhook === endpoint.id}
-                              >
-                                {sendingTestWebhook === endpoint.id
-                                  ? t("webhooksSection.sendingTest")
-                                  : t("webhooksSection.sendTest")}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => openDeliveries(endpoint)}
-                              >
-                                {t("webhooksSection.deliveries")}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-mk-neg hover:text-mk-neg"
-                                onClick={() => disableWebhook(endpoint.id)}
-                                disabled={endpoint.status !== 'active' || disablingWebhook === endpoint.id}
-                              >
-                                {disablingWebhook === endpoint.id ? t("webhooksSection.disabling") : t("webhooksSection.disable")}
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="border-border/30">
-        <CardHeader>
-          <CardTitle>{t("operationalNotes.title")}</CardTitle>
-          <CardDescription>{t("operationalNotes.description")}</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">{t("operationalNotes.rateLimitTitle")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("operationalNotes.rateLimitDescription")}
-            </p>
-          </div>
-          <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">{t("operationalNotes.webhookSecretTitle")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("operationalNotes.webhookSecretDescription")}
-            </p>
-          </div>
-          <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">{t("operationalNotes.asyncTitle")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("operationalNotes.asyncDescription")}
-            </p>
-          </div>
-          <div className="rounded-xl border p-4">
-            <p className="text-sm font-medium">{t("operationalNotes.tiktokInboxTitle")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("operationalNotes.tiktokInboxDescription")}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Operational notes */}
+      <Section title={t("operationalNotes.title")} description={t("operationalNotes.description")} bordered>
+        <div className="divide-y divide-border">
+          <SettingsRow title={t("infoCards.videoSupportTitle")} description={t("infoCards.videoSupportDescription")} />
+          <SettingsRow title={t("infoCards.mediaCapsTitle")} description={t("infoCards.mediaCapsDescription")} />
+          <SettingsRow title={t("infoCards.inboxTitle")} description={t("infoCards.inboxDescription")} />
+          <SettingsRow title={t("operationalNotes.rateLimitTitle")} description={t("operationalNotes.rateLimitDescription")} />
+          <SettingsRow title={t("operationalNotes.webhookSecretTitle")} description={t("operationalNotes.webhookSecretDescription")} />
+          <SettingsRow title={t("operationalNotes.asyncTitle")} description={t("operationalNotes.asyncDescription")} />
+          <SettingsRow title={t("operationalNotes.tiktokInboxTitle")} description={t("operationalNotes.tiktokInboxDescription")} />
+        </div>
+      </Section>
 
       <Dialog open={createKeyOpen} onOpenChange={setCreateKeyOpen}>
         <DialogContent>
@@ -2806,12 +2735,10 @@ function ApiAccessTab() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="api-client-name">{t("createKeyDialog.nameLabel")}</Label>
+            <FormField label={t("createKeyDialog.nameLabel")} htmlFor="api-client-name">
               <Input id="api-client-name" placeholder={t("createKeyDialog.namePlaceholder")} value={clientName} onChange={(e) => setClientName(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="api-client-expiry">{t("createKeyDialog.expiresLabel")}</Label>
+            </FormField>
+            <FormField label={t("createKeyDialog.expiresLabel")} htmlFor="api-client-expiry">
               <Select
                 id="api-client-expiry"
                 value={expiresInDays}
@@ -2822,9 +2749,14 @@ function ApiAccessTab() {
                 <option value="90">{t("createKeyDialog.expires90")}</option>
                 <option value="365">{t("createKeyDialog.expires365")}</option>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="api-client-product">{t("createKeyDialog.brandLabel")}</Label>
+            </FormField>
+            <FormField
+              label={t("createKeyDialog.brandLabel")}
+              htmlFor="api-client-product"
+              description={products.length === 0
+                ? t("createKeyDialog.brandHelpEmpty")
+                : t("createKeyDialog.brandHelpRequired")}
+            >
               <Select
                 id="api-client-product"
                 value={selectedProductId}
@@ -2836,18 +2768,14 @@ function ApiAccessTab() {
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </Select>
-              <p className="text-xs text-muted-foreground">
-                {products.length === 0
-                  ? t("createKeyDialog.brandHelpEmpty")
-                  : t("createKeyDialog.brandHelpRequired")}
-              </p>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
+            </FormField>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
                 <Label>{t("createKeyDialog.scopesLabel")}</Label>
-                <button
+                <Button
                   type="button"
-                  className="text-xs text-primary hover:underline"
+                  variant="link"
+                  size="xs"
                   onClick={() =>
                     setSelectedScopes(
                       selectedScopes.length === API_SCOPE_OPTIONS.length
@@ -2857,20 +2785,14 @@ function ApiAccessTab() {
                   }
                 >
                   {selectedScopes.length === API_SCOPE_OPTIONS.length ? t("createKeyDialog.clearAll") : t("createKeyDialog.selectAll")}
-                </button>
+                </Button>
               </div>
-              <div className="grid gap-2 rounded-xl border p-3">
-                {API_SCOPE_OPTIONS.map((scope) => (
-                  <Label key={scope.id} className="justify-start">
-                    <Checkbox
-                      checked={selectedScopes.includes(scope.id)}
-                      onCheckedChange={(checked) => setSelectedScopes((current) => toggleSelection(current, scope.id, checked === true))}
-                    />
-                    <span>{t(`scopes.${scope.labelKey}`)}</span>
-                    <span className="text-xs text-muted-foreground">{scope.id}</span>
-                  </Label>
-                ))}
-              </div>
+              <ScopeChecklist
+                options={API_SCOPE_OPTIONS}
+                selected={selectedScopes}
+                onToggle={(id, checked) => setSelectedScopes((current) => toggleSelection(current, id, checked))}
+                labelFor={(labelKey) => t(`scopes.${labelKey}`)}
+              />
             </div>
           </div>
           <DialogFooter>
@@ -2894,51 +2816,52 @@ function ApiAccessTab() {
             </DialogDescription>
           </DialogHeader>
           {deliveriesEndpoint && (
-            <p className="text-xs text-muted-foreground break-all">{deliveriesEndpoint.url}</p>
+            <p className="m-0 break-all font-mono text-xs text-muted-foreground">{deliveriesEndpoint.url}</p>
           )}
-          <div className="max-h-[420px] overflow-y-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.event")}</TableHead>
-                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.status")}</TableHead>
-                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.attempts")}</TableHead>
-                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.response")}</TableHead>
-                  <TableHead>{t("webhooksSection.deliveriesDialog.columns.when")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {deliveries.length === 0 && !deliveriesLoading ? (
+          <div className="max-h-[420px] overflow-y-auto rounded-xl border border-border">
+            {deliveries.length === 0 && !deliveriesLoading ? (
+              deliveriesError ? (
+                <Notice tone="negative" className="rounded-none border-0">{deliveriesError}</Notice>
+              ) : (
+                <EmptyState compact title={t("webhooksSection.deliveriesDialog.empty")} className="rounded-none border-0" />
+              )
+            ) : deliveries.length === 0 ? (
+              <RowSkeletons rows={3} control={false} />
+            ) : (
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={5} className="py-6 text-center text-muted-foreground">
-                      {deliveriesError || t("webhooksSection.deliveriesDialog.empty")}
-                    </TableCell>
+                    <TableHead>{t("webhooksSection.deliveriesDialog.columns.event")}</TableHead>
+                    <TableHead>{t("webhooksSection.deliveriesDialog.columns.status")}</TableHead>
+                    <TableHead>{t("webhooksSection.deliveriesDialog.columns.attempts")}</TableHead>
+                    <TableHead>{t("webhooksSection.deliveriesDialog.columns.response")}</TableHead>
+                    <TableHead>{t("webhooksSection.deliveriesDialog.columns.when")}</TableHead>
                   </TableRow>
-                ) : (
-                  deliveries.map((delivery) => (
+                </TableHeader>
+                <TableBody>
+                  {deliveries.map((delivery) => (
                     <TableRow key={delivery.id}>
-                      <TableCell className="whitespace-nowrap">{delivery.eventType}</TableCell>
+                      <TableCell className="whitespace-nowrap font-mono text-xs">{delivery.eventType}</TableCell>
                       <TableCell>
                         <Badge
-                          className="border-0"
-                          style={pillStyle(
-                            delivery.status === 'delivered' ? "pos"
-                              : delivery.status === 'failed' ? "neg"
-                                : "neutral",
-                          )}
+                          variant={
+                            delivery.status === 'delivered' ? "positive"
+                              : delivery.status === 'failed' ? "negative"
+                                : "secondary"
+                          }
                         >
                           {delivery.status}
                         </Badge>
                         {/* Truncated server-side; provider response bodies are
                             never rendered in full. */}
                         {delivery.lastError && (
-                          <p className="mt-1 max-w-[220px] text-xs text-muted-foreground break-words">
+                          <p className="m-0 mt-1 max-w-[220px] whitespace-normal break-words text-xs text-muted-foreground">
                             {delivery.lastError}
                           </p>
                         )}
                       </TableCell>
-                      <TableCell>{delivery.attemptCount}</TableCell>
-                      <TableCell>{delivery.responseCode ?? "n/a"}</TableCell>
+                      <TableCell className="tabular-nums">{delivery.attemptCount}</TableCell>
+                      <TableCell className="tabular-nums">{delivery.responseCode ?? "n/a"}</TableCell>
                       <TableCell className="whitespace-nowrap">
                         {delivery.lastAttemptAt
                           ? new Date(delivery.lastAttemptAt).toLocaleString(locale)
@@ -2947,10 +2870,10 @@ function ApiAccessTab() {
                             : "n/a"}
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </div>
           <DialogFooter>
             {deliveriesCursor && deliveriesEndpoint && (
@@ -2980,24 +2903,17 @@ function ApiAccessTab() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="webhook-url">{t("createWebhookDialog.urlLabel")}</Label>
+            <FormField label={t("createWebhookDialog.urlLabel")} htmlFor="webhook-url">
               <Input id="webhook-url" placeholder={t("createWebhookDialog.urlPlaceholder")} value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} />
-            </div>
-            <div className="space-y-3">
+            </FormField>
+            <div className="space-y-2">
               <Label>{t("createWebhookDialog.eventsLabel")}</Label>
-              <div className="grid gap-2 rounded-xl border p-3">
-                {WEBHOOK_EVENT_OPTIONS.map((eventName) => (
-                  <Label key={eventName.id} className="justify-start">
-                    <Checkbox
-                      checked={selectedEvents.includes(eventName.id)}
-                      onCheckedChange={(checked) => setSelectedEvents((current) => toggleSelection(current, eventName.id, checked === true))}
-                    />
-                    <span>{t(`webhookEvents.${eventName.labelKey}`)}</span>
-                    <span className="text-xs text-muted-foreground">{eventName.id}</span>
-                  </Label>
-                ))}
-              </div>
+              <ScopeChecklist
+                options={WEBHOOK_EVENT_OPTIONS}
+                selected={selectedEvents}
+                onToggle={(id, checked) => setSelectedEvents((current) => toggleSelection(current, id, checked))}
+                labelFor={(labelKey) => t(`webhookEvents.${labelKey}`)}
+              />
             </div>
           </div>
           <DialogFooter>
@@ -3027,24 +2943,18 @@ function ApiAccessTab() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="rounded-xl border p-3">
-              <p className="text-sm font-medium">{editingClient?.name || t("editKeyDialog.fallbackName")}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{editingClient?.keyPrefix}…</p>
+            <div className="rounded-lg bg-muted px-3 py-2.5">
+              <p className="m-0 text-sm font-medium text-foreground">{editingClient?.name || t("editKeyDialog.fallbackName")}</p>
+              <p className="m-0 mt-0.5 font-mono text-xs text-muted-foreground">{editingClient?.keyPrefix}…</p>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <Label>{t("editKeyDialog.scopesLabel")}</Label>
-              <div className="grid gap-2 rounded-xl border p-3">
-                {API_SCOPE_OPTIONS.map((scope) => (
-                  <Label key={scope.id} className="justify-start">
-                    <Checkbox
-                      checked={editingScopes.includes(scope.id)}
-                      onCheckedChange={(checked) => setEditingScopes((current) => toggleSelection(current, scope.id, checked === true))}
-                    />
-                    <span>{t(`scopes.${scope.labelKey}`)}</span>
-                    <span className="text-xs text-muted-foreground">{scope.id}</span>
-                  </Label>
-                ))}
-              </div>
+              <ScopeChecklist
+                options={API_SCOPE_OPTIONS}
+                selected={editingScopes}
+                onToggle={(id, checked) => setEditingScopes((current) => toggleSelection(current, id, checked))}
+                labelFor={(labelKey) => t(`scopes.${labelKey}`)}
+              />
             </div>
           </div>
           <DialogFooter>
@@ -3064,14 +2974,14 @@ function ApiAccessTab() {
               {t("rotateKeyDialog.description")}
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-xl border p-3">
-            <p className="text-sm font-medium">{rotateTarget?.name || t("rotateKeyDialog.fallbackName")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{rotateTarget?.keyPrefix}…</p>
+          <div className="rounded-lg bg-muted px-3 py-2.5">
+            <p className="m-0 text-sm font-medium text-foreground">{rotateTarget?.name || t("rotateKeyDialog.fallbackName")}</p>
+            <p className="m-0 mt-0.5 font-mono text-xs text-muted-foreground">{rotateTarget?.keyPrefix}…</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRotateTarget(null)} disabled={rotatingClient}>{t("rotateKeyDialog.cancel")}</Button>
             <Button onClick={rotateClient} disabled={rotatingClient}>
-              {rotatingClient && <Loader2 className="me-1.5 h-4 w-4 animate-spin" />}
+              {rotatingClient && <Loader2 className="size-4 animate-spin" />}
               {rotatingClient ? t("rotateKeyDialog.rotating") : t("rotateKeyDialog.rotate")}
             </Button>
           </DialogFooter>
@@ -3086,17 +2996,19 @@ function ApiAccessTab() {
               {t("createdKeyDialog.description")}
             </DialogDescription>
           </DialogHeader>
-              <div className="rounded-xl border bg-muted/30 p-3">
-            <code className="break-all text-xs">{createdApiKey}</code>
+          <div className="space-y-3">
+            <div className="rounded-lg border border-border bg-muted p-3">
+              <code className="break-all font-mono text-xs text-foreground">{createdApiKey}</code>
+            </div>
+            <a href="/developers/api" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[13px] text-mk-accent hover:underline">
+              {t("createdKeyDialog.reviewGuide")}
+              <ExternalLink className="size-3.5" />
+            </a>
           </div>
-          <a href="/developers/api" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
-            {t("createdKeyDialog.reviewGuide")}
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreatedApiKey(null)}>{t("createdKeyDialog.close")}</Button>
             <Button onClick={() => createdApiKey && copyText(createdApiKey, t("toasts.apiKeyCopied"), t("toasts.apiKeyCopyFailed"))}>
-              <Copy className="me-1.5 h-3.5 w-3.5" />
+              <Copy className="size-3.5" />
               {t("createdKeyDialog.copyKey")}
             </Button>
           </DialogFooter>
@@ -3111,16 +3023,18 @@ function ApiAccessTab() {
               {t("createdWebhookDialog.description")}
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-xl border bg-muted/30 p-3">
-            <code className="break-all text-xs">{createdWebhookSecret}</code>
+          <div className="space-y-3">
+            <div className="rounded-lg border border-border bg-muted p-3">
+              <code className="break-all font-mono text-xs text-foreground">{createdWebhookSecret}</code>
+            </div>
+            <p className="m-0 text-[13px] leading-5 text-muted-foreground">
+              {t("createdWebhookDialog.headerNote")}
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {t("createdWebhookDialog.headerNote")}
-          </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreatedWebhookSecret(null)}>{t("createdWebhookDialog.close")}</Button>
             <Button onClick={() => createdWebhookSecret && copyText(createdWebhookSecret, t("toasts.webhookSecretCopied"), t("toasts.webhookSecretCopyFailed"))}>
-              <Copy className="me-1.5 h-3.5 w-3.5" />
+              <Copy className="size-3.5" />
               {t("createdWebhookDialog.copySecret")}
             </Button>
           </DialogFooter>
@@ -3185,63 +3099,54 @@ function AddonsCard({ interval, tier, workspaceId }: { interval: string | null; 
   }
 
   return (
-    <Card className="border-border/30">
-      <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
-        <CardDescription>{t("description")}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <Section title={t("title")} description={t("description")} bordered>
+      <div className="divide-y divide-border">
         {available.map((addon) => {
           const qty = pending[addon.key] ?? addon.quantity;
           const dirty = qty !== addon.quantity;
           const total = addon.key === "brand" ? baseLimits.brands + qty : baseLimits.teamMembers + qty;
           return (
-            <div
+            <SettingsRow
               key={addon.key}
-              className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-            >
-              <div>
-                <p className="text-sm font-medium">{t(`names.${addon.key}`)}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+              title={t(`names.${addon.key}`)}
+              description={
+                <>
                   {annual
                     ? t("pricePerYear", { price: addon.price.annual })
                     : t("pricePerMonth", { price: addon.price.monthly })}
                   {" · "}
                   {addon.key === "brand" ? t("totalBrands", { total }) : t("totalSeats", { total })}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  disabled={qty <= 0 || busyKey !== null}
-                  onClick={() => setPending((p) => ({ ...p, [addon.key]: Math.max(0, qty - 1) }))}
-                >
-                  <Minus className="h-3.5 w-3.5" />
+                </>
+              }
+            >
+              <Button
+                variant="outline"
+                size="icon-sm"
+                disabled={qty <= 0 || busyKey !== null}
+                onClick={() => setPending((p) => ({ ...p, [addon.key]: Math.max(0, qty - 1) }))}
+              >
+                <Minus className="size-3.5" />
+              </Button>
+              <span className="mk-figure w-8 text-center text-sm font-medium tabular-nums text-foreground">{qty}</span>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                disabled={qty >= 100 || busyKey !== null}
+                onClick={() => setPending((p) => ({ ...p, [addon.key]: Math.min(100, qty + 1) }))}
+              >
+                <Plus className="size-3.5" />
+              </Button>
+              {dirty && (
+                <Button size="sm" disabled={busyKey !== null} onClick={() => update(addon, qty)}>
+                  {busyKey === addon.key ? t("updating") : t("update")}
                 </Button>
-                <span className="w-8 text-center text-sm font-medium tabular-nums">{qty}</span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  disabled={qty >= 100 || busyKey !== null}
-                  onClick={() => setPending((p) => ({ ...p, [addon.key]: Math.min(100, qty + 1) }))}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </Button>
-                {dirty && (
-                  <Button size="sm" className="ms-1" disabled={busyKey !== null} onClick={() => update(addon, qty)}>
-                    {busyKey === addon.key ? t("updating") : t("update")}
-                  </Button>
-                )}
-              </div>
-            </div>
+              )}
+            </SettingsRow>
           );
         })}
-        <p className="text-xs text-muted-foreground">{t("prorationNote")}</p>
-      </CardContent>
-    </Card>
+        <p className="m-0 px-4 py-3 text-[13px] leading-5 text-muted-foreground sm:px-5">{t("prorationNote")}</p>
+      </div>
+    </Section>
   );
 }
 
@@ -3458,185 +3363,170 @@ function BillingTab() {
     ? t("changePlan.confirmBodyAnnual", { plan: confirmPlanName })
     : t("changePlan.confirmBodyMonthly", { plan: confirmPlanName });
 
+  const statusBadges = (
+    <>
+      {status.trialing && (
+        <Badge variant="accent">
+          {t("trialBadge", { days: trialDaysLeft ?? 0 })}
+        </Badge>
+      )}
+      {status.active && !status.trialing && (
+        <Badge variant="positive">{t("activeBadge")}</Badge>
+      )}
+      {status.cancelAtPeriodEnd && (
+        <Badge variant="warning">{t("cancelsAtPeriodEndBadge")}</Badge>
+      )}
+    </>
+  );
+  const hasStatusBadge = Boolean(status.trialing || (status.active && !status.trialing) || status.cancelAtPeriodEnd);
+
   return (
-    <div className="grid gap-5">
+    <div className="space-y-8">
       {/* Current plan */}
-      <Card className="border-border/30">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <CardTitle>{t("title")}</CardTitle>
-              <CardDescription>{t("description")}</CardDescription>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              {status.trialing && (
-                <Badge className="bg-primary/10 text-primary border-0">
-                  {t("trialBadge", { days: trialDaysLeft ?? 0 })}
-                </Badge>
+      <Section
+        title={t("title")}
+        description={t("description")}
+        action={hasStatusBadge ? statusBadges : undefined}
+        bordered
+      >
+        <SettingsRow
+          title={
+            <>
+              {plan ? t("planName", { plan: plan.name }) : t("noActivePlan")}
+              {status.interval && (
+                <span className="font-normal text-muted-foreground">
+                  {" "}· {status.interval === "annual" ? t("annualBilling") : t("monthlyBilling")}
+                </span>
               )}
-              {status.active && !status.trialing && (
-                <Badge className="border-0" style={pillStyle("pos")}>{t("activeBadge")}</Badge>
+            </>
+          }
+          description={plan ? (
+            <>
+              {t("priceLine", { price: status.interval === "annual" ? plan.price.annual : plan.price.monthly })}
+              {status.currentPeriodEnd && (
+                <> · {t("renews", { date: new Date(status.currentPeriodEnd).toLocaleDateString(locale) })}</>
               )}
-              {status.cancelAtPeriodEnd && (
-                <Badge className="border-0" style={pillStyle("warn")}>{t("cancelsAtPeriodEndBadge")}</Badge>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-xl border p-4 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium">
-                  {plan ? t("planName", { plan: plan.name }) : t("noActivePlan")}
-                  {status.interval && (
-                    <span className="text-muted-foreground font-normal">
-                      {" "}· {status.interval === "annual" ? t("annualBilling") : t("monthlyBilling")}
-                    </span>
-                  )}
-                </p>
-                {plan && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {t("priceLine", { price: status.interval === "annual" ? plan.price.annual : plan.price.monthly })}
-                    {status.currentPeriodEnd && (
-                      <> · {t("renews", { date: new Date(status.currentPeriodEnd).toLocaleDateString(locale) })}</>
-                    )}
-                  </p>
-                )}
-              </div>
-              {canManageBilling ? (
-                billing?.billable ? (
-                  <Button variant="outline" size="sm" className="shrink-0" onClick={openPortal} disabled={busy}>
-                    {busy ? t("opening") : t("manageBilling")}
-                  </Button>
-                ) : billing?.active ? (
-                  // Comped workspace: no Stripe customer, so the portal has
-                  // nothing to manage — say so instead of erroring.
-                  <p className="text-xs text-muted-foreground sm:text-end">
-                    {t("complimentaryPlan")}
-                  </p>
-                ) : null
-              ) : (
-                <p className="text-xs text-muted-foreground sm:text-end">
-                  {t("managedByOwner")}
-                </p>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </>
+          ) : undefined}
+        >
+          {canManageBilling ? (
+            billing?.billable ? (
+              <Button variant="outline" size="sm" onClick={openPortal} disabled={busy}>
+                {busy ? t("opening") : t("manageBilling")}
+              </Button>
+            ) : billing?.active ? (
+              // Comped workspace: no Stripe customer, so the portal has
+              // nothing to manage — say so instead of erroring.
+              <p className="m-0 text-[13px] text-muted-foreground sm:text-end">
+                {t("complimentaryPlan")}
+              </p>
+            ) : null
+          ) : (
+            <p className="m-0 text-[13px] text-muted-foreground sm:text-end">
+              {t("managedByOwner")}
+            </p>
+          )}
+        </SettingsRow>
+      </Section>
 
       {canManageBilling && status.active && (
         <AddonsCard key={addonsRefreshKey} interval={status.interval} tier={tier} workspaceId={workspaceId} />
       )}
 
       {/* Plan comparison + direct switching */}
-      <Card className="border-border/30">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <CardTitle>{t("comparePlansTitle")}</CardTitle>
-              <CardDescription>{t("comparePlansDescription")}</CardDescription>
-            </div>
-            <div className="inline-flex self-start sm:self-auto rounded-lg border p-0.5 shrink-0">
-              {(["monthly", "annual"] as const).map((iv) => (
-                <button
-                  key={iv}
-                  type="button"
-                  onClick={() => setPageInterval(iv)}
-                  className={cn(
-                    "px-3 py-1 text-xs rounded-md transition-colors",
-                    pageInterval === iv
-                      ? "bg-primary text-primary-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground",
+      <Section
+        title={t("comparePlansTitle")}
+        description={t("comparePlansDescription")}
+        action={
+          <Tabs value={pageInterval} onValueChange={(value) => setPageInterval(value as BillingInterval)}>
+            <TabsList>
+              <TabsTrigger value="monthly">{t("changePlan.intervalMonthly")}</TabsTrigger>
+              <TabsTrigger value="annual">{t("changePlan.intervalAnnual")}</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {PLAN_TIERS.map((tKey) => {
+            const p = PLANS[tKey];
+            const isCurrent = tKey === tier;
+            return (
+              <div
+                key={tKey}
+                className={cn(
+                  "flex flex-col gap-3 rounded-xl border bg-card p-4 sm:p-5",
+                  isCurrent ? "border-mk-accent" : "border-border",
+                )}
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="m-0 text-sm font-semibold text-foreground">{p.name}</p>
+                    {isCurrent && <Badge variant="accent">{t("changePlan.currentPlanBadge")}</Badge>}
+                    {p.badge && !isCurrent && <Badge variant="outline">{p.badge}</Badge>}
+                  </div>
+                  <p className="m-0 mt-2 text-foreground">
+                    <span className="mk-figure text-2xl font-semibold">
+                      {t("priceMonthly", { price: pageInterval === "annual" ? p.price.annual : p.price.monthly })}
+                    </span>
+                    <span className="text-[13px] text-muted-foreground">{t("perMonth")}</span>
+                  </p>
+                  {pageInterval === "annual" && (
+                    <p className="m-0 text-xs text-mk-ink-40">{t("changePlan.billedAnnually")}</p>
                   )}
-                >
-                  {iv === "monthly" ? t("changePlan.intervalMonthly") : t("changePlan.intervalAnnual")}
-                </button>
-              ))}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {PLAN_TIERS.map((tKey) => {
-              const p = PLANS[tKey];
-              const isCurrent = tKey === tier;
-              return (
-                <div
-                  key={tKey}
-                  className={cn(
-                    "rounded-xl border p-4 space-y-3 transition-colors flex flex-col",
-                    isCurrent && "border-primary/50 bg-primary/5",
-                  )}
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold">{p.name}</p>
-                      {isCurrent && <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{t("changePlan.currentPlanBadge")}</Badge>}
-                      {p.badge && !isCurrent && <Badge variant="outline" className="text-[10px]">{p.badge}</Badge>}
+                  <p className="m-0 mt-1.5 text-[13px] leading-5 text-muted-foreground text-pretty">{p.description}</p>
+                </div>
+                <div className="flex-1 space-y-1.5 border-t border-border pt-3">
+                  {p.features.slice(0, 6).map((f) => (
+                    <div key={f} className="flex items-start gap-1.5">
+                      <Check className="mt-0.5 size-3 shrink-0 text-mk-pos" />
+                      <span className="text-[13px] leading-5 text-mk-ink-80">{f}</span>
                     </div>
-                    <p className="text-lg font-bold mt-1">
-                      {t("priceMonthly", { price: pageInterval === "annual" ? p.price.annual : p.price.monthly })}<span className="text-xs font-normal text-muted-foreground">{t("perMonth")}</span>
+                  ))}
+                  {p.features.length > 6 && (
+                    <p className="m-0 ps-4.5 text-[13px] text-muted-foreground">
+                      {t("moreFeatures", { count: p.features.length - 6 })}
                     </p>
-                    {pageInterval === "annual" && (
-                      <p className="text-[11px] text-muted-foreground">{t("changePlan.billedAnnually")}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground">{p.description}</p>
-                  </div>
-                  <div className="space-y-1.5 pt-2 border-t flex-1">
-                    {p.features.slice(0, 6).map((f) => (
-                      <div key={f} className="flex items-start gap-1.5">
-                        <Check className="h-3 w-3 text-mk-pos shrink-0 mt-0.5" />
-                        <span className="text-xs text-muted-foreground">{f}</span>
-                      </div>
-                    ))}
-                    {p.features.length > 6 && (
-                      <p className="text-xs text-muted-foreground ps-4.5">
-                        {t("moreFeatures", { count: p.features.length - 6 })}
-                      </p>
-                    )}
-                  </div>
-                  {canManageBilling && billing && (
-                    <div className="pt-1">
-                      {billableActive ? (
-                        billing.tier === tKey && billing.interval === pageInterval ? (
-                          <Button variant="outline" size="sm" className="w-full" disabled>
-                            {t("changePlan.currentPlanCta")}
-                          </Button>
-                        ) : billing.tier === tKey ? (
-                          <Button size="sm" className="w-full" onClick={() => openConfirm(tKey, "interval")}>
-                            {pageInterval === "annual" ? t("changePlan.switchToAnnual") : t("changePlan.switchToMonthly")}
-                          </Button>
-                        ) : (PLAN_RANK[tKey] ?? 0) > (PLAN_RANK[billing.tier ?? ""] ?? 0) ? (
-                          <Button size="sm" className="w-full" onClick={() => openConfirm(tKey, "upgrade")}>
-                            {t("changePlan.upgradeTo", { plan: p.name })}
-                          </Button>
-                        ) : (
-                          <Button variant="outline" size="sm" className="w-full" onClick={() => openConfirm(tKey, "downgrade")}>
-                            {t("changePlan.downgradeTo", { plan: p.name })}
-                          </Button>
-                        )
-                      ) : (
-                        // Free, comped, or lapsed: no in-place switch — go
-                        // through Stripe Checkout for a fresh subscription.
-                        <Button
-                          size="sm"
-                          className="w-full"
-                          disabled={checkoutTier !== null}
-                          onClick={() => startCheckout(tKey, pageInterval)}
-                        >
-                          {checkoutTier === tKey ? t("changePlan.redirecting") : t("changePlan.choosePlan", { plan: p.name })}
-                        </Button>
-                      )}
-                    </div>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+                {canManageBilling && billing && (
+                  <div className="pt-1">
+                    {billableActive ? (
+                      billing.tier === tKey && billing.interval === pageInterval ? (
+                        <Button variant="outline" size="sm" className="w-full" disabled>
+                          {t("changePlan.currentPlanCta")}
+                        </Button>
+                      ) : billing.tier === tKey ? (
+                        <Button size="sm" className="w-full" onClick={() => openConfirm(tKey, "interval")}>
+                          {pageInterval === "annual" ? t("changePlan.switchToAnnual") : t("changePlan.switchToMonthly")}
+                        </Button>
+                      ) : (PLAN_RANK[tKey] ?? 0) > (PLAN_RANK[billing.tier ?? ""] ?? 0) ? (
+                        <Button size="sm" className="w-full" onClick={() => openConfirm(tKey, "upgrade")}>
+                          {t("changePlan.upgradeTo", { plan: p.name })}
+                        </Button>
+                      ) : (
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => openConfirm(tKey, "downgrade")}>
+                          {t("changePlan.downgradeTo", { plan: p.name })}
+                        </Button>
+                      )
+                    ) : (
+                      // Free, comped, or lapsed: no in-place switch — go
+                      // through Stripe Checkout for a fresh subscription.
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        disabled={checkoutTier !== null}
+                        onClick={() => startCheckout(tKey, pageInterval)}
+                      >
+                        {checkoutTier === tKey ? t("changePlan.redirecting") : t("changePlan.choosePlan", { plan: p.name })}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Section>
 
       {/* Plan-change confirmation */}
       <Dialog
@@ -3651,13 +3541,13 @@ function BillingTab() {
             <DialogDescription>{confirmBody}</DialogDescription>
           </DialogHeader>
           {confirmError && (
-            <div className="space-y-1">
-              {confirmError.map((line) => (
-                <p key={line} className="text-sm" style={{ color: "var(--mk-neg)" }}>
-                  {line}
-                </p>
-              ))}
-            </div>
+            <Notice tone="negative">
+              <div className="space-y-1">
+                {confirmError.map((line) => (
+                  <p key={line} className="m-0">{line}</p>
+                ))}
+              </div>
+            </Notice>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={closeConfirm} disabled={confirmBusy}>

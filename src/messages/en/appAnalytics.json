@@ -6,27 +6,27 @@
       "idle": "Refresh",
       "refreshing": "Refreshing…",
       "pulling": "Pulling live data…",
-      "title": "Pull the latest numbers from each connected platform",
+      "title": "Pull the Latest Numbers from Each Connected Platform",
       "lastUpdated": "Updated {time}",
-      "lastUpdatedTitle": "When the numbers on this page were last pulled from the platforms"
+      "lastUpdatedTitle": "When the Numbers on This Page Were Last Pulled from the Platforms"
     },
     "export": {
       "idle": "Export CSV",
       "exporting": "Exporting…",
-      "lockedTitle": "CSV export is included in the Business plan"
+      "lockedTitle": "CSV Export Is Included in the Business Plan"
     },
     "filters": {
-      "allPlatforms": "All platforms",
-      "platformTitle": "Filter by platform",
-      "allBrands": "All brands",
-      "brandTitle": "Filter by brand",
+      "allPlatforms": "All Platforms",
+      "platformTitle": "Filter by Platform",
+      "allBrands": "All Brands",
+      "brandTitle": "Filter by Brand",
       "rangeTitle": "Last {label}",
-      "rangeLockedTitle": "The {label} window requires a higher plan",
+      "rangeLockedTitle": "The {label} Window Requires a Higher Plan",
       "windowNote": "Showing {days} days (your plan's analytics window).",
       "custom": "Custom",
-      "customTitle": "Pick any start and end date",
+      "customTitle": "Pick Any Start and End Date",
       "from": "From",
-      "to": "to",
+      "to": "To",
       "until": "Until",
       "apply": "Apply",
       "invalidRange": "The start date must be on or before the end date.",
@@ -46,28 +46,28 @@
     "kpis": {
       "views": {
         "label": "Views",
-        "sub": "vs prior period"
+        "sub": "Compared to prior period"
       },
       "reach": {
         "label": "Reach",
-        "sub": "unique accounts reached"
+        "sub": "Unique accounts reached"
       },
       "engagement": {
         "label": "Engagement",
-        "sub": "likes + comments + shares + saves"
+        "sub": "Likes + comments + shares + saves"
       },
       "engagementRate": {
-        "label": "Engagement rate",
-        "sub": "engagements ÷ reach",
-        "subViews": "engagements ÷ views (reach not reported)"
+        "label": "Engagement Rate",
+        "sub": "Engagements ÷ reach",
+        "subViews": "Engagements ÷ views (reach not reported)"
       },
       "followers": {
         "label": "Followers",
-        "sub": "all connected channels"
+        "sub": "All connected channels"
       }
     },
     "insights": {
-      "basedOn": "BASED ON {count} POSTS"
+      "basedOn": "Based on {count} posts"
     },
     "trend": {
       "eyebrow": "Performance · {days}d",
@@ -79,14 +79,14 @@
       },
       "note": "Grouped by publish date (UTC). Numbers update as the platforms report them.",
       "modes": {
-        "publish": "By publish date",
-        "activity": "By activity"
+        "publish": "By Publish Date",
+        "activity": "By Activity"
       },
       "modeTitles": {
-        "publish": "What the posts published each day have earned so far",
-        "activity": "What happened each day, across all posts"
+        "publish": "What the Posts Published Each Day Have Earned so Far",
+        "activity": "What Happened Each Day, Across All Posts"
       },
-      "compare": "vs previous period",
+      "compare": "Compared to previous period",
       "previous": "Previous period",
       "noteActivity": "Grouped by the day the platforms reported the numbers.",
       "activityEmpty": "Activity builds from the next metrics pull onward. Publish-date grouping has the history."
@@ -98,19 +98,19 @@
     },
     "timing": {
       "eyebrow": "Timing",
-      "title": "When your posts perform"
+      "title": "When Your Posts Perform"
     },
     "format": {
       "eyebrow": "Format",
-      "title": "What earns engagement"
+      "title": "What Earns Engagement"
     },
     "channels": {
       "eyebrow": "Channels",
-      "title": "Performance by channel"
+      "title": "Performance by Channel"
     },
     "posts": {
       "eyebrow": "Posts",
-      "title": "Top posts"
+      "title": "Top Posts"
     },
     "provenance": {
       "base": "Metrics use each platform's API definitions and can lag native insights by up to 48 hours. A \"n/a\" means the platform doesn't provide that metric (for example, Threads and TikTok don't report reach). Engagement rate is engagements ÷ reach.",
@@ -128,7 +128,7 @@
     },
     "breakdown": {
       "eyebrow": "Engagement",
-      "title": "What people did",
+      "title": "What People Did",
       "empty": "No engagement reported in this period yet.",
       "share": "{pct}% of engagement",
       "types": {
@@ -136,7 +136,7 @@
         "comments": "Comments",
         "shares": "Shares",
         "saves": "Saves",
-        "clicks": "Link clicks"
+        "clicks": "Link Clicks"
       }
     }
   },
@@ -150,7 +150,7 @@
     "notEnoughVariety": "Not enough variety yet",
     "publishAtLeastTwo": "Publish at least two content formats (images, videos, carousels, text) to compare them.",
     "postsCount": "{count, plural, one {# post} other {# posts}}",
-    "avgEng": "avg eng."
+    "avgEng": "Avg eng."
   },
   "trendChart": {
     "noData": "No data for this period yet.",
@@ -166,10 +166,10 @@
       "reach": "Reach",
       "engagement": "Engagement",
       "followers": "Followers",
-      "er": "Eng. rate"
+      "er": "Eng. Rate"
     },
     "empty": "Connect a channel and publish to see per-channel performance.",
-    "clearFilter": "Clear channel filter",
+    "clearFilter": "Clear Channel Filter",
     "filterTo": "Filter to {channel}",
     "erBasis": "By reach when the platform reports it, otherwise by views (marked)",
     "byViews": "(views)"
@@ -177,7 +177,7 @@
   "bestTimeHeatmap": {
     "notEnoughData": "Not enough data yet",
     "unlocksAt": "The posting-time heatmap unlocks once {min} posts have engagement data ({sampleSize} so far).",
-    "footer": "AVG ENGAGEMENT PER POST · YOUR LOCAL TIME · {count} POSTS"
+    "footer": "Average engagement per post, your local time, {count} posts"
   },
   "leaderboardTable": {
     "post": "Post",
@@ -186,12 +186,12 @@
       "reach": "Reach",
       "engagement": "Engagement",
       "published": "Published",
-      "er": "Eng. rate"
+      "er": "Eng. Rate"
     },
     "empty": "No posts with metrics in this period yet. Metrics arrive about an hour after publishing.",
-    "untitledPost": "Untitled post",
+    "untitledPost": "Untitled Post",
     "sortBy": "Sort by {label}",
-    "openOnPlatform": "Open on platform",
+    "openOnPlatform": "Open on Platform",
     "byViews": "(views)"
   },
   "stackedArea": {
@@ -199,7 +199,7 @@
   },
   "history": {
     "button": "History",
-    "title": "Metric history",
+    "title": "Metric History",
     "empty": "No snapshots yet. The first arrives about an hour after publishing.",
     "failed": "Could not load this post's history.",
     "hoursAfter": "{hours}h after publish",

@@ -58,11 +58,10 @@ export default function AppLocaleSwitcher({
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-lg"
             aria-label={t("label")}
             disabled={saving}
           >
-            <Globe className="h-4 w-4" />
+            <Globe className="size-[18px]" strokeWidth={1.75} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="max-h-[70vh] overflow-y-auto">
@@ -82,10 +81,10 @@ export default function AppLocaleSwitcher({
   }
 
   return (
-    <div className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
       <div>
-        <p className="text-sm font-medium">{t("label")}</p>
-        <p className="text-xs text-muted-foreground">{t("description")}</p>
+        <p className="m-0 text-sm font-medium text-foreground">{t("label")}</p>
+        <p className="m-0 mt-0.5 text-[13px] text-muted-foreground">{t("description")}</p>
       </div>
       <Select
         value={locale}

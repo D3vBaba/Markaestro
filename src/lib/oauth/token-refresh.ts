@@ -359,6 +359,7 @@ export async function processTokenRefresh(
     // only own Page selections and Page tokens; refreshing copied product user
     // tokens can incorrectly mark otherwise-healthy Page connections revoked.
     for (const connection of await listAllConnectionDocs(workspaceId)) {
+      if (connection.fixture) continue;
       if (connection.provider !== 'meta') continue;
       seenConnections.push(connection as unknown as Record<string, unknown>);
       await refreshConnectionDoc(refForConnection(connection), 'meta', result, { workspaceId });
@@ -375,6 +376,7 @@ export async function processTokenRefresh(
       // once destinations exist — their token is what enumerates more
       // Pages/boards later, so it must not be left to expire.
       for (const connection of await listAllConnectionDocs(workspaceId, productId)) {
+      if (connection.fixture) continue;
         const provider = refreshableProvider(connection.provider);
         if (!provider) continue;
         seenConnections.push(connection as unknown as Record<string, unknown>);

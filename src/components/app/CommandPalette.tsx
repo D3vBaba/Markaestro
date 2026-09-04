@@ -18,6 +18,7 @@ import {
     CreditCard,
     type LucideIcon,
     BookOpen,
+    Repeat,
 } from "lucide-react";
 import { navigationGroups, settingsItem } from "@/lib/nav";
 
@@ -26,6 +27,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
     "/products": Package,
     "/content": LayoutGrid,
     "/calendar": Calendar,
+  "/evergreen": Repeat,
     "/channels": Link2,
     "/settings": Settings,
     "/guides/channels": BookOpen,
@@ -104,10 +106,9 @@ export function CommandPalette({
     return (
         <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
             <DialogPrimitive.Portal>
-                <DialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-100 fixed inset-0 z-50 bg-black/40 dark:bg-black/60" />
+  <DialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-100 fixed inset-0 z-50 bg-black/40" />
                 <DialogPrimitive.Content
-                    className="fixed top-[10%] sm:top-[20%] left-[50%] z-50 w-[calc(100%-2rem)] max-w-[560px] translate-x-[-50%] rounded-2xl border shadow-lg overflow-hidden p-0"
-                    style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
+  className="fixed top-[10%] sm:top-[18%] left-[50%] z-50 w-[calc(100%-2rem)] max-w-[560px] translate-x-[-50%] rounded-xl border border-border bg-card shadow-xl shadow-black/10 overflow-hidden p-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 duration-150 ease-out-quart"
                 >
                     <DialogPrimitive.Title className="sr-only">{t("title")}</DialogPrimitive.Title>
                     <DialogPrimitive.Description className="sr-only">
@@ -115,37 +116,27 @@ export function CommandPalette({
                     </DialogPrimitive.Description>
                     <Command label={t("title")}>
                         <div
-                            className="flex items-center gap-2.5 px-4 border-b"
-                            style={{ borderColor: "var(--mk-rule)" }}
+                            className="flex items-center gap-2.5 px-4 border-b border-border"
                         >
-                            <Search className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-40)" }} />
+                            <Search className="size-4 shrink-0 text-mk-ink-40" />
                             <Command.Input
                                 autoFocus
                                 placeholder={t("searchPlaceholder")}
-                                className="flex-1 h-12 bg-transparent border-none outline-none text-[13.5px]"
-                                style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                                className="flex-1 h-12 bg-transparent border-none outline-none text-[14px] text-foreground placeholder:text-mk-ink-40"
                             />
-                            <span
-                                className="font-mono text-[9.5px] px-1.5 py-px rounded shrink-0"
-                                style={{
-                                    color: "var(--mk-ink-40)",
-                                    border: "1px solid var(--mk-rule)",
-                                    letterSpacing: "0.04em",
-                                }}
-                            >
-                                ESC
-                            </span>
+                            <kbd className="shrink-0 rounded-md border border-border bg-muted px-1.5 font-mono text-[10.5px] leading-4 text-mk-ink-60">
+                                esc
+                            </kbd>
                         </div>
                         <Command.List className="max-h-[min(320px,55dvh)] overflow-y-auto p-2">
                             <Command.Empty
-                                className="py-8 text-center text-[12.5px]"
-                                style={{ color: "var(--mk-ink-40)" }}
+                                className="py-8 text-center text-[13px] text-muted-foreground"
                             >
                                 {t("noResults")}
                             </Command.Empty>
                             <Command.Group
                                 heading={t("groupNavigation")}
-                                className="[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:text-[10.5px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--mk-ink-40)]"
+                                className="[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
                             >
                                 {navigationItems.map((item) => {
                                     const Icon = item.icon;
@@ -154,10 +145,9 @@ export function CommandPalette({
                                             key={`nav-${item.href}`}
                                             value={`${item.label} ${item.keywords?.join(" ") ?? ""}`}
                                             onSelect={() => go(item.href)}
-                                            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] cursor-pointer data-[selected=true]:bg-[var(--mk-panel)]"
-                                            style={{ color: "var(--mk-ink-80)", letterSpacing: "-0.005em" }}
+                                            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13.5px] text-mk-ink-80 cursor-pointer data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
                                         >
-                                            <Icon className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-60)" }} />
+                                            <Icon className="size-4 shrink-0 text-mk-ink-60" strokeWidth={1.75} />
                                             <span>{item.label}</span>
                                         </Command.Item>
                                     );
@@ -165,7 +155,7 @@ export function CommandPalette({
                             </Command.Group>
                             <Command.Group
                                 heading={t("groupQuickActions")}
-                                className="mt-1.5 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:text-[10.5px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--mk-ink-40)]"
+                                className="mt-1.5 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
                             >
                                 {quickActions.map((item) => {
                                     const Icon = item.icon;
@@ -174,10 +164,9 @@ export function CommandPalette({
                                             key={`action-${item.id}`}
                                             value={`${item.label} ${item.keywords?.join(" ") ?? ""}`}
                                             onSelect={() => go(item.href)}
-                                            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] cursor-pointer data-[selected=true]:bg-[var(--mk-panel)]"
-                                            style={{ color: "var(--mk-ink-80)", letterSpacing: "-0.005em" }}
+                                            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13.5px] text-mk-ink-80 cursor-pointer data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
                                         >
-                                            <Icon className="h-4 w-4 shrink-0" style={{ color: "var(--mk-ink-60)" }} />
+                                            <Icon className="size-4 shrink-0 text-mk-ink-60" strokeWidth={1.75} />
                                             <span>{item.label}</span>
                                         </Command.Item>
                                     );

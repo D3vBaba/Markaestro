@@ -18,7 +18,7 @@ import { FeatureGate } from "@/components/app/FeatureGate";
 import { apiPost, apiPut } from "@/lib/api-client";
 import { invalidateQueries } from "@/hooks/useApiQuery";
 import { userFacingError } from "@/lib/user-facing-errors";
-import { channelColor, channelLabel } from "@/components/mk/channels";
+import { channelLabel } from "@/components/mk/channels";
 import { cn } from "@/lib/utils";
 import type { DecisionStatus, DraftResult, IntelligencePhases, TrustKind } from "./types";
 
@@ -41,31 +41,31 @@ export type HowItWorksTopic =
  * 16px section title. Figures are sans tabular numerals, never monospace.
  */
 export const TYPE = {
-  meta: "text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500",
-  hint: "text-xs leading-relaxed text-slate-500 dark:text-slate-400",
-  body: "text-[13px] leading-relaxed text-slate-600 dark:text-slate-300",
-  strong: "text-[13px] font-semibold text-slate-900 dark:text-slate-100",
-  cardTitle: "text-sm font-semibold leading-snug text-slate-900 dark:text-slate-100",
-  sectionTitle: "text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100",
-  figure: "tabular-nums font-semibold tracking-tight text-slate-900 dark:text-slate-100",
+  meta: "text-xs font-medium text-muted-foreground",
+  hint: "text-xs leading-4 text-muted-foreground",
+  body: "text-[13px] leading-5 text-mk-ink-80",
+  strong: "text-[13px] font-semibold text-foreground",
+  cardTitle: "text-sm font-semibold leading-5 text-foreground",
+  sectionTitle: "text-sm font-semibold text-foreground",
+  figure: "mk-figure font-semibold text-foreground",
 } as const;
 
 /** The panel surface. Inner items never repeat it; they use rows or insets. */
-export const SURFACE = "rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs";
+export const SURFACE = "rounded-xl bg-card border border-border";
 /** A quiet tinted block inside a panel (evidence, notes). */
-export const INSET = "rounded-xl bg-slate-50/80 dark:bg-slate-800/40";
+export const INSET = "rounded-lg bg-muted/60";
 
 /* ────────────────────────── trust labels ────────────────────────── */
 
 const TRUST_ORDER: TrustKind[] = ["measured", "calculated", "predicted", "recommended", "declared", "generated"];
 
 const TRUST_STYLES: Record<TrustKind, string> = {
-  measured: "bg-emerald-50 text-emerald-700 border-emerald-200/70 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/60",
-  calculated: "bg-sky-50 text-sky-700 border-sky-200/70 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-900/60",
-  predicted: "bg-amber-50 text-amber-700 border-amber-200/70 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/60",
-  recommended: "bg-blue-50 text-blue-700 border-blue-200/70 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/60",
-  declared: "bg-slate-100 text-slate-700 border-slate-200/80 dark:bg-slate-800/70 dark:text-slate-300 dark:border-slate-700",
-  generated: "bg-violet-50 text-violet-700 border-violet-200/70 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-900/60",
+  measured: "bg-mk-pos-soft text-mk-pos",
+  calculated: "bg-mk-accent-soft text-mk-accent",
+  predicted: "bg-mk-warn-soft text-mk-warn",
+  recommended: "bg-mk-accent-soft text-mk-accent",
+  declared: "bg-muted text-mk-ink-80",
+  generated: "bg-mk-accent-soft text-mk-accent",
 };
 
 export function TrustBadge({ kind, className }: { kind: TrustKind; className?: string }) {
@@ -74,7 +74,7 @@ export function TrustBadge({ kind, className }: { kind: TrustKind; className?: s
     <span
       title={t(`labelHints.${kind}`)}
       className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider",
+        "inline-flex items-center rounded-md px-1.5 py-0.5 text-[11.5px] font-medium leading-4",
         TRUST_STYLES[kind],
         className,
       )}
@@ -91,7 +91,7 @@ export function TrustLegendButton({ className }: { className?: string }) {
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className={cn(toolbarButton, className)}>
-        <Tags className="h-3.5 w-3.5" aria-hidden="true" />
+        <Tags className="size-3.5" aria-hidden="true" />
         {t("legend.button")}
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -100,7 +100,7 @@ export function TrustLegendButton({ className }: { className?: string }) {
             <DialogTitle className="text-base">{t("legend.title")}</DialogTitle>
             <DialogDescription className="text-[13px] leading-relaxed">{t("legend.intro")}</DialogDescription>
           </DialogHeader>
-          <ul className="divide-y divide-slate-100 dark:divide-slate-800/80">
+          <ul className="divide-y divide-border">
             {TRUST_ORDER.map((kind) => (
               <li key={kind} className="flex items-start gap-3 py-2.5">
                 <TrustBadge kind={kind} className="mt-0.5 shrink-0" />
@@ -109,7 +109,7 @@ export function TrustLegendButton({ className }: { className?: string }) {
             ))}
           </ul>
           <DialogFooter>
-            <Button type="button" className="rounded-xl" onClick={() => setOpen(false)}>{t("howItWorks.close")}</Button>
+            <Button type="button" onClick={() => setOpen(false)}>{t("howItWorks.close")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -119,7 +119,7 @@ export function TrustLegendButton({ className }: { className?: string }) {
 
 /* ────────────────────────── how it works ────────────────────────── */
 
-const toolbarButton = "inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100";
+const toolbarButton = "inline-flex h-9 sm:h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-[13px] font-medium text-foreground transition-[background-color,transform] duration-150 hover:bg-muted active:scale-[0.98]";
 
 export function HowItWorksDialog({
   topic,
@@ -147,10 +147,10 @@ export function HowItWorksDialog({
             <ol className="mt-2 space-y-2">
               {steps.map((step, index) => (
                 <li key={step} className="flex gap-3">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[11px] font-bold text-white">
+                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
                     {index + 1}
                   </span>
-                  <span className="leading-relaxed text-slate-700 dark:text-slate-300">{step}</span>
+                  <span className="leading-relaxed text-mk-ink-80">{step}</span>
                 </li>
               ))}
             </ol>
@@ -158,24 +158,24 @@ export function HowItWorksDialog({
           <section className="grid gap-4 sm:grid-cols-2">
             <div className={cn(INSET, "p-3")}>
               <p className={TYPE.meta}>{t("inputsTitle")}</p>
-              <ul className="mt-2 space-y-1.5 text-slate-700 dark:text-slate-300">
+              <ul className="mt-2 space-y-1.5 text-mk-ink-80">
                 {inputs.map((item) => (
-                  <li key={item} className="flex gap-2"><span className="text-emerald-600">•</span><span>{item}</span></li>
+                  <li key={item} className="flex gap-2"><span className="text-mk-pos">•</span><span>{item}</span></li>
                 ))}
               </ul>
             </div>
             <div className={cn(INSET, "p-3")}>
               <p className={TYPE.meta}>{t("neverTitle")}</p>
-              <ul className="mt-2 space-y-1.5 text-slate-700 dark:text-slate-300">
+              <ul className="mt-2 space-y-1.5 text-mk-ink-80">
                 {never.map((item) => (
-                  <li key={item} className="flex gap-2"><span className="text-rose-500">•</span><span>{item}</span></li>
+                  <li key={item} className="flex gap-2"><span className="text-mk-neg">•</span><span>{item}</span></li>
                 ))}
               </ul>
             </div>
           </section>
         </div>
         <DialogFooter>
-          <Button type="button" className="rounded-xl" onClick={() => onOpenChange(false)}>{t("close")}</Button>
+          <Button type="button" onClick={() => onOpenChange(false)}>{t("close")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -200,7 +200,7 @@ export function HowItWorksButton({
         onClick={() => setOpen(true)}
         className={cn(toolbarButton, size === "xs" && "h-7 px-2 text-[11px]", className)}
       >
-        <HelpCircle className={size === "sm" ? "h-3.5 w-3.5" : "h-3 w-3"} aria-hidden="true" />
+        <HelpCircle className={size === "sm" ? "size-3.5" : "size-3"} aria-hidden="true" />
         {t("button")}
       </button>
       <HowItWorksDialog topic={topic} open={open} onOpenChange={setOpen} />
@@ -234,7 +234,7 @@ export function Section({
   return (
     <section className={cn("min-w-0 p-5 sm:p-6", SURFACE, className)}>
       {(trust || eyebrow || title || subtitle || action || help) && (
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             {(trust || eyebrow) && (
               <div className="flex flex-wrap items-center gap-2">
@@ -286,10 +286,10 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center dark:border-slate-800 dark:bg-slate-900">
+    <div className="rounded-xl border border-border bg-card px-6 py-12 text-center">
       {Icon && (
-        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-200/50 bg-blue-50 text-blue-600 shadow-2xs dark:border-blue-800/50 dark:bg-blue-950/60 dark:text-blue-400">
-          <Icon className="h-5 w-5" aria-hidden="true" />
+        <div className="mx-auto flex size-10 items-center justify-center rounded-lg bg-muted text-mk-ink-60">
+          <Icon className="size-5" aria-hidden="true" />
         </div>
       )}
       <h2 className={cn("mt-4", TYPE.sectionTitle)}>{title}</h2>
@@ -322,7 +322,7 @@ export function PhaseGate({
   if (enabled) return <>{children}</>;
   return (
     <FeatureGate feature={feature}>
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-xl border border-border bg-card px-6 py-10 text-center">
         <h3 className={TYPE.cardTitle}>{t("rolloutTitle")}</h3>
         <p className={cn("mx-auto mt-1 max-w-md", TYPE.hint)}>{t("rolloutBody")}</p>
       </div>
@@ -337,19 +337,19 @@ export function phasesOf(data: { phases?: IntelligencePhases }): IntelligencePha
 export function ChannelDot({ platform, className }: { platform: string; className?: string }) {
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-2", className)}>
-      <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: channelColor(platform) }} />
-      <span className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">{channelLabel(platform)}</span>
+      <span className="inline-block h-2 w-2 shrink-0 rounded-full" />
+      <span className="truncate text-xs font-semibold text-foreground">{channelLabel(platform)}</span>
     </span>
   );
 }
 
 export function KindBadge({ children, tone = "blue", title }: { children: ReactNode; tone?: "blue" | "slate" | "emerald" | "amber" | "rose"; title?: string }) {
   const tones = {
-    blue: "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",
-    slate: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
-    emerald: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
-    amber: "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
-    rose: "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300",
+    blue: "bg-mk-accent-soft text-mk-accent  ",
+    slate: "bg-muted text-mk-ink-80  ",
+    emerald: "bg-mk-pos-soft text-mk-pos  ",
+    amber: "bg-mk-warn-soft text-mk-warn  ",
+    rose: "bg-mk-neg-soft text-mk-neg  ",
   };
   return (
     <span title={title} className={cn("inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold", tones[tone])}>
@@ -401,14 +401,14 @@ export function StatusFilterBar({
             type="button"
             onClick={() => onChange(option)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+              "inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium transition-colors",
               active
-                ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
+                ? "bg-mk-accent-soft text-mk-accent"
+                : "text-mk-ink-80 hover:bg-muted hover:text-foreground",
             )}
           >
             {t(option)}
-            <span className={cn("rounded-full px-1.5 text-[11px] font-bold tabular-nums", active ? "bg-white/20" : "bg-white dark:bg-slate-900")}>{counts[option]}</span>
+            <span className={cn("tabular-nums", active ? "text-muted-foreground" : "text-mk-ink-40")}>{counts[option]}</span>
           </button>
         );
       })}
@@ -476,9 +476,9 @@ export function DecisionButtons({
           type="button"
           disabled={busy !== null}
           onClick={() => void decide("proposed")}
-          className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+          className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
         >
-          <Undo2 className="h-3 w-3" aria-hidden="true" />
+          <Undo2 className="size-3" aria-hidden="true" />
           {t("undo")}
         </button>
       </div>
@@ -491,7 +491,6 @@ export function DecisionButtons({
         type="button"
         size="sm"
         variant="outline"
-        className="h-8 rounded-xl border-slate-200 text-xs font-semibold dark:border-slate-700"
         disabled={busy !== null}
         onClick={() => void decide("accepted")}
       >
@@ -501,7 +500,6 @@ export function DecisionButtons({
         type="button"
         size="sm"
         variant="ghost"
-        className="h-8 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300"
         disabled={busy !== null}
         onClick={() => void decide("pinned")}
       >
@@ -511,7 +509,7 @@ export function DecisionButtons({
         type="button"
         size="sm"
         variant="ghost"
-        className="h-8 rounded-xl text-xs font-semibold text-slate-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 dark:hover:text-rose-400"
+        className="text-muted-foreground hover:bg-mk-neg-soft hover:text-mk-neg"
         disabled={busy !== null}
         onClick={() => void decide("dismissed")}
       >
@@ -570,20 +568,20 @@ export function DraftButton({
 
   if (result) {
     return (
-      <div className="flex flex-col gap-1.5 rounded-xl border border-violet-200/70 bg-violet-50/70 p-3 text-xs dark:border-violet-900/60 dark:bg-violet-950/30">
+      <div className="flex flex-col gap-1.5 rounded-lg bg-mk-accent-soft p-3 text-xs">
         <div className="flex flex-wrap items-center gap-2">
           <TrustBadge kind="generated" />
-          <span className="font-semibold text-slate-900 dark:text-slate-100">{t("created")}</span>
+          <span className="font-semibold text-foreground">{t("created")}</span>
           <Link
             href="/content"
-            className="inline-flex items-center gap-1 font-semibold text-violet-700 hover:underline dark:text-violet-300"
+            className="inline-flex items-center gap-1 font-semibold text-mk-accent hover:underline"
           >
             {t("open")}
-            <ExternalLink className="h-3 w-3" aria-hidden="true" />
+            <ExternalLink className="size-3" aria-hidden="true" />
           </Link>
         </div>
-        <p className="line-clamp-3 whitespace-pre-wrap text-slate-700 dark:text-slate-300">{result.content}</p>
-        <p className="text-[11px] text-slate-500 dark:text-slate-400"><span className="font-semibold">{t("rationale")}:</span> {result.rationale}</p>
+        <p className="line-clamp-3 whitespace-pre-wrap text-mk-ink-80">{result.content}</p>
+        <p className="text-[11px] text-muted-foreground"><span className="font-semibold">{t("rationale")}:</span> {result.rationale}</p>
       </div>
     );
   }
@@ -593,16 +591,11 @@ export function DraftButton({
       type="button"
       size="sm"
       variant={variant === "primary" ? "default" : "outline"}
-      className={cn(
-        "h-8 gap-1.5 rounded-xl text-xs font-semibold",
-        variant === "primary"
-          ? "bg-violet-600 text-white shadow-xs hover:bg-violet-700"
-          : "border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-900 dark:text-violet-300 dark:hover:bg-violet-950/40",
-      )}
+      className={cn(variant === "outline" && "border-mk-accent/30 text-mk-accent hover:bg-mk-accent-soft hover:text-mk-accent")}
       disabled={busy}
       onClick={() => void create()}
     >
-      <PenLine className="h-3.5 w-3.5" aria-hidden="true" />
+      <PenLine className="size-3.5" aria-hidden="true" />
       {busy ? t("creating") : label || t("button")}
     </Button>
   );

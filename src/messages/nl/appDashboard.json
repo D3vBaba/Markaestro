@@ -13,7 +13,7 @@
     "posts": "Posts",
     "postsSub": "{published} gepubliceerd · {scheduled} gepland",
     "publishedWeek": "Gepubliceerd · 7d",
-    "acrossDays": "over {count} dagen"
+    "acrossDays": "Over {count} dagen"
   },
   "chart": {
     "eyebrow": "Publicatieactiviteit · 7d",

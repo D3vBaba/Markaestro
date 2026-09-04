@@ -116,6 +116,9 @@
         },
         "linkedin": {
           "label": "LinkedIn"
+        },
+        "x": {
+          "label": "X"
         }
       }
     },

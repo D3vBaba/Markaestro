@@ -7,6 +7,33 @@ import { requirePermission } from '@/lib/rbac';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { resolveLimits } from '@/lib/stripe/entitlements';
 import { intelligencePhaseFlags, loadProductIntelligence } from '@/lib/intelligence/product-state';
+import { contentCohorts, decisionOutcome, pillarCoverage, suggestExperiments, weeklyPulse } from '@/lib/intelligence/pulse';
+
+async function completedExperiments(workspaceId: string, productId: string) {
+  const snap = await adminDb.collection(`workspaces/${workspaceId}/experiments`)
+    .where('productId', '==', productId)
+    .limit(100)
+    .get();
+  return snap.docs
+    .map((doc): Record<string, unknown> & { id: string } => ({ ...(doc.data() as Record<string, unknown>), id: doc.id }))
+    .filter((row) => row.status === 'complete' && row.result && typeof row.result === 'object')
+    .map((row) => {
+      const result = row.result as { status?: string; effectPercent?: number | null; reason?: string };
+      return {
+        id: row.id,
+        name: String(row.name ?? 'Experiment'),
+        hypothesis: typeof row.hypothesis === 'string' ? row.hypothesis : null,
+        platform: typeof row.platform === 'string' ? row.platform : null,
+        metric: typeof row.metric === 'string' ? row.metric : 'views',
+        status: result.status ?? 'inconclusive',
+        effectPercent: typeof result.effectPercent === 'number' ? result.effectPercent : null,
+        reason: result.reason ?? null,
+        evaluatedAt: typeof row.evaluatedAt === 'string' ? row.evaluatedAt : null,
+      };
+    })
+    .sort((a, b) => (b.evaluatedAt ?? '').localeCompare(a.evaluatedAt ?? ''))
+    .slice(0, 20);
+}
 
 const querySchema = z.object({
   productId: z.string().max(128).optional(),
@@ -59,8 +86,24 @@ export async function GET(req: Request) {
         quota,
       });
     }
-    const loaded = await loadProductIntelligence(ctx.workspaceId, productId, { allowCached: !query.fresh });
+    const [loaded, experimentResults] = await Promise.all([
+      loadProductIntelligence(ctx.workspaceId, productId, { allowCached: !query.fresh }),
+      phases.advanced ? completedExperiments(ctx.workspaceId, productId).catch(() => []) : Promise.resolve([]),
+    ]);
     const { insights } = loaded;
+    const now = new Date();
+    const measured = insights.rollup.measuredPosts;
+    const decided = [...loaded.storedOpportunities, ...loaded.storedLearnings]
+      .filter((row) => (row.status === 'accepted' || row.status === 'pinned') && typeof row.decidedAt === 'string');
+    const outcomes = Object.fromEntries(decided.map((row) => [row.id, decisionOutcome(measured, row.decidedAt as string, now)]));
+    const suggestedExperiments = phases.advanced
+      ? suggestExperiments({
+          windows: insights.timing?.windows?.filter((w) => w.label === 'measured') ?? [],
+          learnings: insights.learnings,
+          channels: insights.rollup.channels,
+          metric: insights.objective.metric,
+        })
+      : [];
     return apiOk({
       products,
       productId,
@@ -83,6 +126,12 @@ export async function GET(req: Request) {
       opportunities: phases.growth ? insights.opportunities : [],
       readiness: insights.readiness,
       objective: insights.objective,
+      pulse: weeklyPulse(measured, now),
+      cohorts: phases.learning ? contentCohorts(measured) : null,
+      pillars: phases.learning ? pillarCoverage(measured, loaded.profile?.contentPillars ?? [], now) : [],
+      outcomes,
+      suggestedExperiments,
+      experimentResults,
       computedAt: loaded.computedAt,
       cached: loaded.cached,
     });

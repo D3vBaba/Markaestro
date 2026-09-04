@@ -24,21 +24,18 @@ export default function TermsPage() {
         <LegalDisclaimerBanner englishHref="/terms" />
         <p className="mk-eyebrow">{t("eyebrow")}</p>
         <h1
-          className="mt-2 text-[32px] sm:text-[36px] font-semibold leading-[1.1]"
-          style={{ color: "var(--mk-ink)", letterSpacing: "-0.03em" }}
+          className="mt-2 text-[32px] sm:text-[36px] font-semibold leading-[1.1] text-foreground"
         >
           {t("title")}
         </h1>
         <p
-          className="mt-2 font-mono text-[11.5px] uppercase"
-          style={{ color: "var(--mk-ink-40)", letterSpacing: "0.08em" }}
+          className="mt-2 font-mono text-[11.5px]  text-muted-foreground"
         >
           {t("lastUpdated")}
         </p>
 
         <div
-          className="mt-10 flex flex-col gap-8 text-[14px] leading-relaxed"
-          style={{ color: "var(--mk-ink-80)" }}
+          className="mt-10 flex flex-col gap-8 text-[14px] leading-relaxed text-mk-ink-80"
         >
           {sections.map((section, sectionIndex) => (
             <section key={section.heading}>

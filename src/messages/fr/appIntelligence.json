@@ -355,7 +355,7 @@
     "engagements": "Interactions",
     "conversions": "Conversions",
     "engagementRate": "Taux d’engagement",
-    "perPost": "par publication"
+    "perPost": "Par publication"
   },
   "platforms": {
     "title": "Performance par plateforme",
@@ -413,7 +413,7 @@
     "observations": "{count} publications",
     "liftUp": "+{value} % vs votre moyenne",
     "liftDown": "{value} % vs votre moyenne",
-    "estimate": "environ {value} {metric} par publication",
+    "estimate": "Environ {value} {metric} par publication",
     "timezone": "Heures affichées en {timeZone}",
     "accountMean": "Votre moyenne : {value} {metric} par publication"
   },
@@ -788,16 +788,16 @@
     "quota": "Vous avez utilisé vos tours Ask Markaestro ce mois-ci. Réessayez le mois prochain ou passez à une offre supérieure.",
     "unavailable": "Ask Markaestro n’est pas encore disponible pour cet espace de travail.",
     "tools": {
-      "audience_performance": "instantanés d’audience",
-      "audience_alignment": "alignement d’audience",
-      "top_posts": "meilleures publications par vues",
-      "pillar_performance": "performance par pilier de contenu",
-      "hook_performance": "performance par accroche",
-      "timing_performance": "performance par jour et heure",
-      "drift": "événements de dérive d’audience",
-      "learnings": "apprentissages du guide",
+      "audience_performance": "Instantanés d’audience",
+      "audience_alignment": "Alignement d’audience",
+      "top_posts": "Meilleures publications par vues",
+      "pillar_performance": "Performance par pilier de contenu",
+      "hook_performance": "Performance par accroche",
+      "timing_performance": "Performance par jour et heure",
+      "drift": "Événements de dérive d’audience",
+      "learnings": "Apprentissages du guide",
       "campaigns": "campagnes",
-      "platform_comparisons": "comparaison par plateforme",
+      "platform_comparisons": "Comparaison par plateforme",
       "experiments": "expériences"
     },
     "examples": [

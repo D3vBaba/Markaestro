@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MailWarning } from "lucide-react";
+import { ShellBanner } from "./ShellBanner";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -76,68 +77,53 @@ export function VerifyEmailBanner() {
   }
 
   return (
-    <div
-      className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-2.5 text-[13px] border-b"
-      style={{
-        background: "color-mix(in oklch, var(--mk-warn) 14%, var(--mk-paper))",
-        color: "color-mix(in oklch, var(--mk-warn) 70%, var(--mk-ink))",
-        borderColor: "color-mix(in oklch, var(--mk-warn) 24%, var(--mk-paper))",
-      }}
-    >
-      <div className="flex items-center gap-2 min-w-0">
-        <MailWarning className="h-3.5 w-3.5 shrink-0" />
-        <span className="font-medium min-w-0">
-          {t("prompt")}
-          {email && codeSent ? (
-            <>
-              {" "}
-              {t.rich("promptWithCode", {
-                email,
-                emailTag: (chunks) => <span className="font-semibold break-all">{chunks}</span>,
-              })}
-            </>
-          ) : null}
-        </span>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        {codeSent && (
-          <Input
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            placeholder="123456"
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            className="h-9 sm:h-7 w-32 sm:w-28 rounded-lg text-center font-mono text-xs tracking-[0.25em]"
-            onKeyDown={(e) => e.key === "Enter" && handleVerify()}
-          />
-        )}
-        {codeSent && (
-          <Button
-            size="sm"
-            className="h-9 sm:h-7 text-xs rounded-lg"
-            onClick={handleVerify}
-            disabled={verifying || code.length < 6}
-          >
-            {verifying ? t("verifying") : t("verify")}
+    <ShellBanner
+      tone="warn"
+      icon={MailWarning}
+      action={
+        <>
+          {codeSent && (
+            <Input
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="123456"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              aria-label={t("verify")}
+              className="h-8 w-28 text-center font-mono text-xs tracking-[0.2em]"
+              onKeyDown={(e) => e.key === "Enter" && handleVerify()}
+            />
+          )}
+          {codeSent && (
+            <Button size="xs" onClick={handleVerify} disabled={verifying || code.length < 6}>
+              {verifying ? t("verifying") : t("verify")}
+            </Button>
+          )}
+          <Button size="xs" variant="outline" onClick={handleSendCode} disabled={sending || cooldownLeft > 0}>
+            {sending
+              ? t("sending")
+              : cooldownLeft > 0
+                ? t("resendCountdown", { seconds: cooldownLeft })
+                : codeSent
+                  ? t("resendCode")
+                  : t("sendCode")}
           </Button>
-        )}
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-9 sm:h-7 text-xs rounded-lg"
-          onClick={handleSendCode}
-          disabled={sending || cooldownLeft > 0}
-        >
-          {sending
-            ? t("sending")
-            : cooldownLeft > 0
-              ? t("resendCountdown", { seconds: cooldownLeft })
-              : codeSent
-                ? t("resendCode")
-                : t("sendCode")}
-        </Button>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <span className="font-medium">
+        {t("prompt")}
+        {email && codeSent ? (
+          <>
+            {" "}
+            {t.rich("promptWithCode", {
+              email,
+              emailTag: (chunks) => <span className="font-semibold break-all">{chunks}</span>,
+            })}
+          </>
+        ) : null}
+      </span>
+    </ShellBanner>
   );
 }

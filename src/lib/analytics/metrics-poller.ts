@@ -44,6 +44,7 @@ type PublishResultEntry = {
 };
 
 type PostDocData = {
+  mediaAssetIds?: string[];
   testMode?: boolean;
   channel?: string;
   targetChannels?: string[];
@@ -62,6 +63,8 @@ type PostDocData = {
   metricsAttempts?: number;
   metricsStatus?: string;
   metricsNextPollAt?: string;
+  /** Seeded marketing-screenshot post: numbers are fixtures, never re-polled. */
+  screenshotFixture?: boolean;
 };
 
 /**
@@ -206,6 +209,7 @@ async function fetchPostChannelMetrics(
         post.destinationProvider || undefined,
         destinationId,
       );
+      if (connection?.fixture) connection = null;
       connectionCache.set(cacheKey, connection);
     }
     if (!connection) {
@@ -297,6 +301,7 @@ async function fetchPostChannelMetrics(
           publishedAt,
           content: post.content,
           mediaUrls: post.mediaUrls,
+          mediaAssetIds: post.mediaAssetIds,
           connection,
           metrics: annotated,
           capturedAt,
@@ -342,6 +347,7 @@ async function pollOnePost(
   summary: MetricsPollSummary,
   refreshAttempted: Set<string> = new Set(),
 ): Promise<void> {
+  if (doc.data()?.screenshotFixture === true) return;
   const post = doc.data() as PostDocData;
   const postRef = doc.ref;
 

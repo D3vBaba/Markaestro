@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, Loader2, ArrowRight, Check, Pencil } from "lucide-react";
@@ -170,37 +170,18 @@ export default function ProductCreateWizard({
     }
   };
 
-  const dominant = useMemo(() => {
-    return primaryColor && /^#[0-9A-Fa-f]{6}$/i.test(primaryColor) ? primaryColor : null;
-  }, [primaryColor]);
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="max-w-xl! w-full p-0 flex flex-col overflow-hidden">
-        {dominant && mode !== "start" && (
-          <div
-            aria-hidden
-            className="absolute top-0 left-0 right-0 h-1 z-10"
-            style={{
-              background: `linear-gradient(90deg, ${dominant}, ${dominant}aa 40%, transparent 100%)`,
-            }}
-          />
-        )}
-
-        <SheetHeader
-          className="px-4 sm:px-6 pt-6 pb-4 border-b"
-          style={{ borderColor: "var(--mk-rule)" }}
-        >
-          <p className="mk-eyebrow">{t("eyebrow")}</p>
+      <SheetContent className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-xl">
+        <SheetHeader className="border-b border-border px-4 pb-4 pt-5 sm:px-6">
           <SheetTitle
-            className="text-[22px] font-semibold m-0"
-            style={{ color: "var(--mk-ink)", letterSpacing: "-0.025em" }}
+            className="m-0 text-lg font-semibold tracking-tight text-foreground"
           >
             {t("title")}
           </SheetTitle>
           <SheetDescription
-            className="text-[13px]"
-            style={{ color: "var(--mk-ink-60)", letterSpacing: "-0.005em" }}
+            className="text-[13px] text-muted-foreground"
           >
             {mode === "start" && t("descriptions.start")}
             {mode === "scan" && t("descriptions.scan")}
@@ -230,14 +211,12 @@ export default function ProductCreateWizard({
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <p
-                        className="text-[14px] font-semibold"
-                        style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+                        className="text-[14px] font-semibold text-foreground"
                       >
                         {t("scanCard.title")}
                       </p>
                       <p
-                        className="text-[12.5px] mt-0.5"
-                        style={{ color: "var(--mk-ink-60)" }}
+                        className="text-[12.5px] mt-0.5 text-muted-foreground"
                       >
                         {t("scanCard.body")}
                       </p>
@@ -245,7 +224,7 @@ export default function ProductCreateWizard({
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <div className="relative flex-1">
-                      <Globe className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                      <Globe className="absolute start-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
                       <Input
                         className="ps-9"
                         placeholder={t("scanCard.urlPlaceholder")}
@@ -258,7 +237,7 @@ export default function ProductCreateWizard({
                       />
                     </div>
                     <Button onClick={handleScan} disabled={!scanUrl.trim() || scanning} className="h-10 sm:h-9">
-                      {scanning && <Loader2 className="h-4 w-4 animate-spin me-1.5" />}
+                      {scanning && <Loader2 className="size-4 animate-spin me-1.5" />}
                       <span>{t("scanCard.scan")}</span>
                     </Button>
                   </div>
@@ -266,13 +245,11 @@ export default function ProductCreateWizard({
 
                 <div className="relative py-1 flex items-center gap-3">
                   <span
-                    className="flex-1 h-px"
-                    style={{ background: "var(--mk-rule)" }}
+                    className="flex-1 h-px bg-border"
                   />
                   <span className="mk-eyebrow">{t("or")}</span>
                   <span
-                    className="flex-1 h-px"
-                    style={{ background: "var(--mk-rule)" }}
+                    className="flex-1 h-px bg-border"
                   />
                 </div>
 
@@ -286,33 +263,29 @@ export default function ProductCreateWizard({
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
+                      className="size-10 rounded-lg flex items-center justify-center shrink-0"
                       style={{
                         background: "var(--mk-panel)",
                         border: "1px solid var(--mk-rule-soft)",
                       }}
                     >
                       <Pencil
-                        className="h-4 w-4"
-                        style={{ color: "var(--mk-ink-60)" }}
+                        className="size-4 text-muted-foreground"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <p
-                          className="text-[14px] font-semibold"
-                          style={{ color: "var(--mk-ink)", letterSpacing: "-0.01em" }}
+                          className="text-[14px] font-semibold text-foreground"
                         >
                           {t("manualCard.title")}
                         </p>
                         <ArrowRight
-                          className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                          style={{ color: "var(--mk-ink-40)" }}
+                          className="size-3.5 transition-transform group-hover:translate-x-0.5 text-mk-ink-40"
                         />
                       </div>
                       <p
-                        className="text-[12.5px] mt-0.5"
-                        style={{ color: "var(--mk-ink-60)" }}
+                        className="text-[12.5px] mt-0.5 text-muted-foreground"
                       >
                         {t("manualCard.body")}
                       </p>
@@ -340,8 +313,7 @@ export default function ProductCreateWizard({
                         cancelScan();
                         setMode("start");
                       }}
-                      className="h-10 sm:h-9 text-[13px]"
-                      style={{ color: "var(--mk-ink-60)" }}
+                      className="h-10 sm:h-9 text-muted-foreground"
                     >
                       {t("cancelScan")}
                     </Button>
@@ -350,8 +322,7 @@ export default function ProductCreateWizard({
                 {scanPhase === "error" && (
                   <div className="space-y-3">
                     <p
-                      className="text-[12.5px]"
-                      style={{ color: "var(--mk-ink-60)" }}
+                      className="text-[12.5px] text-muted-foreground"
                     >
                       {t("scanError.body", { url: scanUrl })}
                     </p>
@@ -359,8 +330,7 @@ export default function ProductCreateWizard({
                       <Button
                         variant="ghost"
                         onClick={() => setMode("start")}
-                        className="h-10 sm:h-9 text-[13px]"
-                        style={{ color: "var(--mk-ink-60)" }}
+                        className="h-10 sm:h-9 text-muted-foreground"
                       >
                         {t("scanError.editUrl")}
                       </Button>
@@ -392,10 +362,10 @@ export default function ProductCreateWizard({
                     }}
                   >
                     <div
-                      className="h-5 w-5 rounded-full flex items-center justify-center shrink-0"
+                      className="size-5 rounded-full flex items-center justify-center shrink-0"
                       style={{ background: "var(--mk-pos)" }}
                     >
-                      <Check className="h-3 w-3 text-white" />
+                      <Check className="size-3 text-white" />
                     </div>
                     <p
                       className="text-[12px]"
@@ -424,7 +394,7 @@ export default function ProductCreateWizard({
                 </FormField>
                 <FormField label={t("fields.website")}>
                   <div className="relative">
-                    <Globe className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Globe className="absolute start-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
                     <Input
                       className="ps-9"
                       placeholder={t("fields.websitePlaceholder")}
@@ -454,7 +424,7 @@ export default function ProductCreateWizard({
                       <img
                         src={previewImage}
                         alt={t("sitePreview")}
-                        className="w-full rounded-lg border border-border/40 object-cover"
+                        className="w-full rounded-lg border border-border object-cover"
                         style={{ aspectRatio: "16 / 10" }}
                       />
                     )}
@@ -463,7 +433,7 @@ export default function ProductCreateWizard({
                         <img
                           src={logoUrl}
                           alt="Logo"
-                          className="h-12 w-12 rounded-lg object-contain border border-border/40 bg-white"
+                          className="size-12 rounded-lg object-contain border border-border bg-card"
                         />
                         <p className="text-xs text-muted-foreground">{t("logoDetected")}</p>
                       </div>
@@ -475,7 +445,7 @@ export default function ProductCreateWizard({
                           .map((c, i) => (
                             <div key={i} className="flex items-center gap-1.5">
                               <div
-                                className="h-6 w-6 rounded-md border border-border/40"
+                                className="size-6 rounded-md border border-border"
                                 style={{ backgroundColor: c }}
                               />
                               <span className="text-[11px] font-mono text-muted-foreground">{c}</span>
@@ -496,7 +466,7 @@ export default function ProductCreateWizard({
                         <Input value={tone} onChange={(e) => setTone(e.target.value)} />
                       </FormField>
                     )}
-                    <p className="text-[10px] text-muted-foreground/70">
+                    <p className="text-xs text-muted-foreground">
                       {t("fineTuneNote")}
                     </p>
                   </div>
@@ -511,7 +481,7 @@ export default function ProductCreateWizard({
                   }}
                 >
                   <p className="mk-eyebrow">{t("audienceSetup")}</p>
-                  <p className="text-[12px]" style={{ color: "var(--mk-ink-60)" }}>{t("audienceSetupBody")}</p>
+                  <p className="text-[12px] text-muted-foreground">{t("audienceSetupBody")}</p>
                   <AudienceProfileFields
                     value={audienceProfile}
                     onChange={setAudienceProfile}
@@ -526,27 +496,22 @@ export default function ProductCreateWizard({
 
         {(mode === "review" || mode === "manual") && (
           <div
-            className="px-4 sm:px-6 py-3 border-t flex flex-wrap items-center justify-between gap-2"
-            style={{
-              borderColor: "var(--mk-rule)",
-              background: "var(--mk-surface)",
-            }}
+            className="px-4 sm:px-6 py-3 border-t flex flex-wrap items-center justify-between gap-2 border-border bg-background"
           >
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setMode("start")}
-              className="h-10 sm:h-9 text-[13px]"
-              style={{ color: "var(--mk-ink-60)" }}
+              className="h-10 sm:h-9 text-muted-foreground"
             >
               {t("startOver")}
             </Button>
             <Button
               onClick={create}
               disabled={saving || !name.trim()}
-              className="rounded-lg h-10 sm:h-9 text-[13px]"
+              className="h-10 sm:h-9"
             >
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin me-1.5" /> : null}
+              {saving ? <Loader2 className="size-3.5 animate-spin me-1.5" /> : null}
               {saving ? t("creating") : t("createBrand")}
             </Button>
           </div>

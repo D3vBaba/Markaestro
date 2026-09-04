@@ -10,17 +10,17 @@
       "title": "Publicación multicanal",
       "description": "Redacta una vez, publica en todas partes. Escribe una sola publicación y adáptala para Facebook, Instagram, TikTok, LinkedIn, Threads y Pinterest con un clic. Programa para el momento óptimo o publica al instante.",
       "details": [
-        "Editor unificado con vista previa por canal",
-        "Gestión de contenido mediante arrastrar y soltar",
-        "Programación masiva para calendarios de contenido",
-        "Redimensionado automático de imágenes según cada plataforma"
+        "Compositor unificado con vista previa por canal",
+        "Gestión de medios con arrastrar y soltar",
+        "Reprogramación, cambios de estado y eliminaciones en bloque",
+        "Límites de caracteres y comprobaciones de medios por canal antes de publicar"
       ]
     },
     {
       "title": "Subida y biblioteca de contenido",
       "description": "Aporta tu propia fotografía, vídeo y activos de marca. Markaestro los guarda por espacio de trabajo y los adjunta a publicaciones con un solo gesto.",
       "details": [
-        "Compatible con JPG, PNG, WebP, MP4, MOV y WebM",
+        "Compatible con JPG, PNG, WebP, GIF, MP4, MOV y WebM",
         "Hasta 250 MB por vídeo, 10 MB por imagen",
         "Verificación de formato por canal antes de publicar",
         "Reutiliza el contenido subido en varias publicaciones"
@@ -30,20 +30,20 @@
       "title": "Vistas previas multicanal",
       "description": "Comprueba cómo se verá cada publicación en cada red antes de publicar: Facebook, Instagram, TikTok, LinkedIn, Threads y Pinterest tienen su propia vista previa. Textos, proporciones de imagen, límites de caracteres y especificaciones de contenido se renderizan en tiempo real.",
       "details": [
-        "Vistas previas precisas al píxel por plataforma",
-        "Recuento de caracteres en vivo para el texto",
-        "Guía de proporción de imagen por canal",
-        "Detecta problemas de formato antes de publicar"
+        "Vistas previas por plataforma, incluidas ubicaciones de anuncios",
+        "Recuento de caracteres del pie en tiempo real",
+        "Reglas de número y formato de medios por canal",
+        "Detecta problemas de formato antes de que salgan"
       ]
     },
     {
       "title": "Panel de publicación",
       "description": "Ve cada borrador, publicación programada y estado de publicación en una sola vista de espacio de trabajo sin saltar entre plataformas.",
       "details": [
-        "Colas de borradores, programadas y publicadas",
-        "Estado de publicación por canal",
-        "Flujo de reintento para publicaciones fallidas",
-        "Vista general de contenido a nivel de espacio de trabajo"
+        "Vistas de borradores, programadas, publicadas y en plataforma",
+        "Estado de publicación y detalle de errores por canal",
+        "Cola “Para publicar” para los canales donde una persona publica de forma nativa",
+        "Resumen de actividad del espacio de trabajo en el panel"
       ]
     },
     {
@@ -57,15 +57,25 @@
       ]
     },
     {
-      "title": "API y agentes de IA",
-      "description": "Todo lo que hace el panel, tu software también puede hacerlo. Genera una clave de API, entrégasela a un agente de IA o a un script, y deja que descubra cuentas, suba contenido, programe publicaciones, publique y reporte resultados, en todos los planes, sin coste adicional.",
+      "title": "Intelligent Evergreen",
+      "description": "Convierte una publicación madura y medida en una política recurrente que tú controlas. Rota pies aprobados, revisa cada ejecución o aprueba la cola por adelantado, y deja que Markaestro pause la secuencia cuando el rendimiento comparable decaiga.",
       "details": [
-        "Claves limitadas a una sola marca, con vencimiento opcional",
-        "Escrituras idempotentes: un reintento nunca duplica una publicación",
-        "Publicaciones asíncronas más webhooks firmados con HMAC",
-        "Publicación manual por defecto en Meta y TikTok: siempre publica una persona"
+        "Elegibilidad respaldada por los resultados medidos de la publicación original",
+        "Horarios fijos o aprendidos con recurrencia segura ante el horario de verano",
+        "Modos de revisar cada ejecución o aprobar por adelantado",
+        "Evaluación a siete días con una pausa conservadora tras dos ejecuciones flojas"
+      ]
+    },
+    {
+      "title": "API y agentes de IA",
+      "description": "Todo lo que hace el panel también lo puede hacer tu software. Genera una clave de API, entrégasela a un agente de IA o a un script, y deja que descubra cuentas, suba medios, programe publicaciones, publique e informe, en todos los planes de pago sin coste adicional.",
+      "details": [
+        "Claves limitadas a una sola marca, con caducidad opcional",
+        "Escrituras idempotentes para que un reintento nunca publique dos veces",
+        "Ejecuciones de publicación asíncronas, webhooks firmados con HMAC y un servidor MCP para Claude Code, claude.ai y Cursor",
+        "Meta y TikTok manuales por defecto: publica una persona salvo que actives una publicación"
       ],
-      "codeLabel": "programa una publicación desde cualquier cosa que hable HTTP",
+      "codeLabel": "Programa una publicación desde cualquier cosa que hable HTTP",
       "agentGuideLink": "Leer la guía para agentes de IA →"
     }
   ],
@@ -76,11 +86,15 @@
     },
     {
       "title": "Programación y calendario",
-      "description": "Organiza publicaciones en un calendario unificado en todos tus canales. Reprograma arrastrando, duplica publicaciones con un clic y mantén una visión clara de qué sale y cuándo."
+      "description": "Programa publicaciones en un calendario unificado para todos tus canales. Reprograma arrastrando, mueve un lote de publicaciones de una vez y ten siempre claro qué sale y cuándo."
     },
     {
       "title": "Acceso basado en roles",
-      "description": "Controla quién puede publicar, editar o solo ver con tres niveles de roles: Propietario, Administrador y Miembro. Mantén la configuración sensible protegida mientras tu equipo avanza rápido."
+      "description": "Controla quién puede publicar, editar o ver con cuatro roles: Owner, Admin, Member y Analyst. Mantén protegidos los ajustes sensibles mientras tu equipo avanza rápido."
+    },
+    {
+      "title": "Perfiles de marca",
+      "description": "Escanea un sitio web para extraer el nombre, la descripción, los colores, el logotipo y el tono en un perfil de marca, y después afina su voz, identidad y conocimiento. Cada publicación y cada borrador de Intelligence se basa en ese perfil."
     }
   ],
   "platformSection": {
@@ -123,27 +137,23 @@
     "tabs": [
       {
         "title": "Resumen",
-        "body": "Banner de objetivo, KPI medidos, comparación de plataformas por publicación y una lista de preparación que muestra exactamente qué funciones están activas y cuántos datos necesita cada una todavía."
-      },
-      {
-        "title": "Audiencia",
-        "body": "Declara tu objetivo, mercados, zona horaria, pilares y voz. Los enlaces cortos con seguimiento cuentan clics sin almacenar datos personales y vinculan las conversiones con la publicación."
+        "body": "Banner de objetivo, KPI medidos, comparación de plataformas por publicación, una lista de preparación que muestra qué funciones están activas y cuántos datos necesita cada una, y Ask Markaestro para preguntas respondidas solo con los registros de esta marca."
       },
       {
         "title": "Contenido",
         "body": "Tus publicaciones ordenadas por la métrica que elegiste, los patrones detectados en cada una y una explicación de Por qué funcionó basada en los números de esa publicación frente a la media de tu cuenta."
       },
       {
-        "title": "Oportunidades",
-        "body": "Sugerencias respaldadas por evidencia que puedes aceptar, fijar o descartar, cada una con un botón de Crear borrador. Aceptar nunca crea ni programa una publicación."
+        "title": "Playbook",
+        "body": "Oportunidades respaldadas por evidencia que puedes aceptar, fijar o descartar, cada una con un botón de “Redactar esto”, más los patrones que se repiten en tus datos con el tamaño de muestra, el efecto y el rango de confianza explicados con claridad. Aceptar nunca crea ni programa una publicación."
       },
       {
-        "title": "Guía",
-        "body": "Patrones que se repiten en tus datos con el tamaño de muestra, el efecto y el rango de confianza explicados en palabras sencillas, más las publicaciones detrás de cada uno."
+        "title": "Audiencia",
+        "body": "Declara tu objetivo, mercados, zona horaria, pilares y voz. Los enlaces cortos con seguimiento cuentan clics sin almacenar datos personales y vinculan las conversiones con la publicación."
       },
       {
-        "title": "Experimentos y consultas",
-        "body": "Publicaciones A/B emparejadas con un ganador medido, y preguntas respondidas solo con los registros de esta marca, citando los datos usados."
+        "title": "Experimentos",
+        "body": "Publicaciones A/B emparejadas con un ganador medido, disponibles en el plan Business."
       }
     ],
     "principlesTitle": "Reglas que nunca rompe",

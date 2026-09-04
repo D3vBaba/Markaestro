@@ -3,7 +3,7 @@
   "subtitle": "Your marketing engine at a glance.",
   "refresh": "Refresh",
   "refreshing": "Refreshing…",
-  "newPost": "New post",
+  "newPost": "New Post",
   "errorTitle": "Couldn't load your dashboard",
   "errorBody": "We couldn't load your dashboard data.",
   "retry": "Retry",
@@ -13,10 +13,10 @@
     "posts": "Posts",
     "postsSub": "{published} published · {scheduled} scheduled",
     "publishedWeek": "Published · 7d",
-    "acrossDays": "across {count} days"
+    "acrossDays": "Across {count} days"
   },
   "chart": {
-    "eyebrow": "Publishing activity · 7d",
+    "eyebrow": "Publishing Activity · 7d",
     "publishedThisWeek": "{count} published this week",
     "show": "Show {label}",
     "hide": "Hide {label}",
@@ -24,19 +24,19 @@
   },
   "distribution": {
     "eyebrow": "Distribution",
-    "title": "Posts by channel",
+    "title": "Posts by Channel",
     "viewInCalendar": "View {channel} posts in calendar"
   },
   "recentPosts": {
-    "eyebrow": "Up next",
-    "title": "Up next and just published",
-    "viewAll": "View all →",
-    "untitled": "Untitled post",
+    "eyebrow": "Up Next",
+    "title": "Up Next and Just Published",
+    "viewAll": "View All →",
+    "untitled": "Untitled Post",
     "empty": "No posts yet. Create your first to see activity here."
   },
   "firstRun": {
-    "title": "Start by adding a brand",
+    "title": "Start by Adding a Brand",
     "body": "A brand is anything you market. Add one, connect its social accounts, then write your first post.",
-    "cta": "Add your first brand"
+    "cta": "Add Your First Brand"
   }
 }

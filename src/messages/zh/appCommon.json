@@ -138,7 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -147,7 +148,8 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "连接 {provider}",
@@ -206,6 +208,10 @@
       },
       "linkedin_community": {
         "0": "在你要发布内容的公司主页上拥有管理员角色的 LinkedIn 账户。"
+      },
+      "x": {
+        "0": "一个你可以登录的 X 账号。",
+        "1": "你的 X 开发者权限必须允许发布帖子和上传媒体。使用受 X API 定价和限制约束。"
       }
     },
     "features": {
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "列出你管理的主页",
         "description": "列出你管理的公司主页，以便你选择此品牌要发布到哪一个。"
+      },
+      "media_write": {
+        "description": "上传你通过 Markaestro 发布的帖子所附带的图片、GIF 和视频。",
+        "title": "上传媒体"
+      },
+      "offline_access": {
+        "description": "刷新访问权限，确保你不在时排期帖子也能发布。",
+        "title": "保持连接"
+      },
+      "tweet_read": {
+        "description": "读取你的帖子及其公开互动，用于帖子历史和效果衡量。",
+        "title": "读取帖子"
+      },
+      "tweet_write": {
+        "description": "创建和删除你通过 Markaestro 发布的帖子。",
+        "title": "发布帖子"
+      },
+      "users_read": {
+        "description": "读取你的 X 账号 ID、用户名、名称和头像，以便 Markaestro 显示已关联的账号。",
+        "title": "读取账号身份"
       }
     },
     "outcome": {

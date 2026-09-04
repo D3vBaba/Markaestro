@@ -25,20 +25,45 @@ const NAMESPACES = [
   "privacy",
 ] as const;
 
+function mergeFallbacks(
+  fallback: Record<string, unknown>,
+  localized: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...fallback, ...localized };
+  for (const [key, fallbackValue] of Object.entries(fallback)) {
+    const localizedValue = localized[key];
+    if (
+      fallbackValue && typeof fallbackValue === "object" && !Array.isArray(fallbackValue) &&
+      localizedValue && typeof localizedValue === "object" && !Array.isArray(localizedValue)
+    ) {
+      merged[key] = mergeFallbacks(
+        fallbackValue as Record<string, unknown>,
+        localizedValue as Record<string, unknown>,
+      );
+    }
+  }
+  return merged;
+}
+
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
   const locale = routing.locales.includes(requested as (typeof routing.locales)[number])
     ? (requested as (typeof routing.locales)[number])
     : routing.defaultLocale;
 
-  const messages = Object.fromEntries(
-    await Promise.all(
+  const load = (loc: string) =>
+    Promise.all(
       NAMESPACES.map(async (namespace) => [
         namespace,
-        (await import(`../messages/${locale}/${namespace}.json`)).default,
-      ]),
-    ),
-  );
+        (await import(`../messages/${loc}/${namespace}.json`)).default,
+      ] as const),
+    ).then((entries) => Object.fromEntries(entries) as Record<string, Record<string, unknown>>);
+
+  // English is the source of truth. A key that has not been translated yet
+  // falls back to the English string instead of rendering its path, so new
+  // marketing sections can ship English-first.
+  const localized = await load(locale);
+  const messages = locale === "en" ? localized : mergeFallbacks(await load("en"), localized);
 
   return { locale, messages };
 });

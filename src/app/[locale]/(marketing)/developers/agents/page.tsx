@@ -440,15 +440,14 @@ export default async function DevelopersAgentsPage() {
               <div key={item.step} className="rounded-xl border p-5 md:flex md:items-start md:gap-6">
                 <div className="flex items-center gap-3 md:w-64 md:shrink-0">
                   <span
-                    className="font-mono text-[11px] font-semibold"
-                    style={{ color: "var(--mk-accent)", letterSpacing: "0.08em" }}
+                    className="font-mono text-[11px] font-semibold text-mk-accent"
                   >
                     {item.step}
                   </span>
                   <span className="text-sm font-medium">{item.title}</span>
                 </div>
                 <div className="mt-3 md:mt-0">
-                  <code className="text-[12px] break-all" style={{ color: "var(--mk-accent)" }}>
+                  <code className="text-[12px] break-all text-mk-accent">
                     {mcpFlowEndpoints[i]}
                   </code>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
@@ -477,7 +476,7 @@ export default async function DevelopersAgentsPage() {
       </section>
 
       {/* ─── The loop ─── */}
-      <section className="border-t" style={{ background: "var(--mk-paper)" }}>
+      <section className="border-t bg-card">
         <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
           <p className="mk-eyebrow">{t("loop.eyebrow")}</p>
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.025em] lg:text-3xl">
@@ -495,15 +494,14 @@ export default async function DevelopersAgentsPage() {
               <div key={item.step} className="rounded-xl border p-5 md:flex md:items-start md:gap-6">
                 <div className="flex items-center gap-3 md:w-64 md:shrink-0">
                   <span
-                    className="font-mono text-[11px] font-semibold"
-                    style={{ color: "var(--mk-accent)", letterSpacing: "0.08em" }}
+                    className="font-mono text-[11px] font-semibold text-mk-accent"
                   >
                     {item.step}
                   </span>
                   <span className="text-sm font-medium">{item.title}</span>
                 </div>
                 <div className="mt-3 md:mt-0">
-                  <code className="text-[12px]" style={{ color: "var(--mk-accent)" }}>
+                  <code className="text-[12px] text-mk-accent">
                     {agentLoopEndpoints[i]}
                   </code>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
@@ -575,7 +573,7 @@ export default async function DevelopersAgentsPage() {
       </section>
 
       {/* ─── Tool definitions ─── */}
-      <section className="border-t" style={{ background: "var(--mk-paper)" }}>
+      <section className="border-t bg-card">
         <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
           <p className="mk-eyebrow">{t("toolDefs.eyebrow")}</p>
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.025em] lg:text-3xl">
@@ -679,7 +677,7 @@ export default async function DevelopersAgentsPage() {
       </section>
 
       {/* ─── Guardrails ─── */}
-      <section className="border-t" style={{ background: "var(--mk-paper)" }}>
+      <section className="border-t bg-card">
         <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
           <p className="mk-eyebrow">{t("guardrails.eyebrow")}</p>
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.025em] lg:text-3xl">
@@ -693,10 +691,10 @@ export default async function DevelopersAgentsPage() {
             className="mt-10 rounded-xl border p-6"
             style={{ borderColor: "var(--mk-accent)", background: "var(--mk-accent-soft)" }}
           >
-            <p className="text-sm font-semibold" style={{ color: "var(--mk-accent)" }}>
+            <p className="text-sm font-semibold text-mk-accent">
               {t("guardrails.calloutTitle")}
             </p>
-            <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--mk-ink-80)" }}>
+            <p className="mt-2 text-sm leading-relaxed text-mk-ink-80">
               {t.rich("guardrails.calloutBody", codeTag)}
             </p>
           </div>
@@ -736,7 +734,7 @@ export default async function DevelopersAgentsPage() {
                 {errorRows.map((row) => (
                   <tr key={`${row.status}-${row.code}`} className="border-b last:border-0">
                     <td className="px-4 py-3 align-top font-mono text-[12px]">{row.status}</td>
-                    <td className="px-4 py-3 align-top font-mono text-[12px]" style={{ color: "var(--mk-accent)" }}>
+                    <td className="px-4 py-3 align-top font-mono text-[12px] text-mk-accent">
                       {row.code}
                     </td>
                     <td className="px-4 py-3 align-top text-muted-foreground">{row.action}</td>
@@ -749,7 +747,7 @@ export default async function DevelopersAgentsPage() {
       </section>
 
       {/* ─── Stacks ─── */}
-      <section className="border-t" style={{ background: "var(--mk-paper)" }}>
+      <section className="border-t bg-card">
         <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
           <p className="mk-eyebrow">{t("stacks.eyebrow")}</p>
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.025em] lg:text-3xl">
@@ -771,7 +769,7 @@ export default async function DevelopersAgentsPage() {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="border-t" style={{ background: "var(--mk-ink)", borderColor: "var(--mk-rule)" }}>
+      <section className="border-t bg-foreground border-border">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <h2
@@ -793,8 +791,7 @@ export default async function DevelopersAgentsPage() {
               <NextLink href="/onboarding">
                 <Button
                   size="lg"
-                  className="h-11 px-7 rounded-lg text-[13.5px]"
-                  style={{ background: "var(--mk-paper)", color: "var(--mk-ink)" }}
+                  className="h-11 px-7 rounded-lg text-[13.5px] bg-card text-foreground"
                 >
                   {t("cta.primaryButton")}
                 </Button>

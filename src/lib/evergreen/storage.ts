@@ -6,6 +6,7 @@ import { evaluateEvergreenEligibility } from './eligibility';
 import { evergreenGenerationDueAt, nextEvergreenRunAt } from './scheduling';
 import type { CreateEvergreenQueueInput, UpdateEvergreenQueueInput } from './schemas';
 import type { EvergreenQueue, EvergreenVariant } from './types';
+import { upcomingRunDates } from './cadence';
 import { syncPostMediaReferences } from '@/lib/media/asset-store';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
@@ -44,7 +45,16 @@ export async function listEvergreenQueues(workspaceId: string, productId?: strin
     .where('productId', '==', productId)
     .orderBy('createdAt', 'desc');
   const snap = await query.limit(100).get();
-  return snap.docs.map(queueFromDoc);
+  return snap.docs.map(queueFromDoc).map((queue) => ({
+    ...queue,
+    upcomingRunAts: upcomingRunDates({
+      nextRunAt: queue.nextRunAt,
+      intervalDays: queue.intervalDays,
+      timeZone: queue.timeZone,
+      localHour: queue.localHour,
+      localMinute: queue.localMinute,
+    }),
+  }));
 }
 
 export async function getEvergreenQueue(workspaceId: string, queueId: string) {
@@ -115,9 +125,13 @@ export async function createEvergreenQueue(
 
   const sourceChannels = evaluateEvergreenEligibility(source).channels;
   const channels = input.channels ?? sourceChannels;
-  if (channels.some((channel) => !sourceChannels.includes(channel))) {
+  // A channel the source never went to is allowed when the caller names the
+  // account to post to; activation still runs preflight on every channel.
+  const extraDestinations = input.channelDestinations ?? {};
+  if (channels.some((channel) => !sourceChannels.includes(channel) && !extraDestinations[channel])) {
     throw new Error('VALIDATION_EVERGREEN_CHANNEL_NOT_IN_SOURCE');
   }
+  const mergedDestinations = { ...record(source.channelDestinations), ...extraDestinations };
   // X has a shorter product default; existing channels use the conservative
   // 30-day floor from the design.
   if (input.intervalDays < 30 && !channels.every((channel) => channel === 'x')) {
@@ -137,7 +151,7 @@ export async function createEvergreenQueue(
       mediaAssetIds: strings(source.mediaAssetIds),
       settings: source.settings && typeof source.settings === 'object' ? source.settings as Record<string, unknown> : null,
       settingsByChannel: record(source.settingsByChannel),
-      channelDestinations: record(source.channelDestinations),
+      channelDestinations: mergedDestinations,
       channelDeliveryModes: record(source.channelDeliveryModes),
       destinationId: typeof source.destinationId === 'string' ? source.destinationId : '',
       destinationProvider: typeof source.destinationProvider === 'string' ? source.destinationProvider : '',
@@ -152,6 +166,8 @@ export async function createEvergreenQueue(
     localHour: input.localHour,
     localMinute: input.localMinute,
     scheduleMode: input.scheduleMode,
+    cadenceMode: input.cadenceMode,
+    cadenceHistory: [],
     reviewPolicy: input.reviewPolicy,
     expiresAt: input.expiresAt ?? null,
     nextRunAt: null,
@@ -526,4 +542,96 @@ export async function listEvergreenRuns(workspaceId: string, queueId: string) {
     .limit(100)
     .get();
   return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+}
+
+
+// ─── Review inbox ────────────────────────────────────────────────────────────
+
+export type EvergreenReviewRow = {
+  queueId: string;
+  queueName: string;
+  runId: string;
+  plannedAt: string;
+  postId: string;
+  content: string;
+  channel: string;
+  channels: string[];
+  thumbnailUrl: string | null;
+  mediaUrl: string | null;
+};
+
+/** Every occurrence waiting on a person, across a brand's queues. */
+export async function listEvergreenReviews(workspaceId: string, productId: string): Promise<EvergreenReviewRow[]> {
+  const queues = await queueCollection(workspaceId).where('productId', '==', productId).limit(100).get();
+  const rows: EvergreenReviewRow[] = [];
+  for (const queue of queues.docs) {
+    if (queue.data().status === 'archived') continue;
+    const runs = await queue.ref.collection('runs').where('status', '==', 'needs_review').limit(50).get();
+    if (runs.empty) continue;
+    const postIds = runs.docs.map((run) => String(run.get('occurrencePostId') ?? '')).filter(Boolean);
+    const posts = postIds.length > 0
+      ? await adminDb.getAll(...postIds.map((id) => adminDb.doc(`workspaces/${workspaceId}/posts/${id}`)))
+      : [];
+    const byId = new Map(posts.filter((snap) => snap.exists).map((snap) => [snap.id, snap.data() as Record<string, unknown>]));
+    for (const run of runs.docs) {
+      const postId = String(run.get('occurrencePostId') ?? '');
+      const post = byId.get(postId);
+      if (!post) continue;
+      const media = strings(post.mediaUrls);
+      rows.push({
+        queueId: queue.id,
+        queueName: String(queue.data().name ?? ''),
+        runId: run.id,
+        plannedAt: String(run.get('plannedAt') ?? ''),
+        postId,
+        content: typeof post.content === 'string' ? post.content : '',
+        channel: typeof post.channel === 'string' ? post.channel : '',
+        channels: strings(post.targetChannels),
+        thumbnailUrl: typeof post.thumbnailUrl === 'string' ? post.thumbnailUrl : media.find((url) => !/\.(mp4|mov|webm|m4v)(\?|$)/i.test(url)) ?? null,
+        mediaUrl: media[0] ?? null,
+      });
+    }
+  }
+  return rows.sort((a, b) => a.plannedAt.localeCompare(b.plannedAt));
+}
+
+/** Approve a reviewed occurrence: it goes back on the calendar at its planned slot, or fifteen minutes from now if that slot has passed. */
+export async function approveEvergreenRun(workspaceId: string, queueId: string, runId: string, actorId: string) {
+  const runRef = queueRef(workspaceId, queueId).collection('runs').doc(runId);
+  const runSnap = await runRef.get();
+  if (!runSnap.exists) throw new Error('NOT_FOUND');
+  if (runSnap.get('status') !== 'needs_review') throw new Error('VALIDATION_EVERGREEN_RUN_NOT_REVIEWABLE');
+  const postId = String(runSnap.get('occurrencePostId') ?? '');
+  const postRef = adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`);
+  const postSnap = await postRef.get();
+  if (!postSnap.exists) throw new Error('NOT_FOUND');
+  const now = new Date();
+  const planned = Date.parse(String(runSnap.get('plannedAt') ?? ''));
+  const scheduledAt = new Date(Number.isFinite(planned) && planned > now.getTime() ? planned : now.getTime() + 15 * 60 * 1000).toISOString();
+  const batch = adminDb.batch();
+  batch.update(postRef, { status: 'scheduled', scheduledAt, updatedAt: now.toISOString() });
+  batch.update(runRef, { status: 'scheduled', plannedAt: scheduledAt, reviewedBy: actorId, reviewedAt: now.toISOString(), updatedAt: now.toISOString() });
+  batch.create(auditRef(workspaceId), { queueId, runId, action: 'run_approved', actorId, at: now.toISOString() });
+  await batch.commit();
+  await markWorkspaceDue(workspaceId, scheduledAt, 'scheduled_post');
+  return { runId, postId, scheduledAt };
+}
+
+/** Skip a reviewed occurrence: the draft is removed and the run recorded as skipped. */
+export async function skipEvergreenRun(workspaceId: string, queueId: string, runId: string, actorId: string) {
+  const runRef = queueRef(workspaceId, queueId).collection('runs').doc(runId);
+  const runSnap = await runRef.get();
+  if (!runSnap.exists) throw new Error('NOT_FOUND');
+  if (runSnap.get('status') !== 'needs_review') throw new Error('VALIDATION_EVERGREEN_RUN_NOT_REVIEWABLE');
+  const postId = String(runSnap.get('occurrencePostId') ?? '');
+  const postRef = adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`);
+  const postSnap = await postRef.get();
+  const now = new Date().toISOString();
+  const batch = adminDb.batch();
+  if (postSnap.exists) batch.delete(postRef);
+  batch.update(runRef, { status: 'skipped', reason: 'SKIPPED_IN_REVIEW', reviewedBy: actorId, reviewedAt: now, updatedAt: now });
+  batch.create(auditRef(workspaceId), { queueId, runId, action: 'run_skipped', actorId, at: now });
+  await batch.commit();
+  if (postSnap.exists) await syncPostMediaReferences(workspaceId, strings(postSnap.data()?.mediaUrls), []);
+  return { runId, postId };
 }

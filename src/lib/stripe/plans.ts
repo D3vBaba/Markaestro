@@ -244,35 +244,35 @@ export const COMPARISON_CATEGORIES = [
     name: 'Publishing',
     features: [
       { name: 'Brands', starter: '2', pro: '6', business: '20' },
-      { name: 'Channels per brand', starter: '8', pro: '8', business: '8' },
-      { name: 'Platforms (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn)', starter: true, pro: true, business: true },
-      { name: 'Scheduled posts', starter: 'Unlimited', pro: 'Unlimited', business: 'Unlimited' },
-      { name: 'Content calendar', starter: true, pro: true, business: true },
-      { name: 'Best-time posting recommendations', starter: false, pro: true, business: true },
+      { name: 'Channels per Brand', starter: '8', pro: '8', business: '8' },
+      { name: 'Platforms (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)', starter: true, pro: true, business: true },
+      { name: 'Scheduled Posts', starter: 'Unlimited', pro: 'Unlimited', business: 'Unlimited' },
+      { name: 'Content Calendar', starter: true, pro: true, business: true },
+      { name: 'Best-Time Posting Recommendations', starter: false, pro: true, business: true },
     ],
   },
   {
     name: 'Media Library',
     features: [
       { name: 'Storage', starter: '10 GB', pro: '100 GB', business: 'Unlimited' },
-      { name: 'Brand voice', starter: 'Per brand', pro: 'Per brand', business: 'Per brand' },
-      { name: 'Brand identity (logo & colors)', starter: false, pro: true, business: true },
+      { name: 'Brand Voice', starter: 'Per brand', pro: 'Per brand', business: 'Per brand' },
+      { name: 'Brand Identity (Logo & Colors)', starter: false, pro: true, business: true },
     ],
   },
   {
     name: 'Analytics',
     features: [
-      { name: 'Post & follower analytics', starter: true, pro: true, business: true },
-      { name: 'History window', starter: '30 days', pro: '1 year', business: 'Unlimited' },
-      { name: 'CSV export', starter: false, pro: false, business: true },
+      { name: 'Post & Follower Analytics', starter: true, pro: true, business: true },
+      { name: 'History Window', starter: '30 days', pro: '1 year', business: 'Unlimited' },
+      { name: 'CSV Export', starter: false, pro: false, business: true },
     ],
   },
   {
     name: 'Team & Workspace',
     features: [
-      { name: 'Team members', starter: '1', pro: '5 (+ add-on seats)', business: 'Unlimited' },
+      { name: 'Team Members', starter: '1', pro: '5 (+ add-on seats)', business: 'Unlimited' },
       { name: 'Workspaces', starter: '1', pro: '5', business: 'Unlimited' },
-      { name: 'Role-based access control', starter: true, pro: true, business: true },
+      { name: 'Role-Based Access Control', starter: true, pro: true, business: true },
     ],
   },
   {
@@ -282,18 +282,18 @@ export const COMPARISON_CATEGORIES = [
     // limits.apiRequestsPerMinute.
     name: 'Developers & AI Agents',
     features: [
-      { name: 'Workspace API keys', starter: true, pro: true, business: true },
-      { name: 'Publishing API (Connect + full v1)', starter: true, pro: true, business: true },
-      { name: 'Signed webhooks', starter: true, pro: true, business: true },
-      { name: 'Per-brand key scoping & expiry', starter: true, pro: true, business: true },
-      { name: 'API rate limit', starter: '60 req/min', pro: '120 req/min', business: '300 req/min' },
+      { name: 'Workspace API Keys', starter: true, pro: true, business: true },
+      { name: 'Publishing API (Connect + Full v1)', starter: true, pro: true, business: true },
+      { name: 'Signed Webhooks', starter: true, pro: true, business: true },
+      { name: 'Per-Brand Key Scoping & Expiry', starter: true, pro: true, business: true },
+      { name: 'API Rate Limit', starter: '60 req/min', pro: '120 req/min', business: '300 req/min' },
     ],
   },
   {
     name: 'Support',
     features: [
-      { name: 'Email support', starter: true, pro: true, business: true },
-      { name: 'Priority support', starter: false, pro: true, business: true },
+      { name: 'Email Support', starter: true, pro: true, business: true },
+      { name: 'Priority Support', starter: false, pro: true, business: true },
     ],
   },
 ];

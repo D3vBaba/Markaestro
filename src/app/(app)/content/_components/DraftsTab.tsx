@@ -296,7 +296,7 @@ export default function DraftsTab({
     <>
       {toPost.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
+          <h3 className="m-0 mb-3 text-sm font-semibold text-foreground">
             {t("toPostHeading")}
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -314,7 +314,7 @@ export default function DraftsTab({
 
       {waitingInTikTok.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
+          <h3 className="m-0 mb-3 text-sm font-semibold text-foreground">
             {t("waitingInTikTokHeading")}
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -332,7 +332,7 @@ export default function DraftsTab({
       {draftPosts.length > 0 && (
         <>
           {hasQueueSections && (
-            <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
+            <h3 className="m-0 mb-3 text-sm font-semibold text-foreground">
               {t("draftsHeading")}
             </h3>
           )}

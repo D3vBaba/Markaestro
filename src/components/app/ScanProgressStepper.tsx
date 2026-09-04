@@ -76,22 +76,22 @@ export default function ScanProgressStepper({
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-4">
         {isDone ? (
-          <div className="h-6 w-6 rounded-full bg-mk-pos flex items-center justify-center">
-            <Check className="h-3.5 w-3.5 text-white" />
+          <div className="size-6 rounded-full bg-mk-pos flex items-center justify-center">
+            <Check className="size-3.5 text-white" />
           </div>
         ) : isError ? (
-          <div className="h-6 w-6 rounded-full bg-destructive flex items-center justify-center">
-            <AlertCircle className="h-3.5 w-3.5 text-white" />
+          <div className="size-6 rounded-full bg-mk-neg flex items-center justify-center">
+            <AlertCircle className="size-3.5 text-white" />
           </div>
         ) : (
-          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="size-6 rounded-full bg-muted flex items-center justify-center">
             {reducedMotion ? (
-              <div className="h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full" />
+              <div className="size-3.5 border-2 border-primary border-t-transparent rounded-full" />
             ) : (
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                className="h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full"
+                className="size-3.5 border-2 border-primary border-t-transparent rounded-full"
               />
             )}
           </div>
@@ -136,7 +136,7 @@ export default function ScanProgressStepper({
               >
                 {/* Icon */}
                 <div className={cn(
-                  "h-5 w-5 flex items-center justify-center shrink-0",
+                  "size-5 flex items-center justify-center shrink-0",
                   state === "active" && "text-primary",
                   state === "done" && "text-mk-pos",
                   state === "pending" && "text-muted-foreground",
@@ -147,17 +147,17 @@ export default function ScanProgressStepper({
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15 }}
                     >
-                      <Check className="h-4 w-4" />
+                      <Check className="size-4" />
                     </motion.div>
                   ) : state === "active" && !reducedMotion ? (
                     <motion.div
                       animate={{ scale: [1, 1.15, 1] }}
                       transition={{ duration: 1.2, repeat: Infinity }}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="size-4" />
                     </motion.div>
                   ) : (
-                    <Icon className="h-4 w-4" />
+                    <Icon className="size-4" />
                   )}
                 </div>
 

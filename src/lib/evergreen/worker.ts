@@ -9,6 +9,7 @@ import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import type { SocialChannel } from '@/lib/schemas';
 import { pauseEvergreenQueueForSystem } from './storage';
 import { createInboxItem } from '@/lib/inbox';
+import { busyDaysFor, findCollisionFreeDate } from './collisions';
 
 const GENERATION_LEAD_MS = 48 * 60 * 60 * 1000;
 const EVALUATION_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -80,6 +81,39 @@ async function generateOccurrence(
     await pauseEvergreenQueueForSystem(workspaceId, queueId, 'NO_ENABLED_VARIANTS');
     return { queueId, status: 'paused', reason: 'NO_ENABLED_VARIANTS' };
   }
+  // Do not land on a day that already has a fresh post for this brand and
+  // channel: move the run forward (at most three days) and let the next tick
+  // pick it up at the new date.
+  const planned = new Date(queue.nextRunAt);
+  const windowStart = new Date(planned.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const windowEnd = new Date(planned.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString();
+  const scheduledSnap = await adminDb.collection(`workspaces/${workspaceId}/posts`)
+    .where('status', '==', 'scheduled')
+    .where('scheduledAt', '>=', windowStart)
+    .where('scheduledAt', '<', windowEnd)
+    .orderBy('scheduledAt', 'asc')
+    .limit(200)
+    .get();
+  const busy = busyDaysFor({
+    posts: scheduledSnap.docs.map((doc) => doc.data()),
+    productId: queue.productId,
+    channels: queue.channels,
+    queueId,
+    timeZone: queue.timeZone,
+  });
+  const free = findCollisionFreeDate({ planned, busyDays: busy, timeZone: queue.timeZone });
+  if (free.shiftedDays > 0) {
+    const shiftedAt = free.date.toISOString();
+    await queueRef.update({
+      nextRunAt: shiftedAt,
+      lastCollisionShift: { from: queue.nextRunAt, to: shiftedAt, days: free.shiftedDays, at: new Date().toISOString() },
+      version: queue.version + 1,
+      updatedAt: new Date().toISOString(),
+    });
+    await markWorkspaceDue(workspaceId, evergreenGenerationDueAt(free.date), 'evergreen_queue');
+    return { queueId, status: 'skipped', reason: 'COLLISION_SHIFTED' };
+  }
+
   const variant = variants[queue.runCount % variants.length];
   const runId = deterministicRunId(queueId, queue.nextRunAt);
   const runRef = queueRef.collection('runs').doc(runId);

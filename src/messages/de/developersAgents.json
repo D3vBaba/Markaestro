@@ -86,7 +86,7 @@
       "title": "3. Planen, dann beobachten",
       "description": "Das Erstellen ist standardmäßig entwurfsbasiert. Sende <code>is_draft: false</code> mit einem <code>scheduled_at</code>-Zeitstempel, um den Beitrag stattdessen in den Kalender einzutragen."
     },
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "responseLabel": "Antwort"
   },
   "toolDefs": {
@@ -104,7 +104,7 @@
   "recipes": {
     "eyebrow": "Rezepte",
     "title": "Die vier Workflows, die Agenten tatsächlich nutzen",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "publish": {
       "title": "Veröffentlichen und bestätigen",
       "description": "Erstelle einen Entwurf, veröffentliche ihn explizit und frage dann den Lauf ab. Der einzig ehrliche Weg, dem Betreiber zu sagen, dass ein Beitrag rausgegangen ist."
@@ -266,7 +266,7 @@
     "installDescription": "In Claude Code ist das Plugin die gesamte Einrichtung: Es bündelt den Agenten-Skill und den Server-Eintrag. Jeder andere MCP-Client nimmt die Server-URL in seiner üblichen Konfiguration entgegen.",
     "headlessTitle": "Ohne Browser",
     "headlessDescription": "Ein CI-Job, ein Cron-Worker oder ein Client, der keinen Browser öffnen kann, übergibt stattdessen einen Workspace-API-Schlüssel als Bearer-Header. Beide Wege landen auf demselben Server mit denselben Berechtigungen.",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "configLabel": "MCP-Konfiguration (JSON)",
     "flowTitle": "Was passiert, wenn sich der Client verbindet",
     "flowIntro": "Fünf Schritte, alle vom Client und vom Browser erledigt. Du siehst nur die Zustimmungsseite.",

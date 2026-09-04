@@ -10,16 +10,16 @@ export default function Select({
     <div className="relative">
       <select
         className={cn(
-          "w-full appearance-none rounded-md border border-input bg-transparent pe-8 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-          size === "sm" ? "h-8 px-2 text-xs" : "h-9 px-3",
+          "w-full appearance-none rounded-lg border border-input bg-card pe-8 text-base text-foreground transition-[border-color,box-shadow] outline-none hover:border-mk-ink-20 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "focus-visible:border-ring focus-visible:ring-ring/25 focus-visible:ring-[3px]",
+          size === "sm" ? "h-8 px-2.5 text-[13px]" : "h-9 px-3",
           className,
         )}
         {...props}
       />
       <ChevronDown className={cn(
         "pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground",
-        size === "sm" ? "h-3 w-3" : "h-4 w-4",
+        size === "sm" ? "size-3" : "size-4",
       )} />
     </div>
   );

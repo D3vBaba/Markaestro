@@ -560,6 +560,7 @@ async function getSoleProductScopedConnection(
  * For all others: returns the main access token.
  */
 export function resolveAccessToken(connection: PlatformConnection): string {
+  if (connection.fixture) throw new Error('Fixture connection has no credentials');
   const pageToken = connection.metadata.pageAccessTokenEncrypted as string | undefined;
   if (pageToken) {
     return decrypt(pageToken);

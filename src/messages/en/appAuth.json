@@ -1,22 +1,22 @@
 {
   "login": {
     "hero": {
-      "eyebrow": "Welcome back",
-      "titleLine1": "Your whole social",
-      "titleLine2Prefix": "workflow, ",
-      "titleLine2Accent": "one login.",
+      "eyebrow": "Welcome Back",
+      "titleLine1": "Your Whole Social",
+      "titleLine2Prefix": "Workflow, ",
+      "titleLine2Accent": "One Login.",
       "subtitle": "Stop logging into five apps to post once. Sign in to publish everywhere, schedule weeks ahead, and get your time back.",
       "points": {
         "publish": {
-          "title": "Publish everywhere at once",
+          "title": "Publish Everywhere at Once",
           "desc": "Facebook, Instagram, TikTok and more, from a single composer."
         },
         "schedule": {
-          "title": "Schedule weeks ahead",
+          "title": "Schedule Weeks Ahead",
           "desc": "Set your cadence once and never go quiet again."
         },
         "hours": {
-          "title": "Hours back every week",
+          "title": "Hours Back Every Week",
           "desc": "The copy-paste-and-log-in busywork simply disappears."
         }
       },
@@ -27,20 +27,20 @@
       }
     },
     "form": {
-      "eyebrowEmail": "Sign in or sign up",
-      "eyebrowCode": "Check your inbox",
-      "titleEmail": "Continue with your email",
-      "titleCode": "Enter your code",
+      "eyebrowEmail": "Sign in or Sign Up",
+      "eyebrowCode": "Check Your Inbox",
+      "titleEmail": "Continue with Your Email",
+      "titleCode": "Enter Your Code",
       "subtitleEmail": "No password needed. We'll email you a one-time code. New here? The same code creates your account.",
       "subtitleCode": "We sent a 6-digit code to <email></email>.",
       "emailPlaceholder": "name@company.com",
       "codePlaceholder": "123456",
-      "sendCode": "Email me a code",
+      "sendCode": "Email Me a Code",
       "sendingCode": "Sending code…",
-      "signIn": "Sign in",
+      "signIn": "Sign In",
       "verifying": "Verifying…",
       "useDifferentEmail": "← Use a different email",
-      "resendCode": "Resend code",
+      "resendCode": "Resend Code",
       "resendIn": "Resend in {seconds}s",
       "orContinueWith": "Or continue with",
       "continueWithGoogle": "Continue with Google",
@@ -55,16 +55,16 @@
     "unsupportedAction": "Unsupported action.",
     "canceledFallback": {
       "eyebrow": "Account",
-      "title": "Account action",
+      "title": "Account Action",
       "subtitle": "We could not complete this link.",
       "message": "Missing or invalid action parameters.",
-      "backToSignIn": "Back to sign in"
+      "backToSignIn": "Back to Sign In"
     },
     "titles": {
-      "resetPassword": "Set a new password",
-      "verifyEmail": "Verify your email",
-      "verifyAndChangeEmail": "Confirm email change",
-      "default": "Account action"
+      "resetPassword": "Set a New Password",
+      "verifyEmail": "Verify Your Email",
+      "verifyAndChangeEmail": "Confirm Email Change",
+      "default": "Account Action"
     },
     "eyebrows": {
       "resetPassword": "Reset",
@@ -82,10 +82,10 @@
     "genericSuccess": "Done.",
     "resettingPasswordFor": "Resetting password for <email></email>",
     "newPasswordPlaceholder": "New password",
-    "updatePassword": "Update password",
+    "updatePassword": "Update Password",
     "updating": "Updating…",
     "passwordUpdatedSuccess": "Password updated successfully. You can now sign in.",
-    "backToSignIn": "Back to sign in",
+    "backToSignIn": "Back to Sign In",
     "working": "Working…",
     "continue": "Continue",
     "errors": {
@@ -97,7 +97,7 @@
     }
   },
   "oauthComplete": {
-    "title": "Finishing connection",
+    "title": "Finishing Connection",
     "subtitle": "Restoring your session and returning you to the app."
   },
   "oauthConsent": {
@@ -109,7 +109,7 @@
     "brandHint": "The agent can only see and post to this brand.",
     "loadingBrands": "Loading brands...",
     "noBrands": "This workspace has no brands yet.",
-    "createBrand": "Create a brand",
+    "createBrand": "Create a Brand",
     "scopesLabel": "Permissions",
     "allow": "Allow",
     "allowing": "Connecting...",

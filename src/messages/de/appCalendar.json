@@ -26,7 +26,8 @@
     "preview": "Vorschau",
     "viewLivePost": "Live-Beitrag ansehen",
     "untitledPost": "Unbenannter Beitrag",
-    "failedToPublish": "Veröffentlichung fehlgeschlagen"
+    "failedToPublish": "Veröffentlichung fehlgeschlagen",
+    "evergreen": "Evergreen"
   },
   "dayPanel": {
     "today": "Heute",
@@ -82,5 +83,14 @@
   "postNotFoundToast": "Dieser Beitrag konnte nicht geöffnet werden. Bitte erneut versuchen.",
   "viewAllPostsOnDay": "Alle {count, plural, one {# Beitrag} other {# Beiträge}} dieses Tages ansehen",
   "viewAllPostsOnDate": "Alle {count, plural, one {# Beitrag} other {# Beiträge}} vom {date} ansehen",
-  "moreCount": "+{count} weitere"
+  "moreCount": "+{count} weitere",
+  "listEmpty": "In diesem Monat ist noch nichts geplant oder veröffentlicht.",
+  "moreChannels": "+{count} weitere",
+  "title": "Kalender",
+  "views": {
+    "list": "Liste",
+    "month": "Monat",
+    "week": "Woche"
+  },
+  "weekOf": "Woche vom {date}"
 }

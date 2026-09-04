@@ -355,7 +355,7 @@
     "engagements": "Interações",
     "conversions": "Conversões",
     "engagementRate": "Taxa de interação",
-    "perPost": "por publicação"
+    "perPost": "Por publicação"
   },
   "platforms": {
     "title": "Desempenho por plataforma",
@@ -413,7 +413,7 @@
     "observations": "{count} publicações",
     "liftUp": "+{value}% vs a sua média",
     "liftDown": "{value}% vs a sua média",
-    "estimate": "cerca de {value} {metric} por publicação",
+    "estimate": "Cerca de {value} {metric} por publicação",
     "timezone": "Horários em {timeZone}",
     "accountMean": "Sua média: {value} {metric} por publicação"
   },
@@ -788,16 +788,16 @@
     "quota": "Você usou os turnos Ask Markaestro deste mês. Tente no próximo mês ou faça upgrade.",
     "unavailable": "Ask Markaestro ainda não está disponível neste workspace.",
     "tools": {
-      "audience_performance": "retratos do público",
-      "audience_alignment": "alinhamento de público",
-      "top_posts": "melhores publicações por visualizações",
-      "pillar_performance": "desempenho por pilar de conteúdo",
-      "hook_performance": "desempenho por gancho",
-      "timing_performance": "desempenho por dia e hora",
-      "drift": "eventos de mudança de público",
-      "learnings": "aprendizados do guia",
+      "audience_performance": "Retratos do público",
+      "audience_alignment": "Alinhamento de público",
+      "top_posts": "Melhores publicações por visualizações",
+      "pillar_performance": "Desempenho por pilar de conteúdo",
+      "hook_performance": "Desempenho por gancho",
+      "timing_performance": "Desempenho por dia e hora",
+      "drift": "Eventos de mudança de público",
+      "learnings": "Aprendizados do guia",
       "campaigns": "campanhas",
-      "platform_comparisons": "comparação por plataforma",
+      "platform_comparisons": "Comparação por plataforma",
       "experiments": "experimentos"
     },
     "examples": [

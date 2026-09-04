@@ -63,6 +63,8 @@ const KNOWN_TOKENS = new Set([
   // Loanwords carried into every locale in this set unchanged — translating
   // "Zoom" into de/es/fr/it/pt would read as worse UI, not better.
   'Zoom',
+  // Feature names kept literal in every locale, matching the app UI.
+  'Intelligent', 'Evergreen', 'Playbook',
   // Product, feature, format and integration names that never localize:
   // DripCheckr (placeholder brand in wizards), Meta Business Suite,
   // Instagram/Meta Login, TikTok for Developers, the Connect API, TikTok's
@@ -104,6 +106,8 @@ const EXEMPT_KEY_PATHS = new Set([
 
 function isExempt(value, keyPath) {
   if (keyPath && EXEMPT_KEY_PATHS.has(keyPath)) return true;
+  // `.id` / `.channel` leaves are machine identifiers (tile ids, channel slugs), not prose.
+  if (keyPath && /\.(id|channel)$/.test(keyPath)) return true;
   if (EXEMPT_PATTERNS.some((re) => re.test(value))) return true;
   return false;
 }

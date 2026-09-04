@@ -5,6 +5,27 @@ import type { TimingRecommendation } from "@/lib/intelligence/timing";
 import type { IntelligenceReadiness } from "@/lib/intelligence/readiness";
 import type { ObjectiveSummary } from "@/lib/intelligence/insights";
 import type { IntelligenceTrustKind } from "@/lib/intelligence/schemas";
+import type { CohortRow, DecisionOutcome, PillarCoverage, SuggestedExperiment, WeeklyPulse } from "@/lib/intelligence/pulse";
+
+export type ExperimentResultRow = {
+  id: string;
+  name: string;
+  hypothesis: string | null;
+  platform: string | null;
+  metric: string;
+  status: string;
+  effectPercent: number | null;
+  reason: string | null;
+  evaluatedAt: string | null;
+};
+
+/** Seeds the experiment composer from a move, a pattern, or an idea. */
+export type ExperimentDraft = {
+  id: string;
+  name: string;
+  hypothesis: string;
+  platform?: string | null;
+};
 
 export type TrustKind = IntelligenceTrustKind | "declared" | "generated";
 
@@ -63,6 +84,12 @@ export type IntelligenceOverview = {
   opportunities: OpportunityRow[];
   readiness?: IntelligenceReadiness | null;
   objective?: ObjectiveSummary | null;
+  pulse?: WeeklyPulse | null;
+  cohorts?: { rows: CohortRow[]; stopDoing: CohortRow[] } | null;
+  pillars?: PillarCoverage[];
+  outcomes?: Record<string, DecisionOutcome>;
+  suggestedExperiments?: SuggestedExperiment[];
+  experimentResults?: ExperimentResultRow[];
   computedAt?: string;
   cached?: boolean;
 };

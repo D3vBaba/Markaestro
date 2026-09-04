@@ -86,7 +86,7 @@
       "title": "3. 予約して、確認する",
       "description": "作成はデフォルトで下書き優先です。代わりに<code>is_draft: false</code>と<code>scheduled_at</code>タイムスタンプを送信すれば投稿をカレンダーに登録できます。"
     },
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "responseLabel": "レスポンス"
   },
   "toolDefs": {
@@ -104,7 +104,7 @@
   "recipes": {
     "eyebrow": "レシピ",
     "title": "エージェントが実際に実行する4つのワークフロー",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "publish": {
       "title": "公開して確認",
       "description": "下書きを作成し、明示的に公開し、実行をポーリングします。オペレーターに投稿が公開されたことを伝える唯一の正直な方法です。"
@@ -266,7 +266,7 @@
     "installDescription": "Claude Code ではプラグインが設定のすべてです。エージェント用スキルとサーバー設定を同梱しています。その他の MCP クライアントは、通常の設定でサーバー URL を受け取ります。",
     "headlessTitle": "ブラウザなしで",
     "headlessDescription": "CI ジョブや cron ワーカー、ブラウザを開けないクライアントは、代わりにワークスペースの API キーを Bearer ヘッダーで渡します。どちらの経路も同じサーバーに同じ権限で到達します。",
-    "bashLabel": "bash",
+    "bashLabel": "Bash",
     "configLabel": "MCP 設定 (json)",
     "flowTitle": "クライアント接続時に起こること",
     "flowIntro": "5 つのステップはすべてクライアントとブラウザが処理します。あなたが目にするのは同意ページだけです。",

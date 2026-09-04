@@ -110,5 +110,17 @@
       "fallbackInviter": "팀원",
       "summary": "{inviter}님이 Markaestro의 {workspaceName}에 {roleLabel}(으)로 참여하도록 초대했습니다. {url}에서 로그인하여 수락하세요"
     }
+  },
+  "intelligenceDigest": {
+    "subject": "Your week on Markaestro",
+    "preheader": "This week against last week, and the one move to make next.",
+    "intro": "Here is how each brand did this week compared with last week, with the next move Markaestro suggests.",
+    "posts": "Posts",
+    "views": "Views",
+    "engagements": "Engagements",
+    "move": "Next move:",
+    "window": "Best window:",
+    "cta": "Open Intelligence",
+    "footerNote": "You receive this weekly summary because you are an owner or admin of this workspace."
   }
 }

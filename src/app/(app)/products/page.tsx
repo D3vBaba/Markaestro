@@ -4,10 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { AnimatePresence } from "framer-motion";
-import { AlertTriangle, Plus } from "lucide-react";
+import { AlertTriangle, Package, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/app/PageHeader";
+import Notice from "@/components/app/Notice";
+import EmptyStateBlock from "@/components/app/EmptyState";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConfirmDeleteDialog from "@/components/app/ConfirmDeleteDialog";
+import Pagination from "@/components/app/Pagination";
 import ProductCard, { type ConnectionChip, type ProductCardData } from "./_components/ProductCard";
 import ProductDetailSheet, { type IntegrationInfo } from "./_components/ProductDetailSheet";
 import { readConnectOutcome, type ConnectOutcome } from "@/components/app/ConnectionOutcomeCard";
@@ -239,6 +243,10 @@ export default function ProductsPage() {
     development: products.filter((p) => p.status === "development" || p.status === "beta").length,
   };
 
+  const PAGE_SIZE = 9;
+  const [page, setPage] = useState(1);
+  const [pagedFor, setPagedFor] = useState(filter);
+  if (pagedFor !== filter) { setPagedFor(filter); setPage(1); }
   const visible = products.filter((p) => {
     if (filter === "active") return p.status === "active";
     if (filter === "development") return p.status === "development" || p.status === "beta";
@@ -259,85 +267,59 @@ export default function ProductsPage() {
         action={
           <Button
             onClick={() => setCreateOpen(true)}
-            className="rounded-xl h-9 text-xs font-semibold gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
           >
-            <Plus className="h-4 w-4" /> {t("addBrand")}
+            <Plus className="size-4" /> {t("addBrand")}
           </Button>
         }
       />
 
       {ungrantedPages.length > 0 && (
-        <div className="mb-6 flex gap-3 rounded-2xl border p-4 bg-amber-50/80 dark:bg-amber-950/30 border-amber-200/80 dark:border-amber-900/50">
-          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-              {t("ungrantedPages.title", { count: ungrantedPages.length })}
-            </p>
-            <p className="mt-1 text-xs leading-relaxed text-amber-700 dark:text-amber-400">
-              {t("ungrantedPages.body", { pages: ungrantedPages.join(", ") })}
-            </p>
-            <div className="mt-2.5 flex flex-wrap items-center gap-4">
-              <Link href="/guides/channels" className="text-xs font-medium text-amber-800 dark:text-amber-300 underline underline-offset-2">
-                {t("ungrantedPages.howItWorks")}
-              </Link>
-              <button
-                type="button"
-                onClick={() => setUngrantedPages([])}
-                className="text-xs text-amber-600 dark:text-amber-400 underline underline-offset-2"
-              >
+        <Notice
+          tone="warning"
+          icon={AlertTriangle}
+          title={t("ungrantedPages.title", { count: ungrantedPages.length })}
+          className="mb-6"
+          action={
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/guides/channels">{t("ungrantedPages.howItWorks")}</Link>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setUngrantedPages([])}>
                 {t("ungrantedPages.dismiss")}
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          {t("ungrantedPages.body", { pages: ungrantedPages.join(", ") })}
+        </Notice>
       )}
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 mb-6 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 w-fit">
-        {(["all", "active", "development"] as FilterTab[]).map((tab) => {
-          const active = filter === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={cn(
-                "relative px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-2",
-                active
-                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200",
-              )}
-            >
-              <span>{filterLabels[tab]}</span>
-              <span
-                className={cn(
-                  "tabular-nums text-[10.5px] px-1.5 py-0.5 rounded-md",
-                  active
-                    ? "bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold"
-                    : "bg-slate-200/60 dark:bg-slate-700/60 text-slate-500",
-                )}
-              >
+      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterTab)} className="mb-6">
+        <TabsList>
+          {(["all", "active", "development"] as FilterTab[]).map((tab) => (
+            <TabsTrigger key={tab} value={tab} className="gap-1.5">
+              {filterLabels[tab]}
+              <span className={cn("tabular-nums", filter === tab ? "text-muted-foreground" : "text-mk-ink-40")}>
                 {counts[tab]}
               </span>
-            </button>
-          );
-        })}
-      </div>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {loading && !productsData ? (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-56 rounded-2xl animate-pulse bg-slate-100 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800"
-            />
+            <div key={i} className="h-52 animate-pulse rounded-xl border border-border bg-muted/60" />
           ))}
         </div>
       ) : visible.length === 0 ? (
         <EmptyState onCreate={() => setCreateOpen(true)} filter={filter} />
       ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           <AnimatePresence initial={false}>
-            {visible.map((p, i) => (
+            {visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((p, i) => (
               <ProductCard
                 key={p.id}
                 product={p}
@@ -350,6 +332,8 @@ export default function ProductsPage() {
             ))}
           </AnimatePresence>
         </div>
+        <Pagination page={page} totalPages={Math.max(1, Math.ceil(visible.length / PAGE_SIZE))} onPageChange={setPage} />
+        </>
       )}
 
       <ProductCreateWizard
@@ -411,22 +395,15 @@ function EmptyState({
     development: t("emptyState.development"),
   } as const;
   return (
-    <div className="rounded-2xl py-16 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800">
-      <div className="mx-auto h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/50 flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400 shadow-2xs">
-        <Plus className="h-5 w-5" />
-      </div>
-      <p className="text-base font-bold text-slate-900 dark:text-slate-100">
-        {labels[filter]}
-      </p>
-      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-        {t("emptyState.body")}
-      </p>
-      <Button
-        onClick={onCreate}
-        className="rounded-xl mt-5 h-9 text-xs font-semibold gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
-      >
-        <Plus className="h-4 w-4" /> {t("addBrand")}
-      </Button>
-    </div>
+    <EmptyStateBlock
+      icon={Package}
+      title={labels[filter]}
+      description={t("emptyState.body")}
+      action={
+        <Button onClick={onCreate}>
+          <Plus className="size-4" /> {t("addBrand")}
+        </Button>
+      }
+    />
   );
 }

@@ -79,7 +79,7 @@ export default function AudienceProfileEditor({
     );
   }
   if (unavailable) {
-    return <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">{t("unavailable")}</p>;
+    return <p className="text-[13px] leading-relaxed text-muted-foreground">{t("unavailable")}</p>;
   }
 
   return (
@@ -87,7 +87,7 @@ export default function AudienceProfileEditor({
       <AudienceProfileFields value={profile} onChange={setProfile} variant={variant} />
       <div className="flex justify-end">
         <Button type="button" onClick={save} disabled={saving} className="h-10 sm:h-9">
-          {saving && <Loader2 className="me-1.5 h-3.5 w-3.5 animate-spin" />}
+          {saving && <Loader2 className="me-1.5 size-3.5 animate-spin" />}
           {saving ? t("saving") : t("save")}
         </Button>
       </div>

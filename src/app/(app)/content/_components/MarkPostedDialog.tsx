@@ -77,7 +77,7 @@ export default function MarkPostedDialog({
             {t("cancel")}
           </Button>
           <Button onClick={handleConfirm} disabled={saving}>
-            {saving && <Loader2 className="w-4 h-4 me-1.5 animate-spin" />}
+            {saving && <Loader2 className="size-4 me-1.5 animate-spin" />}
             {t("confirm")}
           </Button>
         </DialogFooter>

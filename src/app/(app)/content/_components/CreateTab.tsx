@@ -56,6 +56,7 @@ export default function CreateTab({
   const [selectedChannels, setSelectedChannels] = useState<string[]>(["facebook"]);
   // Which linked account each channel posts to, when a brand has several.
   const [channelDestinations, setChannelDestinations] = useState<Record<string, string>>({});
+  const [channelLabels, setChannelLabels] = useState<Record<string, string>>({});
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -578,22 +579,23 @@ export default function CreateTab({
           channelDestinations={channelDestinations}
           onChannelDestinationsChange={setChannelDestinations}
           onSelectedChannelsChange={handleSelectedChannelsChange}
+          onChannelLabelsChange={setChannelLabels}
         />
 
         <div className="space-y-2">
-          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("caption")}</label>
+          <label className="text-[13px] font-medium text-foreground">{t("caption")}</label>
           <ContentEditor content={content} onChange={setContent} channel={channel} channels={selectedChannels} />
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("media")}</label>
-            <span className="text-[11px] text-muted-foreground">{mediaUrls.length}/{mediaLimit}</span>
+            <label className="text-[13px] font-medium text-foreground">{t("media")}</label>
+            <span className="text-xs text-muted-foreground">{mediaUrls.length}/{mediaLimit}</span>
           </div>
           {mediaUrls.length > 0 ? (
             <div className="grid grid-cols-3 gap-2">
               {mediaUrls.map((url, i) => (
-                <div key={`${url}-${i}`} className="relative group aspect-square rounded-lg overflow-hidden border border-border/40">
+                <div key={`${url}-${i}`} className="relative group aspect-square rounded-lg overflow-hidden border border-border">
                   {isVideoUrl(url) ? (
                     <video src={url} className="w-full h-full object-cover" />
                   ) : (
@@ -611,7 +613,7 @@ export default function CreateTab({
               {mediaUrls.length < mediaLimit && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="aspect-square rounded-lg border-2 border-dashed border-border/50 hover:border-foreground/30 text-xs text-muted-foreground"
+                  className="aspect-square rounded-lg border border-border bg-muted/60 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   {t("addMedia")}
                 </button>
@@ -619,11 +621,11 @@ export default function CreateTab({
             </div>
           ) : (
             <div
-              className="border-2 border-dashed border-border/50 hover:border-foreground/30 rounded-xl p-8 text-center cursor-pointer transition-colors"
+              className="cursor-pointer rounded-xl border border-border bg-muted/40 p-8 text-center transition-colors hover:bg-muted"
               onClick={() => fileInputRef.current?.click()}
             >
               <p className="text-sm text-muted-foreground">{allowVideo ? t("dropImagesOrVideos") : t("dropImages")}</p>
-              <p className="text-[11px] text-muted-foreground/50 mt-1">{t("mediaCountHint", { count: mediaLimit, hint: allowVideo ? t("mediaHintVideo") : t("mediaHintImage") })}</p>
+              <p className="text-xs text-muted-foreground/50 mt-1">{t("mediaCountHint", { count: mediaLimit, hint: allowVideo ? t("mediaHintVideo") : t("mediaHintImage") })}</p>
             </div>
           )}
           <input
@@ -638,7 +640,7 @@ export default function CreateTab({
               e.target.value = "";
             }}
           />
-          <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => fileInputRef.current?.click()} disabled={uploading || mediaUrls.length >= mediaLimit}>
+          <Button variant="outline" size="sm" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={uploading || mediaUrls.length >= mediaLimit}>
             {uploading ? t("uploading") : t("upload")}
           </Button>
         </div>
@@ -675,7 +677,7 @@ export default function CreateTab({
         )}
 
         <div className="grid grid-cols-3 gap-2 pt-2">
-          <Button variant="outline" onClick={handleSaveDraft} disabled={!content} className="h-11 sm:h-9 text-xs sm:text-sm">
+          <Button variant="outline" onClick={handleSaveDraft} disabled={!content} className="h-11 sm:h-9 sm:text-sm">
             {t("saveDraft")}
           </Button>
           <Button variant="outline" onClick={() => setScheduleOpen(true)} disabled={!content} className="h-11 sm:h-9 text-xs sm:text-sm">
@@ -688,32 +690,32 @@ export default function CreateTab({
             onClick={handlePostNow}
             disabled={publishing || !content || Boolean(directPostBlockedReason)}
             title={directPostBlockedReason || undefined}
-            className="h-11 sm:h-9 text-xs sm:text-sm"
+            className="h-11 sm:h-9 sm:text-sm"
           >
             {publishing ? t("posting") : t("postNow")}
           </Button>
         </div>
 
         {directPostBlockedReason && (
-          <p className="text-[11px]" style={{ color: "var(--mk-warn)" }}>
+          <p className="text-xs text-mk-warn">
             {directPostBlockedReason}
           </p>
         )}
       </div>
 
       {/* Right column — preview */}
-      <div className="border border-border/40 rounded-lg p-4 sm:p-6 space-y-6 h-fit lg:sticky lg:top-20 bg-card">
-        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("preview")}</h3>
+      <div className="h-fit space-y-5 rounded-xl border border-border bg-card p-4 sm:p-5 lg:sticky lg:top-6">
+        <h3 className="m-0 text-sm font-semibold text-foreground">{t("preview")}</h3>
         {selectedChannels.length > 1 && (
           <div className="flex flex-wrap items-center gap-1.5">
             {selectedChannels.map((ch) => (
               <button
                 key={ch}
                 onClick={() => setPreviewChannel(ch)}
-                className={`px-3 py-1 rounded-full border text-[11px] font-medium transition-colors ${
+                className={`h-8 rounded-lg border px-2.5 text-xs font-medium transition-colors ${
                   activePreviewChannel === ch
                     ? "border-foreground bg-foreground text-background"
-                    : "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+                    : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 {getSocialChannelLabel(ch)}
@@ -722,7 +724,7 @@ export default function CreateTab({
           </div>
         )}
         {content ? (
-          <PlatformPreview content={content} channel={activePreviewChannel} mediaUrls={mediaUrls.length > 0 ? mediaUrls : undefined} />
+          <PlatformPreview content={content} channel={activePreviewChannel} mediaUrls={mediaUrls.length > 0 ? mediaUrls : undefined} username={channelLabels[activePreviewChannel] ?? null} />
         ) : (
           <div className="text-center py-16">
             <p className="text-sm text-muted-foreground">{t("previewPlaceholder")}</p>
@@ -778,11 +780,11 @@ function TikTokModeOption({
       className={`w-full text-start rounded-xl border p-3 transition-colors ${
         selected
           ? "border-foreground bg-foreground/3"
-          : "border-border/40 hover:border-foreground/30"
+          : "border-border hover:border-foreground/30"
       }`}
     >
       <p className="text-[13px] font-medium text-foreground">{title}</p>
-      <p className="text-[11px] text-muted-foreground mt-0.5">{hint}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
     </button>
   );
 }

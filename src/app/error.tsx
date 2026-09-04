@@ -18,7 +18,7 @@ export default function AppError({
   return (
     <main className="grid min-h-[60vh] place-items-center px-6 py-16">
       <div className="max-w-md text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Something went wrong</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Something Went Wrong</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           We couldn&apos;t finish that request. Please try again.
         </p>

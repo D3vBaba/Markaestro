@@ -46,24 +46,24 @@
     "kpis": {
       "views": {
         "label": "Weergaven",
-        "sub": "t.o.v. vorige periode"
+        "sub": "T.o.v. vorige periode"
       },
       "reach": {
         "label": "Bereik",
-        "sub": "unieke bereikte accounts"
+        "sub": "Unieke bereikte accounts"
       },
       "engagement": {
         "label": "Betrokkenheid",
-        "sub": "likes + reacties + keer gedeeld + opgeslagen"
+        "sub": "Likes + reacties + keer gedeeld + opgeslagen"
       },
       "engagementRate": {
         "label": "Betrokkenheidspercentage",
-        "sub": "betrokkenheid ÷ bereik",
-        "subViews": "betrokkenheid ÷ weergaven (geen bereik gerapporteerd)"
+        "sub": "Betrokkenheid ÷ bereik",
+        "subViews": "Betrokkenheid ÷ weergaven (geen bereik gerapporteerd)"
       },
       "followers": {
         "label": "Volgers",
-        "sub": "alle verbonden kanalen"
+        "sub": "Alle verbonden kanalen"
       }
     },
     "insights": {
@@ -86,7 +86,7 @@
         "publish": "Wat de per dag gepubliceerde posts tot nu toe hebben opgeleverd",
         "activity": "Wat er per dag gebeurde, over alle posts"
       },
-      "compare": "vs vorige periode",
+      "compare": "Vs vorige periode",
       "previous": "Vorige periode",
       "noteActivity": "Gegroepeerd op de dag waarop de platforms de cijfers rapporteerden.",
       "activityEmpty": "Activiteit bouwt op vanaf de volgende ophaalronde. Groepering op publicatie bevat de geschiedenis."
@@ -150,7 +150,7 @@
     "notEnoughVariety": "Nog niet genoeg variatie",
     "publishAtLeastTwo": "Publiceer ten minste twee contentformaten (afbeeldingen, video's, carrousels, tekst) om ze te vergelijken.",
     "postsCount": "{count, plural, one {# bericht} other {# berichten}}",
-    "avgEng": "gem. betr."
+    "avgEng": "Gem. betr."
   },
   "trendChart": {
     "noData": "Nog geen gegevens voor deze periode.",

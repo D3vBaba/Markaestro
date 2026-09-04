@@ -355,7 +355,7 @@
     "engagements": "Interacciones",
     "conversions": "Conversiones",
     "engagementRate": "Tasa de interacción",
-    "perPost": "por publicación"
+    "perPost": "Por publicación"
   },
   "platforms": {
     "title": "Rendimiento por plataforma",
@@ -413,7 +413,7 @@
     "observations": "{count} publicaciones",
     "liftUp": "+{value}% frente a tu media",
     "liftDown": "{value}% frente a tu media",
-    "estimate": "aproximadamente {value} {metric} por publicación",
+    "estimate": "Aproximadamente {value} {metric} por publicación",
     "timezone": "Horas en {timeZone}",
     "accountMean": "Tu media: {value} {metric} por publicación"
   },
@@ -788,16 +788,16 @@
     "quota": "Has usado los turnos de Ask Markaestro de este mes. Prueba el mes que viene o mejora el plan.",
     "unavailable": "Ask Markaestro aún no está disponible en este espacio de trabajo.",
     "tools": {
-      "audience_performance": "instantáneas de audiencia",
-      "audience_alignment": "alineación de audiencia",
-      "top_posts": "mejores publicaciones por visualizaciones",
-      "pillar_performance": "rendimiento por pilar de contenido",
-      "hook_performance": "rendimiento por gancho",
-      "timing_performance": "rendimiento por día y hora",
-      "drift": "eventos de cambio de audiencia",
-      "learnings": "aprendizajes de la guía",
+      "audience_performance": "Instantáneas de audiencia",
+      "audience_alignment": "Alineación de audiencia",
+      "top_posts": "Mejores publicaciones por visualizaciones",
+      "pillar_performance": "Rendimiento por pilar de contenido",
+      "hook_performance": "Rendimiento por gancho",
+      "timing_performance": "Rendimiento por día y hora",
+      "drift": "Eventos de cambio de audiencia",
+      "learnings": "Aprendizajes de la guía",
       "campaigns": "campañas",
-      "platform_comparisons": "comparación por plataforma",
+      "platform_comparisons": "Comparación por plataforma",
       "experiments": "experimentos"
     },
     "examples": [

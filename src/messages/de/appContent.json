@@ -7,7 +7,8 @@
       "drafts": "Entwürfe",
       "scheduled": "Geplant",
       "published": "Veröffentlicht",
-      "onPlatform": "Auf der Plattform"
+      "onPlatform": "Auf der Plattform",
+      "evergreen": "Evergreen"
     },
     "productBar": {
       "brand": "Marke",
@@ -133,11 +134,11 @@
     "show": "Anzeigen",
     "basedOnData": "Basierend auf Branchen-Engagement-Daten für {channel}",
     "thisChannel": "diesen Kanal",
-    "orPickManually": "oder manuell auswählen",
+    "orPickManually": "Oder manuell auswählen",
     "timeLabel": "Uhrzeit",
     "timezoneNote": "Planungen verwenden deine lokale Zeitzone ({timezone}) und werden in UTC gespeichert.",
     "headsUp": "Hinweis:",
-    "collisionNote": "ein anderer Beitrag ist bereits für etwa diese Zeit geplant ({date}{channel}). Du kannst trotzdem beide planen.",
+    "collisionNote": "Ein anderer Beitrag ist bereits für etwa diese Zeit geplant ({date}{channel}). Du kannst trotzdem beide planen.",
     "onChannel": " auf {channel}",
     "scheduleFor": "Planen für {date} um {time}",
     "selectDate": "Datum auswählen"
@@ -354,5 +355,98 @@
       "videoTooLong": "Dieses Video überschreitet das Limit von {maxSeconds} Sekunden für dieses Konto.",
       "creatorInfoUnavailable": "Die Daten deines TikTok-Kontos konnten nicht geladen werden, daher kann dieser Beitrag nicht direkt veröffentlicht werden."
     }
+  },
+  "evergreenTab": {
+    "actionFailed": "Die Warteschlange konnte nicht aktualisiert werden",
+    "actions": {
+      "activate": "Aktivieren",
+      "activateSuccess": "Warteschlange aktiviert",
+      "archive": "Archivieren",
+      "archiveSuccess": "Warteschlange archiviert",
+      "pause": "Pausieren",
+      "pauseSuccess": "Warteschlange pausiert",
+      "resume": "Fortsetzen",
+      "resumeSuccess": "Warteschlange fortgesetzt"
+    },
+    "addVariant": "Variante hinzufügen",
+    "analytics": {
+      "conversions": "Conversions",
+      "details": "Leistung",
+      "engagements": "Interaktionen",
+      "loadFailed": "Die Leistung der Warteschlange konnte nicht geladen werden",
+      "loading": "Leistung der Warteschlange wird geladen...",
+      "measured": "Gemessene Läufe",
+      "needsReview": "Prüfung nötig",
+      "noOutcome": "Wartet auf ein ausgereiftes Leistungsergebnis",
+      "noRuns": "Es wurden noch keine Ausspielungen erstellt.",
+      "recentRuns": "Letzte Läufe",
+      "trackedClicks": "Erfasste Klicks",
+      "unavailable": "Nicht verfügbar",
+      "views": "Aufrufe gesamt"
+    },
+    "approveFuture": "Künftige Läufe jetzt freigeben",
+    "cancel": "Abbrechen",
+    "changeSource": "Ändern",
+    "choosePost": "Veröffentlichten Beitrag wählen",
+    "create": "Warteschlange erstellen",
+    "createFailed": "Die Warteschlange konnte nicht erstellt werden",
+    "created": "Evergreen-Warteschlange erstellt",
+    "defaultName": "{channel} Evergreen-Warteschlange",
+    "description": "Mache aus bewährten Beiträgen gesteuerte, messbare Warteschlangen. Markaestro bewahrt die Quelle, erstellt für jeden Lauf eine neue Ausspielung und pausiert schwache Serien automatisch.",
+    "eligible": "Geeignete Belege gefunden",
+    "empty": "Noch keine Evergreen-Warteschlangen für diese Marke.",
+    "everyDays": "Alle {count} Tage",
+    "interval": "Mindestabstand zwischen Läufen in Tagen",
+    "loadFailed": "Evergreen-Warteschlangen konnten nicht geladen werden",
+    "loading": "Evergreen-Warteschlangen werden geladen...",
+    "newQueue": "Neue Warteschlange",
+    "nextRun": "Nächster Lauf: {date}",
+    "notEligible": "Noch nicht geeignet",
+    "notScheduled": "Aktiviere diese Warteschlange, um den ersten Lauf zu planen.",
+    "pausedReason": "Pausiert: {reason}",
+    "picker": {
+      "engagements": "Interaktionen",
+      "filters": {
+        "all": "Alle veröffentlichten",
+        "eligible": "Bereit",
+        "suggested": "Vorgeschlagen"
+      },
+      "mediaOnly": "Nur mit Medien",
+      "noMatches": "Keine veröffentlichten Beiträge passen.",
+      "noSuggested": "Noch keine herausragenden Beiträge. Beiträge brauchen sieben Tage gemessene Ergebnisse, bevor sie vorgeschlagen werden können.",
+      "notReady": "Nicht bereit",
+      "rate": "Rate",
+      "reasons": {
+        "SOURCE_HAS_NO_CHANNEL": "Kein Kanal an diesem Beitrag",
+        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Noch keine gemessenen Aufrufe oder Interaktionen",
+        "SOURCE_METRICS_IMMATURE": "Vor weniger als sieben Tagen veröffentlicht",
+        "SOURCE_NOT_PUBLISHED": "Noch nicht veröffentlicht",
+        "SOURCE_PUBLISH_DATE_MISSING": "Veröffentlichungsdatum unbekannt"
+      },
+      "search": "Veröffentlichte Beiträge durchsuchen",
+      "suggested": "Vorgeschlagen",
+      "views": "Aufrufe"
+    },
+    "previewFailed": "Dieser Beitrag konnte nicht geprüft werden",
+    "queueName": "Name der Warteschlange",
+    "removeVariant": "Entfernen",
+    "reviewEach": "Jede Ausspielung prüfen",
+    "reviewPolicy": "Freigaberegel",
+    "runs": "{count, plural, one {# Lauf} other {# Läufe}} erstellt",
+    "saving": "Wird erstellt...",
+    "selectBrand": "Wähle eine Marke, um ihre Evergreen-Warteschlangen zu verwalten.",
+    "selectedSource": "Ausgewählter Beitrag",
+    "sourceHint": "Wähle den Beitrag, den diese Warteschlange wiederholt. Vorgeschlagene Beiträge haben bei ihrem Publikum am meisten erreicht und sind mindestens eine Woche alt.",
+    "sourcePost": "Bewährter Quellbeitrag",
+    "statuses": {
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "draft": "Entwurf",
+      "paused": "Pausiert"
+    },
+    "title": "Intelligent Evergreen",
+    "variant": "Caption-Variante",
+    "variantNumber": "Caption-Variante {number}",
+    "variants": "Caption-Varianten"
   }
 }

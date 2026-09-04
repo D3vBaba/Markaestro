@@ -10,17 +10,17 @@
       "title": "Publiceren op Meerdere Kanalen",
       "description": "Eén keer opstellen, overal publiceren. Schrijf één post en pas hem met één klik aan voor Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest. Plan in voor het optimale moment of publiceer direct.",
       "details": [
-        "Gecombineerde editor met voorbeeldweergave per kanaal",
-        "Sleep-en-neerzet mediabeheer",
-        "Bulk-inplannen voor contentkalenders",
-        "Automatisch formaat aanpassen aan platformspecificaties"
+        "Eén composer met voorvertoning per kanaal",
+        "Mediabeheer met slepen en neerzetten",
+        "In bulk herplannen, status wijzigen en verwijderen",
+        "Tekenlimieten en mediacontroles per kanaal vóór het publiceren"
       ]
     },
     {
       "title": "Media-upload en Bibliotheek",
       "description": "Gebruik je eigen fotografie, video's en merkmateriaal. Markaestro slaat ze op per workspace en koppelt ze met één sleepactie aan posts.",
       "details": [
-        "Ondersteuning voor JPG, PNG, WebP, MP4, MOV en WebM",
+        "Ondersteuning voor JPG, PNG, WebP, GIF, MP4, MOV en WebM",
         "Tot 250 MB per video, 10 MB per afbeelding",
         "Formaatcontroles per kanaal vóór publicatie",
         "Hergebruik geüploade media in meerdere posts"
@@ -30,20 +30,20 @@
       "title": "Voorbeeldweergave voor Meerdere Kanalen",
       "description": "Zie hoe elke post op elk netwerk eruitziet voordat je publiceert: Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest krijgen elk hun eigen voorbeeldweergave. Onderschriften, beeldverhoudingen, tekenlimieten en mediaspecificaties worden allemaal live weergegeven.",
       "details": [
-        "Pixelnauwkeurige voorbeeldweergaven per platform",
-        "Live telling van onderschriftkarakters",
-        "Richtlijnen voor beeldverhouding per kanaal",
-        "Spoor opmaakproblemen op vóór publicatie"
+        "Voorvertoningen per platform, inclusief advertentieplaatsingen",
+        "Live tekenteller voor het bijschrift",
+        "Regels voor aantal en formaat van media per kanaal",
+        "Vang opmaakproblemen af voordat ze live gaan"
       ]
     },
     {
       "title": "Publicatiedashboard",
       "description": "Zie elk concept, elke geplande post en elke publicatiestatus in één workspaceoverzicht zonder tussen platformen te schakelen.",
       "details": [
-        "Concept-, geplande en gepubliceerde wachtrijen",
-        "Publicatiestatus per kanaal",
-        "Retry-workflow voor mislukte posts",
-        "Contentoverzicht op workspaceniveau"
+        "Weergaven voor concepten, ingepland, gepubliceerd en op het platform",
+        "Publicatiestatus en foutdetails per kanaal",
+        "Wachtrij “Te plaatsen” voor kanalen waar een mens native post",
+        "Activiteitenoverzicht van de workspace op het dashboard"
       ]
     },
     {
@@ -57,15 +57,25 @@
       ]
     },
     {
+      "title": "Intelligent Evergreen",
+      "description": "Maak van een volwassen, gemeten post een terugkerende regel die jij beheert. Roteer goedgekeurde bijschriften, beoordeel elke run of keur de wachtrij vooraf goed, en laat Markaestro de reeks pauzeren als de vergelijkbare prestaties afnemen.",
+      "details": [
+        "Geschiktheid gebaseerd op de gemeten resultaten van de bronpost",
+        "Vaste of geleerde tijden met zomertijdveilige herhaling",
+        "Modi “elke run beoordelen” en “vooraf goedgekeurd”",
+        "Evaluatie na zeven dagen met een voorzichtige pauze na twee zwakke runs"
+      ]
+    },
+    {
       "title": "API en AI-agents",
-      "description": "Alles wat het dashboard doet, kan jouw software ook. Genereer een API-sleutel, geef die aan een AI-agent of script, en laat die accounts ontdekken, media uploaden, posts plannen, publiceren en rapporteren, op elk abonnement, zonder extra kosten.",
+      "description": "Alles wat het dashboard kan, kan je software ook. Maak een API-sleutel, geef die aan een AI-agent of script en laat het accounts ontdekken, media uploaden, posts inplannen, publiceren en rapporteren, op elk betaald abonnement zonder extra kosten.",
       "details": [
         "Sleutels beperkt tot één merk, met optionele vervaldatum",
-        "Idempotente writes zodat een retry nooit dubbel post",
-        "Asynchrone publicatieruns plus HMAC-ondertekende webhooks",
-        "Manual-first bij Meta en TikTok, een mens plaatst nog steeds"
+        "Idempotente schrijfacties zodat een retry nooit dubbel post",
+        "Asynchrone publicatieruns, HMAC-ondertekende webhooks en een MCP-server voor Claude Code, claude.ai en Cursor",
+        "Meta en TikTok standaard handmatig: een mens post, tenzij je een post vrijgeeft"
       ],
-      "codeLabel": "plan een post vanuit alles wat HTTP spreekt",
+      "codeLabel": "Plan een post vanuit alles wat HTTP spreekt",
       "agentGuideLink": "Lees de AI-agentgids →"
     }
   ],
@@ -76,11 +86,15 @@
     },
     {
       "title": "Planning en Kalender",
-      "description": "Plaats posts in een gecombineerde kalender voor al je kanalen. Herplan met een sleepactie, dupliceer posts met één klik, en houd altijd duidelijk zicht op wat wanneer uitgaat."
+      "description": "Plan posts in één gedeelde kalender voor al je kanalen. Herplan met slepen, verplaats een reeks posts in één keer en houd overzicht van wat wanneer uitgaat."
     },
     {
       "title": "Rolgebaseerde Toegang",
-      "description": "Bepaal wie kan publiceren, bewerken of bekijken met drie rolniveaus: Eigenaar, Beheerder en Lid. Houd gevoelige instellingen afgeschermd terwijl je team snel blijft werken."
+      "description": "Bepaal wie mag publiceren, bewerken of bekijken met vier rollen: Owner, Admin, Member en Analyst. Houd gevoelige instellingen afgeschermd terwijl je team snel doorwerkt."
+    },
+    {
+      "title": "Merkprofielen",
+      "description": "Scan een website om naam, beschrijving, kleuren, logo en toon in een merkprofiel te zetten en verfijn daarna de stem, identiteit en kennis. Elke post en elk Intelligence-concept is gebaseerd op dat profiel."
     }
   ],
   "platformSection": {
@@ -123,27 +137,23 @@
     "tabs": [
       {
         "title": "Overzicht",
-        "body": "Doelbanner, gemeten KPI's, platformvergelijking per post en een gereedheidslijst die precies laat zien welke functies actief zijn en hoeveel gegevens elke functie nog nodig heeft."
-      },
-      {
-        "title": "Doelgroep",
-        "body": "Geef je doel, markten, tijdzone, pijlers en stem op. Getraceerde korte links tellen klikken zonder persoonsgegevens op te slaan en koppelen conversies terug aan de post."
+        "body": "Doelbanner, gemeten KPI's, platformvergelijking per post, een gereedheidslijst die toont welke functies actief zijn en hoeveel data elke nog nodig heeft, en Ask Markaestro voor vragen die alleen uit de gegevens van dit merk worden beantwoord."
       },
       {
         "title": "Content",
         "body": "Je posts gerangschikt op de metric die je koos, de patronen die in elke post zijn herkend en een uitleg Waarom het werkte, gebaseerd op de cijfers van die post tegenover je accountgemiddelde."
       },
       {
-        "title": "Kansen",
-        "body": "Onderbouwde suggesties die je kunt accepteren, pinnen of negeren, elk met een knop Maak concept. Accepteren maakt of plant nooit een post."
+        "title": "Playbook",
+        "body": "Onderbouwde kansen die je kunt accepteren, vastpinnen of afwijzen, elk met een knop “Concept maken”, plus de patronen die zich in je data herhalen met steekproefgrootte, effect en betrouwbaarheidsinterval in duidelijke taal. Accepteren maakt of plant nooit een post."
       },
       {
-        "title": "Draaiboek",
-        "body": "Patronen die zich in je gegevens herhalen, met steekproefgrootte, effect en betrouwbaarheidsbereik in gewone woorden, plus de posts achter elk patroon."
+        "title": "Doelgroep",
+        "body": "Geef je doel, markten, tijdzone, pijlers en stem op. Getraceerde korte links tellen klikken zonder persoonsgegevens op te slaan en koppelen conversies terug aan de post."
       },
       {
-        "title": "Experimenten en Ask",
-        "body": "Gepaarde A/B-posts met een gemeten winnaar, en vragen die alleen uit de gegevens van dit merk worden beantwoord, met vermelding van de gebruikte data."
+        "title": "Experimenten",
+        "body": "Gepaarde A/B-posts met een gemeten winnaar, beschikbaar in het Business-abonnement."
       }
     ],
     "principlesTitle": "Regels die het nooit breekt",

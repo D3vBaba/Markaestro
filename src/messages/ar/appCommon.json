@@ -138,7 +138,8 @@
       "pinterest": "Pinterest",
       "linkedin": "LinkedIn",
       "linkedin_profile": "LinkedIn",
-      "linkedin_community": "LinkedIn"
+      "linkedin_community": "LinkedIn",
+      "x": "X"
     },
     "hosts": {
       "meta": "facebook.com",
@@ -147,7 +148,8 @@
       "tiktok": "tiktok.com",
       "pinterest": "pinterest.com",
       "linkedin_profile": "linkedin.com",
-      "linkedin_community": "linkedin.com"
+      "linkedin_community": "linkedin.com",
+      "x": "x.com"
     },
     "dialog": {
       "title": "الاتصال بـ {provider}",
@@ -206,6 +208,10 @@
       },
       "linkedin_community": {
         "0": "حساب LinkedIn بدور مسؤول على صفحة الشركة التي تريد النشر عليها."
+      },
+      "x": {
+        "0": "حساب X يمكنك تسجيل الدخول إليه.",
+        "1": "يجب أن يسمح وصول المطوّر في X بنشر المنشورات ورفع الوسائط. يخضع الاستخدام لأسعار وحدود واجهة X."
       }
     },
     "features": {
@@ -361,6 +367,26 @@
       "rw_organization_admin": {
         "title": "سرد الصفحات التي تديرها",
         "description": "يسرد صفحات الشركة التي تديرها لكي تختار الصفحة التي تنشر عليها هذه العلامة التجارية."
+      },
+      "media_write": {
+        "description": "يرفع الصور وملفات GIF والفيديوهات المرفقة بالمنشورات التي تنشرها عبر Markaestro.",
+        "title": "رفع الوسائط"
+      },
+      "offline_access": {
+        "description": "يجدد الوصول حتى تُنشر المنشورات المجدولة أثناء غيابك.",
+        "title": "البقاء متصلاً"
+      },
+      "tweet_read": {
+        "description": "يقرأ منشوراتك وتفاعلها العام لسجل المنشورات وقياس الأداء.",
+        "title": "قراءة المنشورات"
+      },
+      "tweet_write": {
+        "description": "ينشئ ويحذف المنشورات التي تنشرها عبر Markaestro.",
+        "title": "نشر المنشورات"
+      },
+      "users_read": {
+        "description": "يقرأ معرّف حساب X واسم المستخدم والاسم وصورة الملف الشخصي حتى يعرض Markaestro الحساب المرتبط.",
+        "title": "قراءة هوية الحساب"
       }
     },
     "outcome": {

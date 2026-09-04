@@ -57,6 +57,20 @@ export type ErrorCodeSpec = {
  * Ordered by status so the table reads the way the documentation renders it.
  */
 export const ERROR_CODES: Record<string, ErrorCodeSpec> = {
+  VALIDATION_EVERGREEN_SOURCE_NO_CAPTION: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The Evergreen source post has no caption to rewrite.',
+    userMessage: 'This post has no caption, so there is nothing to rewrite.',
+  },
+  VALIDATION_EVERGREEN_RUN_NOT_REVIEWABLE: {
+    status: 400,
+    retryable: false,
+    category: 'validation',
+    description: 'The Evergreen run is not waiting for review.',
+    userMessage: 'This occurrence is no longer waiting for review.',
+  },
   VALIDATION_EVERGREEN_ARCHIVED: {
     status: 400,
     retryable: false,

@@ -1,8 +1,8 @@
 {
   "hero": {
     "eyebrow": "Contact",
-    "titleLead": "We'd love to",
-    "titleHighlight": "hear from you",
+    "titleLead": "We'd Love to",
+    "titleHighlight": "Hear from You",
     "subtitle": "Whether you have a question about features, need help with an integration, or want to explore a partnership, our team is here to help."
   },
   "channels": [
@@ -16,7 +16,7 @@
       "title": "Technical Support",
       "description": "Help with integrations, publishing issues, or account access.",
       "email": "support@markaestro.com",
-      "response": "Under 24 hours"
+      "response": "Under 24 Hours"
     },
     {
       "title": "Privacy & Legal",
@@ -27,7 +27,7 @@
   ],
   "form": {
     "eyebrow": "Send a Message",
-    "title": "Get in touch directly",
+    "title": "Get in Touch Directly",
     "description": "Fill out the form and we'll get back to you as soon as possible. For urgent technical issues, include \"URGENT\" in the subject line.",
     "officeHoursTitle": "Office Hours",
     "officeHoursWeekday": "Monday - Friday: 9:00 AM - 6:00 PM EST",
@@ -35,7 +35,7 @@
     "enterpriseTitle": "Enterprise & Partnerships",
     "enterpriseDescription": "For enterprise pricing, custom integrations, or partnership opportunities, reach us at",
     "enterpriseEmail": "partnerships@markaestro.com",
-    "sentTitle": "Message sent",
+    "sentTitle": "Message Sent",
     "sentDescription": "Thanks. We reply to the email address you gave, usually within one business day. You can also reach us at",
     "supportEmail": "support@markaestro.com",
     "sendAnother": "Send Another Message",
@@ -54,7 +54,7 @@
     "sendFailed": "We couldn't send that. Your email client should now open with the message; otherwise write to us at the address below."
   },
   "faqEyebrow": "FAQ",
-  "faqTitle": "Frequently asked questions",
+  "faqTitle": "Frequently Asked Questions",
   "faqs": [
     {
       "q": "How do I connect my social media accounts?",
@@ -84,6 +84,6 @@
   "cta": {
     "title": "Ready to get started?",
     "subtitle": "Create your free account and start publishing in minutes. No credit card required.",
-    "button": "Get started free"
+    "button": "Get Started Free"
   }
 }

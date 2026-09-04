@@ -18,6 +18,7 @@ const CHANNEL_COLORS: Record<string, string> = {
   LinkedIn: "#0A66C2",
   Threads: "#111111",
   Pinterest: "#E60023",
+  X: "#000000",
 };
 
 type Channel = { name: string; category: string; description: string; capabilities: string[]; connection: string };
@@ -64,24 +65,20 @@ export default function ChannelsPage() {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="px-5 py-7 text-center"
-                style={{ background: "var(--mk-paper)" }}
+                className="px-5 py-7 text-center bg-card"
               >
                 <p
-                  className="text-[28px] sm:text-[32px] font-semibold mk-figure"
-                  style={{ color: "var(--mk-accent)", letterSpacing: "-0.03em" }}
+                  className="text-[28px] sm:text-[32px] font-semibold mk-figure text-mk-accent"
                 >
                   {stat.value}
                 </p>
                 <p
-                  className="mt-2 text-[12.5px] font-semibold"
-                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                  className="mt-2 text-[12.5px] font-semibold text-foreground"
                 >
                   {stat.label}
                 </p>
                 <p
-                  className="mt-0.5 text-[11px]"
-                  style={{ color: "var(--mk-ink-60)" }}
+                  className="mt-0.5 text-[11px] text-muted-foreground"
                 >
                   {stat.sub}
                 </p>
@@ -93,8 +90,7 @@ export default function ChannelsPage() {
 
       {/* Channel Cards */}
       <section
-        className="border-t"
-        style={{ background: "var(--mk-paper)", borderColor: "var(--mk-rule)" }}
+        className="border-t bg-card border-border"
       >
         <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
           <div className="space-y-16">
@@ -123,7 +119,7 @@ export default function ChannelsPage() {
                       {channel.description}
                     </p>
                     <div
-                      className="mt-6 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-[10.5px] uppercase"
+                      className="mt-6 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-xs"
                       style={{
                         background: "var(--mk-panel)",
                         border: "1px solid var(--mk-rule)",
@@ -135,11 +131,7 @@ export default function ChannelsPage() {
                     </div>
                   </div>
                   <div
-                    className="border-t lg:border-t-0 lg:border-s p-8 lg:p-12"
-                    style={{
-                      background: "var(--mk-surface)",
-                      borderColor: "var(--mk-rule)",
-                    }}
+                    className="border-t lg:border-t-0 lg:border-s p-8 lg:p-12 bg-background border-border"
                   >
                     <p className="mk-eyebrow mb-5">{t("capabilitiesLabel")}</p>
                     <div className="grid gap-3 sm:grid-cols-2">
@@ -180,14 +172,12 @@ export default function ChannelsPage() {
                   {item.step}
                 </div>
                 <h3
-                  className="mt-5 text-[14px] font-semibold"
-                  style={{ color: "var(--mk-ink)", letterSpacing: "-0.005em" }}
+                  className="mt-5 text-[14px] font-semibold text-foreground"
                 >
                   {item.title}
                 </h3>
                 <p
-                  className="mt-2 text-[13px] leading-relaxed"
-                  style={{ color: "var(--mk-ink-60)" }}
+                  className="mt-2 text-[13px] leading-relaxed text-muted-foreground"
                 >
                   {item.desc}
                 </p>
@@ -199,8 +189,7 @@ export default function ChannelsPage() {
 
       {/* CTA */}
       <section
-        className="border-t"
-        style={{ background: "var(--mk-ink)", borderColor: "var(--mk-rule)" }}
+        className="border-t bg-foreground border-border"
       >
         <div className="mx-auto max-w-7xl px-5 sm:px-6 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
@@ -222,8 +211,7 @@ export default function ChannelsPage() {
               <NextLink href="/onboarding">
                 <Button
                   size="lg"
-                  className="h-11 px-7 rounded-lg text-[13.5px]"
-                  style={{ background: "var(--mk-paper)", color: "var(--mk-ink)" }}
+                  className="h-11 px-7 rounded-lg text-[13.5px] bg-card text-foreground"
                 >
                   {t("cta.primaryButton")}
                 </Button>

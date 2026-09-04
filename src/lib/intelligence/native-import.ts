@@ -68,6 +68,7 @@ export async function importRecentNativePosts(
     if (remainingPages <= 0) break;
     const connections = await listConnections(workspaceId, productId);
     for (const connection of connections) {
+      if (connection.fixture) continue;
       if (remainingPages <= 0) break;
       if (connection.status !== 'connected' || !connection.accountKey) continue;
 

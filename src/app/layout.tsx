@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { Geist, Geist_Mono, Instrument_Serif, Noto_Sans_Arabic } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Arabic } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
 import { DirectionProvider } from "@/components/ui/direction-provider";
@@ -49,12 +49,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-});
-
 // Geist has zero Arabic glyph coverage (Latin-only family). For the `ar`
 // locale we override --font-geist-sans (which --font-sans resolves to, see
 // globals.css `@theme inline`) so every `font-sans` usage — body copy and
@@ -72,8 +66,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
-    { media: "(prefers-color-scheme: dark)", color: "#030712" },
+    { media: "(prefers-color-scheme: light)", color: "#f7faff" },
+    { media: "(prefers-color-scheme: dark)", color: "#f7faff" },
   ],
 };
 
@@ -103,7 +97,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={rtl ? "rtl" : "ltr"}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${notoSansArabic.variable} antialiased bg-background text-foreground selection:bg-primary/15 selection:text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansArabic.variable} antialiased bg-background text-foreground selection:bg-primary/15 selection:text-foreground`}
         style={rtl ? ({ "--font-geist-sans": "var(--font-noto-sans-arabic)" } as React.CSSProperties) : undefined}
       >
         <DirectionProvider dir={rtl ? "rtl" : "ltr"}>
@@ -111,9 +105,17 @@ export default async function RootLayout({
             {children}
             <Toaster
               position="bottom-right"
-              richColors
-              mobileOffset={{ bottom: "72px" }}
+              mobileOffset={{ bottom: "76px" }}
               dir={rtl ? "rtl" : "ltr"}
+              toastOptions={{
+                classNames: {
+                  toast:
+                    "!rounded-xl !border !border-border !bg-card !text-foreground !shadow-lg !shadow-black/5",
+                  description: "!text-muted-foreground",
+                  actionButton: "!bg-primary !text-primary-foreground",
+                  cancelButton: "!bg-muted !text-foreground",
+                },
+              }}
             />
           </TooltipProvider>
         </DirectionProvider>

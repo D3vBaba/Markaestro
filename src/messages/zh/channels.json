@@ -6,9 +6,21 @@
     "subtitle": "只需连接一次，即可发布到所有主流平台。API 差异、字数限制和素材要求，全部由 Markaestro 处理，你只需专注于内容本身。"
   },
   "stats": [
-    { "value": "6", "label": "社交渠道", "sub": "Meta、TikTok、LinkedIn、Threads、Pinterest" },
-    { "value": "1", "label": "控制台", "sub": "统一的发布工作流" },
-    { "value": "0", "label": "手动令牌", "sub": "全程 OAuth，全程自动化" }
+    {
+      "value": "7",
+      "label": "社交渠道",
+      "sub": "Meta, TikTok, LinkedIn, Threads, Pinterest, X"
+    },
+    {
+      "value": "1",
+      "label": "控制台",
+      "sub": "统一的发布工作流"
+    },
+    {
+      "value": "0",
+      "label": "手动令牌",
+      "sub": "全程 OAuth，全程自动化"
+    }
   ],
   "channels": [
     {
@@ -16,38 +28,38 @@
       "category": "社交",
       "description": "触达全球最大社交网络上的数十亿用户。发布到主页，并以完整的创作自由管理动态内容。",
       "capabilities": [
-        "支持富媒体的主页动态发布",
-        "带预览卡片的链接发布",
-        "图片和视频发布",
-        "轮播及多图发布",
-        "按最佳互动时间排期",
-        "按品牌设置主页级定向"
+        "带富媒体的公共主页动态帖",
+        "纯文本帖子",
+        "照片和视频发布",
+        "最多 10 项的轮播和多图帖子",
+        "从共享日历排期",
+        "每个品牌一个公共主页"
       ],
       "connection": "通过 Meta Business Suite 进行 OAuth 授权"
     },
     {
       "name": "Instagram",
       "category": "社交",
-      "description": "直接从 Markaestro 发布到 Instagram 商业账号。动态发布、轮播和快拍均支持针对各展示位自动格式化素材。",
+      "description": "直接从 Markaestro 发布到 Instagram 专业账号。动态帖、轮播、Reels 和快拍均通过官方 API 发布。",
       "capabilities": [
-        "单图与单视频动态发布",
-        "轮播发布（最多 10 张）",
-        "自动裁剪至 1:1 和 4:5 比例",
-        "支持话题标签优化的文案",
-        "按最佳互动时段排期",
-        "支持 Instagram 登录，适用于独立专业账号"
+        "单图和单视频动态帖",
+        "轮播帖子（最多 10 张）",
+        "单个视频以 Reels 形式发布",
+        "单图或单视频快拍",
+        "从共享日历排期",
+        "独立专业账号使用 Instagram 登录"
       ],
-      "connection": "通过 Instagram Login 或 Meta Login 进行 OAuth 授权"
+      "connection": "通过 Instagram 登录进行 OAuth"
     },
     {
       "name": "TikTok",
       "category": "社交",
-      "description": "在增长最快的短视频平台上触达 Z 世代及更广泛的用户群体。Markaestro 会将图片和视频推送至创作者的 TikTok 收件箱，并跟踪其准备完成最终发布的状态。",
+      "description": "在增长最快的短视频平台触达 Z 世代及更多人群。默认情况下，Markaestro 将照片和视频交到创作者的 TikTok 收件箱，由其完成并发布；也可按帖子选择直接发布到主页的 Direct Post。",
       "capabilities": [
-        "视频和图片收件箱转交",
-        "由创作者在 TikTok 内完成最终确认",
-        "定时投递至 TikTok 收件箱",
-        "转交后的快速状态查询",
+        "视频和照片帖子",
+        "默认交到收件箱，可按帖子选择 Direct Post",
+        "按排期投递到 TikTok",
+        "交付后快速轮询状态",
         "在 Markaestro 内跟踪状态"
       ],
       "connection": "通过 TikTok for Developers 进行 OAuth 授权"
@@ -85,7 +97,7 @@
       "category": "发现",
       "description": "在连接时选定的图板上钉选你的图片和视频。你的文案将作为图钉描述，全部内容均通过 Pinterest 官方 API 发布。",
       "capabilities": [
-        "图片图钉",
+        "图片 Pin 和最多 5 张图的轮播",
         "带上传状态查询的视频图钉",
         "连接时即可选定图板",
         "文案自动成为图钉描述",
@@ -93,6 +105,20 @@
         "从共享日历中排期"
       ],
       "connection": "OAuth via Pinterest"
+    },
+    {
+      "name": "X",
+      "category": "社交",
+      "description": "在与其他渠道相同的编辑器中发布到 X。文本、图片、GIF 和视频通过官方 X API 发出，支持按帖子设置回复权限，并将实时指标回传到分析页面。",
+      "capabilities": [
+        "最多 280 字符的文本帖子",
+        "最多四张图片、一个 GIF 或一个视频",
+        "按帖子设置回复权限",
+        "实时帖子指标和账号受众",
+        "工作区级别的 X API 支出保护",
+        "从共享日历排期"
+      ],
+      "connection": "通过 X 进行 OAuth"
     }
   ],
   "capabilitiesLabel": "支持能力",
@@ -101,9 +127,21 @@
     "titleLead": "三步即可",
     "titleHighlight": "完成连接",
     "steps": [
-      { "step": "01", "title": "连接", "desc": "在任意渠道点击「连接」，通过 OAuth 授权。Markaestro 会安全存储并自动刷新你的令牌。" },
-      { "step": "02", "title": "创作", "desc": "在统一编辑器中撰写内容，发布前预览其在各平台上的呈现效果。" },
-      { "step": "03", "title": "发布", "desc": "点击发布，或安排稍后发布。格式化、素材规格以及每个渠道的 API 调用都由 Markaestro 处理。" }
+      {
+        "step": "01",
+        "title": "连接",
+        "desc": "在任意渠道点击「连接」，通过 OAuth 授权。Markaestro 会安全存储并自动刷新你的令牌。"
+      },
+      {
+        "step": "02",
+        "title": "创作",
+        "desc": "在统一编辑器中撰写内容，发布前预览其在各平台上的呈现效果。"
+      },
+      {
+        "step": "03",
+        "title": "发布",
+        "desc": "点击发布，或安排稍后发布。格式化、素材规格以及每个渠道的 API 调用都由 Markaestro 处理。"
+      }
     ]
   },
   "cta": {

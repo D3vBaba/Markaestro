@@ -9,7 +9,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-instrument-serif);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -40,6 +39,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Shape scale: md 6, lg 8 (controls), xl 12 (cards), 2xl 16 (overlays) */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -48,12 +49,12 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Motion — strong curves so UI feels responsive (built-ins are too soft) */
+  /* Motion: strong curves so UI feels responsive (built-ins are too soft) */
   --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
-  /* Markaestro design tokens */
+  /* Markaestro design tokens (see docs/design-system.md) */
   --color-mk-paper: var(--mk-paper);
   --color-mk-surface: var(--mk-surface);
   --color-mk-panel: var(--mk-panel);
@@ -68,8 +69,11 @@
   --color-mk-accent-ink: var(--mk-accent-ink);
   --color-mk-accent-soft: var(--mk-accent-soft);
   --color-mk-pos: var(--mk-pos);
+  --color-mk-pos-soft: var(--mk-pos-soft);
   --color-mk-neg: var(--mk-neg);
+  --color-mk-neg-soft: var(--mk-neg-soft);
   --color-mk-warn: var(--mk-warn);
+  --color-mk-warn-soft: var(--mk-warn-soft);
   --color-mk-ch-instagram: var(--mk-ch-instagram);
   --color-mk-ch-tiktok: var(--mk-ch-tiktok);
   --color-mk-ch-facebook: var(--mk-ch-facebook);
@@ -80,35 +84,38 @@
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
-  /* Markaestro design tokens — Crisp Modern Slate / Zinc LIGHT */
+  /* Light: blue and white. Cool neutrals, navy ink, one cobalt used for
+     primary actions, links, focus, selection and the scheduled state. */
   --mk-paper:     #ffffff;
-  --mk-surface:   #f8fafc;
-  --mk-panel:     #f1f5f9;
-  --mk-rule:      #e2e8f0;
-  --mk-rule-soft: #f1f5f9;
-  --mk-ink:       #0f172a;
-  --mk-ink-80:    #334155;
-  --mk-ink-60:    #64748b;
-  --mk-ink-40:    #94a3b8;
-  --mk-ink-20:    #cbd5e1;
-  --mk-accent:      #2563eb;
+  --mk-surface:   #f7faff;
+  --mk-panel:     #eef4fe;
+  --mk-rule:      #dce7f8;
+  --mk-rule-soft: #e8f0fb;
+  --mk-ink:       #14203a;
+  --mk-ink-80:    #3a4866;
+  --mk-ink-60:    #68779a;
+  --mk-ink-40:    #9aa8c4;
+  --mk-ink-20:    #cfdbef;
+  --mk-accent:      #1e73f0;
   --mk-accent-ink:  #ffffff;
-  --mk-accent-soft: #eff6ff;
-  --mk-pos:  #10b981;
-  --mk-neg:  #f43f5e;
-  --mk-warn: #f59e0b;
+  --mk-accent-soft: #e6f0fe;
+  --mk-pos:  #15803d;
+  --mk-pos-soft: #e6f5ec;
+  --mk-neg:  #d23a3a;
+  --mk-neg-soft: #fbeaea;
+  --mk-warn: #b45309;
+  --mk-warn-soft: #fbf1e3;
 
   --mk-ch-instagram: #E1306C;
-  --mk-ch-tiktok:    #0f172a;
+  --mk-ch-tiktok:    #14203a;
   --mk-ch-facebook:  #1877F2;
   --mk-ch-x:         #111111;
   --mk-ch-linkedin:  #0A66C2;
   --mk-ch-pinterest: #E60023;
-  --mk-ch-threads:   #0f172a;
+  --mk-ch-threads:   #14203a;
 
-  /* Shadcn tokens — mapped to clean modern palette */
   --background: var(--mk-surface);
   --foreground: var(--mk-ink);
 
@@ -137,46 +144,46 @@
   --input: var(--mk-rule);
   --ring: var(--mk-accent);
 
-  /* Chart palette */
-  --chart-1: #2563eb;
-  --chart-2: #10b981;
-  --chart-3: #f59e0b;
-  --chart-4: #f43f5e;
-  --chart-5: #0A66C2;
+  --chart-1: #1e73f0;
+  --chart-2: #0f9488;
+  --chart-3: #d97706;
+  --chart-4: #cf3a3a;
+  --chart-5: #6b6b74;
 
-  /* Sidebar */
   --sidebar: var(--mk-paper);
   --sidebar-foreground: var(--mk-ink-80);
   --sidebar-primary: var(--mk-accent);
   --sidebar-primary-foreground: var(--mk-accent-ink);
-  --sidebar-accent: var(--mk-panel);
+  --sidebar-accent: var(--mk-accent-soft);
   --sidebar-accent-foreground: var(--mk-ink);
   --sidebar-border: var(--mk-rule);
   --sidebar-ring: var(--mk-accent);
 }
 
 .dark {
-  /* Markaestro design tokens — Deep Obsidian / Slate DARK */
-  --mk-paper:     #0b0f19;
-  --mk-surface:   #030712;
-  --mk-panel:     #111827;
-  --mk-rule:      #1f2937;
-  --mk-rule-soft: #111827;
-  --mk-ink:       #f9fafb;
-  --mk-ink-80:    #e5e7eb;
-  --mk-ink-60:    #9ca3af;
-  --mk-ink-40:    #6b7280;
-  --mk-ink-20:    #374151;
-  --mk-accent:      #3b82f6;
-  --mk-accent-ink:  #ffffff;
-  --mk-accent-soft: rgba(59, 130, 246, 0.15);
-  --mk-pos:  #34d399;
-  --mk-neg:  #fb7185;
+  --mk-paper:     #111827;
+  --mk-surface:   #0b1120;
+  --mk-panel:     #1a2337;
+  --mk-rule:      #263248;
+  --mk-rule-soft: #1f2a3f;
+  --mk-ink:       #f3f6fb;
+  --mk-ink-80:    #d3dae6;
+  --mk-ink-60:    #9aa6bb;
+  --mk-ink-40:    #6b7891;
+  --mk-ink-20:    #3b4760;
+  --mk-accent:      #6f95ff;
+  --mk-accent-ink:  #0b1230;
+  --mk-accent-soft: rgba(111, 149, 255, 0.16);
+  --mk-pos:  #4ade80;
+  --mk-pos-soft: rgba(74, 222, 128, 0.12);
+  --mk-neg:  #f87171;
+  --mk-neg-soft: rgba(248, 113, 113, 0.12);
   --mk-warn: #fbbf24;
+  --mk-warn-soft: rgba(251, 191, 36, 0.12);
 
-
-  --mk-ch-tiktok:  #f9fafb;
-  --mk-ch-threads: #f9fafb;
+  --mk-ch-tiktok:  #f3f6fb;
+  --mk-ch-threads: #f3f6fb;
+  --mk-ch-x:       #f3f6fb;
 
   --background: var(--mk-surface);
   --foreground: var(--mk-ink);
@@ -197,6 +204,12 @@
   --border: var(--mk-rule);
   --input: var(--mk-rule);
   --ring: var(--mk-accent);
+
+  --chart-1: #6f95ff;
+  --chart-2: #2dd4bf;
+  --chart-3: #fbbf24;
+  --chart-4: #f87171;
+  --chart-5: #a1a1aa;
 
   --sidebar: var(--mk-paper);
   --sidebar-foreground: var(--mk-ink-80);
@@ -222,9 +235,9 @@
     @apply bg-background text-foreground antialiased;
     overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "cv11", "ss01";
   }
 
-  /* Pressable things look pressable; disabled ones don't. */
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]) {
     cursor: pointer;
@@ -236,9 +249,21 @@
   p {
     text-wrap: pretty;
   }
+
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--mk-accent);
+    outline-offset: 2px;
+  }
+
+  /* Interactive components draw their own ring */
+  [data-slot]:focus-visible {
+    outline: none;
+  }
 }
 
-/* Reduced motion: keep state changes, drop the movement. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -250,7 +275,7 @@
   }
 }
 
-/* iOS Safari auto-zoom prevention on mobile */
+/* iOS Safari zooms into inputs below 16px */
 @media (hover: none) and (pointer: coarse) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
@@ -259,7 +284,6 @@
   }
 }
 
-/* Hide scrollbar for horizontal-scroll lists */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -268,7 +292,6 @@
   display: none;
 }
 
-/* Clean, slim custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -284,32 +307,38 @@
   background: var(--mk-ink-40);
 }
 
-/* Modern typography & layout utilities */
+/* Typography roles (docs/design-system.md) */
+.mk-label,
 .mk-eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
   color: var(--mk-ink-60);
 }
 
 .mk-figure {
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
 }
 
 .mk-glass {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  background: color-mix(in srgb, var(--mk-paper) 80%, transparent);
+  background: color-mix(in srgb, var(--mk-paper) 84%, transparent);
 }
 
 .mk-card {
   background: var(--mk-paper);
   border: 1px solid var(--mk-rule);
-  border-radius: 1rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  border-radius: var(--radius-xl);
+}
+
+/* Pressable rows and tiles */
+.mk-press {
+  transition: transform 150ms var(--ease-out-quart), background-color 150ms ease;
+}
+.mk-press:active {
+  transform: scale(0.99);
 }
 
 @keyframes mk-logo-marquee {

@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { pillStyle } from "@/components/mk/pills";
+import { Delta } from "@/components/mk/Delta";
 
 export default function MetricCard({
   label,
@@ -15,32 +14,15 @@ export default function MetricCard({
 }) {
   const t = useTranslations("appCommon.metricCard");
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-2">
-        <CardTitle className="mk-eyebrow">{label}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div
-          className="text-[28px] font-semibold mk-figure"
-          style={{ color: "var(--mk-ink)" }}
-        >
-          {value}
-        </div>
-        {typeof delta === "number" ? (
-          <p
-            className="mt-2 flex items-center gap-2 text-[11px]"
-            style={{ color: "var(--mk-ink-60)" }}
-          >
-            <span
-              className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-medium"
-              style={pillStyle(delta >= 0 ? "pos" : "neg")}
-            >
-              {delta >= 0 ? "+" : ""}{Math.abs(delta)}%
-            </span>
-            {t("vsLastPeriod")}
-          </p>
-        ) : null}
-      </CardContent>
-    </Card>
+    <div className="rounded-xl border border-border bg-card px-4 py-4 sm:px-5">
+      <div className="mk-label">{label}</div>
+      <div className="mk-figure mt-1.5 text-2xl font-semibold text-foreground">{value}</div>
+      {typeof delta === "number" ? (
+        <p className="m-0 mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <Delta value={delta} />
+          {t("vsLastPeriod")}
+        </p>
+      ) : null}
+    </div>
   );
 }
