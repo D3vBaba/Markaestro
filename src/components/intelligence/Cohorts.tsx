@@ -48,14 +48,8 @@ function CohortGroup({ dimension, rows, best }: { dimension: (typeof DIMENSIONS)
   );
 }
 
-export function CohortsSection({ cohorts, measuredCount }: { cohorts: { rows: CohortRow[]; stopDoing: CohortRow[] }; measuredCount: number }) {
+export function CohortsSection({ cohorts, measuredCount }: { cohorts: { rows: CohortRow[] }; measuredCount: number }) {
   const t = useTranslations("intelligence.cohorts");
-  const fmt = useIntelligenceFormat();
-  const label = useCohortLabel();
-  const overall = cohorts.rows.length > 0
-    ? cohorts.rows.filter((r) => r.dimension === "format").reduce((a, r) => a + (r.avgEngagements ?? 0) * r.posts, 0)
-      / Math.max(1, cohorts.rows.filter((r) => r.dimension === "format").reduce((a, r) => a + r.posts, 0))
-    : 0;
   return (
     <>
       <Section trust="calculated" title={t("title")} subtitle={t("subtitle")}>
@@ -73,21 +67,6 @@ export function CohortsSection({ cohorts, measuredCount }: { cohorts: { rows: Co
         )}
       </Section>
 
-      {cohorts.stopDoing.length > 0 && (
-        <Section trust="calculated" title={t("stopTitle")} subtitle={t("stopSubtitle")}>
-          <ul className="m-0 -mx-5 list-none divide-y divide-border border-y border-border p-0 sm:-mx-6">
-            {cohorts.stopDoing.map((row) => (
-              <li key={`${row.dimension}:${row.key}`} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-5 py-3 sm:px-6">
-                <KindBadge tone="rose">{t(`dimensions.${row.dimension}`)}</KindBadge>
-                <span className={cn("min-w-0 flex-1", TYPE.body)}>
-                  {t("stopRow", { cohort: label(row), value: fmt.metric(row.avgEngagements), overall: fmt.metric(Math.round(overall)) })}
-                </span>
-                <span className="shrink-0 text-xs text-muted-foreground">{t("posts", { count: row.posts })}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
     </>
   );
 }

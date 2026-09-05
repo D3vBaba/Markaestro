@@ -54,7 +54,6 @@ export default function CreateQueueSheet({
   const [suggesting, setSuggesting] = useState(false);
   const [duplicates, setDuplicates] = useState<Duplicate[]>([]);
   const [intervalDays, setIntervalDays] = useState(30);
-  const [cadenceMode, setCadenceMode] = useState<"fixed" | "adaptive">("adaptive");
   const [reviewPolicy, setReviewPolicy] = useState<"approve_future_runs" | "review_each_run">("approve_future_runs");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [channels, setChannels] = useState<ChannelInfo[]>([]);
@@ -152,7 +151,6 @@ export default function CreateQueueSheet({
       localHour: recommendation?.localHour ?? 10,
       localMinute: recommendation?.localMinute ?? 0,
       scheduleMode: recommendation?.scheduleMode ?? "fixed",
-      cadenceMode,
       reviewPolicy,
       variants: variants.map((caption) => ({ caption, enabled: true })),
     });
@@ -292,16 +290,6 @@ export default function CreateQueueSheet({
                   </FormField>
                   <FormField label={t("interval")} htmlFor="eg-interval">
                     <Input id="eg-interval" type="number" min={7} max={365} value={intervalDays} onChange={(e) => setIntervalDays(Number(e.target.value))} />
-                  </FormField>
-                  <FormField label={t("createFlow.cadenceTitle")}>
-                    <div className="grid gap-2">
-                      {(["adaptive", "fixed"] as const).map((mode) => (
-                        <label key={mode} className={cn("flex cursor-pointer items-start gap-2.5 rounded-lg border p-3 text-[13px]", cadenceMode === mode ? "border-mk-accent bg-mk-accent-soft/60" : "border-border")}>
-                          <input type="radio" name="cadence" className="mt-0.5 accent-[var(--mk-accent)]" checked={cadenceMode === mode} onChange={() => setCadenceMode(mode)} />
-                          <span className="text-mk-ink-80">{mode === "adaptive" ? t("createFlow.cadenceAdaptive") : t("createFlow.cadenceFixed")}</span>
-                        </label>
-                      ))}
-                    </div>
                   </FormField>
                   <FormField label={t("reviewPolicy")} htmlFor="eg-review">
                     <Select id="eg-review" value={reviewPolicy} onChange={(e) => setReviewPolicy(e.target.value as typeof reviewPolicy)}>

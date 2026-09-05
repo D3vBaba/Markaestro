@@ -1,5 +1,7 @@
 # Intelligent Evergreen Engine and Channel Expansion
 
+> 2026-09-04 update: Performance-driven cadence changes, caption retirement, decay pauses, and the separate candidate-suggestion worker were removed. Queues retain fixed intervals and operational safeguards. The performance-evaluation sections below describe the original design; see `docs/API_CHANGELOG.md` for current behavior.
+
 Status: Implemented core, roadmap extensions deferred  
 Owners: Product and Engineering  
 Last updated: 2026-09-03  

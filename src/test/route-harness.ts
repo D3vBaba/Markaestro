@@ -149,6 +149,7 @@ export function createFirestoreStub(seed: Record<string, Doc> = {}) {
       exists: data !== undefined,
       ref: docRef(path),
       data: () => (data === undefined ? undefined : { ...data }),
+      get: (field: string) => data?.[field],
     };
   }
 
@@ -228,6 +229,7 @@ export function createFirestoreStub(seed: Record<string, Doc> = {}) {
 
   const adminDb = {
     doc: (path: string) => docRef(path),
+    getAll: async (...refs: Array<{ path: string }>) => refs.map((ref) => snapshot(ref.path)),
     collection: (path: string) => collectionRef(path),
     batch: () => {
       const staged: Array<() => void> = [];

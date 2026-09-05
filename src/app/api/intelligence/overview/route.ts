@@ -7,7 +7,7 @@ import { requirePermission } from '@/lib/rbac';
 import { getEffectiveSubscription } from '@/lib/stripe/subscription';
 import { resolveLimits } from '@/lib/stripe/entitlements';
 import { intelligencePhaseFlags, loadProductIntelligence } from '@/lib/intelligence/product-state';
-import { contentCohorts, decisionOutcome, pillarCoverage, suggestExperiments, weeklyPulse } from '@/lib/intelligence/pulse';
+import { contentCohorts, pillarCoverage, suggestExperiments, weeklyPulse } from '@/lib/intelligence/pulse';
 
 async function completedExperiments(workspaceId: string, productId: string) {
   const snap = await adminDb.collection(`workspaces/${workspaceId}/experiments`)
@@ -93,9 +93,6 @@ export async function GET(req: Request) {
     const { insights } = loaded;
     const now = new Date();
     const measured = insights.rollup.measuredPosts;
-    const decided = [...loaded.storedOpportunities, ...loaded.storedLearnings]
-      .filter((row) => (row.status === 'accepted' || row.status === 'pinned') && typeof row.decidedAt === 'string');
-    const outcomes = Object.fromEntries(decided.map((row) => [row.id, decisionOutcome(measured, row.decidedAt as string, now)]));
     const suggestedExperiments = phases.advanced
       ? suggestExperiments({
           windows: insights.timing?.windows?.filter((w) => w.label === 'measured') ?? [],
@@ -129,7 +126,6 @@ export async function GET(req: Request) {
       pulse: weeklyPulse(measured, now),
       cohorts: phases.learning ? contentCohorts(measured) : null,
       pillars: phases.learning ? pillarCoverage(measured, loaded.profile?.contentPillars ?? [], now) : [],
-      outcomes,
       suggestedExperiments,
       experimentResults,
       computedAt: loaded.computedAt,

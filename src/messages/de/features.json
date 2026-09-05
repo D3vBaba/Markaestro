@@ -58,12 +58,12 @@
     },
     {
       "title": "Intelligent Evergreen",
-      "description": "Mache aus einem reifen, gemessenen Beitrag eine wiederkehrende Regel, die du kontrollierst. Rotiere freigegebene Captions, prüfe jeden Lauf oder gib die Warteschlange im Voraus frei, und lass Markaestro die Serie pausieren, wenn die vergleichbare Leistung nachlässt.",
+      "description": "Mache aus einem reifen, gemessenen Beitrag eine wiederkehrende Regel, die du kontrollierst. Rotiere freigegebene Captions und prüfe jeden Lauf oder gib die Warteschlange im Voraus frei.",
       "details": [
         "Eignung gestützt auf die gemessenen Ergebnisse des Ursprungsbeitrags",
         "Feste oder gelernte Zeiten mit sommerzeitsicherer Wiederholung",
         "Modi „Jeden Lauf prüfen“ und „Im Voraus freigeben“",
-        "Sieben-Tage-Auswertung mit vorsichtiger Pause nach zwei schwachen Läufen"
+        "Feste Intervalle und manuelles Pausieren"
       ]
     },
     {

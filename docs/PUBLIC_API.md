@@ -659,9 +659,16 @@ The safe flow is intentionally two-stage:
 `approve_future_runs` creates an ordinary scheduled post 48 hours ahead, so it
 appears on the calendar and can still be edited or canceled. Pause and archive
 unschedule any pending occurrence. Each run is deterministic and visible at
-`GET /api/public/v1/evergreen-queues/{id}/runs`; after seven comparable days,
-two consecutive runs below the conservative performance threshold pause the
-queue. Missing metrics delay evaluation and never count as zero.
+`GET /api/public/v1/evergreen-queues/{id}/runs`. The selected interval stays
+fixed until edited. Performance metrics do not change intervals, disable
+captions, or pause queues. Operational safeguards (including expired queues,
+unavailable channels, and missing sources) still apply.
+
+Legacy `cadenceMode: "adaptive"` requests remain accepted and resolve to
+`"fixed"`. Existing intervals, paused queues, disabled captions, and historical
+evaluation fields remain readable. New runs have `evaluationDueAt: null` and
+`performanceIndex: null`; the `evergreen.run.underperformed` event is no longer
+emitted. Existing webhook subscriptions and historical events remain valid.
 
 `GET /api/public/v1/evergreen-queues/{id}/analytics` reconciles source,
 occurrence, and queue-lifetime metrics. Provider views, reach, engagements,
@@ -685,7 +692,7 @@ Supported events:
 - `evergreen.queue.needs_review`
 - `evergreen.run.scheduled`
 - `evergreen.run.skipped`
-- `evergreen.run.underperformed`
+- `evergreen.run.underperformed` (legacy subscriptions only; no new events)
 
 TikTok webhook semantics:
 - `post.action_required` means the post has been handed off to the creator's TikTok inbox and is ready for them to finish inside TikTok

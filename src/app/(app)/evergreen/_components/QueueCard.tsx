@@ -46,7 +46,6 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
   };
 
   const metric = (value: number | null) => (value == null ? t("analytics.unavailable") : value.toLocaleString(locale));
-  const lastCadence = queue.cadenceHistory?.[queue.cadenceHistory.length - 1];
 
   return (
     <article className="rounded-xl border border-border bg-card">
@@ -56,7 +55,6 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
             <h3 className="m-0 text-[15px] font-semibold text-foreground">{queue.name}</h3>
             <Status value={queue.status} label={t(`statuses.${queue.status}`)} />
             <Badge variant="secondary">{t("everyDays", { count: queue.intervalDays })}</Badge>
-            <Badge variant="outline">{t(`queues.cadence.${queue.cadenceMode ?? "fixed"}`)}</Badge>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {queue.channels.map((channel) => <Channel key={channel} channel={channel} size={18} showLabel />)}
@@ -69,9 +67,6 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
             <p className="m-0">{t("runs", { count: queue.runCount })}</p>
             {queue.activationEvidence && <p className="m-0">{queue.activationEvidence.explanation}</p>}
             {queue.pauseReason && <p className="m-0 text-mk-warn">{t("pausedReason", { reason: queue.pauseReason })}</p>}
-            {lastCadence && (
-              <p className="m-0">{t("queues.cadenceChanged", { from: lastCadence.from, to: lastCadence.to, reason: lastCadence.reason === "HEALTHY" ? t("queues.reasonHealthy") : t("queues.reasonWeak") })}</p>
-            )}
             {queue.lastCollisionShift && <p className="m-0">{t("queues.shifted", { days: queue.lastCollisionShift.days })}</p>}
           </div>
           {queue.upcomingRunAts && queue.upcomingRunAts.length > 0 && (
@@ -135,11 +130,6 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
                       </div>
                       <div className="flex flex-wrap items-center gap-3 text-xs tabular-nums text-muted-foreground">
                         <span>{variant.runs > 0 ? t("queues.variantRuns", { count: variant.runs }) : t("queues.variantNoRuns")}</span>
-                        {variant.averageIndex !== null && (
-                          <span className={cn("font-semibold", variant.averageIndex >= 0.6 ? "text-mk-pos" : "text-mk-neg")}>
-                            {variant.averageIndex.toFixed(2)} {t("queues.variantIndex")}
-                          </span>
-                        )}
                         <span>{metric(variant.metrics.views)} {t("summary.views").toLowerCase()}</span>
                       </div>
                     </li>
@@ -157,12 +147,9 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
                       <li key={run.runId} className="flex items-center justify-between gap-3 px-4 py-2.5 text-xs">
                         <div className="min-w-0">
                           <p className="m-0 font-medium text-foreground">{new Date(run.plannedAt).toLocaleString(locale)}</p>
-                          <p className="m-0 mt-0.5 text-muted-foreground">{run.reason || t("analytics.noOutcome")}</p>
+                          <p className="m-0 mt-0.5 text-muted-foreground">{run.reason || "n/a"}</p>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
-                          {run.performanceIndex !== null && (
-                            <span className={cn("font-semibold tabular-nums", run.performanceIndex >= 0.6 ? "text-mk-pos" : "text-mk-neg")}>{run.performanceIndex.toFixed(2)}</span>
-                          )}
                           <Badge variant="secondary">{run.status.replaceAll("_", " ")}</Badge>
                         </div>
                       </li>

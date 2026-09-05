@@ -59,9 +59,6 @@
     "requiresPlan": "この機能には{plan}プラン以上が必要です。月額${price}からアップグレードして利用できます。",
     "loading": "読み込み中..."
   },
-  "metricCard": {
-    "vsLastPeriod": "前期間比"
-  },
   "pagination": {
     "firstPage": "最初のページ",
     "previousPage": "前のページ",

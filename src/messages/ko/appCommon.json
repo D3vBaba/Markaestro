@@ -59,9 +59,6 @@
     "requiresPlan": "이 기능을 사용하려면 {plan} 요금제 이상이 필요합니다. 월 ${price}부터 업그레이드하여 이용하세요.",
     "loading": "로딩 중..."
   },
-  "metricCard": {
-    "vsLastPeriod": "이전 기간 대비"
-  },
   "pagination": {
     "firstPage": "첫 페이지",
     "previousPage": "이전 페이지",

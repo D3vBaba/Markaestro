@@ -3,10 +3,10 @@ import { getEffectiveLimits } from '@/lib/stripe/entitlements';
 import type { SocialChannel } from '@/lib/schemas';
 import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 import { evaluateEvergreenEligibility } from './eligibility';
-import { evergreenGenerationDueAt, nextEvergreenRunAt } from './scheduling';
+import { evergreenGenerationDueAt, nextEvergreenRunAt, upcomingRunDates } from './scheduling';
 import type { CreateEvergreenQueueInput, UpdateEvergreenQueueInput } from './schemas';
-import type { EvergreenQueue, EvergreenVariant } from './types';
-import { upcomingRunDates } from './cadence';
+import type { EvergreenQueue, EvergreenRun, EvergreenVariant } from './types';
+import { evergreenRunStatus } from './run-status';
 import { syncPostMediaReferences } from '@/lib/media/asset-store';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
 import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
@@ -36,7 +36,7 @@ function record(value: unknown): Record<string, unknown> {
 }
 
 function queueFromDoc(doc: FirebaseFirestore.DocumentSnapshot): EvergreenQueue {
-  return { id: doc.id, ...doc.data() } as EvergreenQueue;
+  return { id: doc.id, ...doc.data(), cadenceMode: 'fixed' } as EvergreenQueue;
 }
 
 export async function listEvergreenQueues(workspaceId: string, productId?: string) {
@@ -106,7 +106,7 @@ export async function previewEvergreenQueue(
       scheduleMode: hasLearnedWindow ? 'learned' : 'fixed',
       explanation: hasLearnedWindow
         ? `Use the strongest measured account window at ${String(learnedHour).padStart(2, '0')}:00 ${timeZone}, with a 30-day freshness gap.`
-        : 'Start with a 30-day gap at 10:00 UTC and adjust after two mature occurrences.',
+        : 'Start with a 30-day gap at 10:00 UTC. You can edit the interval.',
     },
   };
 }
@@ -166,7 +166,7 @@ export async function createEvergreenQueue(
     localHour: input.localHour,
     localMinute: input.localMinute,
     scheduleMode: input.scheduleMode,
-    cadenceMode: input.cadenceMode,
+    cadenceMode: 'fixed',
     cadenceHistory: [],
     reviewPolicy: input.reviewPolicy,
     expiresAt: input.expiresAt ?? null,
@@ -223,7 +223,7 @@ export async function updateEvergreenQueue(
     const variantSnap = variants
       ? await tx.get(ref.collection('variants'))
       : null;
-    tx.update(ref, { ...changes, version: current.version + 1, updatedAt: now });
+    tx.update(ref, { ...changes, cadenceMode: 'fixed', version: current.version + 1, updatedAt: now });
     if (variants && variantSnap) {
       variantSnap.docs.forEach((doc) => tx.delete(doc.ref));
       variants.forEach((variant, position) => {
@@ -541,7 +541,13 @@ export async function listEvergreenRuns(workspaceId: string, queueId: string) {
     .orderBy('plannedAt', 'desc')
     .limit(100)
     .get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  const runs = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as EvergreenRun);
+  const ids = [...new Set(runs.map((run) => run.occurrencePostId).filter((id): id is string => Boolean(id)))];
+  const posts = ids.length > 0
+    ? await adminDb.getAll(...ids.map((id) => adminDb.doc(`workspaces/${workspaceId}/posts/${id}`)))
+    : [];
+  const statuses = new Map(posts.map((post) => [post.id, post.data()?.status]));
+  return runs.map((run) => ({ ...run, status: evergreenRunStatus(run, statuses.get(run.occurrencePostId ?? '')) }));
 }
 
 
@@ -576,7 +582,7 @@ export async function listEvergreenReviews(workspaceId: string, productId: strin
     for (const run of runs.docs) {
       const postId = String(run.get('occurrencePostId') ?? '');
       const post = byId.get(postId);
-      if (!post) continue;
+      if (!post || post.status !== 'draft') continue;
       const media = strings(post.mediaUrls);
       rows.push({
         queueId: queue.id,
@@ -605,6 +611,7 @@ export async function approveEvergreenRun(workspaceId: string, queueId: string, 
   const postRef = adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`);
   const postSnap = await postRef.get();
   if (!postSnap.exists) throw new Error('NOT_FOUND');
+  if (postSnap.data()?.status !== 'draft') throw new Error('VALIDATION_EVERGREEN_RUN_NOT_REVIEWABLE');
   const now = new Date();
   const planned = Date.parse(String(runSnap.get('plannedAt') ?? ''));
   const scheduledAt = new Date(Number.isFinite(planned) && planned > now.getTime() ? planned : now.getTime() + 15 * 60 * 1000).toISOString();
@@ -626,6 +633,7 @@ export async function skipEvergreenRun(workspaceId: string, queueId: string, run
   const postId = String(runSnap.get('occurrencePostId') ?? '');
   const postRef = adminDb.doc(`workspaces/${workspaceId}/posts/${postId}`);
   const postSnap = await postRef.get();
+  if (postSnap.exists && postSnap.data()?.status !== 'draft') throw new Error('VALIDATION_EVERGREEN_RUN_NOT_REVIEWABLE');
   const now = new Date().toISOString();
   const batch = adminDb.batch();
   if (postSnap.exists) batch.delete(postRef);

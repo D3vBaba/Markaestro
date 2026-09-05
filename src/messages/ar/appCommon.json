@@ -59,9 +59,6 @@
     "requiresPlan": "تتطلب هذه الميزة خطة {plan} أو أعلى. قم بالترقية لإلغاء القفل ابتداءً من ${price} شهريًا.",
     "loading": "جارٍ التحميل..."
   },
-  "metricCard": {
-    "vsLastPeriod": "مقارنة بالفترة السابقة"
-  },
   "pagination": {
     "firstPage": "الصفحة الأولى",
     "previousPage": "الصفحة السابقة",

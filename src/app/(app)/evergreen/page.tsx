@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { Suspense, useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -27,76 +27,93 @@ const STORAGE_KEY = "markaestro_default_product";
 type Product = { id: string; name: string };
 
 function EvergreenPageContent() {
+  const workspaceId = useSyncExternalStore(subscribeApiWorkspaceId, getApiWorkspaceId, () => "default");
+  return <EvergreenWorkspace key={workspaceId} workspaceId={workspaceId} />;
+}
+
+function EvergreenWorkspace({ workspaceId }: { workspaceId: string }) {
+  const t = useTranslations("content.evergreenTab");
+  const params = useSearchParams();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productId, setProductId] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    void apiGet<{ products: Product[] }>("/api/products", workspaceId).then((res) => {
+      if (cancelled) return;
+      if (!res.ok) { toast.error(t("loadFailed")); return; }
+      const list = res.data.products || [];
+      setProducts(list);
+      const fromUrl = params.get("brand");
+      const saved = localStorage.getItem(`${STORAGE_KEY}:${workspaceId}`);
+      const pick = [fromUrl, saved].find((id) => id && list.some((p) => p.id === id)) ?? list[0]?.id ?? "";
+      setProductId(pick);
+    });
+    return () => { cancelled = true; };
+  }, [workspaceId, params, t]);
+
+  const changeProduct = (id: string) => {
+    setProductId(id);
+    localStorage.setItem(`${STORAGE_KEY}:${workspaceId}`, id);
+  };
+
+  return <EvergreenBrand key={productId} workspaceId={workspaceId} productId={productId} products={products} changeProduct={changeProduct} initialSourceId={params.get("brand") === productId ? params.get("source") : null} />;
+}
+
+function EvergreenBrand({ workspaceId, productId, products, changeProduct, initialSourceId }: {
+  workspaceId: string;
+  productId: string;
+  products: Product[];
+  changeProduct: (id: string) => void;
+  initialSourceId: string | null;
+}) {
   const t = useTranslations("content.evergreenTab");
   const tBar = useTranslations("content.page.productBar");
   const locale = useLocale();
-  const params = useSearchParams();
-  const workspaceId = useSyncExternalStore(subscribeApiWorkspaceId, getApiWorkspaceId, () => "default");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [productId, setProductId] = useState("");
   const [queues, setQueues] = useState<Queue[]>([]);
   const [candidates, setCandidates] = useState<SourceCandidate[]>([]);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [summary, setSummary] = useState<EarnedSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createSource, setCreateSource] = useState<string | null>(null);
-  // Remount the sheet per open so its form starts clean.
+  const [loading, setLoading] = useState(Boolean(productId));
+  const [revision, setRevision] = useState(0);
+  const [createOpen, setCreateOpen] = useState(Boolean(initialSourceId));
+  const [createSource, setCreateSource] = useState<string | null>(initialSourceId);
   const [createKey, setCreateKey] = useState(0);
   const [reviewBusy, setReviewBusy] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!productId) return;
     let cancelled = false;
-    (async () => {
-      const res = await apiGet<{ products: Product[] }>("/api/products", workspaceId);
-      if (cancelled || !res.ok) return;
-      const list = res.data.products || [];
-      setProducts(list);
-      const fromUrl = params.get("brand");
-      const saved = typeof window !== "undefined" ? localStorage.getItem(`${STORAGE_KEY}:${workspaceId}`) : null;
-      const pick = [fromUrl, saved].find((id) => id && list.some((p) => p.id === id)) ?? list[0]?.id ?? "";
-      setProductId(pick);
-      const source = params.get("source");
-      if (source) { setCreateSource(source); setCreateKey((k) => k + 1); setCreateOpen(true); }
-    })();
-    return () => { cancelled = true; };
-  }, [workspaceId, params]);
-
-  const load = useCallback(async () => {
-    if (!productId) { setQueues([]); setCandidates([]); setReviews([]); setSummary(null); setLoading(false); return; }
-    setLoading(true);
     const q = encodeURIComponent(productId);
-    const [queueRes, candidateRes, reviewRes, summaryRes] = await Promise.all([
-      apiGet<{ queues: Queue[] }>(`/api/evergreen-queues?productId=${q}`),
-      apiGet<{ candidates: SourceCandidate[] }>(`/api/evergreen-queues/candidates?productId=${q}`),
-      apiGet<{ reviews: ReviewRow[] }>(`/api/evergreen-queues/reviews?productId=${q}`),
-      apiGet<{ summary: EarnedSummary }>(`/api/evergreen-queues/summary?productId=${q}&days=30`),
-    ]);
-    if (queueRes.ok) setQueues(queueRes.data.queues.filter((queue) => queue.status !== "archived"));
-    if (candidateRes.ok) setCandidates(candidateRes.data.candidates);
-    if (reviewRes.ok) setReviews(reviewRes.data.reviews);
-    if (summaryRes.ok) setSummary(summaryRes.data.summary);
-    if (!queueRes.ok) toast.error(t("loadFailed"));
-    setLoading(false);
-  }, [productId, t]);
+    void Promise.all([
+      apiGet<{ queues: Queue[] }>(`/api/evergreen-queues?productId=${q}`, workspaceId),
+      apiGet<{ candidates: SourceCandidate[] }>(`/api/evergreen-queues/candidates?productId=${q}`, workspaceId),
+      apiGet<{ reviews: ReviewRow[] }>(`/api/evergreen-queues/reviews?productId=${q}`, workspaceId),
+      apiGet<{ summary: EarnedSummary }>(`/api/evergreen-queues/summary?productId=${q}&days=30`, workspaceId),
+    ]).then(([queueRes, candidateRes, reviewRes, summaryRes]) => {
+      if (cancelled) return;
+      setQueues(queueRes.ok ? queueRes.data.queues.filter((queue) => queue.status !== "archived") : []);
+      setCandidates(candidateRes.ok ? candidateRes.data.candidates : []);
+      setReviews(reviewRes.ok ? reviewRes.data.reviews : []);
+      setSummary(summaryRes.ok ? summaryRes.data.summary : null);
+      if ([queueRes, candidateRes, reviewRes, summaryRes].some((res) => !res.ok)) toast.error(t("loadFailed"));
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [workspaceId, productId, revision, t]);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => void load(), 0);
-    return () => window.clearTimeout(timer);
-  }, [load]);
-
-  const changeProduct = (id: string) => {
-    setProductId(id);
-    if (typeof window !== "undefined") localStorage.setItem(`${STORAGE_KEY}:${workspaceId}`, id);
+  const load = () => {
+    setLoading(true);
+    setRevision((current) => current + 1);
   };
 
   const review = async (row: ReviewRow, action: "approve" | "skip") => {
     setReviewBusy(row.runId);
-    const res = await apiPatch(`/api/evergreen-queues/${row.queueId}/runs/${row.runId}`, { action });
+    const res = await apiPatch(`/api/evergreen-queues/${row.queueId}/runs/${row.runId}`, { action }, workspaceId);
     setReviewBusy(null);
     if (!res.ok) { toast.error(messageFrom(res.data, t("reviews.failed"))); return; }
     toast.success(action === "approve" ? t("reviews.approved") : t("reviews.skipped"));
-    await load();
+    load();
   };
 
   const queuedSourceIds = new Set(queues.map((queue) => queue.sourcePostId));
@@ -122,6 +139,47 @@ function EvergreenPageContent() {
         <EmptyState icon={Repeat} title={t("selectBrand")} />
       ) : (
         <div className="space-y-10">
+          {reviews.length > 0 && (
+            <Section title={t("reviews.title")} description={t("reviews.subtitle")} bordered>
+              <ul className="m-0 list-none divide-y divide-border p-0">
+                {reviews.map((row) => (
+                  <li key={row.runId} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center">
+                    <PostThumbnail src={row.thumbnailUrl} mediaUrl={row.mediaUrl} channel={row.channel} size={48} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">{row.queueName}</span>
+                        <span>{t("reviews.plannedFor", { date: new Date(row.plannedAt).toLocaleString(locale, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) })}</span>
+                        {row.channels.map((c) => <Badge key={c} variant="secondary">{channelLabel(c)}</Badge>)}
+                      </div>
+                      <p className="m-0 mt-1 line-clamp-2 text-[13px] leading-5 text-foreground">{row.content}</p>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                      <Button size="sm" disabled={reviewBusy === row.runId} onClick={() => void review(row, "approve")}>{t("reviews.approve")}</Button>
+                      <Button size="sm" variant="outline" asChild><Link href="/content?tab=drafts">{t("reviews.edit")}</Link></Button>
+                      <Button size="sm" variant="ghost" disabled={reviewBusy === row.runId} onClick={() => void review(row, "skip")}>{t("reviews.skip")}</Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
+
+          <Section title={t("queues.title")}>
+            {loading && queues.length === 0 ? (
+              <div className="grid gap-4">{[0, 1].map((i) => <Skeleton key={i} className="h-40 rounded-xl" />)}</div>
+            ) : queues.length === 0 ? (
+              <EmptyState
+                icon={Repeat}
+                title={t("empty")}
+                action={<Button onClick={() => { setCreateSource(null); setCreateKey((k) => k + 1); setCreateOpen(true); }}><Plus className="size-4" />{t("newQueue")}</Button>}
+              />
+            ) : (
+              <div className="grid gap-4">
+                {queues.map((queue) => <QueueCard key={queue.id} queue={queue} onChanged={load} />)}
+              </div>
+            )}
+          </Section>
+
           <Section title={t("summary.title")} description={summary ? t("summary.window", { days: summary.days }) : undefined}>
             {loading && !summary ? (
               <Skeleton className="h-28 w-full rounded-xl" />
@@ -174,47 +232,6 @@ function EvergreenPageContent() {
                   </li>
                 ))}
               </ul>
-            )}
-          </Section>
-
-          {reviews.length > 0 && (
-            <Section title={t("reviews.title")} description={t("reviews.subtitle")} bordered>
-              <ul className="m-0 list-none divide-y divide-border p-0">
-                {reviews.map((row) => (
-                  <li key={row.runId} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center">
-                    <PostThumbnail src={row.thumbnailUrl} mediaUrl={row.mediaUrl} channel={row.channel} size={48} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground">{row.queueName}</span>
-                        <span>{t("reviews.plannedFor", { date: new Date(row.plannedAt).toLocaleString(locale, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) })}</span>
-                        {row.channels.map((c) => <Badge key={c} variant="secondary">{channelLabel(c)}</Badge>)}
-                      </div>
-                      <p className="m-0 mt-1 line-clamp-2 text-[13px] leading-5 text-foreground">{row.content}</p>
-                    </div>
-                    <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-                      <Button size="sm" disabled={reviewBusy === row.runId} onClick={() => void review(row, "approve")}>{t("reviews.approve")}</Button>
-                      <Button size="sm" variant="outline" asChild><Link href="/content?tab=drafts">{t("reviews.edit")}</Link></Button>
-                      <Button size="sm" variant="ghost" disabled={reviewBusy === row.runId} onClick={() => void review(row, "skip")}>{t("reviews.skip")}</Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          <Section title={t("queues.title")}>
-            {loading && queues.length === 0 ? (
-              <div className="grid gap-4">{[0, 1].map((i) => <Skeleton key={i} className="h-40 rounded-xl" />)}</div>
-            ) : queues.length === 0 ? (
-              <EmptyState
-                icon={Repeat}
-                title={t("empty")}
-                action={<Button onClick={() => { setCreateSource(null); setCreateKey((k) => k + 1); setCreateOpen(true); }}><Plus className="size-4" />{t("newQueue")}</Button>}
-              />
-            ) : (
-              <div className="grid gap-4">
-                {queues.map((queue) => <QueueCard key={queue.id} queue={queue} onChanged={load} />)}
-              </div>
             )}
           </Section>
         </div>

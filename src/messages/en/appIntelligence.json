@@ -871,9 +871,6 @@
     "posts": "{count, plural, one {# post} other {# posts}}",
     "avgEngagements": "Avg engagements",
     "rate": "Rate",
-    "stopTitle": "Stop Doing This",
-    "stopSubtitle": "Shapes that earn less than half your average across at least three posts.",
-    "stopRow": "{cohort} posts average {value} engagements, against {overall} overall.",
     "tooFew": "Shapes appear once at least five posts carry measurements."
   },
   "pillarCoverage": {
@@ -886,10 +883,6 @@
     "empty": "Add content pillars to the audience profile and Markaestro will track coverage here."
   },
   "outcomes": {
-    "measuring": "Measuring: {count, plural, one {# post} other {# posts}} since {date}",
-    "result": "Outcome {value} on {metric} over four weeks",
-    "flat": "Outcome: no measurable change over four weeks",
-    "noPosts": "Outcome: nothing published in the four weeks after",
     "testThis": "Test This"
   },
   "provenTests": {

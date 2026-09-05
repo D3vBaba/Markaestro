@@ -58,12 +58,12 @@
     },
     {
       "title": "Intelligent Evergreen",
-      "description": "Convierte una publicación madura y medida en una política recurrente que tú controlas. Rota pies aprobados, revisa cada ejecución o aprueba la cola por adelantado, y deja que Markaestro pause la secuencia cuando el rendimiento comparable decaiga.",
+      "description": "Convierte una publicación madura y medida en una política recurrente que tú controlas. Rota pies aprobados y revisa cada ejecución o aprueba la cola por adelantado.",
       "details": [
         "Elegibilidad respaldada por los resultados medidos de la publicación original",
         "Horarios fijos o aprendidos con recurrencia segura ante el horario de verano",
         "Modos de revisar cada ejecución o aprobar por adelantado",
-        "Evaluación a siete días con una pausa conservadora tras dos ejecuciones flojas"
+        "Intervalos fijos y pausa manual"
       ]
     },
     {

@@ -59,9 +59,6 @@
     "requiresPlan": "Deze functie vereist het {plan}-plan of hoger. Upgrade om het te ontgrendelen vanaf ${price}/maand.",
     "loading": "Bezig met laden..."
   },
-  "metricCard": {
-    "vsLastPeriod": "T.o.v. vorige periode"
-  },
   "pagination": {
     "firstPage": "Eerste pagina",
     "previousPage": "Vorige pagina",

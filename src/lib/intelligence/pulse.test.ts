@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contentCohorts, decisionOutcome, detectAnomalies, pillarCoverage, shouldStopEarly, suggestExperiments, weeklyPulse, type PulsePost } from './pulse';
+import { contentCohorts, detectAnomalies, pillarCoverage, suggestExperiments, weeklyPulse, type PulsePost } from './pulse';
 
 const now = new Date('2026-09-04T12:00:00Z');
 const days = (n: number) => new Date(now.getTime() - n * 86_400_000).toISOString();
@@ -16,7 +16,7 @@ describe('weeklyPulse', () => {
 });
 
 describe('contentCohorts', () => {
-  it('groups by format, length, call to action and hashtags and flags weak cohorts', () => {
+  it('groups by format, length, call to action and hashtags', () => {
     const rows = [
       post('v1', { mediaUrls: ['a.mp4'], content: 'Watch this? #a #b', engagements: 40 }),
       post('v2', { mediaUrls: ['b.mp4'], content: 'Short', engagements: 30 }),
@@ -24,12 +24,11 @@ describe('contentCohorts', () => {
       post('i2', { mediaUrls: ['b.jpg'], content: 'y'.repeat(300), engagements: 1 }),
       post('i3', { mediaUrls: ['c.jpg'], content: 'z'.repeat(300), engagements: 1 }),
     ];
-    const { rows: cohorts, stopDoing } = contentCohorts(rows);
+    const { rows: cohorts } = contentCohorts(rows);
     const video = cohorts.find((r) => r.dimension === 'format' && r.key === 'video');
     expect(video).toMatchObject({ posts: 2, avgEngagements: 35 });
     expect(cohorts.find((r) => r.dimension === 'cta' && r.key === 'question')?.posts).toBe(1);
     expect(cohorts.find((r) => r.dimension === 'hashtags' && r.key === '1-3')?.posts).toBe(1);
-    expect(stopDoing.map((r) => `${r.dimension}:${r.key}`)).toEqual(expect.arrayContaining(['format:image', 'length:long']));
   });
 });
 
@@ -43,19 +42,6 @@ describe('pillarCoverage', () => {
     expect(rows.find((r) => r.pillar === 'Education')).toMatchObject({ last30: 0, prior30: 2, quiet: true });
     expect(rows.find((r) => r.pillar === 'Offers')).toMatchObject({ last30: 1, quiet: false });
     expect(rows.find((r) => r.pillar === 'Community')).toMatchObject({ last30: 0, prior30: 0, quiet: false });
-  });
-});
-
-describe('decisionOutcome', () => {
-  it('compares four weeks before and after a decision', () => {
-    const decidedAt = days(30);
-    const outcome = decisionOutcome([
-      post('b1', { publishedAt: days(40), views: 100 }),
-      post('b2', { publishedAt: days(35), views: 100 }),
-      post('a1', { publishedAt: days(20), views: 200 }),
-      post('a2', { publishedAt: days(10), views: 200 }),
-    ], decidedAt, now);
-    expect(outcome).toMatchObject({ before: 100, after: 200, changePct: 100, sampleBefore: 2, sampleAfter: 2, ready: true });
   });
 });
 
@@ -83,15 +69,5 @@ describe('detectAnomalies', () => {
     expect(out).toContainEqual(expect.objectContaining({ kind: 'viral', postId: 'hot', multiple: 9 }));
     expect(out).toContainEqual(expect.objectContaining({ kind: 'quiet_channel', platform: 'linkedin', daysSilent: 30 }));
     expect(out.some((a) => a.kind === 'quiet_channel' && a.platform === 'instagram')).toBe(false);
-  });
-});
-
-describe('shouldStopEarly', () => {
-  it('waits for half the sample and a decisive gap', () => {
-    expect(shouldStopEarly({ armA: [10], armB: [1], targetSamplePerArm: 4 }).stop).toBe(false);
-    const decisive = shouldStopEarly({ armA: [100, 110, 105, 98], armB: [10, 12, 9, 11], targetSamplePerArm: 6 });
-    expect(decisive.stop).toBe(true);
-    expect(decisive.status).toBe('winner_a');
-    expect(shouldStopEarly({ armA: [10, 11, 9], armB: [10, 12, 8], targetSamplePerArm: 6 }).stop).toBe(false);
   });
 });

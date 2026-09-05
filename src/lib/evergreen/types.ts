@@ -67,7 +67,7 @@ export type EvergreenVariant = {
   caption: string;
   enabled: boolean;
   position: number;
-  /** Weak runs in a row for this caption; two retires it while others remain. */
+  /** Historical evaluation fields, retained when reading older records. */
   consecutiveUnderperformingRuns?: number;
   retiredReason?: string | null;
   retiredAt?: string | null;

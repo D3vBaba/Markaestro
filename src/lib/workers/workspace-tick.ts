@@ -42,8 +42,6 @@ import {
   sampleChannelHealth,
 } from '@/lib/observability/slo-inputs';
 import { processDueEvergreenQueues } from '@/lib/evergreen/worker';
-import { processEvergreenEvaluations } from '@/lib/evergreen/evaluation';
-import { suggestEvergreenCandidates } from '@/lib/evergreen/suggestions';
 import { runIntelligenceAlerts } from '@/lib/intelligence/alerts';
 import { sendIntelligenceWeeklyDigest } from '@/lib/intelligence/digest';
 
@@ -74,7 +72,6 @@ export type WorkspaceTickResult = {
     generated: number;
     paused: number;
     evaluated: number;
-    suggested?: number;
   };
   errors: Array<{ kind: string; postId?: string; error: string }>;
 };
@@ -271,25 +268,6 @@ export async function processWorkspaceTick(workspaceId: string): Promise<Workspa
     analytics.errors.forEach((e) => errors.push({ kind: e.kind, error: e.error }));
   } catch (err) {
     errors.push({ kind: 'analytics', error: err instanceof Error ? err.message : 'unknown' });
-  }
-
-  try {
-    const evaluated = await processEvergreenEvaluations(workspaceId);
-    evergreen = {
-      generated: evergreen?.generated ?? 0,
-      paused: (evergreen?.paused ?? 0) + evaluated.filter((result) => result.status === 'paused').length,
-      evaluated: evaluated.filter((result) => result.status === 'evaluated').length,
-    };
-  } catch (err) {
-    errors.push({ kind: 'evergreen-evaluation', error: err instanceof Error ? err.message : 'unknown' });
-  }
-
-  try {
-    const suggestions = await suggestEvergreenCandidates(workspaceId);
-    if (evergreen) evergreen.suggested = suggestions.suggested;
-    else if (suggestions.suggested > 0) evergreen = { generated: 0, paused: 0, evaluated: 0, suggested: suggestions.suggested };
-  } catch (err) {
-    errors.push({ kind: 'evergreen-suggestions', error: err instanceof Error ? err.message : 'unknown' });
   }
 
   try {

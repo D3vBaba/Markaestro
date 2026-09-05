@@ -13,6 +13,18 @@ file in the same change, not afterwards.
 
 ---
 
+## 2026-09-04
+
+### Evergreen simplification
+
+Evergreen now keeps the configured interval. Performance comparisons no longer
+reschedule queues, retire captions, or pause publishing. Legacy `adaptive`
+cadence requests are accepted but resolve to `fixed`. No stored queue is
+resumed and no caption is re-enabled automatically. Existing evaluation history
+and webhook subscriptions remain readable; new runs do not schedule performance
+evaluations or emit `evergreen.run.underperformed`. Run lists and analytics read
+publication status from the occurrence post without waiting for evaluation.
+
 ## 2026-09-02
 
 ### Additions

@@ -59,9 +59,6 @@
     "requiresPlan": "Cette fonctionnalité nécessite le forfait {plan} ou supérieur. Débloquez-la à partir de {price} $/mois.",
     "loading": "Chargement..."
   },
-  "metricCard": {
-    "vsLastPeriod": "Vs période précédente"
-  },
   "pagination": {
     "firstPage": "Première page",
     "previousPage": "Page précédente",

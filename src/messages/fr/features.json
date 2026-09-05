@@ -58,12 +58,12 @@
     },
     {
       "title": "Intelligent Evergreen",
-      "description": "Transformez une publication mature et mesurée en règle récurrente que vous contrôlez. Faites tourner des légendes approuvées, examinez chaque exécution ou pré-approuvez la file, et laissez Markaestro suspendre la séquence quand la performance comparable décline.",
+      "description": "Transformez une publication mature et mesurée en règle récurrente que vous contrôlez. Faites tourner des légendes approuvées et examinez chaque exécution ou pré-approuvez la file.",
       "details": [
         "Éligibilité fondée sur les résultats mesurés de la publication d'origine",
         "Horaires fixes ou appris avec une récurrence sûre au changement d'heure",
         "Modes « examiner chaque exécution » et « pré-approuvé »",
-        "Évaluation sur sept jours avec une pause prudente après deux exécutions faibles"
+        "Intervalles fixes et pause manuelle"
       ]
     },
     {

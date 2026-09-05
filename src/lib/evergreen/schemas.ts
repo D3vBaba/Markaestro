@@ -4,7 +4,7 @@ import { socialChannels } from '@/lib/schemas';
 export const evergreenQueueStatuses = ['draft', 'active', 'paused', 'archived'] as const;
 export const evergreenReviewPolicies = ['approve_future_runs', 'review_each_run'] as const;
 export const evergreenScheduleModes = ['fixed', 'learned'] as const;
-/** fixed: the interval never moves. adaptive: it stretches after a weak run and tightens after a strong one. */
+/** Legacy adaptive requests remain accepted. All queues now keep a fixed interval. */
 export const evergreenCadenceModes = ['fixed', 'adaptive'] as const;
 
 export const evergreenVariantInputSchema = z.object({
@@ -22,7 +22,7 @@ export const createEvergreenQueueSchema = z.object({
   localHour: z.number().int().min(0).max(23).default(10),
   localMinute: z.number().int().min(0).max(59).default(0),
   scheduleMode: z.enum(evergreenScheduleModes).default('learned'),
-  cadenceMode: z.enum(evergreenCadenceModes).default('adaptive'),
+  cadenceMode: z.enum(evergreenCadenceModes).default('fixed'),
   reviewPolicy: z.enum(evergreenReviewPolicies).default('approve_future_runs'),
   expiresAt: z.string().datetime().nullable().optional(),
   /** Destinations for channels the source post was not published to (cross-channel expansion). */

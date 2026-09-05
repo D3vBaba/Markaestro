@@ -59,9 +59,6 @@
     "requiresPlan": "Este recurso requer o plano {plan} ou superior. Faça upgrade para desbloqueá-lo a partir de US$ {price}/mês.",
     "loading": "Carregando..."
   },
-  "metricCard": {
-    "vsLastPeriod": "Vs. período anterior"
-  },
   "pagination": {
     "firstPage": "Primeira página",
     "previousPage": "Página anterior",

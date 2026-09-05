@@ -59,9 +59,6 @@
     "requiresPlan": "Diese Funktion erfordert mindestens den Plan {plan}. Schalte sie ab ${price}/Monat frei.",
     "loading": "Wird geladen..."
   },
-  "metricCard": {
-    "vsLastPeriod": "Vs. vorheriger Zeitraum"
-  },
   "pagination": {
     "firstPage": "Erste Seite",
     "previousPage": "Vorherige Seite",

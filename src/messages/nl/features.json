@@ -58,12 +58,12 @@
     },
     {
       "title": "Intelligent Evergreen",
-      "description": "Maak van een volwassen, gemeten post een terugkerende regel die jij beheert. Roteer goedgekeurde bijschriften, beoordeel elke run of keur de wachtrij vooraf goed, en laat Markaestro de reeks pauzeren als de vergelijkbare prestaties afnemen.",
+      "description": "Maak van een volwassen, gemeten post een terugkerende regel die jij beheert. Roteer goedgekeurde bijschriften en beoordeel elke run of keur de wachtrij vooraf goed.",
       "details": [
         "Geschiktheid gebaseerd op de gemeten resultaten van de bronpost",
         "Vaste of geleerde tijden met zomertijdveilige herhaling",
         "Modi “elke run beoordelen” en “vooraf goedgekeurd”",
-        "Evaluatie na zeven dagen met een voorzichtige pauze na twee zwakke runs"
+        "Vaste intervallen en handmatig pauzeren"
       ]
     },
     {

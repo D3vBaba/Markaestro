@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { DecisionOutcome } from "@/lib/intelligence/pulse";
 import { cn } from "@/lib/utils";
 import { Channel } from "@/components/mk/Channel";
 import Pagination from "@/components/app/Pagination";
@@ -29,22 +28,6 @@ import { useIntelligenceCopy } from "./copy";
 import { useIntelligenceFormat } from "./format";
 import type { DecisionStatus, ExperimentDraft, ExperimentResultRow, IntelligenceOverview, LearningRow, OpportunityRow, PostRow } from "./types";
 import { channelLabel } from "@/components/mk/channels";
-
-/** What happened after the team said yes: measuring, or a before/after figure. */
-function OutcomeBadge({ outcome, metric }: { outcome: DecisionOutcome; metric: string }) {
-  const t = useTranslations("intelligence.outcomes");
-  const fmt = useIntelligenceFormat();
-  if (!outcome.ready) {
-    return <KindBadge tone="slate">{t("measuring", { count: outcome.sampleAfter, date: fmt.date(outcome.decidedAt) ?? "" })}</KindBadge>;
-  }
-  if (outcome.sampleAfter === 0) return <KindBadge tone="slate">{t("noPosts")}</KindBadge>;
-  if (outcome.changePct === null || Math.abs(outcome.changePct) < 3) return <KindBadge tone="slate">{t("flat")}</KindBadge>;
-  return (
-    <KindBadge tone={outcome.changePct > 0 ? "emerald" : "rose"}>
-      {t("result", { value: fmt.signedPercent(outcome.changePct), metric: fmt.metricName(metric) })}
-    </KindBadge>
-  );
-}
 
 function TestButton({ onTest, draft }: { onTest?: (draft: ExperimentDraft) => void; draft: ExperimentDraft }) {
   const t = useTranslations("intelligence.outcomes");
@@ -126,7 +109,7 @@ function PlaybookRow({
   );
 }
 
-function OpportunityItem({ item, productId, outcome, metric, onTest }: { item: OpportunityRow; productId: string; outcome?: DecisionOutcome; metric: string; onTest?: (draft: ExperimentDraft) => void }) {
+function OpportunityItem({ item, productId, onTest }: { item: OpportunityRow; productId: string; onTest?: (draft: ExperimentDraft) => void }) {
   const t = useTranslations("intelligence");
   const copy = useIntelligenceCopy();
   const [status, setStatus] = useState<DecisionStatus>(item.status || "proposed");
@@ -137,7 +120,6 @@ function OpportunityItem({ item, productId, outcome, metric, onTest }: { item: O
       labels={
         <>
           <KindBadge tone="blue">{rendered.kind}</KindBadge>
-          {outcome && status !== "dismissed" && <OutcomeBadge outcome={outcome} metric={metric} />}
         </>
       }
       title={rendered.title}
@@ -184,7 +166,7 @@ function EvidencePosts({ ids, posts, metric }: { ids: string[]; posts: PostRow[]
   );
 }
 
-function LearningItem({ item, productId, posts, outcome, onTest }: { item: LearningRow; productId: string; posts: PostRow[]; outcome?: DecisionOutcome; onTest?: (draft: ExperimentDraft) => void }) {
+function LearningItem({ item, productId, posts, onTest }: { item: LearningRow; productId: string; posts: PostRow[]; onTest?: (draft: ExperimentDraft) => void }) {
   const t = useTranslations("intelligence");
   const copy = useIntelligenceCopy();
   const [status, setStatus] = useState<DecisionStatus>(item.status || "proposed");
@@ -200,7 +182,6 @@ function LearningItem({ item, productId, posts, outcome, onTest }: { item: Learn
           <KindBadge tone={item.strength === "potentially_strong" ? "emerald" : item.strength === "moderate" ? "blue" : "amber"} title={rendered.strengthHint}>
             {rendered.strength}
           </KindBadge>
-          {outcome && status !== "dismissed" && <OutcomeBadge outcome={outcome} metric={item.metric} />}
         </>
       }
       title={rendered.key}
@@ -285,8 +266,6 @@ function ProvenTests({ results }: { results: ExperimentResultRow[] }) {
 export function PlaybookTab({ data, productId, onTest }: { data: IntelligenceOverview; productId: string; onTest?: (draft: ExperimentDraft) => void }) {
   const t = useTranslations("intelligence");
   const phases = phasesOf(data);
-  const outcomes = data.outcomes ?? {};
-  const objectiveMetric = data.objective?.metric || "views";
   const test = phases.experiments ? onTest : undefined;
   const [filter, setFilter] = useState<StatusFilter>("all");
   const posts = data.measuredPosts?.length ? data.measuredPosts : data.topContent;
@@ -313,7 +292,7 @@ export function PlaybookTab({ data, productId, onTest }: { data: IntelligenceOve
             ) : (
               <>
                 <ul className={LIST}>
-                  {movesPaged.items.map((item) => <OpportunityItem key={item.id} item={item} productId={productId} outcome={outcomes[item.id]} metric={objectiveMetric} onTest={test} />)}
+                  {movesPaged.items.map((item) => <OpportunityItem key={item.id} item={item} productId={productId} onTest={test} />)}
                 </ul>
                 {movesPaged.totalPages > 1 && <Pagination page={movesPaged.page} totalPages={movesPaged.totalPages} onPageChange={movesPaged.setPage} />}
               </>
@@ -345,7 +324,7 @@ export function PlaybookTab({ data, productId, onTest }: { data: IntelligenceOve
           ) : (
             <>
               <ul className={LIST}>
-                {patternsPaged.items.map((item) => <LearningItem key={item.id} item={item} productId={productId} posts={posts} outcome={outcomes[item.id]} onTest={test} />)}
+                {patternsPaged.items.map((item) => <LearningItem key={item.id} item={item} productId={productId} posts={posts} onTest={test} />)}
               </ul>
               {patternsPaged.totalPages > 1 && <Pagination page={patternsPaged.page} totalPages={patternsPaged.totalPages} onPageChange={patternsPaged.setPage} />}
             </>

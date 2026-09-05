@@ -1,5 +1,3 @@
-import { evaluateExperiment } from './statistics';
-
 /** The subset of a measured post row these calculations need. */
 export type PulsePost = {
   id: string;
@@ -146,7 +144,7 @@ function rollCohort(dimension: CohortRow['dimension'], key: string, posts: Pulse
  * Which shapes of post earn more for this brand: format, caption length,
  * whether it asks for something, and hashtag load. Only measured posts count.
  */
-export function contentCohorts(posts: PulsePost[]): { rows: CohortRow[]; stopDoing: CohortRow[] } {
+export function contentCohorts(posts: PulsePost[]): { rows: CohortRow[] } {
   const measured = posts.filter((p) => typeof p.engagements === 'number' || typeof p.views === 'number');
   const groups: Array<[CohortRow['dimension'], (p: PulsePost) => string]> = [
     ['format', format], ['length', lengthBucket], ['cta', ctaBucket], ['hashtags', hashtagBucket],
@@ -160,13 +158,8 @@ export function contentCohorts(posts: PulsePost[]): { rows: CohortRow[]; stopDoi
     }
     for (const [key, group] of byKey) rows.push(rollCohort(dimension, key, group));
   }
-  const overall = avg(measured.map((p) => p.engagements));
-  const stopDoing = overall === null
-    ? []
-    : rows.filter((row) => row.posts >= 3 && row.avgEngagements !== null && row.avgEngagements < overall * 0.5);
   return {
     rows: rows.sort((a, b) => (b.avgEngagements ?? -1) - (a.avgEngagements ?? -1)),
-    stopDoing,
   };
 }
 
@@ -200,41 +193,6 @@ export function pillarCoverage(posts: PulsePost[], declaredPillars: string[] = [
       quiet: (prior30 > 0 && last30 === 0) || (prior30 >= 3 && last30 <= prior30 * 0.4),
     };
   }).sort((a, b) => b.last30 - a.last30);
-}
-
-/* ───────────── decision outcomes ───────────── */
-
-export type DecisionOutcome = {
-  decidedAt: string;
-  before: number | null;
-  after: number | null;
-  sampleBefore: number;
-  sampleAfter: number;
-  changePct: number | null;
-  ready: boolean;
-};
-
-/**
- * Did accepting a move change anything? Average objective value per post in
- * the four weeks before the decision versus the four weeks after. Ready once
- * four weeks have passed or five posts have landed.
- */
-export function decisionOutcome(posts: PulsePost[], decidedAt: string, now = new Date()): DecisionOutcome {
-  const decided = Date.parse(decidedAt);
-  const value = (p: PulsePost) => p.objectiveValue ?? p.views;
-  const before = posts.filter((p) => at(p) >= decided - 28 * DAY && at(p) < decided);
-  const after = posts.filter((p) => at(p) >= decided && at(p) < decided + 28 * DAY);
-  const beforeAvg = avg(before.map(value));
-  const afterAvg = avg(after.map(value));
-  return {
-    decidedAt,
-    before: beforeAvg,
-    after: afterAvg,
-    sampleBefore: before.length,
-    sampleAfter: after.length,
-    changePct: pct(afterAvg, beforeAvg),
-    ready: now.getTime() >= decided + 28 * DAY || after.length >= 5,
-  };
 }
 
 /* ───────────── suggested experiments ───────────── */
@@ -353,17 +311,4 @@ export function detectAnomalies(posts: PulsePost[], now = new Date()): Anomaly[]
     }
   }
   return out;
-}
-
-/* ───────────── early stopping ───────────── */
-
-/**
- * Stop a test before its end date once both arms have at least half their
- * target sample and the interval already excludes zero. Never on one value.
- */
-export function shouldStopEarly(input: { armA: number[]; armB: number[]; targetSamplePerArm: number }): { stop: boolean; status: 'winner_a' | 'winner_b' | 'inconclusive' } {
-  const minimum = Math.max(2, Math.ceil(input.targetSamplePerArm / 2));
-  if (input.armA.length < minimum || input.armB.length < minimum) return { stop: false, status: 'inconclusive' };
-  const result = evaluateExperiment({ armA: input.armA, armB: input.armB, targetSamplePerArm: minimum, seed: 7 });
-  return { stop: result.status !== 'inconclusive', status: result.status };
 }

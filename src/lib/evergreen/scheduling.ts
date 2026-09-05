@@ -74,3 +74,28 @@ export function deterministicRunId(queueId: string, plannedAt: string): string {
   const compact = plannedAt.replace(/[-:.TZ]/g, '').slice(0, 14);
   return `${queueId}_${compact}`;
 }
+
+/** The next `count` planned dates from `nextRunAt`, for showing a queue's rhythm. */
+export function upcomingRunDates(input: {
+  nextRunAt: string | null;
+  intervalDays: number;
+  timeZone: string;
+  localHour: number;
+  localMinute: number;
+  count?: number;
+}): string[] {
+  if (!input.nextRunAt) return [];
+  const dates = [input.nextRunAt];
+  let cursor = new Date(input.nextRunAt);
+  for (let i = 1; i < (input.count ?? 3); i += 1) {
+    cursor = nextEvergreenRunAt({
+      after: cursor,
+      intervalDays: input.intervalDays,
+      timeZone: input.timeZone,
+      localHour: input.localHour,
+      localMinute: input.localMinute,
+    });
+    dates.push(cursor.toISOString());
+  }
+  return dates;
+}

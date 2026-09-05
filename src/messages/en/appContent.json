@@ -93,8 +93,7 @@
       "measured": "Measured Runs",
       "needsReview": "Needs Review",
       "recentRuns": "Recent Runs",
-      "noRuns": "No occurrences have been created yet.",
-      "noOutcome": "Awaiting a mature performance result"
+      "noRuns": "No occurrences have been created yet."
     },
     "statuses": {
       "draft": "Draft",
@@ -174,16 +173,8 @@
     "queues": {
       "title": "Your queues",
       "upcoming": "Next runs",
-      "cadence": {
-        "fixed": "Fixed cadence",
-        "adaptive": "Adaptive cadence"
-      },
-      "cadenceChanged": "Cadence moved from {from} to {to} days after a {reason} run",
-      "reasonHealthy": "strong",
-      "reasonWeak": "weak",
       "variantsTitle": "Caption scoreboard",
       "variantRuns": "{count, plural, one {# run} other {# runs}}",
-      "variantIndex": "avg index",
       "variantRetired": "Retired after two weak runs",
       "variantNoRuns": "Not used yet",
       "shifted": "Moved {days, plural, one {# day} other {# days}} to avoid a fresh post"
@@ -209,9 +200,6 @@
       "channelsTitle": "Channels",
       "channelsHint": "The source channels are selected. Add another connected channel to repost there too.",
       "channelNotReady": "Not connected",
-      "cadenceTitle": "Cadence",
-      "cadenceAdaptive": "Adaptive: tighten after a strong run, stretch after a weak one",
-      "cadenceFixed": "Fixed: always the same gap",
       "nextDates": "First runs"
     },
     "create": "Create queue"

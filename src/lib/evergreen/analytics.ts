@@ -2,6 +2,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getAllMatchingDocs } from '@/lib/firestore-pagination';
 import type { NormalizedPostMetrics } from '@/lib/platform/types';
 import type { EvergreenRun, EvergreenVariant } from './types';
+import { evergreenRunStatus } from './run-status';
 
 export type EvergreenMetricTotals = {
   views: number | null;
@@ -170,7 +171,7 @@ export async function getEvergreenQueueAnalytics(
       runId: run.id,
       occurrencePostId: occurrenceId,
       plannedAt: run.plannedAt,
-      status: run.status,
+      status: evergreenRunStatus(run, occurrenceId ? posts.get(occurrenceId)?.status : undefined),
       performanceIndex: run.performanceIndex ?? null,
       reason: run.reason ?? null,
       metrics: evergreenMetricTotals(occurrenceId ? posts.get(occurrenceId)?.metricsByChannel : null),
@@ -191,12 +192,12 @@ export async function getEvergreenQueueAnalytics(
     },
     runs: {
       total: runs.length,
-      published: runs.filter((run) => ['published', 'evaluated'].includes(run.status)).length,
+      published: runAnalytics.filter((run) => ['published', 'evaluated'].includes(run.status)).length,
       evaluated: runs.filter((run) => run.status === 'evaluated').length,
       underperforming: runs.filter((run) => run.reason === 'UNDERPERFORMED').length,
-      failed: runs.filter((run) => run.status === 'failed').length,
+      failed: runAnalytics.filter((run) => run.status === 'failed').length,
       skipped: runs.filter((run) => run.status === 'skipped').length,
-      needsReview: runs.filter((run) => run.status === 'needs_review').length,
+      needsReview: runAnalytics.filter((run) => run.status === 'needs_review').length,
     },
     recentRuns: runAnalytics.slice(-10).reverse(),
     variants: scoreVariants(variants, runs, runAnalytics),

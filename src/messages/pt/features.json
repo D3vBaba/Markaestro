@@ -58,12 +58,12 @@
     },
     {
       "title": "Intelligent Evergreen",
-      "description": "Transforme uma publicação madura e medida numa política recorrente que você controla. Alterne legendas aprovadas, reveja cada execução ou pré-aprove a fila, e deixe o Markaestro pausar a sequência quando o desempenho comparável decair.",
+      "description": "Transforme uma publicação madura e medida numa política recorrente que você controla. Alterne legendas aprovadas e reveja cada execução ou pré-aprove a fila.",
       "details": [
         "Elegibilidade apoiada nos resultados medidos da publicação de origem",
         "Horários fixos ou aprendidos com recorrência segura face à hora de verão",
         "Modos de rever cada execução ou pré-aprovar",
-        "Avaliação a sete dias com uma pausa prudente após duas execuções fracas"
+        "Intervalos fixos e pausa manual"
       ]
     },
     {

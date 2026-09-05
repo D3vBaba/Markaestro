@@ -59,9 +59,6 @@
     "requiresPlan": "Questa funzione richiede il piano {plan} o superiore. Sbloccala a partire da ${price}/mese.",
     "loading": "Caricamento in corso..."
   },
-  "metricCard": {
-    "vsLastPeriod": "Vs periodo precedente"
-  },
   "pagination": {
     "firstPage": "Prima pagina",
     "previousPage": "Pagina precedente",

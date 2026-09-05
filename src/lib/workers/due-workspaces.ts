@@ -15,7 +15,6 @@ export type WorkspaceWorkReason =
   | 'daily_job'
   | 'experiment_close'
   | 'evergreen_queue'
-  | 'evergreen_evaluation'
   | 'platform_operation'
   | 'legacy_sweep';
 

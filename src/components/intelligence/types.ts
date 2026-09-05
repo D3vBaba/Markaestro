@@ -5,7 +5,7 @@ import type { TimingRecommendation } from "@/lib/intelligence/timing";
 import type { IntelligenceReadiness } from "@/lib/intelligence/readiness";
 import type { ObjectiveSummary } from "@/lib/intelligence/insights";
 import type { IntelligenceTrustKind } from "@/lib/intelligence/schemas";
-import type { CohortRow, DecisionOutcome, PillarCoverage, SuggestedExperiment, WeeklyPulse } from "@/lib/intelligence/pulse";
+import type { CohortRow, PillarCoverage, SuggestedExperiment, WeeklyPulse } from "@/lib/intelligence/pulse";
 
 export type ExperimentResultRow = {
   id: string;
@@ -85,9 +85,8 @@ export type IntelligenceOverview = {
   readiness?: IntelligenceReadiness | null;
   objective?: ObjectiveSummary | null;
   pulse?: WeeklyPulse | null;
-  cohorts?: { rows: CohortRow[]; stopDoing: CohortRow[] } | null;
+  cohorts?: { rows: CohortRow[] } | null;
   pillars?: PillarCoverage[];
-  outcomes?: Record<string, DecisionOutcome>;
   suggestedExperiments?: SuggestedExperiment[];
   experimentResults?: ExperimentResultRow[];
   computedAt?: string;

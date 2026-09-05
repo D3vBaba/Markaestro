@@ -58,12 +58,12 @@
     },
     {
       "title": "Intelligent Evergreen",
-      "description": "Trasforma un post maturo e misurato in una regola ricorrente che controlli tu. Ruota didascalie approvate, rivedi ogni esecuzione o pre-approva la coda, e lascia che Markaestro metta in pausa la sequenza quando le prestazioni comparabili calano.",
+      "description": "Trasforma un post maturo e misurato in una regola ricorrente che controlli tu. Ruota didascalie approvate e rivedi ogni esecuzione o pre-approva la coda.",
       "details": [
         "Idoneità basata sui risultati misurati del post di origine",
         "Orari fissi o appresi con ricorrenza a prova di ora legale",
         "Modalità “rivedi ogni esecuzione” e “pre-approvata”",
-        "Valutazione a sette giorni con una pausa prudente dopo due esecuzioni deboli"
+        "Intervalli fissi e pausa manuale"
       ]
     },
     {

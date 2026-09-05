@@ -1,7 +1,5 @@
 export type Evidence = { metric: "engagements" | "views"; value: number; explanation: string };
 
-export type CadenceChange = { at: string; from: number; to: number; reason: "HEALTHY" | "UNDERPERFORMED" | "COLLISION" };
-
 export type Queue = {
   id: string;
   name: string;
@@ -9,8 +7,6 @@ export type Queue = {
   intervalDays: number;
   nextRunAt: string | null;
   reviewPolicy: "approve_future_runs" | "review_each_run";
-  cadenceMode?: "fixed" | "adaptive";
-  cadenceHistory?: CadenceChange[];
   upcomingRunAts?: string[];
   lastCollisionShift?: { from: string; to: string; days: number; at: string } | null;
   channels: string[];

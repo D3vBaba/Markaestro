@@ -3965,7 +3965,7 @@
             ]
           },
           "cadenceMode": {
-            "default": "adaptive",
+            "default": "fixed",
             "type": "string",
             "enum": [
               "fixed",

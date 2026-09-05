@@ -12,7 +12,6 @@ import { createInboxItem } from '@/lib/inbox';
 import { busyDaysFor, findCollisionFreeDate } from './collisions';
 
 const GENERATION_LEAD_MS = 48 * 60 * 60 * 1000;
-const EVALUATION_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_QUEUES_PER_TICK = 20;
 
 type GenerationResult = {
@@ -145,7 +144,6 @@ async function generateOccurrence(
     const status = freshQueue.reviewPolicy === 'review_each_run' ? 'draft' : 'scheduled';
     const runStatus = status === 'draft' ? 'needs_review' : 'scheduled';
     const plannedAt = freshQueue.nextRunAt;
-    const evaluationDueAt = new Date(Date.parse(plannedAt) + EVALUATION_AGE_MS).toISOString();
     nextRunAt = nextEvergreenRunAt({
       after: new Date(plannedAt),
       intervalDays: freshQueue.intervalDays,
@@ -204,7 +202,7 @@ async function generateOccurrence(
       variantId: variant.id,
       plannedAt,
       status: runStatus,
-      evaluationDueAt,
+      evaluationDueAt: null,
       performanceIndex: null,
       reason: null,
       createdAt: now,
@@ -228,11 +226,6 @@ async function generateOccurrence(
   if (nextRunAt) {
     await markWorkspaceDue(workspaceId, evergreenGenerationDueAt(nextRunAt), 'evergreen_queue');
   }
-  await markWorkspaceDue(
-    workspaceId,
-    new Date(Date.parse(queue.nextRunAt) + EVALUATION_AGE_MS),
-    'evergreen_evaluation',
-  );
   await enqueueWebhookEvent(
     workspaceId,
     queue.reviewPolicy === 'review_each_run' ? 'evergreen.queue.needs_review' : 'evergreen.run.scheduled',

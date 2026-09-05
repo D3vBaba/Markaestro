@@ -276,14 +276,6 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
-  await check('evergreen runs.where(status IN).where(evaluationDueAt<=).orderBy(evaluationDueAt) [evaluation]', (db) =>
-    db.collection(`workspaces/${WS}/evergreenQueues/sentinel/runs`)
-      .where('status', 'in', ['needs_review', 'scheduled', 'published'])
-      .where('evaluationDueAt', '<=', new Date().toISOString())
-      .orderBy('evaluationDueAt', 'asc')
-      .limit(1)
-      .get(),
-  );
   await check('evergreen runs.orderBy(plannedAt desc) [run history]', (db) =>
     db.collection(`workspaces/${WS}/evergreenQueues/sentinel/runs`)
       .orderBy('plannedAt', 'desc')

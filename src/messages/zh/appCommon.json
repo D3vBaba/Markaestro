@@ -59,9 +59,6 @@
     "requiresPlan": "此功能需要{plan}套餐或更高级别。升级后即可使用，起价为每月 ${price}。",
     "loading": "加载中..."
   },
-  "metricCard": {
-    "vsLastPeriod": "较上一周期"
-  },
   "pagination": {
     "firstPage": "第一页",
     "previousPage": "上一页",

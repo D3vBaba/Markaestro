@@ -59,9 +59,6 @@
     "requiresPlan": "This feature requires the {plan} plan or higher. Upgrade to unlock it starting at ${price}/mo.",
     "loading": "Loading..."
   },
-  "metricCard": {
-    "vsLastPeriod": "Compared to last period"
-  },
   "pagination": {
     "firstPage": "First Page",
     "previousPage": "Previous Page",
