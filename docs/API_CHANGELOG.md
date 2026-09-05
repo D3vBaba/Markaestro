@@ -13,6 +13,17 @@ file in the same change, not afterwards.
 
 ---
 
+## 2026-09-05
+
+### Evergreen measurements are separate from recommendation availability
+
+Preview assessments now report `measurementStatus` (`available` or `unavailable`)
+and `recommendation: not_evaluated`. The previous blanket `insufficient_evidence`
+label incorrectly implied a lack of account data, even for well-measured posts.
+No automatic performance recommendation is made. The app now displays published
+source posts and their recorded metrics before a queue exists, independently of
+whether repeat-performance results or benchmark comparisons are available.
+
 ## 2026-09-04
 
 ### Evergreen evidence and content review

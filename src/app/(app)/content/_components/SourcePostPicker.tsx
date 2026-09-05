@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import Pagination from "@/components/app/Pagination";
 import { PostThumbnail } from "@/components/mk/PostThumbnail";
 import { channelLabel } from "@/components/mk/channels";
+import { evergreenMetricKeys } from "@/lib/evergreen/eligibility";
 import { cn } from "@/lib/utils";
 
 export type { EvergreenCandidate as SourceCandidate } from "@/lib/evergreen/candidates";
@@ -20,11 +21,13 @@ export default function SourcePostPicker({
   value,
   onChange,
   loading,
+  mode = "select",
 }: {
   candidates: SourceCandidate[];
   value: string;
   onChange: (id: string) => void;
   loading?: boolean;
+  mode?: "select" | "browse";
 }) {
   const t = useTranslations("content.evergreenTab.picker");
   const locale = useLocale();
@@ -68,7 +71,7 @@ export default function SourcePostPicker({
           {t("noMatches")}
         </p>
       ) : (
-        <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2" role="radiogroup" aria-label={t("search")}>
+        <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2" role={mode === "select" ? "radiogroup" : undefined} aria-label={t("search")}>
           {visible.map((c) => {
             const selected = c.id === value;
             const date = c.publishedAt ? new Date(c.publishedAt).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" }) : null;
@@ -76,8 +79,8 @@ export default function SourcePostPicker({
               <li key={c.id}>
                 <button
                   type="button"
-                  role="radio"
-                  aria-checked={selected}
+                  role={mode === "select" ? "radio" : undefined}
+                  aria-checked={mode === "select" ? selected : undefined}
                   onClick={() => onChange(c.id)}
                   className={cn(
                     "flex w-full gap-3 rounded-xl border bg-card p-3 text-start transition-[border-color,box-shadow] hover:border-mk-ink-20",
@@ -93,17 +96,26 @@ export default function SourcePostPicker({
                       {!c.eligible ? <Badge variant="warning">{t("notReady")}</Badge> : null}
                     </div>
                     <p className="m-0 mt-1 line-clamp-2 text-[13px] leading-5 text-mk-ink-80">{c.content || t("mediaOnly")}</p>
-                    <p className="m-0 mt-2 text-xs text-muted-foreground">{a("insufficient")}</p>
+                    <p className="m-0 mt-2 text-xs text-muted-foreground">{a(c.assessment.measurementStatus === "available" ? "measurementsAvailable" : "noMeasurements")}</p>
                     {c.assessment.observations.map((row) => (
-                      <p key={row.channel} className="m-0 mt-1 text-xs text-muted-foreground">
-                        {channelLabel(row.channel)} · {a("metrics.views")}: {row.metrics.views === null ? "n/a" : row.metrics.views.toLocaleString(locale)} · {a("metrics.impressions")}: {row.metrics.impressions === null ? "n/a" : row.metrics.impressions.toLocaleString(locale)}
-                      </p>
+                      <div key={row.channel} className="mt-1 text-xs text-muted-foreground">
+                        <p className="m-0 font-medium">{channelLabel(row.channel)}</p>
+                        <dl className="m-0 flex flex-wrap gap-x-3 gap-y-1">
+                        {evergreenMetricKeys.map((key) => (
+                          <div key={key} className="flex gap-1">
+                            <dt>{a(`metrics.${key}`)}</dt>
+                            <dd className="m-0 tabular-nums">{row.metrics[key] === null ? "n/a" : row.metrics[key].toLocaleString(locale)}</dd>
+                          </div>
+                        ))}
+                        </dl>
+                      </div>
                     ))}
+                    {mode === "browse" && <span className="mt-3 inline-block text-xs font-medium text-mk-accent">{a("reviewForReuse")}</span>}
                     {!c.eligible && c.reasons[0] ? (
                       <p className="m-0 mt-1.5 text-xs text-mk-warn">{t(`reasons.${c.reasons[0]}`)}</p>
                     ) : null}
                   </div>
-                  <span
+                  {mode === "select" && <span
                     className={cn(
                       "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-[1.5px]",
                       selected ? "border-mk-accent bg-mk-accent text-white" : "border-mk-ink-20",
@@ -111,7 +123,7 @@ export default function SourcePostPicker({
                     aria-hidden
                   >
                     {selected ? <Check className="size-3" strokeWidth={3} /> : null}
-                  </span>
+                  </span>}
                 </button>
               </li>
             );

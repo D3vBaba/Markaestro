@@ -1,6 +1,6 @@
 # Evergreen eligibility and benchmark evidence
 
-Reviewed: 2026-09-04. Implementation: manual content review with descriptive metrics and external research references.
+Reviewed: 2026-09-04. Visibility correction: 2026-09-05. Implementation: manual content review with descriptive metrics and external research references.
 
 ## What qualifies today
 
@@ -26,7 +26,7 @@ The UI separates content review, benchmark comparison availability, and evidence
 
 ## What remains deliberately unavailable
 
-There is no automatic recommendation and no above/below-benchmark classification yet. Public references do not provide the matched observation windows, full cohorts, or calibrated reuse reliability needed to support either claim. The UI explicitly explains this limitation; references are contextual and never silently become thresholds.
+There is no automatic recommendation and no above/below-benchmark classification yet. Public references do not provide the matched observation windows, full cohorts, or calibrated reuse reliability needed to support either claim. The UI explicitly explains this limitation; references are contextual and never silently become thresholds. `recommendation: not_evaluated` names the product limitation rather than asserting insufficient user data. `measurementStatus` distinguishes recorded measurements (including measured zeroes) from unavailable fields. Published source posts and their metrics remain visible on the Evergreen page even before any queue exists.
 
 Before enabling recommendations, obtain comparable external post-level data with platform, format, account type/size, organic/paid status, exact metric definitions, and observation windows. Validate a minimum evidence rule against subsequent reuse outcomes on held-out data. Select confidence and error tolerances explicitly as product decisions. A user's own history may rank already-qualified posts but must not lower the external hurdle. Preserve the possibility of zero recommendations.
 

@@ -19,6 +19,7 @@ import { channelLabel } from "@/components/mk/channels";
 import { fmtCount } from "@/components/mk/format";
 import { apiGet, apiPatch, getApiWorkspaceId, subscribeApiWorkspaceId } from "@/lib/api-client";
 import type { SourceCandidate } from "@/app/(app)/content/_components/SourcePostPicker";
+import PublishedSources from "./_components/PublishedSources";
 import QueueCard from "./_components/QueueCard";
 import CreateQueueSheet from "./_components/CreateQueueSheet";
 import { messageFrom, type EarnedSummary, type Queue, type ReviewRow } from "./_components/types";
@@ -71,6 +72,7 @@ function EvergreenBrand({ workspaceId, productId, products, changeProduct, initi
   const tBar = useTranslations("content.page.productBar");
   const locale = useLocale();
   const [queues, setQueues] = useState<Queue[]>([]);
+  const [candidatesFailed, setCandidatesFailed] = useState(false);
   const [candidates, setCandidates] = useState<SourceCandidate[]>([]);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [summary, setSummary] = useState<EarnedSummary | null>(null);
@@ -93,6 +95,7 @@ function EvergreenBrand({ workspaceId, productId, products, changeProduct, initi
     ]).then(([queueRes, candidateRes, reviewRes, summaryRes]) => {
       if (cancelled) return;
       setQueues(queueRes.ok ? queueRes.data.queues.filter((queue) => queue.status !== "archived") : []);
+      setCandidatesFailed(!candidateRes.ok);
       setCandidates(candidateRes.ok ? candidateRes.data.candidates : []);
       setReviews(reviewRes.ok ? reviewRes.data.reviews : []);
       setSummary(summaryRes.ok ? summaryRes.data.summary : null);
@@ -162,6 +165,14 @@ function EvergreenBrand({ workspaceId, productId, products, changeProduct, initi
             </Section>
           )}
 
+          <PublishedSources
+            candidates={candidates}
+            loading={loading}
+            failed={candidatesFailed}
+            onRetry={load}
+            onReview={(id) => { setCreateSource(id); setCreateKey((k) => k + 1); setCreateOpen(true); }}
+          />
+
           <Section title={t("queues.title")}>
             {loading && queues.length === 0 ? (
               <div className="grid gap-4">{[0, 1].map((i) => <Skeleton key={i} className="h-40 rounded-xl" />)}</div>
@@ -178,7 +189,7 @@ function EvergreenBrand({ workspaceId, productId, products, changeProduct, initi
             )}
           </Section>
 
-          <Section title={t("summary.title")} description={summary ? t("summary.window", { days: summary.days }) : undefined}>
+          {(queues.length > 0 || Boolean(summary?.occurrences)) && <Section title={t("summary.title")} description={summary ? t("summary.window", { days: summary.days }) : undefined}>
             {loading && !summary ? (
               <Skeleton className="h-28 w-full rounded-xl" />
             ) : summary && summary.occurrences > 0 ? (
@@ -206,9 +217,7 @@ function EvergreenBrand({ workspaceId, productId, products, changeProduct, initi
             ) : (
               <p className="m-0 rounded-xl border border-border bg-card px-5 py-6 text-[13px] text-muted-foreground">{t("summary.empty")}</p>
             )}
-          </Section>
-
-
+          </Section>}
         </div>
       )}
 

@@ -11,8 +11,8 @@ export default function SourceAssessment({ assessment }: { assessment: Evergreen
   const references = evergreenBenchmarkReferences.filter((r) => assessment.channels.some((c) => c === r.channel));
   return (
     <div className="space-y-3 rounded-xl border border-border p-4 text-[13px]">
-      <p className="m-0 font-medium">{t("needsReview")} · {t("insufficient")}</p>
-      <p className="m-0 text-muted-foreground">{t("manualHint")}</p>
+      <p className="m-0 font-medium">{t("needsReview")} · {t(assessment.measurementStatus === "available" ? "measurementsAvailable" : "noMeasurements")}</p>
+      <p className="m-0 text-muted-foreground">{t("notEvaluated")}. {t("manualHint")}</p>
       <p className="m-0 text-muted-foreground">{t("unavailable")}: {t("benchmarkReason")}</p>
       {assessment.observations.map((row) => (
         <div key={row.channel} className="space-y-1">

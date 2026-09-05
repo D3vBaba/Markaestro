@@ -79,7 +79,7 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
             </p>
             <p className="m-0">{t("runs", { count: queue.runCount })}</p>
             <p className="m-0">{expired ? t("assessment.needsUpdate") : queue.contentReview ? t("assessment.reusable") : t("assessment.needsReview")}</p>
-            <p className="m-0">{t("assessment.insufficient")}</p>
+            <p className="m-0">{t("assessment.notEvaluated")}</p>
             {queue.channels.includes("x") && <p className="m-0">{t("assessment.xManual")}</p>}
             {queue.pauseReason && <p className="m-0 text-mk-warn">{t("pausedReason", { reason: queue.pauseReason })}</p>}
             {queue.lastCollisionShift && <p className="m-0">{t("queues.shifted", { days: queue.lastCollisionShift.days })}</p>}

@@ -17,7 +17,8 @@ export type EvergreenEligibility = {
   evidence: EvergreenEvidence | null;
   suitability: 'needs_review';
   performance: 'unavailable';
-  recommendation: 'insufficient_evidence';
+  recommendation: 'not_evaluated';
+  measurementStatus: 'available' | 'unavailable';
   observations: EvergreenObservation[];
 };
 function record(value: unknown): Record<string, unknown> {
@@ -54,6 +55,7 @@ export function evaluateEvergreenEligibility(post: Record<string, unknown>, now 
     // No available study supplies a calibrated repeat-performance evidence rule.
     // Reference averages lack matched post-age windows and cohorts. Do not
     // fabricate activation evidence or a capture timestamp from these counts.
-    evidence: null, suitability: 'needs_review', performance: 'unavailable', recommendation: 'insufficient_evidence',
+    evidence: null, suitability: 'needs_review', performance: 'unavailable', recommendation: 'not_evaluated',
+    measurementStatus: observations.some((row) => Object.values(row.metrics).some((value) => value !== null)) ? 'available' : 'unavailable',
   };
 }

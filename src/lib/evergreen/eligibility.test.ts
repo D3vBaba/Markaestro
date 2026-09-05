@@ -8,8 +8,17 @@ describe('Evergreen evidence and manual eligibility', () => {
   it.each([{}, { views: 9 }, { views: 9, likes: 8 }, { views: 1000000, likes: 90000 }])('does not endorse a post based on counts: %j', (metrics) => {
     expect(evaluateEvergreenEligibility({ ...post, metrics }, now)).toMatchObject({
       eligible: true, reasons: [], evidence: null, suitability: 'needs_review',
-      performance: 'unavailable', recommendation: 'insufficient_evidence',
+      performance: 'unavailable', recommendation: 'not_evaluated',
     });
+  });
+  it.each([
+    [{}, 'unavailable'],
+    [{ views: 0 }, 'available'],
+    [{ views: 9 }, 'available'],
+    [{ views: 3608, likes: 100 }, 'available'],
+    [{ likes: 100, availability: { likes: { state: 'missing_scope' } } }, 'unavailable'],
+  ])('separates measurement availability from recommendation evaluation: %j', (metrics, measurementStatus) => {
+    expect(evaluateEvergreenEligibility({ ...post, metrics }, now)).toMatchObject({ measurementStatus, recommendation: 'not_evaluated' });
   });
   it('preserves missing metrics, explicit zeroes, and unavailable fields', () => {
     const result = evaluateEvergreenEligibility({ ...post, metrics: {

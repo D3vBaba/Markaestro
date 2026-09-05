@@ -8,7 +8,7 @@ describe('Evergreen candidates', () => {
   it('allows zero recommendations even with many eligible posts', () => {
     const rows = rankEvergreenCandidates(Array.from({ length: 20 }, (_, i) => post(String(i), { metrics: { views: i === 0 ? 9 : 100000, likes: 1000 } })), now);
     expect(rows.every((r) => r.eligible && !r.suggested && r.evidence === null)).toBe(true);
-    expect(rows.find((r) => r.id === '0')?.assessment.recommendation).toBe('insufficient_evidence');
+    expect(rows.find((r) => r.id === '0')?.assessment.recommendation).toBe('not_evaluated');
   });
   it('browses by availability and recency, without rewarding small-sample rates or raw volume', () => {
     const rows = rankEvergreenCandidates([

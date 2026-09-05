@@ -190,10 +190,9 @@
       "needsReview": "Content needs review",
       "needsUpdate": "Content needs updating",
       "reusable": "Content confirmed reusable",
-      "insufficient": "Insufficient performance evidence",
       "unavailable": "Benchmark comparison unavailable",
       "manualHint": "You can choose to reuse this content after reviewing it. Recorded views or a high engagement percentage alone do not establish that repeating it will perform well.",
-      "benchmarkReason": "A comparison needs matching metrics, audience, paid or organic status, and measurement age. A reliable minimum evidence rule for reuse has not yet been established.",
+      "benchmarkReason": "A matched comparison requires the same metric formula, audience, paid or organic status, and measurement age. Markaestro has not validated that comparison yet; this does not mean your account lacks data.",
       "captured": "Metrics captured {date}",
       "unknownCapture": "Metric capture time unavailable",
       "references": "Research references",
@@ -222,7 +221,18 @@
       },
       "sourceHint": "Choose a published post to review for reuse. Performance metrics alone do not establish evergreen suitability.",
       "pageSubtitle": "Review content for lasting relevance, then choose what to reuse and when.",
-      "openMedia": "Open attached media"
+      "openMedia": "Open attached media",
+      "measurementsAvailable": "Performance data available",
+      "noMeasurements": "No recorded metrics yet",
+      "notEvaluated": "Reuse recommendation not evaluated",
+      "reviewForReuse": "Review for reuse"
+    },
+    "library": {
+      "title": "Published posts to review",
+      "description": "Browse your recorded performance and choose content to review for reuse. This list is available before you create a queue. We show up to 200 recent published posts for the selected brand.",
+      "counts": "{count, plural, one {# published post} other {# published posts}} shown · {measured} with recorded metrics",
+      "failed": "Published posts could not be loaded. Your data has not been cleared.",
+      "retry": "Try again"
     }
   },
   "scheduledTab": {
