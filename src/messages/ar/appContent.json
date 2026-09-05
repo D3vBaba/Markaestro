@@ -404,27 +404,15 @@
     "notScheduled": "فعّل هذه القائمة لجدولة أول تشغيل لها.",
     "pausedReason": "متوقفة مؤقتاً: {reason}",
     "picker": {
-      "engagements": "التفاعلات",
-      "filters": {
-        "all": "كل المنشورة",
-        "eligible": "جاهزة",
-        "suggested": "مقترحة"
-      },
       "mediaOnly": "ذات وسائط فقط",
       "noMatches": "لا توجد منشورات منشورة مطابقة.",
-      "noSuggested": "لا منشورات بارزة بعد. تحتاج المنشورات إلى سبعة أيام من النتائج المقاسة قبل اقتراحها.",
       "notReady": "غير جاهز",
-      "rate": "المعدل",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "لا قناة لهذا المنشور",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "لا مشاهدات أو تفاعل مقاس بعد",
-        "SOURCE_METRICS_IMMATURE": "نُشر منذ أقل من سبعة أيام",
         "SOURCE_NOT_PUBLISHED": "لم يُنشر بعد",
         "SOURCE_PUBLISH_DATE_MISSING": "تاريخ النشر غير معروف"
       },
-      "search": "البحث في المنشورات المنشورة",
-      "suggested": "مقترح",
-      "views": "المشاهدات"
+      "search": "البحث في المنشورات المنشورة"
     },
     "previewFailed": "تعذّر التحقق من هذا المنشور",
     "queueName": "اسم القائمة",

@@ -1,3 +1,4 @@
+import type { EvergreenEligibility } from "@/lib/evergreen/eligibility";
 export type Evidence = { metric: "engagements" | "views"; value: number; explanation: string };
 
 export type Queue = {
@@ -11,13 +12,18 @@ export type Queue = {
   lastCollisionShift?: { from: string; to: string; days: number; at: string } | null;
   channels: string[];
   activationEvidence: Evidence | null;
+  sourceSnapshot?: { content: string; mediaUrls: string[] };
+  contentReview?: { confirmedBy: string; confirmedAt: string } | null;
+  version: number;
+  expiresAt: string | null;
   runCount: number;
   pauseReason: string | null;
   sourcePostId: string;
 };
 
 export type Preview = {
-  eligibility: { eligible: boolean; reasons: string[]; evidence: Evidence | null };
+  sourcePostId: string;
+  eligibility: EvergreenEligibility;
   recommendation: { intervalDays: number; timeZone: string; localHour: number; localMinute: number; scheduleMode: "fixed" | "learned"; explanation: string };
 };
 

@@ -404,27 +404,15 @@
     "notScheduled": "Activa esta cola para programar su primera ejecución.",
     "pausedReason": "Pausada: {reason}",
     "picker": {
-      "engagements": "Interacciones",
-      "filters": {
-        "all": "Todas las publicadas",
-        "eligible": "Listas",
-        "suggested": "Sugeridas"
-      },
       "mediaOnly": "Solo con medios",
       "noMatches": "Ninguna publicación coincide.",
-      "noSuggested": "Aún no hay publicaciones destacadas. Necesitan siete días de resultados medidos antes de poder sugerirse.",
       "notReady": "No lista",
-      "rate": "Tasa",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Esta publicación no tiene canal",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Aún sin visualizaciones ni interacción medidas",
-        "SOURCE_METRICS_IMMATURE": "Publicada hace menos de siete días",
         "SOURCE_NOT_PUBLISHED": "Aún no publicada",
         "SOURCE_PUBLISH_DATE_MISSING": "Fecha de publicación desconocida"
       },
-      "search": "Buscar publicaciones publicadas",
-      "suggested": "Sugerida",
-      "views": "Visualizaciones"
+      "search": "Buscar publicaciones publicadas"
     },
     "previewFailed": "No se pudo comprobar esta publicación",
     "queueName": "Nombre de la cola",

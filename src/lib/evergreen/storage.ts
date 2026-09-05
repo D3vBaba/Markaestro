@@ -9,7 +9,7 @@ import type { EvergreenQueue, EvergreenRun, EvergreenVariant } from './types';
 import { evergreenRunStatus } from './run-status';
 import { syncPostMediaReferences } from '@/lib/media/asset-store';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
-import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
+import { MANUAL_REMINDER_DELIVERY_MODE, isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import { createInboxItem } from '@/lib/inbox';
 
@@ -105,7 +105,7 @@ export async function previewEvergreenQueue(
       localMinute: 0,
       scheduleMode: hasLearnedWindow ? 'learned' : 'fixed',
       explanation: hasLearnedWindow
-        ? `Use the strongest measured account window at ${String(learnedHour).padStart(2, '0')}:00 ${timeZone}, with a 30-day freshness gap.`
+        ? `Use the strongest measured account window at ${String(learnedHour).padStart(2, '0')}:00 ${timeZone}, with a default 30-day interval you can edit.`
         : 'Start with a 30-day gap at 10:00 UTC. You can edit the interval.',
     },
   };
@@ -152,7 +152,7 @@ export async function createEvergreenQueue(
       settings: source.settings && typeof source.settings === 'object' ? source.settings as Record<string, unknown> : null,
       settingsByChannel: record(source.settingsByChannel),
       channelDestinations: mergedDestinations,
-      channelDeliveryModes: record(source.channelDeliveryModes),
+      channelDeliveryModes: { ...record(source.channelDeliveryModes), ...(channels.includes('x') ? { x: MANUAL_REMINDER_DELIVERY_MODE } : {}) },
       destinationId: typeof source.destinationId === 'string' ? source.destinationId : '',
       destinationProvider: typeof source.destinationProvider === 'string' ? source.destinationProvider : '',
       capturedAt: now,
@@ -176,6 +176,7 @@ export async function createEvergreenQueue(
     consecutiveUnderperformingRuns: 0,
     pauseReason: null,
     activationEvidence: null,
+    contentReview: input.contentConfirmed ? { confirmedBy: actorId, confirmedAt: now } : null,
     createdBy: actorId,
     createdAt: now,
     updatedAt: now,
@@ -217,13 +218,17 @@ export async function updateEvergreenQueue(
     const snap = await tx.get(ref);
     if (!snap.exists) throw new Error('NOT_FOUND');
     const current = snap.data() as EvergreenQueue;
-    const { version, variants, ...changes } = input;
+    const { version, variants, contentConfirmed, ...changes } = input;
     if (current.version !== version) throw new Error('CONFLICT');
     if (current.status === 'archived') throw new Error('VALIDATION_EVERGREEN_ARCHIVED');
     const variantSnap = variants
       ? await tx.get(ref.collection('variants'))
       : null;
-    tx.update(ref, { ...changes, cadenceMode: 'fixed', version: current.version + 1, updatedAt: now });
+    const contentReview = contentConfirmed === true
+      ? { confirmedBy: actorId, confirmedAt: now }
+      : variants || contentConfirmed === false ? null : current.contentReview ?? null;
+    if (current.status === 'active' && !contentReview) throw new Error('EVERGREEN_CONTENT_REVIEW_REQUIRED');
+    tx.update(ref, { ...changes, contentReview, cadenceMode: 'fixed', version: current.version + 1, updatedAt: now });
     if (variants && variantSnap) {
       variantSnap.docs.forEach((doc) => tx.delete(doc.ref));
       variants.forEach((variant, position) => {
@@ -278,11 +283,11 @@ export async function activateEvergreenQueue(
   const sourceSnap = await adminDb.doc(`workspaces/${workspaceId}/posts/${current.sourcePostId}`).get();
   if (!sourceSnap.exists) throw new Error('NOT_FOUND');
   const eligibility = evaluateEvergreenEligibility(sourceSnap.data() as Record<string, unknown>);
-  if (!eligibility.eligible || !eligibility.evidence) {
+  if (!eligibility.eligible) {
     throw new Error('EVERGREEN_SOURCE_INELIGIBLE');
   }
   const source = sourceSnap.data() as Record<string, unknown>;
-  const deliveryModes = record(source.channelDeliveryModes);
+  const deliveryModes: Record<string, unknown> = { ...record(current.sourceSnapshot?.channelDeliveryModes), ...(current.channels.includes('x') ? { x: MANUAL_REMINDER_DELIVERY_MODE } : {}) };
   const manualChannels = current.channels.filter((channel) =>
     isManualReminderDeliveryMode(deliveryModes[channel]));
   const preflight = await getSocialPostPreflightIssues(workspaceId, current.productId, {
@@ -293,7 +298,7 @@ export async function activateEvergreenQueue(
   }, {
     requireReadyChannels: true,
     manualChannels,
-    channelDestinations: record(source.channelDestinations) as Partial<Record<SocialChannel, string>>,
+    channelDestinations: record(current.sourceSnapshot?.channelDestinations) as Partial<Record<SocialChannel, string>>,
   });
   if (preflight.length > 0) throw new Error('EVERGREEN_SOURCE_INELIGIBLE');
   const firstRunAt = nextEvergreenRunAt({
@@ -310,6 +315,9 @@ export async function activateEvergreenQueue(
     const fresh = snap.data() as EvergreenQueue;
     if (fresh.status === 'active') return;
     if (fresh.status === 'archived') throw new Error('VALIDATION_EVERGREEN_ARCHIVED');
+    if (fresh.version !== current.version) throw new Error('CONFLICT');
+    if (!fresh.contentReview) throw new Error('EVERGREEN_CONTENT_REVIEW_REQUIRED');
+    if (fresh.expiresAt && Date.parse(fresh.expiresAt) <= Date.now()) throw new Error('EVERGREEN_CONTENT_EXPIRED');
     await assertEvergreenCapacityInTransaction(
       tx,
       workspaceId,
@@ -398,6 +406,10 @@ async function transitionQueue(
     if (queue.status === 'archived' && action === 'archived') return;
     if (queue.status === 'archived' && action !== 'archived') throw new Error('VALIDATION_EVERGREEN_ARCHIVED');
     if (action === 'resumed') {
+      if (!queue.contentReview) throw new Error('EVERGREEN_CONTENT_REVIEW_REQUIRED');
+      const source = await tx.get(adminDb.doc(`workspaces/${workspaceId}/posts/${queue.sourcePostId}`));
+      if (!source.exists || !evaluateEvergreenEligibility(source.data() as Record<string, unknown>, now).eligible) throw new Error('EVERGREEN_SOURCE_INELIGIBLE');
+      if (queue.expiresAt && Date.parse(queue.expiresAt) <= now.getTime()) throw new Error('EVERGREEN_CONTENT_EXPIRED');
       if (capacityLimit === undefined) throw new Error('EVERGREEN_UPGRADE_REQUIRED');
       await assertEvergreenCapacityInTransaction(
         tx,
@@ -616,7 +628,12 @@ export async function approveEvergreenRun(workspaceId: string, queueId: string, 
   const planned = Date.parse(String(runSnap.get('plannedAt') ?? ''));
   const scheduledAt = new Date(Number.isFinite(planned) && planned > now.getTime() ? planned : now.getTime() + 15 * 60 * 1000).toISOString();
   const batch = adminDb.batch();
-  batch.update(postRef, { status: 'scheduled', scheduledAt, updatedAt: now.toISOString() });
+  const post = postSnap.data() as Record<string, unknown>;
+  const channels = strings(post.targetChannels).length ? strings(post.targetChannels) : [String(post.channel ?? '')];
+  batch.update(postRef, {
+    status: 'scheduled', scheduledAt, updatedAt: now.toISOString(),
+    ...(channels.includes('x') ? { channelDeliveryModes: { ...record(post.channelDeliveryModes), x: MANUAL_REMINDER_DELIVERY_MODE } } : {}),
+  });
   batch.update(runRef, { status: 'scheduled', plannedAt: scheduledAt, reviewedBy: actorId, reviewedAt: now.toISOString(), updatedAt: now.toISOString() });
   batch.create(auditRef(workspaceId), { queueId, runId, action: 'run_approved', actorId, at: now.toISOString() });
   await batch.commit();

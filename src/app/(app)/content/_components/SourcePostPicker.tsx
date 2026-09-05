@@ -5,37 +5,16 @@ import { useLocale, useTranslations } from "next-intl";
 import { Check, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Pagination from "@/components/app/Pagination";
 import { PostThumbnail } from "@/components/mk/PostThumbnail";
 import { channelLabel } from "@/components/mk/channels";
-import { fmtCount } from "@/components/mk/format";
 import { cn } from "@/lib/utils";
 
-export type SourceCandidate = {
-  id: string;
-  content: string;
-  channel: string;
-  channels: string[];
-  publishedAt: string | null;
-  thumbnailUrl: string | null;
-  mediaUrl: string | null;
-  engagements: number;
-  views: number;
-  engagementRate: number | null;
-  eligible: boolean;
-  reasons: string[];
-  suggested: boolean;
-};
+export type { EvergreenCandidate as SourceCandidate } from "@/lib/evergreen/candidates";
+import type { EvergreenCandidate as SourceCandidate } from "@/lib/evergreen/candidates";
 
 const PAGE_SIZE = 6;
-type Filter = "suggested" | "eligible" | "all";
 
-/**
- * Pick the post an evergreen queue repeats. Suggested posts (the strongest
- * measured ones) come first; the rest are browsable and searchable, and posts
- * that are not ready yet say why instead of being hidden.
- */
 export default function SourcePostPicker({
   candidates,
   value,
@@ -49,48 +28,23 @@ export default function SourcePostPicker({
 }) {
   const t = useTranslations("content.evergreenTab.picker");
   const locale = useLocale();
-  const suggestedCount = candidates.filter((c) => c.suggested).length;
-  const [filter, setFilterState] = useState<Filter>("all");
-  const [touched, setTouched] = useState(false);
+  const a = useTranslations("content.evergreenTab.assessment");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  // Candidates arrive after mount; land on Suggested once we know there are
-  // some, unless the user already picked a filter.
-  if (!touched && suggestedCount > 0 && filter !== "suggested") setFilterState("suggested");
-  const setFilter = (next: Filter) => { setTouched(true); setFilterState(next); };
-
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
     return candidates.filter((c) => {
-      if (filter === "suggested" && !c.suggested) return false;
-      if (filter === "eligible" && !c.eligible) return false;
       if (q && !c.content.toLowerCase().includes(q) && !channelLabel(c.channel).toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [candidates, filter, query]);
+  }, [candidates, query]);
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const current = Math.min(page, totalPages);
   const visible = rows.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
-  const counts = {
-    suggested: suggestedCount,
-    eligible: candidates.filter((c) => c.eligible).length,
-    all: candidates.length,
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Tabs value={filter} onValueChange={(v) => { setFilter(v as Filter); setPage(1); }}>
-          <TabsList>
-            {(["suggested", "eligible", "all"] as Filter[]).map((key) => (
-              <TabsTrigger key={key} value={key} className="gap-1.5">
-                {t(`filters.${key}`)}
-                <span className="tabular-nums text-mk-ink-40">{counts[key]}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
         <div className="relative sm:w-64">
           <Search className="pointer-events-none absolute start-2.5 top-1/2 size-4 -translate-y-1/2 text-mk-ink-40" />
           <Input
@@ -111,7 +65,7 @@ export default function SourcePostPicker({
         </div>
       ) : visible.length === 0 ? (
         <p className="m-0 rounded-xl border border-border bg-card px-4 py-8 text-center text-[13px] text-muted-foreground">
-          {filter === "suggested" ? t("noSuggested") : t("noMatches")}
+          {t("noMatches")}
         </p>
       ) : (
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2" role="radiogroup" aria-label={t("search")}>
@@ -135,26 +89,16 @@ export default function SourcePostPicker({
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                       <span className="font-medium text-foreground">{channelLabel(c.channel)}</span>
                       {date ? <span>{date}</span> : null}
-                      {c.suggested ? <Badge variant="accent">{t("suggested")}</Badge> : null}
+                      <Badge variant="secondary">{a("needsReview")}</Badge>
                       {!c.eligible ? <Badge variant="warning">{t("notReady")}</Badge> : null}
                     </div>
                     <p className="m-0 mt-1 line-clamp-2 text-[13px] leading-5 text-mk-ink-80">{c.content || t("mediaOnly")}</p>
-                    <dl className="m-0 mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                      <div className="flex items-baseline gap-1">
-                        <dt className="text-muted-foreground">{t("engagements")}</dt>
-                        <dd className="m-0 font-semibold tabular-nums text-foreground">{fmtCount(c.engagements, locale)}</dd>
-                      </div>
-                      <div className="flex items-baseline gap-1">
-                        <dt className="text-muted-foreground">{t("views")}</dt>
-                        <dd className="m-0 font-semibold tabular-nums text-foreground">{c.views > 0 ? fmtCount(c.views, locale) : "n/a"}</dd>
-                      </div>
-                      {c.engagementRate !== null && (
-                        <div className="flex items-baseline gap-1">
-                          <dt className="text-muted-foreground">{t("rate")}</dt>
-                          <dd className="m-0 font-semibold tabular-nums text-mk-pos">{(c.engagementRate * 100).toFixed(1)}%</dd>
-                        </div>
-                      )}
-                    </dl>
+                    <p className="m-0 mt-2 text-xs text-muted-foreground">{a("insufficient")}</p>
+                    {c.assessment.observations.map((row) => (
+                      <p key={row.channel} className="m-0 mt-1 text-xs text-muted-foreground">
+                        {channelLabel(row.channel)} · {a("metrics.views")}: {row.metrics.views === null ? "n/a" : row.metrics.views.toLocaleString(locale)} · {a("metrics.impressions")}: {row.metrics.impressions === null ? "n/a" : row.metrics.impressions.toLocaleString(locale)}
+                      </p>
+                    ))}
                     {!c.eligible && c.reasons[0] ? (
                       <p className="m-0 mt-1.5 text-xs text-mk-warn">{t(`reasons.${c.reasons[0]}`)}</p>
                     ) : null}

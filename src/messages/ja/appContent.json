@@ -404,27 +404,15 @@
     "notScheduled": "このキューを有効化すると最初のランが予約されます。",
     "pausedReason": "一時停止: {reason}",
     "picker": {
-      "engagements": "エンゲージメント",
-      "filters": {
-        "all": "公開済みすべて",
-        "eligible": "準備完了",
-        "suggested": "おすすめ"
-      },
       "mediaOnly": "メディア付きのみ",
       "noMatches": "一致する公開済み投稿がありません。",
-      "noSuggested": "まだ際立った投稿はありません。おすすめに表示されるには7日間の計測結果が必要です。",
       "notReady": "未準備",
-      "rate": "率",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "この投稿にチャネルがありません",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "計測済みの再生数やエンゲージメントがまだありません",
-        "SOURCE_METRICS_IMMATURE": "公開から7日未満",
         "SOURCE_NOT_PUBLISHED": "まだ公開されていません",
         "SOURCE_PUBLISH_DATE_MISSING": "公開日が不明"
       },
-      "search": "公開済み投稿を検索",
-      "suggested": "おすすめ",
-      "views": "再生数"
+      "search": "公開済み投稿を検索"
     },
     "previewFailed": "この投稿を確認できませんでした",
     "queueName": "キュー名",

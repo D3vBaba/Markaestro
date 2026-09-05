@@ -404,27 +404,15 @@
     "notScheduled": "Ative esta fila para agendar a primeira execução.",
     "pausedReason": "Em pausa: {reason}",
     "picker": {
-      "engagements": "Interações",
-      "filters": {
-        "all": "Todas as publicadas",
-        "eligible": "Prontas",
-        "suggested": "Sugeridas"
-      },
       "mediaOnly": "Só com media",
       "noMatches": "Nenhuma publicação corresponde.",
-      "noSuggested": "Ainda não há publicações em destaque. As publicações precisam de sete dias de resultados medidos antes de poderem ser sugeridas.",
       "notReady": "Não pronta",
-      "rate": "Taxa",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Esta publicação não tem canal",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Ainda sem visualizações nem interação medidas",
-        "SOURCE_METRICS_IMMATURE": "Publicada há menos de sete dias",
         "SOURCE_NOT_PUBLISHED": "Ainda não publicada",
         "SOURCE_PUBLISH_DATE_MISSING": "Data de publicação desconhecida"
       },
-      "search": "Pesquisar publicações publicadas",
-      "suggested": "Sugerida",
-      "views": "Visualizações"
+      "search": "Pesquisar publicações publicadas"
     },
     "previewFailed": "Não foi possível verificar esta publicação",
     "queueName": "Nome da fila",

@@ -116,15 +116,13 @@ function EvergreenBrand({ workspaceId, productId, products, changeProduct, initi
     load();
   };
 
-  const queuedSourceIds = new Set(queues.map((queue) => queue.sourcePostId));
-  const suggestions = candidates.filter((c) => c.suggested && !queuedSourceIds.has(c.id)).slice(0, 4);
   const metric = (value: number | null | undefined) => (value == null ? "n/a" : fmtCount(value, locale));
 
   return (
     <>
       <PageHeader
         title={t("pageTitle")}
-        subtitle={t("pageSubtitle")}
+        subtitle={t("assessment.pageSubtitle")}
         action={
           <>
             <BrandSwitcher label={tBar("brand")} emptyLabel={tBar("noBrandSelected")} products={products} value={productId} onChange={changeProduct} />
@@ -175,7 +173,7 @@ function EvergreenBrand({ workspaceId, productId, products, changeProduct, initi
               />
             ) : (
               <div className="grid gap-4">
-                {queues.map((queue) => <QueueCard key={queue.id} queue={queue} onChanged={load} />)}
+                {queues.map((queue) => <QueueCard key={`${queue.id}-${queue.version}`} queue={queue} onChanged={load} />)}
               </div>
             )}
           </Section>
@@ -210,30 +208,7 @@ function EvergreenBrand({ workspaceId, productId, products, changeProduct, initi
             )}
           </Section>
 
-          <Section title={t("suggestions.title")} description={t("suggestions.subtitle")}>
-            {loading && candidates.length === 0 ? (
-              <div className="grid gap-4 sm:grid-cols-2">{[0, 1].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}</div>
-            ) : suggestions.length === 0 ? (
-              <p className="m-0 rounded-xl border border-border bg-card px-5 py-6 text-[13px] text-muted-foreground">{t("suggestions.empty")}</p>
-            ) : (
-              <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2">
-                {suggestions.map((c) => (
-                  <li key={c.id} className="flex gap-3 rounded-xl border border-border bg-card p-4">
-                    <PostThumbnail src={c.thumbnailUrl} mediaUrl={c.mediaUrl} channel={c.channel} size={64} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground">{channelLabel(c.channel)}</span>
-                        <span>{fmtCount(c.views, locale)} {t("summary.views").toLowerCase()}</span>
-                        <span>{fmtCount(c.engagements, locale)} {t("summary.engagements").toLowerCase()}</span>
-                      </div>
-                      <p className="m-0 mt-1 line-clamp-2 text-[13px] leading-5 text-mk-ink-80">{c.content || t("picker.mediaOnly")}</p>
-                      <Button size="xs" className="mt-3" onClick={() => { setCreateSource(c.id); setCreateKey((k) => k + 1); setCreateOpen(true); }}>{t("suggestions.make")}</Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Section>
+
         </div>
       )}
 

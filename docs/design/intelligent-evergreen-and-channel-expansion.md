@@ -2,6 +2,8 @@
 
 > 2026-09-04 update: Performance-driven cadence changes, caption retirement, decay pauses, and the separate candidate-suggestion worker were removed. Queues retain fixed intervals and operational safeguards. The performance-evaluation sections below describe the original design; see `docs/API_CHANGELOG.md` for current behavior.
 
+> Eligibility update: The winner-ranking and maturity rules below are historical. See [current evidence and content-review rules](../research/evergreen-eligibility.md). Automatic performance recommendations are disabled pending validation; X occurrences use manual reminders.
+
 Status: Implemented core, roadmap extensions deferred  
 Owners: Product and Engineering  
 Last updated: 2026-09-03  

@@ -404,27 +404,15 @@
     "notScheduled": "Attiva questa coda per programmare la prima esecuzione.",
     "pausedReason": "In pausa: {reason}",
     "picker": {
-      "engagements": "Interazioni",
-      "filters": {
-        "all": "Tutti i pubblicati",
-        "eligible": "Pronti",
-        "suggested": "Suggeriti"
-      },
       "mediaOnly": "Solo con media",
       "noMatches": "Nessun post pubblicato corrisponde.",
-      "noSuggested": "Nessun post di spicco per ora. I post hanno bisogno di sette giorni di risultati misurati prima di poter essere suggeriti.",
       "notReady": "Non pronto",
-      "rate": "Tasso",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Nessun canale su questo post",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Nessuna visualizzazione o interazione misurata finora",
-        "SOURCE_METRICS_IMMATURE": "Pubblicato meno di sette giorni fa",
         "SOURCE_NOT_PUBLISHED": "Non ancora pubblicato",
         "SOURCE_PUBLISH_DATE_MISSING": "Data di pubblicazione sconosciuta"
       },
-      "search": "Cerca tra i post pubblicati",
-      "suggested": "Suggerito",
-      "views": "Visualizzazioni"
+      "search": "Cerca tra i post pubblicati"
     },
     "previewFailed": "Impossibile verificare questo post",
     "queueName": "Nome della coda",

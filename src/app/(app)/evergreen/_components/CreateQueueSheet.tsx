@@ -17,6 +17,8 @@ import { Channel } from "@/components/mk/Channel";
 import { channelLabel } from "@/components/mk/channels";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
+import SourceMedia from "./SourceMedia";
+import SourceAssessment from "./SourceAssessment";
 import { messageFrom, type Preview } from "./types";
 
 type ChannelInfo = {
@@ -59,6 +61,8 @@ export default function CreateQueueSheet({
   const [channels, setChannels] = useState<ChannelInfo[]>([]);
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
   const [destinations, setDestinations] = useState<Record<string, string>>({});
+  const [confirmedCaptions, setConfirmedCaptions] = useState<string | null>(null);
+  const contentConfirmed = confirmedCaptions === JSON.stringify(captions);
   const [saving, setSaving] = useState(false);
 
   const selected = useMemo(() => candidates.find((c) => c.id === sourcePostId) ?? null, [candidates, sourcePostId]);
@@ -76,6 +80,7 @@ export default function CreateQueueSheet({
   const [seededFor, setSeededFor] = useState<string | null>(null);
   if (selected && seededFor !== selected.id) {
     setSeededFor(selected.id);
+    setConfirmedCaptions(null);
     setCaptions([selected.content]);
     setName((current) => current || t("defaultName", { channel: channelLabel(selected.channel) }));
     setSelectedChannels(selected.channels);
@@ -130,7 +135,7 @@ export default function CreateQueueSheet({
 
   const create = async () => {
     const variants = captions.map((v) => v.trim()).filter(Boolean);
-    if (!sourcePostId || !name.trim() || variants.length === 0) return;
+    if (!sourcePostId || !name.trim() || variants.length === 0 || !contentConfirmed || preview?.sourcePostId !== sourcePostId) return;
     setSaving(true);
     const recommendation = preview?.recommendation;
     const timeZone = recommendation?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
@@ -152,6 +157,7 @@ export default function CreateQueueSheet({
       localMinute: recommendation?.localMinute ?? 0,
       scheduleMode: recommendation?.scheduleMode ?? "fixed",
       reviewPolicy,
+      contentConfirmed,
       variants: variants.map((caption) => ({ caption, enabled: true })),
     });
     setSaving(false);
@@ -161,7 +167,7 @@ export default function CreateQueueSheet({
     await onCreated();
   };
 
-  const canCreate = Boolean(sourcePostId && name.trim() && captions.some((v) => v.trim()) && preview?.eligibility.eligible && selectedChannels.length > 0 && missingDestination.length === 0 && !saving);
+  const canCreate = Boolean(sourcePostId && name.trim() && captions.some((v) => v.trim()) && contentConfirmed && preview?.sourcePostId === sourcePostId && preview?.eligibility.eligible && selectedChannels.length > 0 && missingDestination.length === 0 && !saving);
   const step = (label: string) => <p className="m-0 text-sm font-semibold text-foreground">{label}</p>;
 
   return (
@@ -175,7 +181,7 @@ export default function CreateQueueSheet({
         <div className="min-h-0 flex-1 space-y-8 overflow-y-auto px-5 py-5 sm:px-6">
           <section className="space-y-3">
             {step(t("createFlow.sourceStep"))}
-            <p className="m-0 text-[13px] text-muted-foreground">{t("sourceHint")}</p>
+            <p className="m-0 text-[13px] text-muted-foreground">{t("assessment.sourceHint")}</p>
             {selected && !pickerOpen ? (
               <div className="flex items-center gap-3 rounded-xl border border-mk-accent bg-mk-accent-soft/60 p-3">
                 <Channel channel={selected.channel} size={24} />
@@ -188,10 +194,13 @@ export default function CreateQueueSheet({
             ) : (
               <SourcePostPicker candidates={candidates} value={sourcePostId} onChange={(id) => { setSourcePostId(id); setPickerOpen(false); }} loading={candidatesLoading} />
             )}
-            {preview && (
-              <Notice tone={preview.eligibility.eligible ? "positive" : "warning"} icon={ShieldCheck} title={preview.eligibility.eligible ? t("eligible") : t("notEligible")}>
-                {preview.eligibility.evidence?.explanation || preview.eligibility.reasons.map((r) => t(`picker.reasons.${r}`)).join(" ")}
-              </Notice>
+            {preview?.sourcePostId === sourcePostId && (
+              <>
+                {!preview.eligibility.eligible && <Notice tone="warning" icon={ShieldCheck} title={t("notEligible")}>
+                  {preview.eligibility.reasons.map((r) => t(`picker.reasons.${r}`)).join(" ")}
+                </Notice>}
+                <SourceAssessment assessment={preview.eligibility} />
+              </>
             )}
           </section>
 
@@ -253,6 +262,11 @@ export default function CreateQueueSheet({
               </section>
 
               <section className="space-y-3">
+                <SourceMedia urls={selected?.mediaUrls ?? []} channel={selected?.channel ?? ""} />
+                <label className="flex items-start gap-3 text-[13px]">
+                  <input type="checkbox" checked={contentConfirmed} onChange={(e) => setConfirmedCaptions(e.target.checked ? JSON.stringify(captions) : null)} className="mt-1" />
+                  {t("assessment.confirm")}
+                </label>
                 {step(t("createFlow.channelsTitle"))}
                 <p className="m-0 text-[13px] text-muted-foreground">{t("createFlow.channelsHint")}</p>
                 <div className="flex flex-wrap gap-2">
@@ -272,6 +286,7 @@ export default function CreateQueueSheet({
                     );
                   })}
                 </div>
+                {selectedChannels.includes("x") && <p className="m-0 text-[13px] text-muted-foreground">{t("assessment.xManual")}</p>}
                 {selectedChannels.filter((c) => !sourceChannels.includes(c) && readyDestinations(c).length > 1).map((channel) => (
                   <FormField key={channel} label={channelLabel(channel)}>
                     <Select value={destinations[channel] ?? ""} onChange={(e) => setDestinations((d) => ({ ...d, [channel]: e.target.value }))}>

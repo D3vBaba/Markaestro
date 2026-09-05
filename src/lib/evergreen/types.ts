@@ -56,6 +56,7 @@ export type EvergreenQueue = {
   consecutiveUnderperformingRuns: number;
   pauseReason: string | null;
   activationEvidence: EvergreenEvidence | null;
+  contentReview?: { confirmedBy: string; confirmedAt: string } | null;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

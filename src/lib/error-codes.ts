@@ -101,12 +101,22 @@ export const ERROR_CODES: Record<string, ErrorCodeSpec> = {
     category: 'validation',
     description: 'The Evergreen source post is no longer in the published state.',
   },
+  EVERGREEN_CONTENT_REVIEW_REQUIRED: {
+    status: 400, retryable: false, category: 'validation',
+    description: 'Evergreen captions require an owner content review before recurring use.',
+    userMessage: 'Review the captions and confirm they remain useful and accurate before continuing.',
+  },
+  EVERGREEN_CONTENT_EXPIRED: {
+    status: 400, retryable: false, category: 'validation',
+    description: 'The Evergreen queue has expired.',
+    userMessage: 'This queue has expired. Update its content and expiry before activating it.',
+  },
   EVERGREEN_SOURCE_INELIGIBLE: {
     status: 400,
     retryable: false,
     category: 'validation',
-    description: 'The source post is not published, mature, measured, or otherwise eligible for an Evergreen queue.',
-    userMessage: 'This post does not have enough mature performance data for an Evergreen queue yet.',
+    description: 'The source post is not available for reuse or failed publishing checks.',
+    userMessage: 'This source is not available for reuse. Check its publish status and channel setup.',
   },
   EVERGREEN_UPGRADE_REQUIRED: {
     status: 403,

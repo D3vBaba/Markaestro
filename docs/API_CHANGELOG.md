@@ -15,6 +15,30 @@ file in the same change, not afterwards.
 
 ## 2026-09-04
 
+### Evergreen evidence and content review
+
+The optional `contentConfirmed` field on queue creation and updates records an
+owner review of all captions and attached content. Draft creation still accepts
+omitted confirmation. Activation and resume now require that review; captions
+changed without a new confirmation lose it. Active queues reject unconfirmed
+caption edits. Expired queues cannot activate or resume. This intentionally
+changes activation eligibility for existing clients and queues as part of the
+Evergreen eligibility correction; integrations must submit a review before
+continuing. It is not a new dated API version or an opt-out from these checks.
+
+Preview `eligible` means operationally available for manual reuse, not proven
+performance. New `suitability`, `performance`, `recommendation`, and
+`observations` fields separate review from evidence. New `evidence` is null;
+missing measurements stay null and are kept per channel. The arbitrary seven-day
+and any-positive-count gates have been removed. No automated performance
+recommendations are made until a reliability rule has been validated.
+
+X occurrences generated after this change, and X drafts approved through the
+Evergreen review endpoint, use manual publishing reminders. Active queues
+without a recorded content review pause at their next generation attempt.
+Existing history is retained. See [research and rollout details](research/evergreen-eligibility.md).
+
+
 ### Evergreen simplification
 
 Evergreen now keeps the configured interval. Performance comparisons no longer

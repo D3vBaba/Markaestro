@@ -404,27 +404,15 @@
     "notScheduled": "Activeer deze wachtrij om de eerste run in te plannen.",
     "pausedReason": "Gepauzeerd: {reason}",
     "picker": {
-      "engagements": "Interacties",
-      "filters": {
-        "all": "Alle gepubliceerde",
-        "eligible": "Klaar",
-        "suggested": "Voorgesteld"
-      },
       "mediaOnly": "Alleen met media",
       "noMatches": "Geen gepubliceerde posts gevonden.",
-      "noSuggested": "Nog geen opvallende posts. Posts hebben zeven dagen gemeten resultaten nodig voordat ze voorgesteld kunnen worden.",
       "notReady": "Niet klaar",
-      "rate": "Ratio",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Geen kanaal op deze post",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Nog geen gemeten weergaven of interacties",
-        "SOURCE_METRICS_IMMATURE": "Minder dan zeven dagen geleden gepubliceerd",
         "SOURCE_NOT_PUBLISHED": "Nog niet gepubliceerd",
         "SOURCE_PUBLISH_DATE_MISSING": "Publicatiedatum onbekend"
       },
-      "search": "Zoek in gepubliceerde posts",
-      "suggested": "Voorgesteld",
-      "views": "Weergaven"
+      "search": "Zoek in gepubliceerde posts"
     },
     "previewFailed": "Kon deze post niet controleren",
     "queueName": "Naam van de wachtrij",

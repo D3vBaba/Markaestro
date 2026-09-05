@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations, useNow } from "next-intl";
 import { BarChart3, CalendarClock, ChevronDown, Pause, Play } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Status } from "@/components/mk/Status";
 import { Channel } from "@/components/mk/Channel";
-import { apiDelete, apiGet, apiPost } from "@/lib/api-client";
+import { apiDelete, apiGet, apiPost, apiPatch } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
+import SourceMedia from "./SourceMedia";
 import { messageFrom, type Analytics, type Queue } from "./types";
 
 const fmtDate = (iso: string, locale: string) =>
@@ -18,10 +19,22 @@ const fmtDate = (iso: string, locale: string) =>
 export default function QueueCard({ queue, onChanged }: { queue: Queue; onChanged: () => Promise<void> | void }) {
   const t = useTranslations("content.evergreenTab");
   const locale = useLocale();
+  const now = useNow();
+  const expired = Boolean(queue.expiresAt && Date.parse(queue.expiresAt) <= now.getTime());
   const [working, setWorking] = useState(false);
   const [open, setOpen] = useState(false);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [contentConfirmed, setContentConfirmed] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const confirmContent = async () => {
+    if (!contentConfirmed || !analytics) return;
+    setWorking(true);
+    const result = await apiPatch(`/api/evergreen-queues/${queue.id}`, { version: queue.version, contentConfirmed: true });
+    if (!result.ok) toast.error(messageFrom(result.data, t("actionFailed")));
+    else await onChanged();
+    setWorking(false);
+  };
 
   const transition = async (action: "activate" | "pause" | "resume" | "archive") => {
     setWorking(true);
@@ -65,7 +78,9 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
               {queue.nextRunAt ? t("nextRun", { date: new Date(queue.nextRunAt).toLocaleString(locale) }) : t("notScheduled")}
             </p>
             <p className="m-0">{t("runs", { count: queue.runCount })}</p>
-            {queue.activationEvidence && <p className="m-0">{queue.activationEvidence.explanation}</p>}
+            <p className="m-0">{expired ? t("assessment.needsUpdate") : queue.contentReview ? t("assessment.reusable") : t("assessment.needsReview")}</p>
+            <p className="m-0">{t("assessment.insufficient")}</p>
+            {queue.channels.includes("x") && <p className="m-0">{t("assessment.xManual")}</p>}
             {queue.pauseReason && <p className="m-0 text-mk-warn">{t("pausedReason", { reason: queue.pauseReason })}</p>}
             {queue.lastCollisionShift && <p className="m-0">{t("queues.shifted", { days: queue.lastCollisionShift.days })}</p>}
           </div>
@@ -80,18 +95,18 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
           {queue.status === "draft" && (
-            <Button size="sm" disabled={working} onClick={() => void transition("activate")}><Play className="size-3.5" />{t("actions.activate")}</Button>
+            <Button size="sm" disabled={working || !queue.contentReview || expired} onClick={() => void transition("activate")}><Play className="size-3.5" />{t("actions.activate")}</Button>
           )}
           {queue.status === "active" && (
             <Button size="sm" variant="outline" disabled={working} onClick={() => void transition("pause")}><Pause className="size-3.5" />{t("actions.pause")}</Button>
           )}
           {queue.status === "paused" && (
-            <Button size="sm" disabled={working} onClick={() => void transition("resume")}><Play className="size-3.5" />{t("actions.resume")}</Button>
+            <Button size="sm" disabled={working || !queue.contentReview || expired} onClick={() => void transition("resume")}><Play className="size-3.5" />{t("actions.resume")}</Button>
           )}
           <Button size="sm" variant="ghost" disabled={working} onClick={() => void transition("archive")}>{t("actions.archive")}</Button>
           <Button size="sm" variant="ghost" aria-expanded={open} onClick={() => void toggle()}>
             <BarChart3 className="size-3.5" />
-            {t("analytics.details")}
+            {!queue.contentReview ? t("assessment.reviewContent") : t("analytics.details")}
             <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
           </Button>
         </div>
@@ -125,7 +140,7 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
                   {analytics.variants.map((variant) => (
                     <li key={variant.variantId} className={cn("grid gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center", !variant.enabled && "bg-muted/40")}>
                       <div className="min-w-0">
-                        <p className={cn("m-0 line-clamp-2 text-[13px] leading-5", variant.enabled ? "text-foreground" : "text-muted-foreground line-through")}>{variant.caption}</p>
+                        <p className={cn("m-0 whitespace-pre-wrap text-[13px] leading-5", variant.enabled ? "text-foreground" : "text-muted-foreground line-through")}>{variant.caption}</p>
                         {variant.retiredReason && <p className="m-0 mt-1 text-xs text-mk-warn">{t("queues.variantRetired")}</p>}
                       </div>
                       <div className="flex flex-wrap items-center gap-3 text-xs tabular-nums text-muted-foreground">
@@ -135,6 +150,16 @@ export default function QueueCard({ queue, onChanged }: { queue: Queue; onChange
                     </li>
                   ))}
                 </ul>
+                {!queue.contentReview && (
+                  <div className="mt-4 space-y-3">
+                    <SourceMedia urls={queue.sourceSnapshot?.mediaUrls ?? []} channel={queue.channels[0] ?? ""} />
+                    <label className="flex items-start gap-3 text-[13px]">
+                      <input type="checkbox" checked={contentConfirmed} onChange={(e) => setContentConfirmed(e.target.checked)} className="mt-1" />
+                      {t("assessment.confirm")}
+                    </label>
+                    <Button size="sm" disabled={!contentConfirmed || working} onClick={() => void confirmContent()}>{t("assessment.saveReview")}</Button>
+                  </div>
+                )}
               </div>
 
               <div>

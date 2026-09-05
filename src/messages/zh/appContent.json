@@ -404,27 +404,15 @@
     "notScheduled": "启用此队列以安排首次运行。",
     "pausedReason": "已暂停：{reason}",
     "picker": {
-      "engagements": "互动",
-      "filters": {
-        "all": "全部已发布",
-        "eligible": "就绪",
-        "suggested": "推荐"
-      },
       "mediaOnly": "仅含媒体",
       "noMatches": "没有匹配的已发布帖子。",
-      "noSuggested": "暂无突出的帖子。帖子需要七天的实测结果才能被推荐。",
       "notReady": "未就绪",
-      "rate": "比率",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "该帖子没有渠道",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "尚无实测观看量或互动",
-        "SOURCE_METRICS_IMMATURE": "发布不满七天",
         "SOURCE_NOT_PUBLISHED": "尚未发布",
         "SOURCE_PUBLISH_DATE_MISSING": "发布日期未知"
       },
-      "search": "搜索已发布帖子",
-      "suggested": "推荐",
-      "views": "观看量"
+      "search": "搜索已发布帖子"
     },
     "previewFailed": "无法检查此帖子",
     "queueName": "队列名称",

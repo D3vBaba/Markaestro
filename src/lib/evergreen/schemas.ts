@@ -16,6 +16,8 @@ export const createEvergreenQueueSchema = z.object({
   productId: z.string().trim().min(1).max(200),
   sourcePostId: z.string().trim().min(1).max(200),
   name: z.string().trim().min(1).max(120),
+  /** Owner confirms all captions remain useful, accurate and free of expired claims. */
+  contentConfirmed: z.boolean().optional(),
   channels: z.array(z.enum(socialChannels)).min(1).max(socialChannels.length).optional(),
   intervalDays: z.number().int().min(7).max(365).default(30),
   timeZone: z.string().trim().min(1).max(100).default('UTC'),
@@ -32,6 +34,7 @@ export const createEvergreenQueueSchema = z.object({
 
 export const updateEvergreenQueueSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
+  contentConfirmed: z.boolean().optional(),
   intervalDays: z.number().int().min(7).max(365).optional(),
   timeZone: z.string().trim().min(1).max(100).optional(),
   localHour: z.number().int().min(0).max(23).optional(),

@@ -404,27 +404,15 @@
     "notScheduled": "Aktiviere diese Warteschlange, um den ersten Lauf zu planen.",
     "pausedReason": "Pausiert: {reason}",
     "picker": {
-      "engagements": "Interaktionen",
-      "filters": {
-        "all": "Alle veröffentlichten",
-        "eligible": "Bereit",
-        "suggested": "Vorgeschlagen"
-      },
       "mediaOnly": "Nur mit Medien",
       "noMatches": "Keine veröffentlichten Beiträge passen.",
-      "noSuggested": "Noch keine herausragenden Beiträge. Beiträge brauchen sieben Tage gemessene Ergebnisse, bevor sie vorgeschlagen werden können.",
       "notReady": "Nicht bereit",
-      "rate": "Rate",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Kein Kanal an diesem Beitrag",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Noch keine gemessenen Aufrufe oder Interaktionen",
-        "SOURCE_METRICS_IMMATURE": "Vor weniger als sieben Tagen veröffentlicht",
         "SOURCE_NOT_PUBLISHED": "Noch nicht veröffentlicht",
         "SOURCE_PUBLISH_DATE_MISSING": "Veröffentlichungsdatum unbekannt"
       },
-      "search": "Veröffentlichte Beiträge durchsuchen",
-      "suggested": "Vorgeschlagen",
-      "views": "Aufrufe"
+      "search": "Veröffentlichte Beiträge durchsuchen"
     },
     "previewFailed": "Dieser Beitrag konnte nicht geprüft werden",
     "queueName": "Name der Warteschlange",

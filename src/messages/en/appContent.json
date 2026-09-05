@@ -48,13 +48,13 @@
     }
   },
   "evergreenTab": {
-    "title": "Intelligent Evergreen",
-    "description": "Turn proven posts into governed, measurable queues. Markaestro preserves the source, creates a new occurrence for each run, and pauses weak sequences automatically.",
+    "title": "Evergreen",
+    "description": "Review reusable content and schedule future occurrences with clear performance evidence.",
     "newQueue": "New Queue",
     "selectBrand": "Select a brand to manage its evergreen queues.",
     "loading": "Loading evergreen queues...",
     "loadFailed": "Could not load evergreen queues",
-    "sourcePost": "Proven Source Post",
+    "sourcePost": "Source Post",
     "choosePost": "Choose a Published Post",
     "queueName": "Queue Name",
     "defaultName": "{channel} evergreen queue",
@@ -67,7 +67,7 @@
     "reviewPolicy": "Approval Policy",
     "approveFuture": "Approve Future Runs Now",
     "reviewEach": "Review Every Occurrence",
-    "eligible": "Eligible Evidence Found",
+    "eligible": "Available for manual reuse",
     "notEligible": "Not Eligible Yet",
     "previewFailed": "Could not check this post",
     "cancel": "Cancel",
@@ -113,32 +113,21 @@
     },
     "picker": {
       "search": "Search Published Posts",
-      "filters": {
-        "suggested": "Suggested",
-        "eligible": "Ready",
-        "all": "All Published"
-      },
-      "suggested": "Suggested",
       "notReady": "Not ready",
       "mediaOnly": "Media Only",
-      "engagements": "Engagements",
-      "views": "Views",
-      "rate": "Rate",
-      "noSuggested": "No standout posts yet. Posts need seven days of measured results before they can be suggested.",
       "noMatches": "No published posts match.",
       "reasons": {
         "SOURCE_NOT_PUBLISHED": "Not published yet",
         "SOURCE_PUBLISH_DATE_MISSING": "Publish date unknown",
-        "SOURCE_METRICS_IMMATURE": "Published less than seven days ago",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "No measured views or engagement yet",
-        "SOURCE_HAS_NO_CHANNEL": "No channel on this post"
+        "SOURCE_HAS_NO_CHANNEL": "No channel on this post",
+        "SOURCE_PUBLISH_DATE_FUTURE": "Publish date is in the future"
       }
     },
-    "sourceHint": "Pick the post this queue repeats. Suggested posts earned the most from their audience and are at least a week old.",
+    "sourceHint": "Choose a published post to review for reuse. Performance metrics alone do not establish evergreen suitability.",
     "selectedSource": "Selected Post",
     "changeSource": "Change",
     "pageTitle": "Evergreen",
-    "pageSubtitle": "Repeat what already worked. Proven posts come back on a schedule, with fresh captions, and pause themselves when they stop earning.",
+    "pageSubtitle": "Review content for lasting relevance, then choose what to reuse and when.",
     "summary": {
       "title": "What Evergreen earned",
       "window": "Last {days} days",
@@ -151,12 +140,6 @@
       "evergreenLabel": "Evergreen",
       "freshLabel": "Fresh posts",
       "empty": "No reposts have published in this window yet."
-    },
-    "suggestions": {
-      "title": "Worth repeating",
-      "subtitle": "Your strongest measured posts that are not in a queue yet.",
-      "make": "Make evergreen",
-      "empty": "Nothing to suggest yet. Posts need seven days of measured results first."
     },
     "reviews": {
       "title": "Waiting for your review",
@@ -202,7 +185,45 @@
       "channelNotReady": "Not connected",
       "nextDates": "First runs"
     },
-    "create": "Create queue"
+    "create": "Create queue",
+    "assessment": {
+      "needsReview": "Content needs review",
+      "needsUpdate": "Content needs updating",
+      "reusable": "Content confirmed reusable",
+      "insufficient": "Insufficient performance evidence",
+      "unavailable": "Benchmark comparison unavailable",
+      "manualHint": "You can choose to reuse this content after reviewing it. Recorded views or a high engagement percentage alone do not establish that repeating it will perform well.",
+      "benchmarkReason": "A comparison needs matching metrics, audience, paid or organic status, and measurement age. A reliable minimum evidence rule for reuse has not yet been established.",
+      "captured": "Metrics captured {date}",
+      "unknownCapture": "Metric capture time unavailable",
+      "references": "Research references",
+      "referenceHint": "Published averages from the provider’s brand sample, shown for context. They are not minimum view counts or evidence that this post should be repeated. Formats and formulas differ; these references do not qualify a post for a recommendation.",
+      "average": "Reported average engagement rate: {value}%",
+      "noReference": "No verified reference is available here for this platform.",
+      "confirm": "I have reviewed every caption and its media and links. The content remains useful and accurate, with no expired offers, outdated instructions, or claims that depend on a past event. I will update or pause it when that changes.",
+      "xManual": "X occurrences use manual publishing reminders. Review and adapt the content before posting; recurring identical or substantially similar automated posts are restricted by X.",
+      "reviewContent": "Review content",
+      "saveReview": "Confirm content review",
+      "metrics": {
+        "views": "Views",
+        "impressions": "Impressions",
+        "reach": "Reach",
+        "likes": "Likes",
+        "comments": "Comments",
+        "shares": "Shares",
+        "saves": "Saves",
+        "clicks": "Clicks"
+      },
+      "formats": {
+        "all": "All formats",
+        "image": "Image",
+        "video": "Video",
+        "text": "Text"
+      },
+      "sourceHint": "Choose a published post to review for reuse. Performance metrics alone do not establish evergreen suitability.",
+      "pageSubtitle": "Review content for lasting relevance, then choose what to reuse and when.",
+      "openMedia": "Open attached media"
+    }
   },
   "scheduledTab": {
     "empty": "Nothing scheduled yet.",

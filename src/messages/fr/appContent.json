@@ -404,27 +404,15 @@
     "notScheduled": "Activez cette file pour planifier sa première exécution.",
     "pausedReason": "Suspendue : {reason}",
     "picker": {
-      "engagements": "Engagements",
-      "filters": {
-        "all": "Toutes les publiées",
-        "eligible": "Prêtes",
-        "suggested": "Suggérées"
-      },
       "mediaOnly": "Avec média uniquement",
       "noMatches": "Aucune publication ne correspond.",
-      "noSuggested": "Aucune publication remarquable pour l'instant. Il faut sept jours de résultats mesurés avant qu'une publication puisse être suggérée.",
       "notReady": "Pas prête",
-      "rate": "Taux",
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Aucun canal sur cette publication",
-        "SOURCE_HAS_NO_MEASURED_SIGNAL": "Aucune vue ni engagement mesurés pour l'instant",
-        "SOURCE_METRICS_IMMATURE": "Publiée il y a moins de sept jours",
         "SOURCE_NOT_PUBLISHED": "Pas encore publiée",
         "SOURCE_PUBLISH_DATE_MISSING": "Date de publication inconnue"
       },
-      "search": "Rechercher des publications publiées",
-      "suggested": "Suggérée",
-      "views": "Vues"
+      "search": "Rechercher des publications publiées"
     },
     "previewFailed": "Impossible de vérifier cette publication",
     "queueName": "Nom de la file",

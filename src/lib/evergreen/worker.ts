@@ -4,7 +4,7 @@ import { markWorkspaceDue } from '@/lib/workers/due-workspaces';
 import { evergreenGenerationDueAt, deterministicRunId, nextEvergreenRunAt } from './scheduling';
 import type { EvergreenQueue, EvergreenVariant } from './types';
 import { getSocialPostPreflightIssues } from '@/lib/social/post-preflight';
-import { isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
+import { MANUAL_REMINDER_DELIVERY_MODE, isManualReminderDeliveryMode } from '@/lib/manual-publish-flow';
 import { enqueueWebhookEvent } from '@/lib/public-api/webhooks';
 import type { SocialChannel } from '@/lib/schemas';
 import { pauseEvergreenQueueForSystem } from './storage';
@@ -50,13 +50,17 @@ async function generateOccurrence(
     return { queueId, status: 'paused', reason: 'QUEUE_EXPIRED' };
   }
 
+  if (!queue.contentReview) {
+    await pauseEvergreenQueueForSystem(workspaceId, queueId, 'EVERGREEN_CONTENT_REVIEW_REQUIRED');
+    return { queueId, status: 'paused', reason: 'EVERGREEN_CONTENT_REVIEW_REQUIRED' };
+  }
   const sourceBeforeRun = await adminDb.doc(`workspaces/${workspaceId}/posts/${queue.sourcePostId}`).get();
   if (!sourceBeforeRun.exists) {
     await pauseEvergreenQueueForSystem(workspaceId, queueId, 'EVERGREEN_SOURCE_MISSING');
     return { queueId, status: 'paused', reason: 'EVERGREEN_SOURCE_MISSING' };
   }
   const sourceData = sourceBeforeRun.data() as Record<string, unknown>;
-  const modes = queue.sourceSnapshot?.channelDeliveryModes ?? {};
+  const modes: Record<string, unknown> = { ...queue.sourceSnapshot?.channelDeliveryModes, ...(queue.channels.includes('x') ? { x: MANUAL_REMINDER_DELIVERY_MODE } : {}) };
   const manualChannels = queue.channels.filter((channel) =>
     isManualReminderDeliveryMode(modes[channel]));
   const preflight = await getSocialPostPreflightIssues(workspaceId, queue.productId, {
@@ -133,7 +137,7 @@ async function generateOccurrence(
     if (!freshQueueSnap.exists || !sourceSnap.exists) throw new Error('EVERGREEN_SOURCE_MISSING');
     const freshQueue = { id: freshQueueSnap.id, ...freshQueueSnap.data() } as EvergreenQueue;
     if (freshQueue.status !== 'active' || freshQueue.nextRunAt !== queue.nextRunAt) return;
-    if (!freshQueue.nextRunAt) return;
+    if (!freshQueue.nextRunAt || !freshQueue.contentReview || freshQueue.version !== queue.version) return;
     const source = sourceSnap.data() as Record<string, unknown>;
     if (source.status !== 'published') throw new Error('EVERGREEN_SOURCE_NOT_PUBLISHED');
 
@@ -166,7 +170,7 @@ async function generateOccurrence(
       channel: primaryChannel,
       targetChannels,
       channelDestinations: sourceDestinations,
-      channelDeliveryModes: sourceDeliveryModes,
+      channelDeliveryModes: { ...sourceDeliveryModes, ...(targetChannels.includes('x') ? { x: MANUAL_REMINDER_DELIVERY_MODE } : {}) },
       settingsByChannel: sourceSettings,
       settings: (sourceSettings as Record<string, unknown>)[primaryChannel] ?? sourceSnapshot?.settings ?? source.settings ?? null,
       status,

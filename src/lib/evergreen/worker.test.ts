@@ -36,6 +36,7 @@ const queue = {
   nextRunAt: plannedAt, intervalDays: 30, cadenceMode: 'adaptive', runCount: 0,
   timeZone: 'UTC', localHour: 10, localMinute: 0, version: 1, createdBy: 'owner',
   reviewPolicy: 'approve_future_runs',
+  contentReview: { confirmedBy: 'owner', confirmedAt: '2026-09-04T10:00:00Z' },
 };
 
 beforeEach(() => {
@@ -59,6 +60,22 @@ describe('Evergreen fixed scheduling', () => {
     expect(db.get(`${queuePath}/runs/${runId}`)).toMatchObject({ status: 'scheduled', evaluationDueAt: null, performanceIndex: null });
     expect(markDue.mock.calls.map((call) => call[2])).toEqual(['scheduled_post', 'evergreen_queue']);
     expect(pause).not.toHaveBeenCalled();
+  });
+
+  it('pauses legacy queues until their content is reviewed', async () => {
+    db.set(queuePath, { ...queue, contentReview: null });
+    const { processDueEvergreenQueues } = await import('./worker');
+    await processDueEvergreenQueues('ws');
+    expect(pause).toHaveBeenCalledWith('ws', 'q', 'EVERGREEN_CONTENT_REVIEW_REQUIRED');
+    expect(db.writes).toEqual([]);
+  });
+
+  it('uses manual reminders for X, including existing direct-publish queues', async () => {
+    db.set(queuePath, { ...queue, sourceSnapshot: { channelDeliveryModes: { x: 'direct_publish' } } });
+    const { processDueEvergreenQueues } = await import('./worker');
+    await processDueEvergreenQueues('ws');
+    expect(db.get(`workspaces/ws/posts/evergreen_${runId}`)).toMatchObject({ channelDeliveryModes: { x: 'manual_reminder' } });
+    expect(preflight.mock.calls[0][3]).toMatchObject({ manualChannels: ['x'] });
   });
 
   it('does not create another occurrence for an existing deterministic run', async () => {
