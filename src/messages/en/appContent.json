@@ -121,7 +121,17 @@
         "SOURCE_PUBLISH_DATE_MISSING": "Publish date unknown",
         "SOURCE_HAS_NO_CHANNEL": "No channel on this post",
         "SOURCE_PUBLISH_DATE_FUTURE": "Publish date is in the future"
-      }
+      },
+      "view": "View",
+      "recent": "Most recent",
+      "topPerforming": "Top performing",
+      "channel": "Platform",
+      "allChannels": "All platforms",
+      "metric": "Rank by",
+      "rankingDescription": "Highest recorded counts first on the selected platform, among up to 200 recent published posts for this brand. Posts without this metric are excluded; measured zeroes are included. Counts are not adjusted for post age or audience size. Review content before reuse.",
+      "results": "{count, plural, one {# matching post} other {# matching posts}}",
+      "noMeasuredMatches": "No posts match with a recorded value for this metric. Try another metric, platform, or search.",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "sourceHint": "Choose a published post to review for reuse. Performance metrics alone do not establish evergreen suitability.",
     "selectedSource": "Selected Post",

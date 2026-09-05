@@ -45,6 +45,10 @@ describe('Evergreen assessment presentation', () => {
     expect(html).toContain('3,608');
     expect(html).toContain('Published guide');
     expect(html).toContain('Review for reuse');
+    expect(html).toContain('Top performing');
+    expect(html).toContain('Most recent');
+    expect(html).toContain('All platforms');
+    expect(html).toContain('93 matching posts');
     expect(html).not.toContain('Insufficient performance evidence');
     expect(html).not.toContain('Worth repeating');
     expect(html).not.toContain('role="radio"');

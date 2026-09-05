@@ -9,6 +9,7 @@ import Pagination from "@/components/app/Pagination";
 import { PostThumbnail } from "@/components/mk/PostThumbnail";
 import { channelLabel } from "@/components/mk/channels";
 import { evergreenMetricKeys } from "@/lib/evergreen/eligibility";
+import { candidateMetric, filterEvergreenCandidates, type EvergreenMetric } from "@/lib/evergreen/filter-candidates";
 import { cn } from "@/lib/utils";
 
 export type { EvergreenCandidate as SourceCandidate } from "@/lib/evergreen/candidates";
@@ -34,20 +35,22 @@ export default function SourcePostPicker({
   const a = useTranslations("content.evergreenTab.assessment");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const rows = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return candidates.filter((c) => {
-      if (q && !c.content.toLowerCase().includes(q) && !channelLabel(c.channel).toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [candidates, query]);
+  const [topPerforming, setTopPerforming] = useState(false);
+  const [channel, setChannel] = useState("");
+  const [metric, setMetric] = useState<EvergreenMetric>("views");
+  const channels = useMemo(() => [...new Set(candidates.flatMap((c) => c.channels))].sort(), [candidates]);
+  const selectedChannel = channels.includes(channel) ? channel : "";
+  const effectiveChannel = topPerforming ? selectedChannel || channels[0] || "" : selectedChannel;
+  const rows = useMemo(() => filterEvergreenCandidates(candidates, {
+    channel: effectiveChannel, metric: topPerforming ? metric : null, query,
+  }), [candidates, effectiveChannel, topPerforming, metric, query]);
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const current = Math.min(page, totalPages);
   const visible = rows.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-end gap-3">
         <div className="relative sm:w-64">
           <Search className="pointer-events-none absolute start-2.5 top-1/2 size-4 -translate-y-1/2 text-mk-ink-40" />
           <Input
@@ -58,7 +61,29 @@ export default function SourcePostPicker({
             aria-label={t("search")}
           />
         </div>
+        <label className="grid gap-1 text-xs text-muted-foreground">
+          {t("view")}
+          <select className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground" value={topPerforming ? "top" : "recent"} onChange={(e) => { setTopPerforming(e.target.value === "top"); setPage(1); }}>
+            <option value="recent">{t("recent")}</option>
+            <option value="top">{t("topPerforming")}</option>
+          </select>
+        </label>
+        <label className="grid gap-1 text-xs text-muted-foreground">
+          {t("channel")}
+          <select className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground" value={effectiveChannel} disabled={!channels.length} onChange={(e) => { setChannel(e.target.value); setPage(1); }}>
+            {(!topPerforming || !channels.length) && <option value="">{t("allChannels")}</option>}
+            {channels.map((name) => <option key={name} value={name}>{channelLabel(name)}</option>)}
+          </select>
+        </label>
+        {topPerforming && <label className="grid gap-1 text-xs text-muted-foreground">
+          {t("metric")}
+          <select className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground" value={metric} onChange={(e) => { setMetric(e.target.value as EvergreenMetric); setPage(1); }}>
+            {evergreenMetricKeys.map((key) => <option key={key} value={key}>{a(`metrics.${key}`)}</option>)}
+          </select>
+        </label>}
       </div>
+      {topPerforming && <p className="m-0 text-xs text-muted-foreground">{t("rankingDescription")}</p>}
+      {!loading && <p className="m-0 text-xs text-muted-foreground" role="status">{t("results", { count: rows.length })}</p>}
 
       {loading ? (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -68,7 +93,7 @@ export default function SourcePostPicker({
         </div>
       ) : visible.length === 0 ? (
         <p className="m-0 rounded-xl border border-border bg-card px-4 py-8 text-center text-[13px] text-muted-foreground">
-          {t("noMatches")}
+          {t(topPerforming ? "noMeasuredMatches" : "noMatches")}
         </p>
       ) : (
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2" role={mode === "select" ? "radiogroup" : undefined} aria-label={t("search")}>
@@ -96,6 +121,7 @@ export default function SourcePostPicker({
                       {!c.eligible ? <Badge variant="warning">{t("notReady")}</Badge> : null}
                     </div>
                     <p className="m-0 mt-1 line-clamp-2 text-[13px] leading-5 text-mk-ink-80">{c.content || t("mediaOnly")}</p>
+                    {topPerforming && <p className="m-0 mt-2 text-sm font-semibold tabular-nums">{t("rankedMetric", { channel: channelLabel(effectiveChannel), metric: a(`metrics.${metric}`), value: candidateMetric(c, effectiveChannel, metric)!.toLocaleString(locale) })}</p>}
                     <p className="m-0 mt-2 text-xs text-muted-foreground">{a(c.assessment.measurementStatus === "available" ? "measurementsAvailable" : "noMeasurements")}</p>
                     {c.assessment.observations.map((row) => (
                       <div key={row.channel} className="mt-1 text-xs text-muted-foreground">
