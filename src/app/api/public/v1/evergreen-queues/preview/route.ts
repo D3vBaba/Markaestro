@@ -11,7 +11,9 @@ export async function POST(req: Request) {
     const ctx = await requirePublicApiContext(req, { scope: 'evergreen.read', rateLimit: EVERGREEN_PUBLIC_RATE_LIMIT });
     const { sourcePostId } = previewSchema.parse(await req.json());
     const preview = await previewEvergreenQueue(ctx.workspaceId, sourcePostId);
-    if (preview.productId !== ctx.productId) throw new Error('VALIDATION_PRODUCT_SCOPE_MISMATCH');
+    // A brand-bound key may only preview its own brand's post; an all-brands
+    // key may preview any post in the workspace.
+    if (ctx.productId && preview.productId !== ctx.productId) throw new Error('VALIDATION_PRODUCT_SCOPE_MISMATCH');
     return Response.json({ preview }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);

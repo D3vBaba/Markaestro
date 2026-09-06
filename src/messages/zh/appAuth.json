@@ -107,6 +107,8 @@
     "workspaceLabel": "工作区",
     "brandLabel": "品牌",
     "brandHint": "代理只能查看并发布到此品牌。",
+    "allBrandsOption": "此工作区中的所有品牌",
+    "allBrandsHint": "该代理可以查看此工作区中的每个品牌并发布内容。",
     "loadingBrands": "正在加载品牌...",
     "noBrands": "此工作区还没有品牌。",
     "createBrand": "创建品牌",

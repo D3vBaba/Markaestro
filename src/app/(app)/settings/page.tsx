@@ -81,6 +81,7 @@ type ApiClientInfo = {
   lastUsedAt?: string | null;
   expiresAt?: string | null;
   productId?: string | null;
+  brandScope?: 'single' | 'all' | null;
   origin?: 'manual' | 'oauth';
 };
 
@@ -188,6 +189,13 @@ const API_SCOPE_OPTIONS = [
   { id: 'job_runs.read', labelKey: 'jobRunsRead' },
   { id: 'webhooks.manage', labelKey: 'webhooksManage' },
 ] as const;
+
+/**
+ * Sentinel value for the brand <select> in the create-key dialog: an all-brands
+ * (sitewide) key that can act on every brand in the workspace, rather than
+ * being bound to one. Sent to the API as `allBrands: true`.
+ */
+const ALL_BRANDS_OPTION = '__all_brands__';
 
 const WEBHOOK_EVENT_OPTIONS = [
   { id: 'post.publish.queued', labelKey: 'postPublishQueued' },
@@ -2154,7 +2162,11 @@ function ApiAccessTab() {
           name: clientName.trim(),
           scopes: selectedScopes,
           ...(expiresInDays !== 'never' ? { expiresInDays: Number(expiresInDays) } : {}),
-          ...(selectedProductId ? { productId: selectedProductId } : {}),
+          ...(selectedProductId === ALL_BRANDS_OPTION
+            ? { allBrands: true }
+            : selectedProductId
+              ? { productId: selectedProductId }
+              : {}),
         },
         wsId,
       );
@@ -2494,6 +2506,11 @@ function ApiAccessTab() {
                             {t("keysSection.brandBadge", { name: productNameById(client.productId) ?? "" })}
                           </Badge>
                         )}
+                        {client.brandScope === 'all' && (
+                          <Badge variant="accent">
+                            {t("keysSection.allBrandsBadge")}
+                          </Badge>
+                        )}
                         {client.origin === 'oauth' && (
                           <Badge variant="secondary">
                             {t("keysSection.agentBadge")}
@@ -2786,6 +2803,7 @@ function ApiAccessTab() {
                 disabled={products.length === 0}
               >
                 <option value="" disabled>{t("createKeyDialog.brandPlaceholder")}</option>
+                <option value={ALL_BRANDS_OPTION}>{t("createKeyDialog.allBrandsOption")}</option>
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}

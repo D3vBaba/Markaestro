@@ -27,7 +27,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     });
     const { id } = await params;
     const post = await getPublicPost(ctx.workspaceId, id);
-    assertPublicPostInBrandScope(post, ctx.productId);
+    assertPublicPostInBrandScope(post, ctx.productId ?? undefined);
     return Response.json({ post: serializePublicPost(post) }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);
@@ -61,7 +61,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     const post = await getPublicPost(ctx.workspaceId, id);
-    assertPublicPostInBrandScope(post, ctx.productId);
+    assertPublicPostInBrandScope(post, ctx.productId ?? undefined);
     assertPublicPostDeletable(post);
 
     await deletePublicPost(ctx.workspaceId, id);

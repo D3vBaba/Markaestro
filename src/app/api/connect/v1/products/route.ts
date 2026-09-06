@@ -11,7 +11,7 @@ export const runtime = 'nodejs';
 export async function GET(req: Request) {
   try {
     const ctx = await requirePublicApiContext(req, { scope: 'posts.read' });
-    const products = await listConnectProducts(ctx.workspaceId, ctx.productId);
+    const products = await listConnectProducts(ctx.workspaceId, ctx.productId ?? undefined);
     return Response.json({ data: products }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);

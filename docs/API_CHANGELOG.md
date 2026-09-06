@@ -15,6 +15,16 @@ file in the same change, not afterwards.
 
 ## 2026-09-05
 
+### All-brands (sitewide) API keys and OAuth grants
+
+Additive. A key or connected agent can now be scoped to every brand in a
+workspace instead of one. Create one in Settings, API (brand = All Brands)
+or at the agent consent screen (All brands in this workspace). A sitewide
+key names the target brand per request and reads analytics workspace-wide;
+it is still confined to its workspace. The create-key payload accepts
+`allBrands: true` in place of `productId`. Single-brand keys are unchanged,
+and legacy keys with no binding remain refused.
+
 ### Agent OAuth: resource indicators, issuer, registration limit, key alias
 
 Additive, no behaviour change for existing clients.

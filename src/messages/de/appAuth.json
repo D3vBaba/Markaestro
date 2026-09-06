@@ -107,6 +107,8 @@
     "workspaceLabel": "Arbeitsbereich",
     "brandLabel": "Marke",
     "brandHint": "Der Agent kann nur diese Marke sehen und für sie posten.",
+    "allBrandsOption": "Alle Marken in diesem Workspace",
+    "allBrandsHint": "Der Agent kann jede Marke in diesem Workspace sehen und dort posten.",
     "loadingBrands": "Marken werden geladen...",
     "noBrands": "Dieser Arbeitsbereich hat noch keine Marken.",
     "createBrand": "Marke anlegen",

@@ -110,6 +110,28 @@ describe('POST /api/oauth/agent/consent', () => {
     expect(db.under(`${OAUTH_CODES}/`)).toHaveLength(0);
   });
 
+  it('mints an all-brands grant when the consent sets allBrands and omits the product', async () => {
+    const clientId = await registerClient();
+    const res = await consent(consentBody(clientId, { allBrands: true, productId: undefined }));
+    expect(res.status).toBe(200);
+    const url = new URL((await res.json()).redirectTo);
+    expect(url.searchParams.get('code')).toBeTruthy();
+    const code = db.under(`${OAUTH_CODES}/`)[0];
+    expect(code.data.allBrands).toBe(true);
+    expect(code.data.productId).toBe('');
+  });
+
+  it('rejects a consent that sets both a brand and allBrands, or neither', async () => {
+    const clientId = await registerClient();
+    const both = await consent(consentBody(clientId, { allBrands: true }));
+    expect(both.status).toBe(400);
+    expect(await both.json()).toMatchObject({ error: 'OAUTH_INVALID_BRAND_SCOPE' });
+    const neither = await consent(consentBody(clientId, { allBrands: false, productId: undefined }));
+    expect(neither.status).toBe(400);
+    expect(await neither.json()).toMatchObject({ error: 'OAUTH_INVALID_BRAND_SCOPE' });
+    expect(db.under(`${OAUTH_CODES}/`)).toHaveLength(0);
+  });
+
   it('still refuses an unregistered redirect and an unknown client', async () => {
     const clientId = await registerClient();
     const mismatch = await consent(consentBody(clientId, { redirectUri: 'https://chatgpt.com/other' }));

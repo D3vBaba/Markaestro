@@ -107,6 +107,8 @@
     "workspaceLabel": "Espace de travail",
     "brandLabel": "Marque",
     "brandHint": "L'agent ne peut voir et publier que pour cette marque.",
+    "allBrandsOption": "Toutes les marques de cet espace de travail",
+    "allBrandsHint": "L’agent peut voir chaque marque de cet espace de travail et y publier.",
     "loadingBrands": "Chargement des marques...",
     "noBrands": "Cet espace de travail n'a pas encore de marque.",
     "createBrand": "Créer une marque",

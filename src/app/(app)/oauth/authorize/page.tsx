@@ -27,6 +27,12 @@ import { browserIssuerFor } from "@/lib/agent-oauth/issuer";
 type ClientInfo = { id: string; name: string; uri: string | null };
 type Product = { id: string; name: string };
 
+/**
+ * Sentinel brand value: the agent may act on every brand in the workspace
+ * (a sitewide grant) rather than one. Sent to consent as allBrands: true.
+ */
+const ALL_BRANDS_VALUE = "__all_brands__";
+
 const SCOPE_LABEL_KEY: Record<PublicApiScope, string> = {
   "products.read": "productsRead",
   "media.write": "mediaWrite",
@@ -193,7 +199,7 @@ function AuthorizeContent() {
         codeChallengeMethod: "S256",
         state: request.state || undefined,
         resource: request.resource || undefined,
-        productId,
+        ...(productId === ALL_BRANDS_VALUE ? { allBrands: true } : { productId }),
         scopes: publicApiScopes.filter((s) => granted.has(s)),
       },
       workspaceId,
@@ -260,12 +266,15 @@ function AuthorizeContent() {
               onChange={(e) => setProductId(e.target.value)}
               disabled={submitting}
             >
+              <option value={ALL_BRANDS_VALUE}>{t("allBrandsOption")}</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           )}
-          <p className="text-xs text-muted-foreground">{t("brandHint")}</p>
+          <p className="text-xs text-muted-foreground">
+            {productId === ALL_BRANDS_VALUE ? t("allBrandsHint") : t("brandHint")}
+          </p>
         </div>
 
         <div className="space-y-2">

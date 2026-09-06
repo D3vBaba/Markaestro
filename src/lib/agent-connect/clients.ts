@@ -172,8 +172,9 @@ const GROK: AgentClient = {
       id: 'web',
       kind: 'text',
       code: `Server URL:  ${MCP_SERVER_URL}
-Client ID:   ${FIRST_PARTY_OAUTH_CLIENT_IDS.grokWeb}   (only if the dialog asks for one)
-Secret:      leave blank (public client, PKCE S256)`,
+grok.com's Custom Connector asks only for a name and this URL. It registers
+itself and opens the browser sign-in, no client id or secret to enter.
+(If a future dialog does ask, use client id ${FIRST_PARTY_OAUTH_CLIENT_IDS.grokWeb} with a blank secret.)`,
     },
     {
       id: 'build',

@@ -162,6 +162,25 @@ product binding — only possible for keys issued before binding was required �
 is refused with `403 API_KEY_NOT_BOUND_TO_PRODUCT`. Replace it with a new key
 from Settings → API, which binds it to one brand.
 
+### All-brands (sitewide) keys
+
+A key can instead be created **all-brands** (Settings → API, brand = All
+Brands; or the agent consent screen's "All brands in this workspace"). A
+sitewide key acts on **every brand in the workspace**:
+
+- It names the target brand **per request**: the destination/account ids on a
+  post already carry it, and `productId` is required on evergreen and analytics
+  calls that need one (omitting it there answers `VALIDATION_PRODUCT_REQUIRED`).
+- Discovery and listing span all brands: `GET /products` returns every brand,
+  and `GET /posts`, `/job-runs`, and evergreen list across them.
+- `GET /analytics` reports the **whole workspace**, aggregated across brands.
+- It is still confined to its workspace — a key can never reach another
+  workspace, sitewide or not. Create sitewide keys deliberately: they are the
+  broadest key the API issues.
+
+`allBrands: true` on the create-key payload replaces `productId`; sending both,
+or neither, is rejected.
+
 A workspace can have many products, and the same social account can belong to
 more than one — binding keeps each key cleanly isolated to one. To publish for
 several products, create one key per product.

@@ -29,6 +29,7 @@ export async function GET(req: Request) {
           expiresAt: data.expiresAt || null,
           lastUsedAt: data.lastUsedAt || null,
           productId: data.productId || null,
+          brandScope: data.brandScope === 'all' ? 'all' : (data.productId ? 'single' : null),
           // Keys minted before test mode existed have no `mode` field; they
           // are live, which is what they have always been.
           mode: data.mode === 'test' ? 'test' : 'live',
@@ -66,13 +67,17 @@ export async function POST(req: Request) {
     }
     const body = await req.json();
     const data = createApiClientSchema.parse(body);
+    const allBrands = data.allBrands === true;
 
-    // Every key is bound to a product — validate it exists before minting.
-    const productSnap = await adminDb
-      .doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`)
-      .get();
-    if (!productSnap.exists) {
-      return apiOk({ error: 'PRODUCT_NOT_FOUND', message: 'Selected product does not exist.' }, 404);
+    // A single-brand key names a product that must exist; a sitewide key names
+    // none and can act on every brand in the workspace.
+    if (!allBrands) {
+      const productSnap = await adminDb
+        .doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`)
+        .get();
+      if (!productSnap.exists) {
+        return apiOk({ error: 'PRODUCT_NOT_FOUND', message: 'Selected product does not exist.' }, 404);
+      }
     }
 
     const clientId = `cli_${crypto.randomUUID()}`;
@@ -92,11 +97,12 @@ export async function POST(req: Request) {
       secretHash: apiKey.secretHash,
       createdAt,
       expiresAt,
-      // Required product binding — createApiClientSchema rejects an empty
-      // productId and the product's existence is checked above, so a key can
-      // never be minted workspace-wide. Keys predating this requirement have
-      // no productId field and are refused at authentication.
-      productId: data.productId,
+      // Brand binding. A single-brand key stores its product and scope; a
+      // sitewide key stores brandScope 'all' and no productId, so it can act on
+      // every brand in the workspace while a legacy key with neither field
+      // stays refused at authentication.
+      productId: allBrands ? null : data.productId,
+      brandScope: allBrands ? 'all' : 'single',
       // Authoritative copy of the mode the prefix advertises. Authentication
       // refuses a token whose prefix disagrees with this field.
       mode: data.mode,
@@ -115,7 +121,8 @@ export async function POST(req: Request) {
         keyPrefix: apiKey.keyPrefix,
         createdAt,
         expiresAt,
-        productId: data.productId || null,
+        productId: allBrands ? null : (data.productId || null),
+        brandScope: allBrands ? 'all' : 'single',
         mode: data.mode,
       },
       apiKey: apiKey.token,

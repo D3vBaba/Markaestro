@@ -28,7 +28,10 @@ const consentSchema = z.object({
   state: z.string().max(2048).optional(),
   /** RFC 8707 resource indicator, forwarded verbatim from the authorization request. */
   resource: z.string().max(2048).optional(),
-  productId: z.string().min(1).max(200),
+  // A single-brand grant names the brand; a sitewide grant sets allBrands and
+  // omits it. Exactly one, enforced below.
+  productId: z.string().min(1).max(200).optional(),
+  allBrands: z.boolean().optional(),
   scopes: z.array(z.enum(publicApiScopes)).min(1),
 });
 
@@ -80,9 +83,17 @@ export async function POST(req: Request) {
       return apiOk({ error: 'OAUTH_INVALID_RESOURCE', message: 'The agent asked for a resource this server does not serve.' }, 400);
     }
 
-    const productSnap = await adminDb.doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`).get();
-    if (!productSnap.exists) {
-      return apiOk({ error: 'PRODUCT_NOT_FOUND', message: 'Selected brand does not exist.' }, 404);
+    // Exactly one of allBrands / productId. A sitewide grant needs no product
+    // to exist; a single-brand grant must name one that does.
+    const allBrands = data.allBrands === true;
+    if (allBrands === (typeof data.productId === 'string' && data.productId.length > 0)) {
+      return apiOk({ error: 'OAUTH_INVALID_BRAND_SCOPE', message: 'Choose all brands or one brand, not both or neither.' }, 400);
+    }
+    if (!allBrands) {
+      const productSnap = await adminDb.doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`).get();
+      if (!productSnap.exists) {
+        return apiOk({ error: 'PRODUCT_NOT_FOUND', message: 'Selected brand does not exist.' }, 404);
+      }
     }
 
     const code = await createAuthorizationCode({
@@ -91,7 +102,8 @@ export async function POST(req: Request) {
       codeChallenge: data.codeChallenge,
       scopes: Array.from(new Set(data.scopes)),
       workspaceId: ctx.workspaceId,
-      productId: data.productId,
+      productId: allBrands ? '' : (data.productId as string),
+      allBrands,
       uid: ctx.uid,
       clientName: client.clientName,
       resource,

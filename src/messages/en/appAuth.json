@@ -107,6 +107,8 @@
     "workspaceLabel": "Workspace",
     "brandLabel": "Brand",
     "brandHint": "The agent can only see and post to this brand.",
+    "allBrandsOption": "All brands in this workspace",
+    "allBrandsHint": "The agent can see and post to every brand in this workspace.",
     "loadingBrands": "Loading brands...",
     "noBrands": "This workspace has no brands yet.",
     "createBrand": "Create a Brand",

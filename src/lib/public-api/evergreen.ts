@@ -7,9 +7,11 @@ export const EVERGREEN_PUBLIC_RATE_LIMIT = { limit: 30, windowMs: 60_000 };
 
 export function assertEvergreenProductScope(
   queue: Pick<EvergreenQueue, 'productId'>,
-  productId: string,
+  productId: string | null | undefined,
 ) {
-  if (queue.productId !== productId) {
+  // An all-brands key (no bound brand) may reach any queue in the workspace;
+  // a brand-bound key only its own brand's.
+  if (productId && queue.productId !== productId) {
     throw new Error('VALIDATION_PRODUCT_SCOPE_MISMATCH');
   }
 }

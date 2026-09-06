@@ -151,11 +151,17 @@ export async function exchangeAuthorizationCode(req: Request, body: TokenRequest
     secretHash: key.secretHash,
     createdAt,
     expiresAt,
-    productId: record.productId,
+    productId: record.allBrands ? null : record.productId,
     mode: 'live',
     createdEmailVerified: true,
     revokedAt: null,
     lastUsedAt: null,
+    // Brand scope chosen at consent: a sitewide grant records `all` and no
+    // productId (it acts on every brand and names the target per request); a
+    // single-brand grant records the chosen brand. Authentication reads
+    // brandScope, so an all-brands key is never mistaken for a legacy unbound
+    // one.
+    brandScope: record.allBrands ? 'all' : 'single',
     // Provenance: minted by the agent OAuth flow rather than by hand in
     // Settings. Settings shows these as connected agents.
     origin: 'oauth',

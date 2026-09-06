@@ -62,7 +62,10 @@ export type AuthorizationCodeRecord = {
   codeChallenge: string;
   scopes: PublicApiScope[];
   workspaceId: string;
+  /** Empty string when `allBrands` is true; the chosen brand otherwise. */
   productId: string;
+  /** Sitewide grant: the minted key can act on every brand in the workspace. */
+  allBrands: boolean;
   uid: string;
   clientName: string;
   /**
@@ -158,12 +161,14 @@ export async function touchOAuthClient(clientId: string, client?: Pick<OAuthClie
 // ── Authorization codes ─────────────────────────────────────────────────────
 
 export async function createAuthorizationCode(
-  input: Omit<AuthorizationCodeRecord, 'createdAt' | 'usedAt' | 'expiresAt' | 'resource'> & { resource?: string | null },
+  input: Omit<AuthorizationCodeRecord, 'createdAt' | 'usedAt' | 'expiresAt' | 'resource' | 'allBrands'>
+    & { resource?: string | null; allBrands?: boolean },
 ): Promise<string> {
   const code = randomToken(32);
   const record: AuthorizationCodeRecord = {
     ...input,
     resource: input.resource ?? null,
+    allBrands: input.allBrands ?? false,
     createdAt: nowIso(),
     usedAt: null,
     expiresAt: expiry(CODE_TTL_MS),

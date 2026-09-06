@@ -42,7 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
     const { id } = await params;
     const post = await getPublicPost(ctx.workspaceId, id);
-    assertPublicPostInBrandScope(post, ctx.productId);
+    assertPublicPostInBrandScope(post, ctx.productId ?? undefined);
     const skipReason = getPublishRunSkipReason(post);
     if (skipReason) {
       return Response.json({
@@ -75,7 +75,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const latestSnap = await tx.get(postRef);
       if (!latestSnap.exists) throw new Error('NOT_FOUND');
       const latestPost = { id: latestSnap.id, ...latestSnap.data() } as Record<string, unknown>;
-      assertPublicPostInBrandScope(latestPost, ctx.productId);
+      assertPublicPostInBrandScope(latestPost, ctx.productId ?? undefined);
 
       const existingRunId = typeof latestPost.publishRunId === 'string'
         ? latestPost.publishRunId

@@ -107,6 +107,8 @@
     "workspaceLabel": "Werkruimte",
     "brandLabel": "Merk",
     "brandHint": "De agent kan alleen dit merk zien en ervoor posten.",
+    "allBrandsOption": "Alle merken in deze werkruimte",
+    "allBrandsHint": "De agent kan elk merk in deze werkruimte zien en er posten.",
     "loadingBrands": "Merken laden...",
     "noBrands": "Deze werkruimte heeft nog geen merken.",
     "createBrand": "Merk aanmaken",

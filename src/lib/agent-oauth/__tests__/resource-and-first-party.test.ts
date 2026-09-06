@@ -10,6 +10,8 @@ vi.mock('@/lib/firebase-admin', () => ({ adminDb: db }));
 import { exchangeAuthorizationCode, refreshAccessToken } from '../grants';
 import { OAuthError } from '../errors';
 import { randomToken, s256Challenge } from '../pkce';
+import { parseApiKey } from '@/lib/public-api/keys';
+import { resolveApiClientBrand } from '@/lib/public-api/auth';
 import {
   OAUTH_CLIENTS,
   createAuthorizationCode,
@@ -152,6 +154,56 @@ describe('RFC 8707 resource on the token endpoint', () => {
       }),
       'invalid_target',
     );
+  });
+});
+
+describe('all-brands (sitewide) grants', () => {
+  beforeEach(() => db.docs.clear());
+
+  it('mints a key with brandScope all and no productId, which auth reads as all-brands', async () => {
+    const clientId = await registerClient();
+    const verifier = randomToken(48);
+    const code = await createAuthorizationCode({
+      clientId,
+      redirectUri: REDIRECT,
+      codeChallenge: s256Challenge(verifier),
+      scopes: ['products.read', 'posts.write'],
+      workspaceId: 'ws_1',
+      productId: '',
+      allBrands: true,
+      uid: 'user_1',
+      clientName: 'ChatGPT',
+      resource: null,
+    });
+    const tokens = await exchangeAuthorizationCode(tokenReq(), {
+      grant_type: 'authorization_code',
+      client_id: clientId,
+      code,
+      code_verifier: verifier,
+    });
+    const parsed = parseApiKey(tokens.access_token)!;
+    const stored = db.docs.get(`workspaces/ws_1/api_clients/${parsed.clientId}`)!;
+    expect(stored.brandScope).toBe('all');
+    expect(stored.productId).toBeNull();
+    // Auth resolves the stored record as an intentional sitewide key.
+    expect(resolveApiClientBrand(stored as { productId?: string | null; brandScope?: 'single' | 'all' | null }))
+      .toEqual({ productId: null, allBrands: true });
+  });
+
+  it('mints a single-brand key when the code names one brand', async () => {
+    const clientId = await registerClient();
+    const verifier = randomToken(48);
+    const code = await consent(clientId, verifier, null);
+    const tokens = await exchangeAuthorizationCode(tokenReq(), {
+      grant_type: 'authorization_code',
+      client_id: clientId,
+      code,
+      code_verifier: verifier,
+    });
+    const parsed = parseApiKey(tokens.access_token)!;
+    const stored = db.docs.get(`workspaces/ws_1/api_clients/${parsed.clientId}`)!;
+    expect(stored.brandScope).toBe('single');
+    expect(stored.productId).toBe('prod_1');
   });
 });
 

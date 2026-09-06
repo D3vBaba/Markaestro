@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     // filter by ?productId. Applied as a query filter rather than in memory so
     // `limit` counts matching posts — filtering after the fetch could return
     // fewer (or none) while more existed.
-    const brandId = resolvePublicPostBrandScope(ctx.productId, params.productId);
+    const brandId = resolvePublicPostBrandScope(ctx.productId ?? undefined, params.productId);
     const filters: FieldFilter[] = [];
     if (params.status) filters.push({ field: 'status', op: '==', value: params.status });
     if (brandId) filters.push({ field: 'productId', op: '==', value: brandId });

@@ -70,9 +70,10 @@ export async function loadPublicAnalyticsOverview(
     maxDays,
     tier: principal.planTier,
     channel: query.channel,
-    // Always the key's brand. A key cannot widen to the workspace: brands are
-    // the isolation boundary of the public API, and analytics is no exception.
-    productId: principal.productId,
+    // A brand-bound key sees only its brand; an all-brands (sitewide) key sees
+    // the whole workspace, aggregated across every brand. Passing undefined is
+    // what the aggregate layer reads as workspace-wide.
+    productId: principal.productId ?? undefined,
     tzOffsetMinutes: query.tz,
   });
 }
@@ -133,7 +134,7 @@ export async function loadPublicAnalyticsPosts(
     principal.workspaceId,
     `${window.sinceDate}T00:00:00.000Z`,
     query.channel,
-    principal.productId,
+    principal.productId ?? undefined,
   );
   // A custom range can end before today; the fetch is bounded by `since`
   // only, so drop what published after the window.
@@ -175,9 +176,14 @@ export async function loadPublicPostHistory(principal: AnalyticsPrincipal, id: s
   if (!postSnap.exists) throw new Error('NOT_FOUND');
   const post = postSnap.data() as HistoryPostDoc;
   // 404 rather than 403 outside the key's brand, so a key cannot probe for
-  // ids it does not own (the same rule the posts routes follow). Unpublished
-  // posts have no history, and sandbox posts never earned any.
-  if (post.productId !== principal.productId || post.status !== 'published' || post.testMode === true) {
+  // ids it does not own (the same rule the posts routes follow). An all-brands
+  // key (no bound brand) may read any published post in the workspace.
+  // Unpublished posts have no history, and sandbox posts never earned any.
+  if (
+    (principal.productId && post.productId !== principal.productId) ||
+    post.status !== 'published' ||
+    post.testMode === true
+  ) {
     throw new Error('NOT_FOUND');
   }
 

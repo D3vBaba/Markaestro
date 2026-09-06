@@ -107,6 +107,8 @@
     "workspaceLabel": "ワークスペース",
     "brandLabel": "ブランド",
     "brandHint": "エージェントはこのブランドのみ閲覧・投稿できます。",
+    "allBrandsOption": "このワークスペースのすべてのブランド",
+    "allBrandsHint": "エージェントはこのワークスペースのすべてのブランドを閲覧し、投稿できます。",
     "loadingBrands": "ブランドを読み込み中...",
     "noBrands": "このワークスペースにはまだブランドがありません。",
     "createBrand": "ブランドを作成",

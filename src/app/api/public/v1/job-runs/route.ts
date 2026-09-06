@@ -22,7 +22,7 @@ export async function GET(req: Request) {
       rateLimit: JOB_RUNS_RATE_LIMIT,
     });
     const query = listSchema.parse(Object.fromEntries(new URL(req.url).searchParams));
-    const { runs, nextCursor } = await listJobRuns(ctx.workspaceId, ctx.productId, query);
+    const { runs, nextCursor } = await listJobRuns(ctx.workspaceId, ctx.productId ?? undefined, query);
     return Response.json(
       { runs, count: runs.length, nextCursor },
       { headers: ctx.rateLimitHeaders },

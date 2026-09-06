@@ -10,7 +10,7 @@ export const runtime = 'nodejs';
 export async function GET(req: Request) {
   try {
     const ctx = await requirePublicApiContext(req, { scope: 'posts.read' });
-    const accounts = await listConnectedAccounts(ctx.workspaceId, ctx.productId);
+    const accounts = await listConnectedAccounts(ctx.workspaceId, ctx.productId ?? undefined);
     return Response.json({ data: accounts }, { headers: ctx.rateLimitHeaders });
   } catch (error) {
     return publicApiError(error);

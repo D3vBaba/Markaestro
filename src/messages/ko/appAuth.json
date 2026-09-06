@@ -107,6 +107,8 @@
     "workspaceLabel": "워크스페이스",
     "brandLabel": "브랜드",
     "brandHint": "에이전트는 이 브랜드만 보고 게시할 수 있습니다.",
+    "allBrandsOption": "이 워크스페이스의 모든 브랜드",
+    "allBrandsHint": "에이전트가 이 워크스페이스의 모든 브랜드를 보고 게시할 수 있습니다.",
     "loadingBrands": "브랜드 불러오는 중...",
     "noBrands": "이 워크스페이스에는 아직 브랜드가 없습니다.",
     "createBrand": "브랜드 만들기",

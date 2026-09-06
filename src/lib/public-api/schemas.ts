@@ -13,15 +13,26 @@ export const createApiClientSchema = z.object({
   scopes: z.array(z.enum(publicApiScopes)).min(1).max(publicApiScopes.length),
   // Optional key lifetime; omitted = the key never expires.
   expiresInDays: z.union([z.literal(30), z.literal(90), z.literal(365)]).optional(),
-  // Required product binding: every key is scoped to exactly one product. All
-  // calls auto-target it and requests for any other product are rejected.
-  productId: z.string().trim().min(1).max(200),
+  // Brand binding. A single-brand key scopes every call to one product and
+  // rejects requests for any other; an all-brands key (allBrands: true) can
+  // act on every brand in the workspace and takes the target brand per
+  // request. Exactly one of the two must be given (see the refine below).
+  productId: z.string().trim().min(1).max(200).optional(),
+  allBrands: z.boolean().optional(),
   // `test` mints an `mk_test_` key: real posts and real media in a real
   // workspace, but publishing routes to the sandbox adapter and nothing
   // reaches a platform. Omitted = `live`, so no existing caller changes mode
   // by accident.
   mode: z.enum(apiKeyModes).default('live'),
-});
+}).refine(
+  (d) => d.allBrands === true || (typeof d.productId === 'string' && d.productId.length > 0),
+  { message: 'Provide a productId or set allBrands to true.', path: ['productId'] },
+).refine(
+  // A brand-bound key names one product; an all-brands key names none. Both
+  // at once is contradictory and almost always a mistake in the caller.
+  (d) => !(d.allBrands === true && typeof d.productId === 'string' && d.productId.length > 0),
+  { message: 'Set allBrands or productId, not both.', path: ['allBrands'] },
+);
 
 export const updateApiClientScopesSchema = z.object({
   scopes: z.array(z.enum(publicApiScopes)).min(1).max(publicApiScopes.length),

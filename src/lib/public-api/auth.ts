@@ -15,10 +15,19 @@ export type PublicApiContext = {
   clientId: string;
   ownerUid?: string;
   scopes: PublicApiScope[];
-  // Every authenticated key is bound to exactly one product: calls auto-target
-  // it and requests for any other product are rejected. Unbound keys are
-  // refused at authentication, so this is always set.
-  productId: string;
+  // The brand a single-brand key is bound to: calls auto-target it and
+  // requests for any other brand are rejected. `null` for an all-brands
+  // (sitewide) key, which names the target brand per request and can reach
+  // every brand in the workspace. Legacy unbound keys are refused at
+  // authentication, so `null` here always means an intentional sitewide key,
+  // never a missing binding. Read `allBrands` to branch rather than testing
+  // this for null by hand.
+  productId: string | null;
+  /**
+   * True when the key is sitewide (every brand in the workspace). Mutually
+   * exclusive with a non-null `productId`.
+   */
+  allBrands: boolean;
   /**
    * `test` keys route publishing to the sandbox adapter and tag everything
    * they create, so nothing reaches a platform and nothing lands in analytics.
@@ -65,6 +74,13 @@ type ApiClientAuthData = {
   secretHash?: string;
   expiresAt?: string | null;
   productId?: string | null;
+  /**
+   * How the key is scoped to brands. `all` is an intentional sitewide key
+   * that can act on every brand in the workspace; `single` (or absent with a
+   * productId) is bound to that one brand. A record with neither is a legacy
+   * key from before brand binding and is refused, never treated as sitewide.
+   */
+  brandScope?: 'single' | 'all' | null;
   createdAt?: string | null;
   mode?: string | null;
 };
@@ -204,6 +220,23 @@ export function requireApiClientProduct(productId: string | null | undefined): s
   return bound;
 }
 
+/**
+ * Resolve a key's brand scope. Three cases:
+ *   - `brandScope: 'all'`  an intentional sitewide key: acts on every brand in
+ *     the workspace and names the target brand per request. productId is null.
+ *   - a productId present   a single-brand key: every call auto-targets it.
+ *   - neither               a legacy key from before brand binding, refused
+ *     exactly as before so relaxing the check never silently widens an old key.
+ * Workspace confinement is unchanged in every case: the key format carries the
+ * workspace id and authentication only ever reads that workspace.
+ */
+export function resolveApiClientBrand(
+  data: Pick<ApiClientAuthData, 'productId' | 'brandScope'>,
+): { productId: string | null; allBrands: boolean } {
+  if (data.brandScope === 'all') return { productId: null, allBrands: true };
+  return { productId: requireApiClientProduct(data.productId), allBrands: false };
+}
+
 export async function requirePublicApiContext(
   req: Request,
   options: RequirePublicApiContextOptions = {},
@@ -270,7 +303,7 @@ export async function requirePublicApiContext(
     throw new Error('FORBIDDEN');
   }
 
-  const productId = requireApiClientProduct(data.productId);
+  const { productId, allBrands } = resolveApiClientBrand(data);
 
   // The key's workspace must actually be entitled to the public API.
   // Key revocation only fires on Stripe cancellation events, which a
@@ -342,6 +375,7 @@ export async function requirePublicApiContext(
     ownerUid: data.ownerUid,
     scopes,
     productId,
+    allBrands,
     mode: storedMode,
     planTier,
     apiVersion,

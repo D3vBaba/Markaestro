@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { hasPublicApiScope, requireApiClientProduct, tierScaledRateLimits } from '../public-api/auth';
+import { hasPublicApiScope, requireApiClientProduct, resolveApiClientBrand, tierScaledRateLimits } from '../public-api/auth';
+import { createApiClientSchema } from '../public-api/schemas';
 import type { PublicApiScope } from '../public-api/scopes';
 import { RATE_LIMITS } from '../rate-limit';
 import { PLANS } from '../stripe/plans';
@@ -84,5 +85,45 @@ describe('API key product binding', () => {
       expect(res.status).toBe(403);
       expect(await res.json()).toMatchObject({ error: 'API_KEY_NOT_BOUND_TO_PRODUCT' });
     }
+  });
+});
+
+describe('resolveApiClientBrand (single-brand vs sitewide vs legacy)', () => {
+  it('reads a sitewide key as all-brands with no bound product', () => {
+    expect(resolveApiClientBrand({ brandScope: 'all', productId: null })).toEqual({ productId: null, allBrands: true });
+    // brandScope wins even if a stray productId lingers on the record.
+    expect(resolveApiClientBrand({ brandScope: 'all', productId: 'prod_x' })).toEqual({ productId: null, allBrands: true });
+  });
+
+  it('reads a single-brand key as bound to its product', () => {
+    expect(resolveApiClientBrand({ brandScope: 'single', productId: 'prod_1' })).toEqual({ productId: 'prod_1', allBrands: false });
+    // A productId with no explicit brandScope is still single-brand.
+    expect(resolveApiClientBrand({ productId: 'prod_1' })).toEqual({ productId: 'prod_1', allBrands: false });
+  });
+
+  it('still refuses a legacy key that has neither a product nor an all-brands marker', () => {
+    // The security property: relaxing the check for sitewide keys must not
+    // silently widen an old unbound key to the whole workspace.
+    expect(() => resolveApiClientBrand({})).toThrow();
+    expect(() => resolveApiClientBrand({ productId: '' })).toThrow();
+    expect(() => resolveApiClientBrand({ productId: '   ', brandScope: 'single' })).toThrow();
+    expect(() => requireApiClientProduct(undefined)).toThrow();
+  });
+});
+
+describe('createApiClientSchema brand binding', () => {
+  const base = { name: 'k', scopes: ['products.read'] };
+  it('accepts a single-brand key', () => {
+    expect(createApiClientSchema.safeParse({ ...base, productId: 'prod_1' }).success).toBe(true);
+  });
+  it('accepts an all-brands key with no product', () => {
+    const r = createApiClientSchema.safeParse({ ...base, allBrands: true });
+    expect(r.success).toBe(true);
+  });
+  it('rejects a key with neither a product nor allBrands', () => {
+    expect(createApiClientSchema.safeParse(base).success).toBe(false);
+  });
+  it('rejects a key that sets both', () => {
+    expect(createApiClientSchema.safeParse({ ...base, productId: 'prod_1', allBrands: true }).success).toBe(false);
   });
 });
