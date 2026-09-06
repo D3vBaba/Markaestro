@@ -89,6 +89,15 @@ describe('POST /api/public/v1/oauth/register', () => {
     expect(await res.json()).toMatchObject({ error: 'invalid_client_metadata' });
   });
 
+  it('uses the registration rate-limit tier sized for hosted clients on shared IPs', async () => {
+    const { applyRateLimit, RATE_LIMITS } = await import('@/lib/rate-limit');
+    vi.mocked(applyRateLimit).mockClear();
+    await register({ redirect_uris: ['https://chatgpt.com/connector/oauth/abc'] });
+    expect(applyRateLimit).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(applyRateLimit).mock.calls[0][1]).toBe(RATE_LIMITS.oauthRegister);
+    expect(RATE_LIMITS.oauthRegister.limit).toBeGreaterThanOrEqual(60);
+  });
+
   it('rejects unsupported grant types', async () => {
     const res = await register({ redirect_uris: ['https://a.example/cb'], grant_types: ['implicit'] });
     expect(res.status).toBe(400);

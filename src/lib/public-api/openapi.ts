@@ -39,6 +39,13 @@ import {
   VERSION_COMPATIBILITY_POLICY,
 } from './version';
 import { publicApiScopes } from './scopes';
+import {
+  analyticsPostsQuerySchema,
+  analyticsWindowQuerySchema,
+  publicAnalyticsOverviewEnvelopeSchema,
+  publicAnalyticsPostHistorySchema,
+  publicAnalyticsPostListSchema,
+} from './analytics-schemas';
 import { createEvergreenQueueSchema, updateEvergreenQueueSchema } from '@/lib/evergreen/schemas';
 
 type JsonObject = Record<string, unknown>;
@@ -174,6 +181,25 @@ function cursorParams(): JsonObject[] {
       description: 'The `nextCursor` from the previous page. Omit for the first page.',
     },
   ];
+}
+
+/**
+ * Query parameters derived from a Zod object, so the documented defaults,
+ * bounds, and descriptions are the ones the route parses with.
+ */
+function queryParams(schema: z.ZodObject): JsonObject[] {
+  const json = jsonSchema(schema, 'input') as { properties?: Record<string, JsonObject>; required?: string[] };
+  const required = new Set(json.required ?? []);
+  return Object.entries(json.properties ?? {}).map(([name, property]) => {
+    const { description, ...rest } = property;
+    return {
+      name,
+      in: 'query',
+      required: required.has(name),
+      schema: rest,
+      ...(typeof description === 'string' ? { description } : {}),
+    };
+  });
 }
 
 const VERSION_HEADER_PARAM: JsonObject = {
@@ -538,6 +564,40 @@ export function buildOpenApiDocument(): JsonObject {
           responses: { '200': okResponse('The queue performance and attribution rollup.', 'EvergreenAnalytics'), ...COMMON_ERRORS },
         },
       },
+      '/api/public/v1/analytics': {
+        get: {
+          tags: ['Analytics'],
+          summary: 'Get brand analytics',
+          description: 'The brand’s performance over a window: totals with the prior period for deltas, per-channel rollups, daily series, engagement breakdown, follower trend, leaderboard, posting-time heatmap, content-type averages, computed insights, and coverage. The same numbers the Analytics page shows, pinned to the key’s brand. The window is clamped to the plan’s history window and the response reports maxDays. Unavailable provider metrics are null, not zero. Requires analytics.read.',
+          operationId: 'getAnalytics',
+          parameters: queryParams(analyticsWindowQuerySchema),
+          responses: { '200': okResponse('The brand’s performance over the window.', 'AnalyticsOverview'), ...COMMON_ERRORS },
+        },
+      },
+      '/api/public/v1/analytics/posts': {
+        get: {
+          tags: ['Analytics'],
+          summary: 'List post analytics',
+          description: 'Every published post of the brand in the window with its latest metrics, one row per post, summed across the channels in scope and sorted. The JSON form of the Analytics page’s export. Requires analytics.read.',
+          operationId: 'listPostAnalytics',
+          parameters: queryParams(analyticsPostsQuerySchema),
+          responses: { '200': okResponse('The sorted rows and the window they cover.', 'AnalyticsPostList'), ...COMMON_ERRORS },
+        },
+      },
+      '/api/public/v1/analytics/posts/{id}/history': {
+        get: {
+          tags: ['Analytics'],
+          summary: 'Get post analytics history',
+          description: 'The metric snapshots stored for one post at 1h, 6h, 24h, 72h, 7d, 14d, 30d, 60d, and 90d after publish, with the growth between stages, plus the current totals. Answers 404 for posts outside the key’s brand, unpublished posts, and sandbox posts. Requires analytics.read.',
+          operationId: 'getPostAnalyticsHistory',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: {
+            '200': okResponse('The post’s metric history, oldest stage first.', 'AnalyticsPostHistory'),
+            '404': errorResponse('No published post with this id in the key’s brand.'),
+            ...COMMON_ERRORS,
+          },
+        },
+      },
     },
     components: {
       securitySchemes: {
@@ -583,6 +643,9 @@ export function buildOpenApiDocument(): JsonObject {
         EvergreenRunList: jsonSchema(evergreenRunListSchema, 'output'),
         EvergreenAnalytics: jsonSchema(evergreenAnalyticsEnvelopeSchema, 'output'),
         EvergreenPreview: jsonSchema(evergreenPreviewEnvelopeSchema, 'output'),
+        AnalyticsOverview: jsonSchema(publicAnalyticsOverviewEnvelopeSchema, 'output'),
+        AnalyticsPostList: jsonSchema(publicAnalyticsPostListSchema, 'output'),
+        AnalyticsPostHistory: jsonSchema(publicAnalyticsPostHistorySchema, 'output'),
       },
     },
   };

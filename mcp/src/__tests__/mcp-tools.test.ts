@@ -138,6 +138,7 @@ describe('tool handlers', () => {
       'bulk_posts', 'create_posts', 'preview_evergreen_queue', 'list_evergreen_queues', 'get_evergreen_queue',
       'create_evergreen_queue', 'update_evergreen_queue', 'activate_evergreen_queue', 'pause_evergreen_queue',
       'resume_evergreen_queue', 'archive_evergreen_queue', 'list_evergreen_runs', 'get_evergreen_analytics',
+      'get_analytics', 'list_post_analytics', 'get_post_analytics_history',
       'upload_media', 'list_media', 'get_media', 'get_job_run', 'list_job_runs',
       'list_webhook_endpoints', 'create_webhook_endpoint', 'get_channel_rules',
     ]);
@@ -156,7 +157,7 @@ describe('read-only mode', () => {
     const { tools } = await client.listTools();
     expect(tools.every((tool) => tool.annotations?.readOnlyHint)).toBe(true);
     expect(tools.map((tool) => tool.name)).not.toContain('create_post');
-    expect(tools.length).toBe(15);
+    expect(tools.length).toBe(18);
   });
 });
 
@@ -177,7 +178,7 @@ describe('MCP server over an in-memory transport', () => {
   it('lists every tool with annotations and serves the channel-rules resource', async () => {
     const { client } = await connect();
     const { tools } = await client.listTools();
-    expect(tools.length).toBe(28);
+    expect(tools.length).toBe(31);
     const del = tools.find((tool) => tool.name === 'delete_post')!;
     expect(del.annotations?.destructiveHint).toBe(true);
     expect(del.annotations?.readOnlyHint).toBe(false);

@@ -11,6 +11,8 @@
  *   claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp \
  *     --header "Authorization: Bearer mk_live_..."
  *
+ * or, for connector dialogs that only offer an API-key field, as `x-api-key`.
+ *
  * Stateless by design: every request authenticates the API key, builds a
  * server bound to that key, answers, and discards it. The tools then call the
  * public API on this same host with the caller's key, so scopes, product
@@ -41,7 +43,31 @@ function selfOrigin(req: Request): string {
   return `${proto}://${host}`;
 }
 
-async function handle(req: Request): Promise<Response> {
+/**
+ * Some connector dialogs (Grok Bot's beta among them) offer a single
+ * "API key" field that is sent as `x-api-key` rather than letting the user
+ * name the header. Accept the workspace key there too, by rewriting it into
+ * the bearer header the rest of the API understands. An explicit
+ * Authorization header always wins; the alias is never consulted alongside
+ * one, so it cannot be used to smuggle a second credential.
+ */
+async function withBearerAlias(req: Request): Promise<Request> {
+  if (req.headers.has('authorization')) return req;
+  const apiKey = req.headers.get('x-api-key')?.trim();
+  if (!apiKey) return req;
+  const headers = new Headers(req.headers);
+  headers.delete('x-api-key');
+  headers.set('authorization', `Bearer ${apiKey}`);
+  // Buffer the body rather than re-wrapping the framework's request: the
+  // runtime's Request cannot be cloned with a new header set once its body
+  // stream is attached. MCP requests are small JSON-RPC envelopes, and the
+  // endpoint is stateless, so the copy costs nothing that matters.
+  const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : await req.text();
+  return new Request(req.url, { method: req.method, headers, body });
+}
+
+async function handle(incoming: Request): Promise<Response> {
+  const req = await withBearerAlias(incoming);
   try {
     const ctx = await requirePublicApiContext(req, { rateLimit: MCP_RATE_LIMIT });
     // requirePublicApiContext has already validated this header.

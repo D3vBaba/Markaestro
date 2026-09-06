@@ -31,6 +31,7 @@ export const DEFAULT_AGENT_SCOPES: readonly PublicApiScope[] = [
   'posts.publish',
   'evergreen.read',
   'evergreen.write',
+  'analytics.read',
   'job_runs.read',
 ];
 
@@ -72,9 +73,65 @@ export function authorizePageOrigin(apiOrigin: string, env: EnvLike = process.en
   return split && appOrigin ? appOrigin : apiOrigin;
 }
 
+/**
+ * The RFC 8707 resource identifier for the hosted MCP endpoint. ChatGPT (and
+ * any client following the MCP authorization spec) sends it as `resource` on
+ * the authorization and token requests so a code minted for one server
+ * cannot be redeemed at another. We issue opaque API keys that only work on
+ * this host, so the value is checked rather than embedded in the token.
+ */
+export function canonicalResource(origin: string): string {
+  return `${origin.replace(/\/$/, '')}${MCP_RESOURCE_PATH}`;
+}
+
+/**
+ * Whether a presented `resource` names this MCP server. The consent page may
+ * be served from the app origin while the client learned the resource from
+ * the API origin (domain split), so every origin this deployment answers on
+ * is accepted; the path must be exactly the MCP endpoint and the URL must
+ * carry no query or fragment. `null` when the client sent nothing, which is
+ * fine: the parameter is optional for clients that do not implement it.
+ */
+export function normalizeResource(
+  candidate: string | null | undefined,
+  requestOrigin: string,
+  env: EnvLike = process.env,
+): string | null {
+  if (candidate == null || candidate === '') return null;
+  if (typeof candidate !== 'string' || candidate.length > 2048) throw new InvalidResource();
+  let url: URL;
+  try {
+    url = new URL(candidate);
+  } catch {
+    throw new InvalidResource();
+  }
+  if (url.search || url.hash || url.username || url.password) throw new InvalidResource();
+  if (url.pathname !== MCP_RESOURCE_PATH) throw new InvalidResource();
+  if (url.protocol !== 'https:' && !isLoopbackOrigin(url)) throw new InvalidResource();
+  const allowed = new Set(
+    [requestOrigin, env.NEXT_PUBLIC_APP_ORIGIN, env.NEXT_PUBLIC_MARKETING_URL]
+      .filter((o): o is string => typeof o === 'string' && o.length > 0)
+      .map((o) => o.replace(/\/$/, '')),
+  );
+  if (!allowed.has(url.origin)) throw new InvalidResource();
+  return canonicalResource(url.origin);
+}
+
+/** Thrown by normalizeResource; callers map it to RFC 8707 `invalid_target`. */
+export class InvalidResource extends Error {
+  constructor() {
+    super('resource does not name this MCP server.');
+    this.name = 'InvalidResource';
+  }
+}
+
+function isLoopbackOrigin(url: URL): boolean {
+  return url.protocol === 'http:' && (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]');
+}
+
 export function protectedResourceMetadata(origin: string) {
   return {
-    resource: `${origin}${MCP_RESOURCE_PATH}`,
+    resource: canonicalResource(origin),
     authorization_servers: [origin],
     scopes_supported: [...publicApiScopes],
     bearer_methods_supported: ['header'],
@@ -94,6 +151,10 @@ export function authorizationServerMetadata(origin: string, env: EnvLike = proce
     response_modes_supported: ['query'],
     grant_types_supported: ['authorization_code', 'refresh_token'],
     code_challenge_methods_supported: ['S256'],
+    // RFC 9207: every authorization response carries `iss`, which lets
+    // clients with a stable redirect URI (ChatGPT) verify which server sent
+    // the code before exchanging it.
+    authorization_response_iss_parameter_supported: true,
     token_endpoint_auth_methods_supported: ['none', 'client_secret_post', 'client_secret_basic'],
     revocation_endpoint_auth_methods_supported: ['none', 'client_secret_post', 'client_secret_basic'],
     scopes_supported: [...publicApiScopes],

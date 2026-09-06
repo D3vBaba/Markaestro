@@ -370,6 +370,61 @@ backstop if a webhook is missed or the callback URL is briefly down.
 
 ---
 
+## 6. Connected agents (MCP OAuth) will not connect
+
+Applies to: Claude Code, Claude, Cursor, ChatGPT, grok.com, Grok Build,
+Grok Bot, OpenClaw, Hermes, or any MCP client using
+`https://markaestro.com/api/public/v1/mcp`. The per-client steps users follow
+are on `/developers/agents?client=<id>`.
+
+### Triage
+
+1. **Where does it stop?**
+   - **Client never shows a sign-in prompt.** The 401 challenge is missing.
+     `curl -si -X POST https://markaestro.com/api/public/v1/mcp` must return
+     `401` with a `WWW-Authenticate: Bearer ... resource_metadata=...` header.
+     If the header is absent in production but present locally, the
+     `hosting-proxy` response-header allowlist dropped it; redeploy the proxy
+     (`gcloud run deploy markaestro-proxy --source hosting-proxy --region us-central1`).
+   - **Client says it cannot register / `429` on `/oauth/register`.** The
+     per-IP `oauthRegister` limiter (60/min) tripped; hosted clients share
+     egress IPs. Check `_rateLimits` for the offending IP window; raise the
+     tier in `src/lib/rate-limit.ts` only with a reason in the changelog.
+   - **Consent page shows "not registered" (`OAUTH_CLIENT_NOT_FOUND`).** The
+     client registration expired (180-day idle TTL) or the dialog was given a
+     first-party id that was never seeded. Seed with
+     `node --env-file=.env.local scripts/seed-oauth-clients.mjs ... --apply`.
+   - **Consent redirects straight back with `error=invalid_target`.** The
+     client sent an RFC 8707 `resource` that is not this MCP server (wrong
+     host or path). Compare the `resource` query parameter on the consent URL
+     with `/.well-known/oauth-protected-resource`; under the domain split both
+     `NEXT_PUBLIC_APP_ORIGIN` and `NEXT_PUBLIC_MARKETING_URL` must be set.
+   - **`OAUTH_REDIRECT_URI_MISMATCH`.** The client's callback changed. For a
+     dynamically registered client the user reconnects (a new registration);
+     for a seeded first-party client re-run the seed script with the new
+     `--redirect-uri` (URIs are merged, never dropped).
+   - **Token endpoint answers `invalid_client` for a client that just
+     consented.** Client id shape is neither `oc_<uuid>` nor
+     `markaestro-<slug>`, or the record expired between consent and exchange.
+   - **Tools appear but every call is `UNAUTHENTICATED`.** The key was revoked
+     or expired in Settings, API; the refresh grant then answers
+     `invalid_grant` and the client must sign in again.
+
+2. **Which client?** Record the `client_name` from the registration (visible
+   on the consent page) and the `redirect_uri` it presented. Keep a table of
+   observed redirect URIs per vendor here; a vendor changing theirs is the
+   most likely cause of a sudden outage for one client only.
+
+   | Client | Redirect URI shape observed | Notes |
+   | --- | --- | --- |
+   | Claude Code | `http://localhost:<port>/callback` | Loopback, any port |
+   | Cursor | `cursor://anysphere.cursor-mcp/oauth/callback` | Custom scheme |
+   | ChatGPT | `https://chatgpt.com/connector/oauth/<callback_id>` or `https://chatgpt.com/connector_platform_oauth_redirect` | Sends `resource`, checks `iss` |
+   | grok.com | to be captured on first live connection | May require the seeded `markaestro-grok-web` client |
+   | Grok Bot | n/a (static key, `x-api-key` alias) | No OAuth in beta |
+   | OpenClaw | `http://127.0.0.1:<port>/...` | Loopback |
+   | Hermes | `http://localhost:<port>/...` | Loopback |
+
 ## Appendix — Paging chain
 
 1. `@on-call-primary` in PagerDuty (Cloud Run uptime + Sentry)

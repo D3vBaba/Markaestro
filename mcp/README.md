@@ -1,8 +1,11 @@
 # @markaestro/mcp
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server that lets AI
-agents (Claude Code, Claude Desktop, Cursor, and any other MCP client) schedule,
-publish, and review Markaestro posts through the public API.
+agents (Claude Code, Claude, Cursor, ChatGPT, Grok, Grok Bot, OpenClaw, Hermes,
+and any other MCP client) schedule, publish, and review Markaestro posts
+through the public API. Exact connection steps per client are on
+https://markaestro.com/developers/agents (`?client=cursor`, `chatgpt`, `grok`,
+`grok-bot`, `openclaw`, `hermes`, or `headless` opens that tab).
 
 One API key, one brand: every Markaestro key is bound to a single brand, so the
 server operates on that brand only. Run one server per brand if an agent needs
@@ -22,6 +25,9 @@ several.
 | `create_posts` | Up to 25 posts in one call, per-item results |
 | `upload_media` | Upload from a file path, URL, or data URL; returns the asset id |
 | `list_media`, `get_media` | Uploaded assets, processing state, reference counts |
+| `get_analytics` | Brand performance over a window: totals, channels, daily series, top posts, heatmap, insights |
+| `list_post_analytics` | Every published post in the window with its latest metrics, sortable by views, reach, engagements, or engagement rate |
+| `get_post_analytics_history` | The 1h to 90d metric snapshots of one post, with growth between stages |
 | `get_job_run`, `list_job_runs` | Follow a publish to succeeded or failed |
 | `list_webhook_endpoints`, `create_webhook_endpoint` | Webhook registration |
 | `get_channel_rules` | Per-channel media, caption, and delivery-mode rules |

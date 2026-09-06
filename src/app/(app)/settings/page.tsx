@@ -38,6 +38,7 @@ import { useAuth, friendlyAuthError } from "@/components/providers/AuthProvider"
 import { useSubscription } from "@/components/providers/SubscriptionProvider";
 import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { PLANS, PLAN_TIERS } from "@/lib/stripe/plans";
+import { DEFAULT_AGENT_SCOPES } from "@/lib/agent-oauth/metadata";
 import type { BillingInterval, PlanTier } from "@/lib/stripe/plans";
 import { cn } from "@/lib/utils";
 import { Status } from "@/components/mk/Status";
@@ -183,6 +184,7 @@ const API_SCOPE_OPTIONS = [
   { id: 'posts.publish', labelKey: 'postsPublish' },
   { id: 'evergreen.read', labelKey: 'evergreenRead' },
   { id: 'evergreen.write', labelKey: 'evergreenWrite' },
+  { id: 'analytics.read', labelKey: 'analyticsRead' },
   { id: 'job_runs.read', labelKey: 'jobRunsRead' },
   { id: 'webhooks.manage', labelKey: 'webhooksManage' },
 ] as const;
@@ -2074,13 +2076,22 @@ function ApiAccessTab() {
   };
   const loading = webhooksLoading || usageLoading;
 
-  const [createKeyOpen, setCreateKeyOpen] = useState(false);
+  // /settings?tab=api&preset=agent is where the API-key panels on
+  // /developers/agents send people who cannot use the browser sign-in. It
+  // pre-fills the create dialog with the agent scopes and a 90-day expiry so
+  // the only decision left is the brand. Read once as initial state: the
+  // param is part of the URL that mounted this tab, never a live control.
+  const searchParams = useSearchParams();
+  const agentPreset = canManage && searchParams?.get('preset') === 'agent';
+  const [createKeyOpen, setCreateKeyOpen] = useState(agentPreset);
   const [createWebhookOpen, setCreateWebhookOpen] = useState(false);
   const [editKeyOpen, setEditKeyOpen] = useState(false);
 
-  const [clientName, setClientName] = useState('');
-  const [selectedScopes, setSelectedScopes] = useState<string[]>(['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read']);
-  const [expiresInDays, setExpiresInDays] = useState<'never' | '30' | '90' | '365'>('never');
+  const [clientName, setClientName] = useState(() => (agentPreset ? t("connectAgent.presetName") : ''));
+  const [selectedScopes, setSelectedScopes] = useState<string[]>(() =>
+    agentPreset ? [...DEFAULT_AGENT_SCOPES] : ['products.read', 'media.write', 'posts.write', 'posts.publish', 'job_runs.read'],
+  );
+  const [expiresInDays, setExpiresInDays] = useState<'never' | '30' | '90' | '365'>(agentPreset ? '90' : 'never');
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [editingClient, setEditingClient] = useState<ApiClientInfo | null>(null);
   const [editingScopes, setEditingScopes] = useState<string[]>([]);
@@ -2391,6 +2402,17 @@ function ApiAccessTab() {
           </>
         }
       >
+        <div className="mb-6 flex flex-col gap-3 rounded-xl border border-border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="m-0 text-sm font-medium text-foreground">{t("connectAgent.title")}</p>
+            <p className="m-0 mt-1 text-[13px] leading-relaxed text-muted-foreground">{t("connectAgent.body")}</p>
+          </div>
+          <Button variant="outline" size="sm" asChild className="shrink-0">
+            <a href="/developers/agents#connect-mcp" target="_blank" rel="noopener noreferrer">
+              {t("connectAgent.link")}
+            </a>
+          </Button>
+        </div>
         <StatGrid columns={4}>
           <StatTile
             label={t("stats.requestsThisMonth")}

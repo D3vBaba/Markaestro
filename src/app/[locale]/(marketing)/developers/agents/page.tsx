@@ -3,8 +3,9 @@
  *
  * Deliberately a server component (unlike the other marketing pages) so it can
  * export real metadata: this is the page an agent builder searches for, and it
- * is also the page an LLM crawls. The interactive bits (copy buttons) live in
- * the CopyBlock client component.
+ * is also the page an LLM crawls. The interactive bits live in two client
+ * components: CopyBlock (copy buttons) and AgentConnectTabs (the per-client
+ * connect picker, fed by src/lib/agent-connect/clients.ts).
  */
 
 import type { Metadata } from "next";
@@ -12,6 +13,7 @@ import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import MarketingLayout from "@/components/layout/MarketingLayout";
+import AgentConnectTabs from "@/components/marketing/AgentConnectTabs";
 import CopyBlock from "@/components/marketing/CopyBlock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,29 +39,6 @@ export async function generateMetadata(): Promise<Metadata> {
  * system-prompt brief). None of it is translated — same reasoning as
  * public/llms.txt: it's addressed to software, not to the page's reader.
  * ────────────────────────────────────────────────────────────────────── */
-
-const mcpClaudeCode = `# Claude Code: the plugin bundles the skill and the hosted server.
-claude plugin marketplace add D3vBaba/Markaestro
-claude plugin install markaestro@markaestro
-
-# Or add just the server. No key, no header: the first call opens the browser.
-claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp`;
-
-const mcpGenericConfig = `{
-  "mcpServers": {
-    "markaestro": {
-      "type": "http",
-      "url": "https://markaestro.com/api/public/v1/mcp"
-    }
-  }
-}`;
-
-const mcpHeadless = `# CI, cron, or any client without a browser: pass a key instead.
-claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp \\
-  --header "Authorization: Bearer mk_live_..."
-
-# Local stdio server (can also upload files from disk)
-claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_live_... -- npx -y @markaestro/mcp`;
 
 const mcpFlowEndpoints = [
   "POST /api/public/v1/mcp → 401 + WWW-Authenticate",
@@ -405,31 +384,7 @@ export default async function DevelopersAgentsPage() {
             {t.rich("mcp.intro2", codeTag)}
           </p>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">{t("mcp.installTitle")}</CardTitle>
-                <CardDescription className="text-sm leading-relaxed">
-                  {t("mcp.installDescription")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <CopyBlock code={mcpClaudeCode} label={t("mcp.bashLabel")} />
-                <CopyBlock code={mcpGenericConfig} label={t("mcp.configLabel")} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">{t("mcp.headlessTitle")}</CardTitle>
-                <CardDescription className="text-sm leading-relaxed">
-                  {t("mcp.headlessDescription")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <CopyBlock code={mcpHeadless} label={t("mcp.bashLabel")} />
-              </CardContent>
-            </Card>
-          </div>
+          <AgentConnectTabs />
 
           <h3 className="mt-14 text-lg font-semibold tracking-[-0.02em]">{t("mcp.flowTitle")}</h3>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
@@ -527,7 +482,7 @@ export default async function DevelopersAgentsPage() {
             })}
           </p>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="space-y-6">
               <Card>
                 <CardHeader>
@@ -583,7 +538,7 @@ export default async function DevelopersAgentsPage() {
             {t("toolDefs.intro")}
           </p>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2 lg:items-start">
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">{t("toolDefs.schemasTitle")}</CardTitle>
@@ -624,7 +579,7 @@ export default async function DevelopersAgentsPage() {
             {t("recipes.title")}
           </h2>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">{t("recipes.publish.title")}</CardTitle>

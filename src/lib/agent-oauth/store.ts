@@ -42,7 +42,18 @@ export type OAuthClientRecord = {
   clientUri: string | null;
   createdAt: string;
   lastUsedAt: string | null;
-  expiresAt: Timestamp;
+  /**
+   * Absent on first-party clients, which are seeded by
+   * scripts/seed-oauth-clients.mjs and must never age out: the Firestore TTL
+   * policy only deletes documents that carry the field.
+   */
+  expiresAt?: Timestamp;
+  /**
+   * Registered by Markaestro itself for a connector dialog that asks for a
+   * client id instead of registering dynamically (grok.com). Public, PKCE
+   * only, exempt from the idle TTL. Never set by the registration endpoint.
+   */
+  firstParty?: boolean;
 };
 
 export type AuthorizationCodeRecord = {
@@ -54,6 +65,12 @@ export type AuthorizationCodeRecord = {
   productId: string;
   uid: string;
   clientName: string;
+  /**
+   * RFC 8707 resource the client asked for at authorization, already
+   * normalized to the canonical MCP endpoint URL; null when it sent none.
+   * The token endpoint refuses a code redeemed for a different resource.
+   */
+  resource: string | null;
   createdAt: string;
   usedAt: string | null;
   expiresAt: Timestamp;
@@ -110,31 +127,43 @@ export async function createOAuthClient(input: {
   return { clientId, clientSecret, createdAt };
 }
 
+/** Dynamically registered ids are `oc_<uuid>`; seeded first-party ids are `markaestro-<slug>`. */
+export function isOAuthClientId(clientId: string): boolean {
+  return /^oc_[0-9a-f-]{36}$/.test(clientId) || /^markaestro-[a-z0-9-]{2,40}$/.test(clientId);
+}
+
 export async function getOAuthClient(clientId: string): Promise<OAuthClientRecord | null> {
-  if (!/^oc_[0-9a-f-]{36}$/.test(clientId)) return null;
+  if (!isOAuthClientId(clientId)) return null;
   const snap = await adminDb.collection(OAUTH_CLIENTS).doc(clientId).get();
   if (!snap.exists) return null;
   const data = snap.data() as OAuthClientRecord;
+  // A seeded client is exempt from the idle TTL; a registered one without an
+  // expiry is malformed and treated as expired rather than as immortal.
+  if (data.firstParty === true) return data;
   if (isExpired(data.expiresAt)) return null;
   return data;
 }
 
-/** A token exchange proves the client is alive; push its expiry out. */
-export async function touchOAuthClient(clientId: string): Promise<void> {
-  await adminDb.collection(OAUTH_CLIENTS).doc(clientId).update({
-    lastUsedAt: nowIso(),
-    expiresAt: expiry(CLIENT_TTL_MS),
-  });
+/**
+ * A token exchange proves the client is alive; push its expiry out. First-party
+ * clients only record the use: writing `expiresAt` on them would put them
+ * back under the TTL policy.
+ */
+export async function touchOAuthClient(clientId: string, client?: Pick<OAuthClientRecord, 'firstParty'>): Promise<void> {
+  const patch: Record<string, unknown> = { lastUsedAt: nowIso() };
+  if (client?.firstParty !== true) patch.expiresAt = expiry(CLIENT_TTL_MS);
+  await adminDb.collection(OAUTH_CLIENTS).doc(clientId).update(patch);
 }
 
 // ── Authorization codes ─────────────────────────────────────────────────────
 
 export async function createAuthorizationCode(
-  input: Omit<AuthorizationCodeRecord, 'createdAt' | 'usedAt' | 'expiresAt'>,
+  input: Omit<AuthorizationCodeRecord, 'createdAt' | 'usedAt' | 'expiresAt' | 'resource'> & { resource?: string | null },
 ): Promise<string> {
   const code = randomToken(32);
   const record: AuthorizationCodeRecord = {
     ...input,
+    resource: input.resource ?? null,
     createdAt: nowIso(),
     usedAt: null,
     expiresAt: expiry(CODE_TTL_MS),

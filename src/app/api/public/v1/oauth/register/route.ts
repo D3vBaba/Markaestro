@@ -4,7 +4,8 @@
  * An MCP client that finds this server through discovery registers itself
  * here before opening the consent page. Registration is anonymous by
  * design: the client has no credential yet. It is bounded by an IP rate
- * limit, by strict redirect-URI rules, and by a TTL on idle clients.
+ * limit sized for hosted clients that share egress IPs, by strict
+ * redirect-URI rules, and by a TTL on idle clients.
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -30,7 +31,7 @@ const SUPPORTED_GRANTS = new Set(['authorization_code', 'refresh_token']);
 
 export async function POST(req: Request) {
   try {
-    await applyRateLimit(req, RATE_LIMITS.auth);
+    await applyRateLimit(req, RATE_LIMITS.oauthRegister);
     const raw = await req.json().catch(() => null);
     const parsed = registrationSchema.safeParse(raw);
     if (!parsed.success) {

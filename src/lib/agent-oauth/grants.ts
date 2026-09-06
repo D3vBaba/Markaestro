@@ -5,6 +5,7 @@ import { buildApiKey, parseApiKey, hashSecret } from '@/lib/public-api/keys';
 import { invalidateApiClientAuthCache } from '@/lib/public-api/auth';
 import type { PublicApiScope } from '@/lib/public-api/scopes';
 import { OAuthError } from './errors';
+import { InvalidResource, normalizeResource, requestOrigin } from './metadata';
 import { hashToken, verifyPkce } from './pkce';
 import { redirectUriMatches } from './redirect-uri';
 import {
@@ -37,7 +38,28 @@ export type TokenRequest = {
   client_secret?: string;
   code_verifier?: string;
   refresh_token?: string;
+  /** RFC 8707 resource indicator; optional, checked when present. */
+  resource?: string;
 };
+
+/**
+ * RFC 8707: a `resource` on the token request must name this MCP server and,
+ * when the authorization request carried one, the same one. Clients that do
+ * not send it (Claude Code, Cursor) are unaffected; a code minted for this
+ * server can never be redeemed under another resource identifier.
+ */
+function checkTokenResource(req: Request, presented: string | undefined, bound: string | null): void {
+  let normalized: string | null;
+  try {
+    normalized = normalizeResource(presented, requestOrigin(req));
+  } catch (error) {
+    if (error instanceof InvalidResource) throw new OAuthError('invalid_target', 'resource does not name this MCP server.');
+    throw error;
+  }
+  if (normalized && bound && normalized !== bound) {
+    throw new OAuthError('invalid_target', 'resource does not match the authorization request.');
+  }
+}
 
 export type TokenResponse = {
   access_token: string;
@@ -111,6 +133,7 @@ export async function exchangeAuthorizationCode(req: Request, body: TokenRequest
   if (!verifyPkce(body.code_verifier, record.codeChallenge)) {
     throw new OAuthError('invalid_grant', 'PKCE verification failed.');
   }
+  checkTokenResource(req, body.resource, record.resource ?? null);
 
   // Mint the key. Everything the consent step verified (admin role, verified
   // email, active subscription, brand exists) is carried in the code record.
@@ -146,7 +169,7 @@ export async function exchangeAuthorizationCode(req: Request, body: TokenRequest
     uid: record.uid,
     scopes: record.scopes,
   });
-  await touchOAuthClient(clientId);
+  await touchOAuthClient(clientId, client);
 
   return {
     access_token: key.token,
@@ -158,8 +181,11 @@ export async function exchangeAuthorizationCode(req: Request, body: TokenRequest
 }
 
 export async function refreshAccessToken(req: Request, body: TokenRequest): Promise<TokenResponse> {
-  const { clientId } = await authenticateClient(req, body);
+  const { clientId, client } = await authenticateClient(req, body);
   if (!body.refresh_token) throw new OAuthError('invalid_request', 'refresh_token is required.');
+  // A refresh carries no bound resource (the key is already this server's),
+  // but a wrong one is still refused rather than ignored.
+  checkTokenResource(req, body.resource, null);
 
   const record = await consumeRefreshToken(body.refresh_token);
   if (!record) throw new OAuthError('invalid_grant', 'Refresh token is invalid or expired.');
@@ -193,7 +219,7 @@ export async function refreshAccessToken(req: Request, body: TokenRequest): Prom
     uid: record.uid,
     scopes,
   });
-  await touchOAuthClient(clientId);
+  await touchOAuthClient(clientId, client);
 
   return {
     access_token: key.token,

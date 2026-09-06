@@ -79,6 +79,15 @@ export async function checkRateLimits(checks: RateLimitCheck[]): Promise<RateLim
 export const RATE_LIMITS = {
   /** Auth endpoints: 10 requests per minute */
   auth: { limit: 10, windowMs: 60_000 } as RateLimitConfig,
+  /**
+   * Anonymous OAuth client registration (RFC 7591) for MCP clients: 60 per
+   * minute per IP. Hosted agents (ChatGPT, grok.com, claude.ai) register from
+   * a small pool of egress addresses, so many users connecting in the same
+   * minute share one counter; the `auth` tier would refuse the eleventh.
+   * Abuse is bounded by the strict redirect-URI rules and the idle TTL on
+   * registered clients rather than by this counter.
+   */
+  oauthRegister: { limit: 60, windowMs: 60_000 } as RateLimitConfig,
   /** Standard API endpoints: 60 requests per minute */
   api: { limit: 60, windowMs: 60_000 } as RateLimitConfig,
   /** AI generation endpoints: 10 requests per minute */

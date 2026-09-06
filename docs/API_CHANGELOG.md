@@ -15,6 +15,56 @@ file in the same change, not afterwards.
 
 ## 2026-09-05
 
+### Agent OAuth: resource indicators, issuer, registration limit, key alias
+
+Additive, no behaviour change for existing clients.
+
+- The authorization request and both token grants accept an RFC 8707
+  `resource`. When present it must be `https://<this host>/api/public/v1/mcp`
+  (any origin this deployment answers on); a code is bound to the resource it
+  was authorized for and a mismatch at the token endpoint answers
+  `invalid_target`. Absent `resource` keeps working.
+- Every authorization response (success, `access_denied`, `invalid_target`)
+  carries `iss` (RFC 9207), and the authorization server metadata advertises
+  `authorization_response_iss_parameter_supported: true`.
+- `POST /api/public/v1/oauth/register` moves from the 10/min `auth` limiter
+  to a 60/min per-IP `oauthRegister` limiter, sized for hosted clients that
+  register from shared egress addresses.
+- `POST /api/public/v1/mcp` accepts `x-api-key: mk_...` as an alias for
+  `Authorization: Bearer mk_...` when no Authorization header is present, for
+  connector dialogs that only offer an API-key field. Other routes are
+  unchanged.
+- OAuth clients may be seeded as first-party public clients (id
+  `markaestro-<slug>`, PKCE only, exempt from the idle TTL) for connector
+  dialogs that ask for a client id. The registration endpoint cannot create
+  them.
+
+### Brand analytics are readable through the API
+
+Three endpoints under the new `analytics.read` scope expose the numbers the
+Analytics page shows, pinned to the key's brand and clamped to the plan's
+history window (the response reports `maxDays`, so a client can tell a short
+window from a short plan):
+
+- `GET /api/public/v1/analytics`: totals with the prior period for deltas,
+  per-channel rollups, daily series, engagement breakdown, follower trend,
+  leaderboard, posting-time heatmap, content-type averages, computed insights,
+  and coverage. Query: `days`, `since`, `until`, `channel`, `tz`.
+- `GET /api/public/v1/analytics/posts`: every published post in the window
+  with its latest metrics, one row per post, sortable by `published_at`,
+  `views`, `reach`, `engagements`, or `engagement_rate`; `limit` up to 500.
+- `GET /api/public/v1/analytics/posts/{id}/history`: the 1h to 90d metric
+  snapshots of one post with the growth between stages, plus the current
+  totals. Answers 404 outside the key's brand, the same rule as the posts
+  routes.
+
+Unavailable provider metrics are `null`, never zero. Sandbox posts from test
+keys never appear. Existing keys do not gain the scope: create a key with
+`analytics.read` under Settings, API, or reconnect an agent, which now
+receives it in the default scope set. The MCP server gains `get_analytics`,
+`list_post_analytics`, and `get_post_analytics_history` (`@markaestro/mcp`
+0.2.0). Additive; no dated version.
+
 ### Evergreen measurements are separate from recommendation availability
 
 Preview assessments now report `measurementStatus` (`available` or `unavailable`)

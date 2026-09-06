@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "AI エージェント向け Markaestro | MCP クライアントの接続または API キーの利用",
-    "description": "Claude Code、claude.ai、Cursor などの MCP クライアントをブラウザでのサインインで Markaestro に接続するか、エージェントにブランド限定の API キーを渡せます。接続済みのソーシャルアカウントの発見、メディアのアップロード、下書き、予約、公開を Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterest で。",
+    "description": "Claude Code、Claude、Cursor、ChatGPT、Grok、OpenClaw、Hermes などの MCP クライアントをブラウザでのサインインで Markaestro に接続するか、エージェントにブランド限定の API キーを渡せます。接続済みのソーシャルアカウントの発見、メディアのアップロード、下書き、予約、公開を Facebook、Instagram、TikTok、LinkedIn、Threads、Pinterest で。",
     "ogTitle": "AI エージェント向け Markaestro",
     "ogDescription": "サインイン一つ、または API キー一つで、Markaestro はエージェントが呼び出せる公開ツールになります。アカウントの発見、メディアのアップロード、下書き、予約、公開、結果の報告まで。"
   },
@@ -235,7 +235,7 @@
       },
       {
         "name": "MCP クライアント",
-        "body": "Claude Code、claude.ai、Cursor、ChatGPT はホスト型サーバーの URL を追加してブラウザでサインインするだけです。stdio 専用のクライアントには npx -y @markaestro/mcp が同じ 17 のツールをローカルで提供します。"
+        "body": "Claude Code、Claude、Cursor、ChatGPT、Grok、Grok Bot、OpenClaw、Hermes はホスト型サーバーの URL を追加してブラウザでサインインするだけです。stdio 専用のクライアントには npx -y @markaestro/mcp が同じ 31 のツールをローカルで提供します。"
       },
       {
         "name": "n8n、Make、Zapier",
@@ -260,14 +260,8 @@
   "mcp": {
     "eyebrow": "MCP クライアント",
     "title": "クライアントからサインイン。貼り付けるものは何もありません。",
-    "intro1": "Claude Code、claude.ai、Cursor、ChatGPT など Model Context Protocol を話すあらゆるクライアントは、認証情報を設定せずに Markaestro のホスト型 MCP サーバーへ接続できます。最初のツール呼び出しでブラウザが開きます。サインインし、エージェントが操作できるワークスペースとブランドを選び、権限を確認して「許可」をクリックしてください。クライアントはそのブランドに紐づいたキーを受け取り、自動で更新します。",
-    "intro2": "これは PKCE と動的クライアント登録を備えた標準の OAuth 2.1 で、他のホスト型 MCP サーバーと同じ仕組みのため、Markaestro 専用のプラグインなしで動作します。サーバーは <code>https://markaestro.com/api/public/v1/mcp</code> にあり、公開 API の上に 17 のツールを公開しています。ブランドと配信先の発見、メディアのアップロード、下書きと予約投稿、ジョブ実行のポーリング付き公開、一括操作、Webhook、チャネルごとのルールです。",
-    "installTitle": "インストール",
-    "installDescription": "Claude Code ではプラグインが設定のすべてです。エージェント用スキルとサーバー設定を同梱しています。その他の MCP クライアントは、通常の設定でサーバー URL を受け取ります。",
-    "headlessTitle": "ブラウザなしで",
-    "headlessDescription": "CI ジョブや cron ワーカー、ブラウザを開けないクライアントは、代わりにワークスペースの API キーを Bearer ヘッダーで渡します。どちらの経路も同じサーバーに同じ権限で到達します。",
-    "bashLabel": "Bash",
-    "configLabel": "MCP 設定 (json)",
+    "intro1": "Claude Code、Claude、Cursor、ChatGPT、Grok、Grok Bot、OpenClaw、Hermes など Model Context Protocol を話すあらゆるクライアントは、認証情報を設定せずに Markaestro のホスト型 MCP サーバーへ接続できます。最初のツール呼び出しでブラウザが開きます。サインインし、エージェントが操作できるワークスペースとブランドを選び、権限を確認して「許可」をクリックしてください。クライアントはそのブランドに紐づいたキーを受け取り、自動で更新します。",
+    "intro2": "これは PKCE と動的クライアント登録を備えた標準の OAuth 2.1 で、他のホスト型 MCP サーバーと同じ仕組みのため、Markaestro 専用のプラグインなしで動作します。サーバーは <code>https://markaestro.com/api/public/v1/mcp</code> にあり、公開 API の上に 31 のツールを公開しています。ブランドと配信先の発見、メディアのアップロード、下書きと予約投稿、ジョブ実行のポーリング付き公開、一括操作、Webhook、チャネルごとのルールです。",
     "flowTitle": "クライアント接続時に起こること",
     "flowIntro": "5 つのステップはすべてクライアントとブラウザが処理します。あなたが目にするのは同意ページだけです。",
     "steps": [
@@ -318,5 +312,220 @@
     "endpointsTitle": "エンドポイント",
     "endpointsDescription": "MCP クライアントを構築する方やフローを監査する方向けです。すべて 2 つの well-known 文書から発見できるため、手動で設定するものはありません。",
     "endpointsLabel": "リファレンス"
+  },
+  "connect": {
+    "eyebrow": "エージェントを接続",
+    "title": "エージェントを選んでください。3 ステップで投稿できるようになります。",
+    "intro": "以下のクライアントはすべて同じホスト型 MCP サーバーに接続します。多くはブラウザでサインインします。最初のツール呼び出しで同意ページが開き、エージェントが操作できるワークスペースとブランドを選ぶと、クライアントはそのブランドに限定されたキーを受け取ります。ブラウザを開けないクライアントは、代わりにワークスペースの API キーを使います。同じサーバー、同じ権限、同じ一覧が設定に表示されます。",
+    "tabsLabel": "エージェントを選択",
+    "path": {
+      "oauth": "ブラウザでサインイン",
+      "key": "API キー",
+      "both": "サインインまたは API キー"
+    },
+    "blocks": {
+      "before": "始める前に",
+      "add": "サーバーを追加",
+      "signIn": "サインイン",
+      "key": "API キーを使う",
+      "verify": "確認"
+    },
+    "snippetKinds": {
+      "bash": "Bash",
+      "json": "JSON",
+      "yaml": "YAML",
+      "toml": "TOML",
+      "text": "設定値"
+    },
+    "docsLink": "{client} のドキュメント",
+    "common": {
+      "adminRequired": "メール確認済みのワークスペース所有者または管理者で、そのワークスペースに有効なプランと 1 つ以上のブランドがあること。",
+      "createKey": "API キーを作成",
+      "preferSignIn": "サインインを優先してください。キーはクライアントがブラウザを開けない場合だけ使います。",
+      "verifyTool": "エージェントに list_products を呼ばせてください。許可した 1 つのブランドと、その接続済みチャネルが返るはずです。",
+      "verifySettings": "接続は「設定、API」に「接続済みエージェント」バッジ、最終使用日時、リクエスト数とともに表示されます。いつでもそこから取り消せます。",
+      "openSettings": "設定、API を開く",
+      "oneClick": "{client} に追加",
+      "oneClickHint": "アプリが開いてサーバーが追加されます。リンクが開かない場合は下の JSON を貼り付けてください。"
+    },
+    "clients": {
+      "claude-code": {
+        "label": "Claude Code",
+        "summary": "プラグインがスキルとホスト型サーバーをまとめてインストールします。設定も貼り付けも不要です。",
+        "before": [
+          "Claude Code がインストールされ、Anthropic アカウントにサインインしていること。"
+        ],
+        "add": [
+          "任意のターミナルでプラグインの 2 つのコマンドを実行するか、3 つ目のコマンドでサーバーだけを追加します。"
+        ],
+        "signIn": [
+          "Claude に Markaestro について何か聞くか、/mcp を実行して markaestro を選びます。",
+          "ブラウザで同意ページが開きます。ワークスペースとブランドを選び、権限を確認して「許可」をクリックします。",
+          "後でブランドを切り替えるには、/mcp を再実行してサインアウトし、別のブランドでサインインします。"
+        ]
+      },
+      "claude": {
+        "label": "Claude",
+        "summary": "claude.ai と Claude Desktop はサーバー URL をカスタムコネクタとして受け取り、同じ同意ページでサインインします。",
+        "before": [
+          "カスタムコネクタは Claude の有料プランで利用できます。Team と Enterprise では所有者による有効化が必要な場合があります。"
+        ],
+        "add": [
+          "設定、コネクタ、「カスタムコネクタを追加」を開きます。",
+          "下のサーバー URL を貼り付け、OAuth クライアントの欄は空のままにして「追加」をクリックします。"
+        ],
+        "signIn": [
+          "Markaestro の横の「接続」をクリックします。同意ページが新しいタブで開きます。",
+          "ワークスペースとブランドを選び、権限を確認して「許可」をクリックします。タブが閉じ、コネクタが接続済みになります。",
+          "チャットでエージェントに使わせたいときは、ツールメニューから Markaestro を有効にします。"
+        ]
+      },
+      "cursor": {
+        "label": "Cursor",
+        "summary": "ワンクリックで Cursor にサーバーが追加されます。最初のツール呼び出しでブラウザのサインインが開き、Cursor はトークンを OS のキーチェーンに保存します。",
+        "before": [
+          "MCP が有効な Cursor。リモート MCP サーバーはすべての Cursor プランで使えます。"
+        ],
+        "add": [
+          "「Cursor に追加」をクリックし、Cursor 側のインストール確認を承認します。",
+          "または、JSON をプロジェクトの .cursor/mcp.json（git でチームと共有）か ~/.cursor/mcp.json（自分だけ）に貼り付けます。"
+        ],
+        "signIn": [
+          "Cursor Settings の Tools & MCP を開きます。Markaestro に Needs login と表示されるのでクリックします。",
+          "ブラウザで同意ページが開きます。ワークスペースとブランドを選んで「許可」をクリックすると、Cursor がトークンを受け取りツールを一覧表示します。",
+          "Cursor 内の Grok Bot も同じサーバー設定を使います。"
+        ],
+        "captions": {
+          "headless": "共有ビルドマシンや CI では、ヘッダーにワークスペースの API キーを入れることでサインインを置き換えられます。"
+        }
+      },
+      "chatgpt": {
+        "label": "ChatGPT",
+        "summary": "ChatGPT は開発者モードのカスタムアプリとして Markaestro に接続し、同意ページでサインインします。",
+        "before": [
+          "開発者モードには ChatGPT Pro、Business、Enterprise、Edu のいずれかが必要です。Pro は読み取りツールのみ、Business、Enterprise、Edu はすべてのツールを利用できます。",
+          "Business、Enterprise、Edu では、管理者がワークスペースでカスタムアプリを許可する必要がある場合があります。"
+        ],
+        "add": [
+          "設定、アプリとコネクタ、詳細設定を開き、開発者モードをオンにします。",
+          "アプリとコネクタに戻って「作成」をクリックします。名前を Markaestro にし、サーバー URL を貼り付け、認証に OAuth を選んで「ツールをスキャン」をクリックします。"
+        ],
+        "signIn": [
+          "ChatGPT がツールをスキャンする間に同意ページが開きます。ワークスペースとブランドを選んで「許可」をクリックし、続けて「作成」をクリックします。",
+          "チャットでプラスボタン、「その他」、Markaestro の順にクリックするとツールが使えるようになります。",
+          "ChatGPT は接続ごとに一度 Markaestro に自身を登録します。再接続すると別途取り消せる新しい接続が作られます。"
+        ]
+      },
+      "grok": {
+        "label": "Grok",
+        "summary": "Grok は 3 つの方法で Markaestro に接続します。grok.com のカスタムコネクタ、Grok Build ターミナル、そして xAI API のリモート MCP ツールです。",
+        "before": [
+          "grok.com のコネクタは個人プランで使えます。Grok Business と Enterprise では、チーム管理者がコネクタをプロビジョニングする必要があります。",
+          "xAI API の経路はサーバー側で動くため、常にワークスペースの API キーを使います。"
+        ],
+        "add": [
+          "grok.com: grok.com/connectors を開き、New Connector、Custom の順に選び、サーバー URL を貼り付けます。ダイアログでクライアント ID を求められたら下の値を使います。",
+          "Grok Build: ターミナルで 2 つのコマンドを実行します。Grok Build は Claude Code の .mcp.json や Cursor の mcp.json にある Markaestro の設定も読み込みます。",
+          "xAI API: Responses API リクエストの tools 配列にツールブロックを追加します。"
+        ],
+        "signIn": [
+          "grok.com と Grok Build は最初のツール呼び出しで同意ページを開きます。ワークスペースとブランドを選んで「許可」をクリックします。",
+          "xAI API では、ワークスペースの API キーを作成して authorization フィールドで渡します。"
+        ],
+        "captions": {
+          "web": "grok.com のカスタムコネクタ",
+          "build": "Grok Build ターミナル",
+          "api": "xAI Responses API のツールブロック"
+        }
+      },
+      "grok-bot": {
+        "label": "Grok Bot",
+        "summary": "Grok Bot はクラウド上のコンピューターで動作し、静的なキーでカスタム MCP サーバーを受け付けます。ベータ版ではカスタムサーバー向けのブラウザサインインはまだありません。",
+        "before": [
+          "Grok Bot は SuperGrok プランと Cursor Pro で早期ベータ提供中です。Enterprise は順番待ちです。",
+          "エージェント用スコープを持つワークスペースの API キーがあること。下のボタンから作成できます。"
+        ],
+        "add": [
+          "Bot のコネクタ設定を開き、カスタム MCP サーバーを追加します。",
+          "サーバー URL を貼り付け、下の値を使ってキーをヘッダーとして追加します。"
+        ],
+        "signIn": [
+          "1 つのブランドに限定し、有効期限を付けたキーを作成します。Bot のコネクタ設定にだけ保存し、チャットメッセージには決して貼らないでください。",
+          "Grok Bot がカスタムサーバーのブラウザサインインに対応したら、ヘッダーを削除して再接続してください。このサーバーではその経路もすでに動作します。"
+        ],
+        "captions": {
+          "key": "コネクタダイアログ用のヘッダー値"
+        }
+      },
+      "openclaw": {
+        "label": "OpenClaw",
+        "summary": "OpenClaw は CLI からリモート MCP サーバーを追加し、ループバックポートでサインインを完了するため、ゲートウェイを動かしているマシンで動作します。",
+        "before": [
+          "OpenClaw がインストールされ、ゲートウェイが起動していること。",
+          "ブラウザのないサーバーでは --code フォールバックでサインインを完了できます。"
+        ],
+        "add": [
+          "3 つのコマンドを実行するか、~/.openclaw/openclaw.json にサーバーブロックを追加します。",
+          "Markaestro スキルが ClawHub に公開されたら、openclaw skills install markaestro でエージェント向けの手順も追加できます。"
+        ],
+        "signIn": [
+          "openclaw mcp login markaestro がサインイン URL を表示し、ループバックポートで待機します。",
+          "URL を開き、ワークスペースとブランドを選んで「許可」をクリックします。OpenClaw は認証情報を設定ファイルの外に保存します。",
+          "実行中のエージェントにツールを反映させるため openclaw mcp reload を実行します。"
+        ],
+        "captions": {
+          "config": "同等の設定エントリ",
+          "headless": "ブラウザなしの場合"
+        }
+      },
+      "hermes": {
+        "label": "Hermes",
+        "summary": "Hermes Agent は config.yaml から HTTP MCP サーバーを登録し、自身でサインインを行ってトークンを ~/.hermes/mcp-tokens に保存します。",
+        "before": [
+          "Hermes Agent がインストールされていること。シークレットは ~/.hermes/.env に置き、設定では ${VAR} として参照します。"
+        ],
+        "add": [
+          "~/.hermes/config.yaml に mcp_servers ブロックを追加します。",
+          "実行中のセッションで /reload-mcp を送ります。ツールは mcp_markaestro_<tool> として表示されます。"
+        ],
+        "signIn": [
+          "最初のツール呼び出しで Hermes が同意ページを開きます。ワークスペースとブランドを選んで「許可」をクリックします。",
+          "Hermes はトークンを自動で更新します。使い終わったら「設定、API」から取り消してください。"
+        ],
+        "captions": {
+          "headless": "ブラウザなしの場合"
+        }
+      },
+      "generic": {
+        "label": "その他の MCP クライアント",
+        "summary": "Streamable HTTP と、動的クライアント登録を含む OAuth 2.1 に対応したクライアントなら、サーバー URL だけで接続できます。",
+        "before": [
+          "クライアントが Streamable HTTP のリモート MCP サーバーに対応し、OAuth のためにブラウザを開けること。開けない場合は「API キー」タブを使います。"
+        ],
+        "add": [
+          "クライアントの MCP 設定にサーバー URL を追加します。下の JSON は一般的な mcpServers の形式です。",
+          "クライアント ID やシークレットは設定しないでください。クライアントは初回利用時に自身を登録します。"
+        ],
+        "signIn": [
+          "最初のツール呼び出しにサインインの要求が返り、クライアントが同意ページを開きます。",
+          "ワークスペースとブランドを選んで「許可」をクリックします。クライアントはコードをブランド限定のキーと交換し、30 日ごとに更新します。"
+        ]
+      },
+      "headless": {
+        "label": "API キー",
+        "summary": "CI ジョブ、cron ワーカー、ブラウザを開けないクライアント向け。Authorization ヘッダーのワークスペース API キーで、同じサーバーに同じ権限で到達します。",
+        "before": [
+          "キーを作成できること。メール確認済みのワークスペース所有者または管理者。"
+        ],
+        "add": [
+          "1 つのブランドに限定し、エージェントに必要なスコープだけと有効期限を付けたキーを作成します。",
+          "ホスト型サーバーには bearer ヘッダーとして、ローカルの stdio サーバーには MARKAESTRO_API_KEY として渡します。stdio サーバーはディスク上のファイルもアップロードできます。"
+        ],
+        "signIn": [
+          "キーはエージェントのシークレットストアに保存し、プロンプトやリポジトリには決して置かないでください。",
+          "「設定、API」でローテーションまたは取り消しができます。各キーには最終使用日時とリクエスト数が表示されます。"
+        ]
+      }
+    }
   }
 }

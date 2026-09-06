@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 /**
- * OAuth 2.1 error codes (RFC 6749 §5.2, RFC 7591 §3.2.2). These are the
+ * OAuth 2.1 error codes (RFC 6749 §5.2, RFC 7591 §3.2.2, RFC 8707 §2). These are the
  * wire format every MCP client parses, so they are kept verbatim rather than
  * mapped onto the app's own `error` codes.
  */
@@ -14,6 +14,7 @@ export type OAuthErrorCode =
   | 'invalid_scope'
   | 'invalid_redirect_uri'
   | 'invalid_client_metadata'
+  | 'invalid_target'
   | 'access_denied'
   | 'server_error';
 

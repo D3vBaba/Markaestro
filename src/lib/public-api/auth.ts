@@ -1,7 +1,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { safeCompare } from '@/lib/crypto';
 import { RATE_LIMITS, checkRateLimits, type RateLimitConfig, type RateLimitResult } from '@/lib/rate-limit';
-import { PLANS } from '@/lib/stripe/plans';
+import { PLANS, type PlanTier } from '@/lib/stripe/plans';
 import { effectiveTier, getEffectiveSubscription, isActiveSubscription } from '@/lib/stripe/subscription';
 import { parseApiKey, hashSecret, type ApiKeyMode } from './keys';
 import type { PublicApiScope } from './scopes';
@@ -26,6 +26,13 @@ export type PublicApiContext = {
    * which is the safe direction for that default to fall.
    */
   mode: ApiKeyMode;
+  /**
+   * The plan tier the key's workspace is on, resolved once at authentication
+   * (the same subscription the entitlement check reads). Routes that scale a
+   * limit with the plan, such as the analytics history window, read it here
+   * rather than resolving the subscription a second time.
+   */
+  planTier: PlanTier;
   /**
    * The dated version this request runs under: the `Markaestro-Version`
    * header if the caller sent one, otherwise the version current when the key
@@ -293,9 +300,10 @@ export async function requirePublicApiContext(
   //      pick their own via `options.rateLimit`.
   // Both budgets scale with the plan tier, reusing the subscription already
   // resolved for the entitlement check above.
+  const planTier = effectiveTier(subscription);
   const { route: rateLimitConfig, global: globalConfig } = tierScaledRateLimits(
     options.rateLimit || RATE_LIMITS.api,
-    PLANS[effectiveTier(subscription)].limits.apiRequestsPerMinute,
+    PLANS[planTier].limits.apiRequestsPerMinute,
   );
   const [globalResult, pathResult] = await checkRateLimits([
     { key: `public-api:${parsed.clientId}`, config: globalConfig },
@@ -335,6 +343,7 @@ export async function requirePublicApiContext(
     scopes,
     productId,
     mode: storedMode,
+    planTier,
     apiVersion,
     rateLimitHeaders,
   };

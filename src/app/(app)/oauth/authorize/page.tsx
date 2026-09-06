@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { publicApiScopes, type PublicApiScope } from "@/lib/public-api/scopes";
+import { browserIssuerFor } from "@/lib/agent-oauth/issuer";
 
 type ClientInfo = { id: string; name: string; uri: string | null };
 type Product = { id: string; name: string };
@@ -34,6 +35,7 @@ const SCOPE_LABEL_KEY: Record<PublicApiScope, string> = {
   "posts.publish": "postsPublish",
   "evergreen.read": "evergreenRead",
   "evergreen.write": "evergreenWrite",
+  "analytics.read": "analyticsRead",
   "job_runs.read": "jobRunsRead",
   "webhooks.manage": "webhooksManage",
 };
@@ -47,13 +49,37 @@ function readRequest(params: URLSearchParams) {
   const responseType = params.get("response_type") ?? "";
   const state = params.get("state") ?? "";
   const scope = params.get("scope") ?? "";
+  // RFC 8707 resource indicator. Optional; validated server-side.
+  const resource = params.get("resource") ?? "";
   const valid =
     clientId.length > 0 &&
     redirectUri.length > 0 &&
     codeChallenge.length > 0 &&
     method === "S256" &&
     responseType === "code";
-  return { clientId, redirectUri, codeChallenge, state, scope, valid };
+  return { clientId, redirectUri, codeChallenge, state, scope, resource, valid };
+}
+
+/**
+ * RFC 9207 issuer for error responses built in the browser. Only an origin
+ * this deployment owns may be named; see browserIssuerFor.
+ */
+function issuerFor(resource: string): string {
+  return browserIssuerFor(resource, window.location.origin, [
+    process.env.NEXT_PUBLIC_APP_ORIGIN,
+    process.env.NEXT_PUBLIC_MARKETING_URL,
+  ]);
+}
+
+type AuthorizationRequest = ReturnType<typeof readRequest>;
+
+/** The client's registered redirect with an OAuth error, state, and RFC 9207 iss. */
+function errorRedirect(request: AuthorizationRequest, code: "access_denied" | "invalid_target"): string {
+  const url = new URL(request.redirectUri);
+  url.searchParams.set("error", code);
+  if (request.state) url.searchParams.set("state", request.state);
+  url.searchParams.set("iss", issuerFor(request.resource));
+  return url.toString();
 }
 
 function AuthorizeContent() {
@@ -108,11 +134,19 @@ function AuthorizeContent() {
         redirect_uri: request.redirectUri,
       });
       if (request.scope) search.set("scope", request.scope);
+      if (request.resource) search.set("resource", request.resource);
       const res = await apiFetch<{ client?: ClientInfo; scopes?: PublicApiScope[]; error?: string }>(
         `/api/oauth/agent/client?${search.toString()}`,
       );
       if (cancelled) return;
       if (!res.ok || !res.data.client) {
+        if (res.data?.error === "OAUTH_INVALID_RESOURCE") {
+          // The redirect URI was verified before the resource was checked, so
+          // the client can be told at its registered address (RFC 8707 §2).
+          setRedirecting(true);
+          window.location.assign(errorRedirect(request, "invalid_target"));
+          return;
+        }
         setClientError(res.data?.error === "OAUTH_INVALID_SCOPE" ? t("invalidScope") : t("unknownClient"));
         return;
       }
@@ -138,11 +172,9 @@ function AuthorizeContent() {
   function deny() {
     if (!request.redirectUri) return;
     try {
-      const url = new URL(request.redirectUri);
-      url.searchParams.set("error", "access_denied");
-      if (request.state) url.searchParams.set("state", request.state);
+      const target = errorRedirect(request, "access_denied");
       setRedirecting(true);
-      window.location.assign(url.toString());
+      window.location.assign(target);
     } catch {
       setSubmitError(t("invalidRequest"));
     }
@@ -160,6 +192,7 @@ function AuthorizeContent() {
         codeChallenge: request.codeChallenge,
         codeChallengeMethod: "S256",
         state: request.state || undefined,
+        resource: request.resource || undefined,
         productId,
         scopes: publicApiScopes.filter((s) => granted.has(s)),
       },

@@ -23,10 +23,34 @@ MCP clients need no key at all. Add the hosted server
 at /.well-known/oauth-authorization-server, registers itself, and opens the
 browser on /oauth/authorize where the user picks a workspace and brand. The
 access token the client receives IS a brand-bound API key (30 days, rotated
-on refresh). Claude Code: `claude plugin marketplace add D3vBaba/Markaestro`
-then `claude plugin install markaestro@markaestro`. If tools are missing or
-return UNAUTHENTICATED, tell the user to run `/mcp` and sign in; never ask
-the user to paste a key.
+on refresh). If tools are missing or return UNAUTHENTICATED, tell the user
+to sign in from their client; never ask the user to paste a key.
+
+Per-client setup (each link opens that client's tab on the agents page):
+- Claude Code: `claude plugin marketplace add D3vBaba/Markaestro` then
+  `claude plugin install markaestro@markaestro`; sign in with `/mcp`.
+  https://markaestro.com/developers/agents?client=claude-code
+- Claude (claude.ai, Desktop): Settings, Connectors, Add custom connector,
+  paste the server URL. https://markaestro.com/developers/agents?client=claude
+- Cursor: one-click deeplink on the page, or `{"mcpServers":{"markaestro":
+  {"url":"https://markaestro.com/api/public/v1/mcp"}}}` in .cursor/mcp.json;
+  sign in from Tools & MCP. https://markaestro.com/developers/agents?client=cursor
+- ChatGPT: Developer mode, Apps & Connectors, Create, server URL, OAuth,
+  Scan Tools. https://markaestro.com/developers/agents?client=chatgpt
+- Grok: grok.com/connectors (Custom; client id markaestro-grok-web if asked),
+  `grok mcp add --transport http markaestro <url>` in Grok Build, or a
+  `{"type":"mcp","server_url":...,"authorization":"Bearer mk_..."}` tool in
+  the xAI API. https://markaestro.com/developers/agents?client=grok
+- Grok Bot: custom MCP server with a workspace API key (Authorization or
+  x-api-key header). https://markaestro.com/developers/agents?client=grok-bot
+- OpenClaw: `openclaw mcp add markaestro --url <url> --transport
+  streamable-http --auth oauth`, then `openclaw mcp login markaestro`.
+  https://markaestro.com/developers/agents?client=openclaw
+- Hermes: `mcp_servers.markaestro: { url, auth: oauth }` in
+  ~/.hermes/config.yaml, then /reload-mcp.
+  https://markaestro.com/developers/agents?client=hermes
+- No browser (CI, cron): `Authorization: Bearer mk_...` header on the same
+  server. https://markaestro.com/developers/agents?client=headless
 
 Two surfaces over the same pipeline:
 - `/api/connect/v1` — flat, snake_case, fewest calls. Start here.
@@ -139,7 +163,7 @@ signature before acting on a delivery.
 - https://markaestro.com/channels — per-channel capabilities and limits
 - https://markaestro.com/pricing — plans; API access is included on all of them
 - https://markaestro.com/developers/api — full API reference
-- https://markaestro.com/developers/agents — AI agent guide, tool schemas
+- https://markaestro.com/developers/agents — AI agent guide, per-client connect steps, tool schemas
 - https://markaestro.com/terms — terms of service
 - https://markaestro.com/privacy — privacy policy
 - https://markaestro.com/contact — support and sales

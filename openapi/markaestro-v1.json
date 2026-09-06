@@ -2030,6 +2030,357 @@
           }
         }
       }
+    },
+    "/api/public/v1/analytics": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get brand analytics",
+        "description": "The brand’s performance over a window: totals with the prior period for deltas, per-channel rollups, daily series, engagement breakdown, follower trend, leaderboard, posting-time heatmap, content-type averages, computed insights, and coverage. The same numbers the Analytics page shows, pinned to the key’s brand. The window is clamped to the plan’s history window and the response reports maxDays. Unavailable provider metrics are null, not zero. Requires analytics.read.",
+        "operationId": "getAnalytics",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 28,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            },
+            "description": "Preset window in days, ending today (UTC). Clamped to the plan history window; the response reports maxDays."
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "description": "Explicit range start as a UTC date. Used only when until is also given and is not before since."
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "description": "Explicit range end as a UTC date, inclusive. Ends today when it names a future date."
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "facebook",
+                "instagram",
+                "tiktok",
+                "threads",
+                "pinterest",
+                "linkedin",
+                "x"
+              ]
+            },
+            "description": "Restrict every number to one channel."
+          },
+          {
+            "name": "tz",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "type": "integer",
+              "minimum": -840,
+              "maximum": 840
+            },
+            "description": "Viewer timezone offset in minutes east of UTC. Shapes the posting-time heatmap only."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The brand’s performance over the window.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was rejected. `error` names the code; see the error catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, malformed, expired, or revoked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key lacks the scope this endpoint needs, or names a brand it is not bound to.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited. `Retry-After` says how long to wait.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/v1/analytics/posts": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "List post analytics",
+        "description": "Every published post of the brand in the window with its latest metrics, one row per post, summed across the channels in scope and sorted. The JSON form of the Analytics page’s export. Requires analytics.read.",
+        "operationId": "listPostAnalytics",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 28,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            },
+            "description": "Preset window in days, ending today (UTC). Clamped to the plan history window; the response reports maxDays."
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "description": "Explicit range start as a UTC date. Used only when until is also given and is not before since."
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "description": "Explicit range end as a UTC date, inclusive. Ends today when it names a future date."
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "facebook",
+                "instagram",
+                "tiktok",
+                "threads",
+                "pinterest",
+                "linkedin",
+                "x"
+              ]
+            },
+            "description": "Restrict every number to one channel."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            },
+            "description": "Rows to return after sorting. The response says whether more matched."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": "published_at",
+              "type": "string",
+              "enum": [
+                "published_at",
+                "views",
+                "reach",
+                "engagements",
+                "engagement_rate"
+              ]
+            },
+            "description": "Descending. engagement_rate uses reach, and views where a channel never reports reach. Posts without the metric sort last."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The sorted rows and the window they cover.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsPostList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was rejected. `error` names the code; see the error catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, malformed, expired, or revoked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key lacks the scope this endpoint needs, or names a brand it is not bound to.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited. `Retry-After` says how long to wait.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/v1/analytics/posts/{id}/history": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get post analytics history",
+        "description": "The metric snapshots stored for one post at 1h, 6h, 24h, 72h, 7d, 14d, 30d, 60d, and 90d after publish, with the growth between stages, plus the current totals. Answers 404 for posts outside the key’s brand, unpublished posts, and sandbox posts. Requires analytics.read.",
+        "operationId": "getPostAnalyticsHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The post’s metric history, oldest stage first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsPostHistory"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was rejected. `error` names the code; see the error catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, malformed, expired, or revoked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key lacks the scope this endpoint needs, or names a brand it is not bound to.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No published post with this id in the key’s brand.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited. `Retry-After` says how long to wait.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2037,7 +2388,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Scopes: products.read, media.write, posts.read, posts.write, posts.publish, evergreen.read, evergreen.write, job_runs.read, webhooks.manage."
+        "description": "Scopes: products.read, media.write, posts.read, posts.write, posts.publish, evergreen.read, evergreen.write, analytics.read, job_runs.read, webhooks.manage."
       },
       "oauth2": {
         "type": "oauth2",
@@ -2055,6 +2406,7 @@
               "posts.publish": "posts.publish",
               "evergreen.read": "evergreen.read",
               "evergreen.write": "evergreen.write",
+              "analytics.read": "analytics.read",
               "job_runs.read": "job_runs.read",
               "webhooks.manage": "webhooks.manage"
             }
@@ -4912,6 +5264,1908 @@
         },
         "required": [
           "preview"
+        ],
+        "additionalProperties": false
+      },
+      "AnalyticsOverview": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "analytics": {
+            "type": "object",
+            "properties": {
+              "window": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991,
+                    "description": "The window actually reported, after the plan clamp."
+                  },
+                  "since": {
+                    "type": "string"
+                  },
+                  "until": {
+                    "type": "string"
+                  },
+                  "requestedDays": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "maxDays": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991,
+                    "description": "The plan history window in days; -1 means unlimited."
+                  },
+                  "tier": {
+                    "type": "string"
+                  },
+                  "custom": {
+                    "type": "boolean",
+                    "description": "True when since/until were used rather than the days preset."
+                  },
+                  "priorSince": {
+                    "type": "string"
+                  },
+                  "priorUntil": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "days",
+                  "since",
+                  "until",
+                  "requestedDays",
+                  "maxDays",
+                  "tier",
+                  "custom",
+                  "priorSince",
+                  "priorUntil"
+                ],
+                "additionalProperties": false
+              },
+              "totals": {
+                "type": "object",
+                "properties": {
+                  "posts": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "views": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "reach": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "engagements": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "engagementRateByReach": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "A ratio (0.05 is 5%); null when the denominator is unavailable"
+                  },
+                  "engagementRateByViews": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "A ratio (0.05 is 5%); null when the denominator is unavailable"
+                  },
+                  "followers": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Latest follower count across the channels in scope."
+                  },
+                  "followerDelta": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Follower change over the window."
+                  },
+                  "prior": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "posts": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "views": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          },
+                          "reach": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          },
+                          "engagements": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          },
+                          "engagementRateByReach": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "A ratio (0.05 is 5%); null when the denominator is unavailable"
+                          },
+                          "engagementRateByViews": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "A ratio (0.05 is 5%); null when the denominator is unavailable"
+                          },
+                          "followerDelta": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          }
+                        },
+                        "required": [
+                          "posts",
+                          "views",
+                          "reach",
+                          "engagements",
+                          "engagementRateByReach",
+                          "engagementRateByViews",
+                          "followerDelta"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "The same totals for the period immediately before the window, for deltas."
+                  }
+                },
+                "required": [
+                  "posts",
+                  "views",
+                  "reach",
+                  "engagements",
+                  "engagementRateByReach",
+                  "engagementRateByViews",
+                  "followers",
+                  "followerDelta",
+                  "prior"
+                ],
+                "additionalProperties": false
+              },
+              "daily": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "description": "UTC date, YYYY-MM-DD"
+                    },
+                    "views": {
+                      "type": "number"
+                    },
+                    "reach": {
+                      "type": "number"
+                    },
+                    "engagements": {
+                      "type": "number"
+                    },
+                    "posts": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "views",
+                    "reach",
+                    "engagements",
+                    "posts"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "What the posts published each day earned (their latest metrics)."
+              },
+              "priorDaily": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "description": "UTC date, YYYY-MM-DD"
+                    },
+                    "views": {
+                      "type": "number"
+                    },
+                    "reach": {
+                      "type": "number"
+                    },
+                    "engagements": {
+                      "type": "number"
+                    },
+                    "posts": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "views",
+                    "reach",
+                    "engagements",
+                    "posts"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "The prior period, aligned by index for overlays."
+              },
+              "dailyActivity": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "description": "UTC date, YYYY-MM-DD"
+                    },
+                    "views": {
+                      "type": "number"
+                    },
+                    "reach": {
+                      "type": "number"
+                    },
+                    "engagements": {
+                      "type": "number"
+                    },
+                    "posts": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "views",
+                    "reach",
+                    "engagements",
+                    "posts"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Growth observed each day across all posts, booked at poll time."
+              },
+              "breakdown": {
+                "type": "object",
+                "properties": {
+                  "likes": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "comments": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "shares": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "saves": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "clicks": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "prior": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "likes": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          },
+                          "comments": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          },
+                          "shares": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          },
+                          "saves": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          },
+                          "clicks": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "null when no channel in scope reports it"
+                          }
+                        },
+                        "required": [
+                          "likes",
+                          "comments",
+                          "shares",
+                          "saves",
+                          "clicks"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "likes",
+                  "comments",
+                  "shares",
+                  "saves",
+                  "clicks",
+                  "prior"
+                ],
+                "additionalProperties": false
+              },
+              "followerTrend": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string"
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "total"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "channel": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "facebook",
+                            "instagram",
+                            "tiktok",
+                            "threads",
+                            "pinterest",
+                            "linkedin",
+                            "x"
+                          ]
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "posts": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "views": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "reach": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "engagements": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "engagementRateByReach": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "A ratio (0.05 is 5%); null when the denominator is unavailable"
+                    },
+                    "engagementRateByViews": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "A ratio (0.05 is 5%); null when the denominator is unavailable"
+                    },
+                    "followers": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "followerDelta": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    }
+                  },
+                  "required": [
+                    "channel",
+                    "posts",
+                    "views",
+                    "reach",
+                    "engagements",
+                    "engagementRateByReach",
+                    "engagementRateByViews",
+                    "followers",
+                    "followerDelta"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "leaderboard": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string",
+                      "description": "The first 160 characters of the caption."
+                    },
+                    "channels": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "facebook",
+                              "instagram",
+                              "tiktok",
+                              "threads",
+                              "pinterest",
+                              "linkedin",
+                              "x"
+                            ]
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    },
+                    "publishedAt": {
+                      "type": "string",
+                      "description": "ISO 8601 timestamp"
+                    },
+                    "externalUrl": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The live post, when the platform reported one."
+                    },
+                    "productId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "contentType": {
+                      "type": "string",
+                      "enum": [
+                        "image",
+                        "video",
+                        "carousel",
+                        "text"
+                      ]
+                    },
+                    "views": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "reach": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "likes": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "comments": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "shares": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "saves": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "clicks": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "engagements": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "likes + comments + shares + saves + clicks, per channel, summed"
+                    },
+                    "erByReach": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "engagements / reach"
+                    },
+                    "erByViews": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "engagements / views; the fallback where a platform never reports reach (TikTok, Threads)"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "content",
+                    "channels",
+                    "publishedAt",
+                    "externalUrl",
+                    "productId",
+                    "contentType",
+                    "views",
+                    "reach",
+                    "likes",
+                    "comments",
+                    "shares",
+                    "saves",
+                    "clicks",
+                    "engagements",
+                    "erByReach",
+                    "erByViews"
+                  ],
+                  "additionalProperties": false,
+                  "description": "One published post with its latest stored metrics, summed across the channels in scope."
+                },
+                "description": "Top posts by engagement, at most 50."
+              },
+              "heatmap": {
+                "type": "object",
+                "properties": {
+                  "engagements": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "description": "[weekday 0=Mon..6=Sun][hour 0..23] engagement totals in the tz offset"
+                  },
+                  "posts": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "description": "[weekday][hour] post counts"
+                  },
+                  "sampleSize": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "tzOffsetMinutes": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "engagements",
+                  "posts",
+                  "sampleSize",
+                  "tzOffsetMinutes"
+                ],
+                "additionalProperties": false
+              },
+              "contentTypes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "image",
+                        "video",
+                        "carousel",
+                        "text"
+                      ]
+                    },
+                    "posts": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "avgViews": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    },
+                    "avgEngagements": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "null when no channel in scope reports it"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "posts",
+                    "avgViews",
+                    "avgEngagements"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "insights": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "text",
+                    "sampleSize"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Plain-language observations computed from the rows, each with the sample it rests on."
+              },
+              "coverage": {
+                "type": "object",
+                "properties": {
+                  "postsAnalyzed": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "postsWithMetrics": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "True when the window held more posts than the analysis cap (500)."
+                  },
+                  "lastMetricsAt": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "postsAnalyzed",
+                  "postsWithMetrics",
+                  "truncated",
+                  "lastMetricsAt"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "window",
+              "totals",
+              "daily",
+              "priorDaily",
+              "dailyActivity",
+              "breakdown",
+              "followerTrend",
+              "channels",
+              "leaderboard",
+              "heatmap",
+              "contentTypes",
+              "insights",
+              "coverage"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "analytics"
+        ],
+        "additionalProperties": false
+      },
+      "AnalyticsPostList": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "window": {
+            "type": "object",
+            "properties": {
+              "days": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "since": {
+                "type": "string"
+              },
+              "until": {
+                "type": "string"
+              },
+              "maxDays": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "tier": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "days",
+              "since",
+              "until",
+              "maxDays",
+              "tier"
+            ],
+            "additionalProperties": false
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "published_at",
+              "views",
+              "reach",
+              "engagements",
+              "engagement_rate"
+            ]
+          },
+          "posts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "The first 160 characters of the caption."
+                },
+                "channels": {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "facebook",
+                          "instagram",
+                          "tiktok",
+                          "threads",
+                          "pinterest",
+                          "linkedin",
+                          "x"
+                        ]
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "publishedAt": {
+                  "type": "string",
+                  "description": "ISO 8601 timestamp"
+                },
+                "externalUrl": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "The live post, when the platform reported one."
+                },
+                "productId": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "contentType": {
+                  "type": "string",
+                  "enum": [
+                    "image",
+                    "video",
+                    "carousel",
+                    "text"
+                  ]
+                },
+                "views": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "reach": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "likes": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "shares": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "saves": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "clicks": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "engagements": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "likes + comments + shares + saves + clicks, per channel, summed"
+                },
+                "erByReach": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "engagements / reach"
+                },
+                "erByViews": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "engagements / views; the fallback where a platform never reports reach (TikTok, Threads)"
+                }
+              },
+              "required": [
+                "id",
+                "content",
+                "channels",
+                "publishedAt",
+                "externalUrl",
+                "productId",
+                "contentType",
+                "views",
+                "reach",
+                "likes",
+                "comments",
+                "shares",
+                "saves",
+                "clicks",
+                "engagements",
+                "erByReach",
+                "erByViews"
+              ],
+              "additionalProperties": false,
+              "description": "One published post with its latest stored metrics, summed across the channels in scope."
+            }
+          },
+          "count": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "True when more posts matched than limit allowed."
+          }
+        },
+        "required": [
+          "window",
+          "sort",
+          "posts",
+          "count",
+          "truncated"
+        ],
+        "additionalProperties": false
+      },
+      "AnalyticsPostHistory": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "post": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "publishedAt": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "externalUrl": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "metricsStatus": {
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "active",
+                          "complete",
+                          "unsupported",
+                          "failed"
+                        ]
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "active: still being polled. complete: the 90-day schedule finished and the numbers are frozen. unsupported: the platform reports no metrics for this post."
+              },
+              "nextPollAt": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "latest": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "The first 160 characters of the caption."
+                  },
+                  "channels": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "facebook",
+                            "instagram",
+                            "tiktok",
+                            "threads",
+                            "pinterest",
+                            "linkedin",
+                            "x"
+                          ]
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "publishedAt": {
+                    "type": "string",
+                    "description": "ISO 8601 timestamp"
+                  },
+                  "externalUrl": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "The live post, when the platform reported one."
+                  },
+                  "productId": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "contentType": {
+                    "type": "string",
+                    "enum": [
+                      "image",
+                      "video",
+                      "carousel",
+                      "text"
+                    ]
+                  },
+                  "views": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "reach": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "likes": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "comments": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "shares": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "saves": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "clicks": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "null when no channel in scope reports it"
+                  },
+                  "engagements": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "likes + comments + shares + saves + clicks, per channel, summed"
+                  },
+                  "erByReach": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "engagements / reach"
+                  },
+                  "erByViews": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "engagements / views; the fallback where a platform never reports reach (TikTok, Threads)"
+                  }
+                },
+                "required": [
+                  "id",
+                  "content",
+                  "channels",
+                  "publishedAt",
+                  "externalUrl",
+                  "productId",
+                  "contentType",
+                  "views",
+                  "reach",
+                  "likes",
+                  "comments",
+                  "shares",
+                  "saves",
+                  "clicks",
+                  "engagements",
+                  "erByReach",
+                  "erByViews"
+                ],
+                "additionalProperties": false,
+                "description": "The current totals, the same row the list endpoint returns."
+              }
+            },
+            "required": [
+              "id",
+              "content",
+              "publishedAt",
+              "channels",
+              "externalUrl",
+              "metricsStatus",
+              "nextPollAt",
+              "latest"
+            ],
+            "additionalProperties": false
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stageKey": {
+                  "type": "string",
+                  "description": "1h, 6h, 24h, 72h, 7d, 14d, 30d, 60d, 90d, or latest"
+                },
+                "capturedAt": {
+                  "type": "string"
+                },
+                "hoursAfterPublish": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "views": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "reach": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "engagements": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "likes": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "comments": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "shares": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "saves": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "viewsDelta": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Growth since the previous stage; null on the first stage."
+                },
+                "engagementsDelta": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "null when no channel in scope reports it"
+                },
+                "byChannel": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "impressions": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "views": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "reach": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "likes": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "comments": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "shares": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "saves": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "clicks": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "profileVisits": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "followersGained": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "watchTimeSeconds": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "averageWatchTimeSeconds": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "completionRate": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "conversions": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      },
+                      "videoViews": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "null when no channel in scope reports it"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "The metrics one platform reported for the post at that stage."
+                  }
+                }
+              },
+              "required": [
+                "stageKey",
+                "capturedAt",
+                "hoursAfterPublish",
+                "views",
+                "reach",
+                "engagements",
+                "likes",
+                "comments",
+                "shares",
+                "saves",
+                "viewsDelta",
+                "engagementsDelta",
+                "byChannel"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Oldest first: how the post earned its numbers over time rather than only where it ended up."
+          }
+        },
+        "required": [
+          "post",
+          "stages"
         ],
         "additionalProperties": false
       }

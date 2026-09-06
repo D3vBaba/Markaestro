@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "面向 AI 代理的 Markaestro | 连接 MCP 客户端或使用 API 密钥",
-    "description": "通过浏览器登录，将 Claude Code、claude.ai、Cursor 或任何 MCP 客户端连接到 Markaestro，或者给代理一个绑定品牌的 API 密钥。发现已连接的社交账号、上传媒体、起草、排期并发布到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。",
+    "description": "通过浏览器登录，将 Claude Code、Claude、Cursor、ChatGPT、Grok、OpenClaw、Hermes 或任何 MCP 客户端连接到 Markaestro，或者给代理一个绑定品牌的 API 密钥。发现已连接的社交账号、上传媒体、起草、排期并发布到 Facebook、Instagram、TikTok、LinkedIn、Threads 和 Pinterest。",
     "ogTitle": "面向 AI 代理的 Markaestro",
     "ogDescription": "一次登录或一个 API 密钥，就能把 Markaestro 变成代理可以调用的发布工具：发现账号、上传媒体、起草、排期、发布并回报结果。"
   },
@@ -235,7 +235,7 @@
       },
       {
         "name": "MCP 客户端",
-        "body": "Claude Code、claude.ai、Cursor、ChatGPT：添加托管服务器 URL 并通过浏览器登录。对于仅支持 stdio 的客户端，npx -y @markaestro/mcp 会在本地运行同样的十七个工具。"
+        "body": "Claude Code、Claude、Cursor、ChatGPT、Grok、Grok Bot、OpenClaw、Hermes：添加托管服务器 URL 并通过浏览器登录。对于仅支持 stdio 的客户端，npx -y @markaestro/mcp 会在本地运行同样的三十一个工具。"
       },
       {
         "name": "n8n、Make、Zapier",
@@ -260,14 +260,8 @@
   "mcp": {
     "eyebrow": "MCP 客户端",
     "title": "在客户端里登录。无需粘贴任何东西。",
-    "intro1": "Claude Code、claude.ai、Cursor、ChatGPT 以及任何支持 Model Context Protocol 的客户端，都可以在不配置任何凭证的情况下连接 Markaestro 托管的 MCP 服务器。第一次调用工具时会打开浏览器：登录，选择代理可以操作的工作区和品牌，检查权限，然后点击允许。客户端会收到绑定到该品牌的密钥，并自行刷新。",
-    "intro2": "这是带 PKCE 和动态客户端注册的标准 OAuth 2.1，与其他托管 MCP 服务器采用相同机制，因此无需任何 Markaestro 专用插件。服务器位于 <code>https://markaestro.com/api/public/v1/mcp</code>，在公共 API 之上提供十七个工具：品牌与目标发现、媒体上传、草稿与排期帖子、带任务轮询的发布、批量操作、Webhook，以及各渠道规则。",
-    "installTitle": "安装",
-    "installDescription": "在 Claude Code 中，插件就是全部配置：它打包了代理技能和服务器条目。其他 MCP 客户端在常规配置中填入服务器 URL 即可。",
-    "headlessTitle": "没有浏览器时",
-    "headlessDescription": "CI 任务、cron 工作进程或无法打开浏览器的客户端，可以改为在 Bearer 头中传入工作区 API 密钥。两条路径到达的是同一台服务器，权限也相同。",
-    "bashLabel": "Bash",
-    "configLabel": "MCP 配置 (json)",
+    "intro1": "Claude Code、Claude、Cursor、ChatGPT、Grok、Grok Bot、OpenClaw、Hermes 以及任何支持 Model Context Protocol 的客户端，都可以在不配置任何凭证的情况下连接 Markaestro 托管的 MCP 服务器。第一次调用工具时会打开浏览器：登录，选择代理可以操作的工作区和品牌，检查权限，然后点击允许。客户端会收到绑定到该品牌的密钥，并自行刷新。",
+    "intro2": "这是带 PKCE 和动态客户端注册的标准 OAuth 2.1，与其他托管 MCP 服务器采用相同机制，因此无需任何 Markaestro 专用插件。服务器位于 <code>https://markaestro.com/api/public/v1/mcp</code>，在公共 API 之上提供三十一个工具：品牌与目标发现、媒体上传、草稿与排期帖子、带任务轮询的发布、批量操作、Webhook，以及各渠道规则。",
     "flowTitle": "客户端连接时会发生什么",
     "flowIntro": "五个步骤全部由客户端和浏览器处理。你只会看到同意页面。",
     "steps": [
@@ -318,5 +312,220 @@
     "endpointsTitle": "端点",
     "endpointsDescription": "面向构建 MCP 客户端或审计此流程的人。所有内容都可以从两份 well-known 文档中发现，这里没有任何需要手动配置的东西。",
     "endpointsLabel": "参考"
+  },
+  "connect": {
+    "eyebrow": "连接你的代理",
+    "title": "选择你的代理。三步之后，它就能发帖。",
+    "intro": "下面的每个客户端都连接到同一个托管 MCP 服务器。大多数通过浏览器登录：第一次调用工具时会打开一个授权页面，你在其中选择代理可以操作的工作区和品牌，客户端随后获得一个绑定到该品牌的密钥。无法打开浏览器的客户端则改用工作区 API 密钥。同一个服务器，同样的权限，设置中的同一份列表。",
+    "tabsLabel": "选择你的代理",
+    "path": {
+      "oauth": "浏览器登录",
+      "key": "API 密钥",
+      "both": "登录或 API 密钥"
+    },
+    "blocks": {
+      "before": "开始之前",
+      "add": "添加服务器",
+      "signIn": "登录",
+      "key": "使用 API 密钥",
+      "verify": "验证"
+    },
+    "snippetKinds": {
+      "bash": "Bash",
+      "json": "JSON",
+      "yaml": "YAML",
+      "toml": "TOML",
+      "text": "取值"
+    },
+    "docsLink": "{client} 文档",
+    "common": {
+      "adminRequired": "你是已验证邮箱的工作区所有者或管理员，且该工作区有有效套餐和至少一个品牌。",
+      "createKey": "创建 API 密钥",
+      "preferSignIn": "优先使用登录。只有在客户端无法打开浏览器时才使用密钥。",
+      "verifyTool": "让代理调用 list_products。它应返回你授权的那一个品牌及其已连接的渠道。",
+      "verifySettings": "该连接会显示在“设置，API”中，带有“已连接代理”标记、最近使用时间和请求量。你可以随时在那里撤销。",
+      "openSettings": "打开设置，API",
+      "oneClick": "添加到 {client}",
+      "oneClickHint": "会打开应用并添加服务器。如果链接无法打开，请粘贴下面的 JSON。"
+    },
+    "clients": {
+      "claude-code": {
+        "label": "Claude Code",
+        "summary": "插件会同时安装技能和托管服务器。无需配置，无需粘贴。",
+        "before": [
+          "已安装 Claude Code 并登录你的 Anthropic 账户。"
+        ],
+        "add": [
+          "在任意终端运行两条插件命令，或用第三条命令仅添加服务器。"
+        ],
+        "signIn": [
+          "向 Claude 询问任何关于 Markaestro 的问题，或运行 /mcp 并选择 markaestro。",
+          "浏览器会打开授权页面。选择工作区和品牌，检查权限，点击“允许”。",
+          "之后要切换品牌，再次运行 /mcp，退出登录，然后用另一个品牌登录。"
+        ]
+      },
+      "claude": {
+        "label": "Claude",
+        "summary": "claude.ai 和 Claude Desktop 将服务器 URL 作为自定义连接器接入，并通过同一个授权页面登录。",
+        "before": [
+          "自定义连接器在 Claude 付费套餐中可用。Team 和 Enterprise 可能需要所有者先启用。"
+        ],
+        "add": [
+          "打开“设置，连接器”，然后点击“添加自定义连接器”。",
+          "粘贴下面的服务器 URL，OAuth 客户端字段留空，点击“添加”。"
+        ],
+        "signIn": [
+          "点击 Markaestro 旁边的“连接”。授权页面会在新标签页中打开。",
+          "选择工作区和品牌，检查权限，点击“允许”。标签页关闭后，连接器显示为已连接。",
+          "在对话中需要代理使用时，从工具菜单启用 Markaestro。"
+        ]
+      },
+      "cursor": {
+        "label": "Cursor",
+        "summary": "一键即可把服务器添加到 Cursor。第一次调用工具时会打开浏览器登录；Cursor 将令牌保存在系统钥匙串中。",
+        "before": [
+          "已启用 MCP 的 Cursor。远程 MCP 服务器在所有 Cursor 套餐中都可用。"
+        ],
+        "add": [
+          "点击“添加到 Cursor”，并在 Cursor 中确认安装提示。",
+          "或者将 JSON 粘贴到项目的 .cursor/mcp.json（通过 git 与团队共享）或 ~/.cursor/mcp.json（仅自己）。"
+        ],
+        "signIn": [
+          "打开 Cursor Settings 的 Tools & MCP。Markaestro 显示 Needs login，点击它。",
+          "浏览器会打开授权页面。选择工作区和品牌，点击“允许”。Cursor 获取令牌并列出工具。",
+          "Cursor 中的 Grok Bot 使用同一个服务器条目。"
+        ],
+        "captions": {
+          "headless": "在共享构建机或 CI 上，可在 headers 中放入工作区 API 密钥来代替登录。"
+        }
+      },
+      "chatgpt": {
+        "label": "ChatGPT",
+        "summary": "ChatGPT 在开发者模式下以自定义应用的形式连接 Markaestro，并通过授权页面登录。",
+        "before": [
+          "开发者模式需要 ChatGPT Pro、Business、Enterprise 或 Edu。Pro 仅提供只读工具；Business、Enterprise 和 Edu 提供全部工具。",
+          "在 Business、Enterprise 和 Edu 中，管理员可能需要先为工作区允许自定义应用。"
+        ],
+        "add": [
+          "打开“设置，应用与连接器，高级设置”，开启开发者模式。",
+          "回到“应用与连接器”，点击“创建”。命名为 Markaestro，粘贴服务器 URL，认证方式选择 OAuth，然后点击“扫描工具”。"
+        ],
+        "signIn": [
+          "ChatGPT 扫描工具时会打开授权页面。选择工作区和品牌，点击“允许”，然后点击“创建”。",
+          "在对话中点击加号，“更多”，再点击 Markaestro 即可使用这些工具。",
+          "ChatGPT 每次连接都会向 Markaestro 注册一次。重新连接会创建一个可单独撤销的新连接。"
+        ]
+      },
+      "grok": {
+        "label": "Grok",
+        "summary": "Grok 有三种方式连接 Markaestro：grok.com 上的自定义连接器、Grok Build 终端，以及 xAI API 中的远程 MCP 工具。",
+        "before": [
+          "grok.com 连接器在个人套餐中可用。Grok Business 和 Enterprise 需要团队管理员先配置连接器。",
+          "xAI API 路径在服务端运行，因此始终使用工作区 API 密钥。"
+        ],
+        "add": [
+          "grok.com：打开 grok.com/connectors，点击 New Connector，选择 Custom，粘贴服务器 URL。如果对话框要求客户端 ID，使用下面的值。",
+          "Grok Build：在终端运行两条命令。Grok Build 也会读取 Claude Code 的 .mcp.json 或 Cursor 的 mcp.json 中的 Markaestro 条目。",
+          "xAI API：将工具块添加到 Responses API 请求的 tools 数组中。"
+        ],
+        "signIn": [
+          "grok.com 和 Grok Build 会在第一次调用工具时打开授权页面。选择工作区和品牌，点击“允许”。",
+          "对于 xAI API，创建一个工作区 API 密钥并通过 authorization 字段传入。"
+        ],
+        "captions": {
+          "web": "grok.com 自定义连接器",
+          "build": "Grok Build 终端",
+          "api": "xAI Responses API 工具块"
+        }
+      },
+      "grok-bot": {
+        "label": "Grok Bot",
+        "summary": "Grok Bot 运行在云端计算机上，通过静态密钥接入自定义 MCP 服务器。测试版尚不支持自定义服务器的浏览器登录。",
+        "before": [
+          "Grok Bot 目前在 SuperGrok 套餐和 Cursor Pro 中处于早期测试。Enterprise 需加入等候名单。",
+          "你已有一个带代理权限范围的工作区 API 密钥。可用下面的按钮创建。"
+        ],
+        "add": [
+          "打开 Bot 的连接器设置，添加一个自定义 MCP 服务器。",
+          "粘贴服务器 URL，然后按下面的值把密钥作为 header 添加。"
+        ],
+        "signIn": [
+          "创建一个限定到单个品牌并设有过期时间的密钥。只保存在 Bot 的连接器设置中，切勿放在聊天消息里。",
+          "如果 Grok Bot 为自定义服务器加入浏览器登录，请移除 header 并重新连接。该登录路径在本服务器上已经可用。"
+        ],
+        "captions": {
+          "key": "连接器对话框所需的 header 值"
+        }
+      },
+      "openclaw": {
+        "label": "OpenClaw",
+        "summary": "OpenClaw 通过其 CLI 添加远程 MCP 服务器，并在回环端口上完成登录，因此可在运行网关的机器上使用。",
+        "before": [
+          "已安装 OpenClaw 且网关正在运行。",
+          "没有浏览器的服务器可通过 --code 备用方式完成登录。"
+        ],
+        "add": [
+          "运行三条命令，或将服务器块添加到 ~/.openclaw/openclaw.json。",
+          "Markaestro 技能上架 ClawHub 后，openclaw skills install markaestro 还会添加代理指令。"
+        ],
+        "signIn": [
+          "openclaw mcp login markaestro 会打印登录 URL 并在回环端口上等待。",
+          "打开该 URL，选择工作区和品牌，点击“允许”。OpenClaw 将凭据保存在配置文件之外。",
+          "运行 openclaw mcp reload，让正在运行的代理加载这些工具。"
+        ],
+        "captions": {
+          "config": "等价的配置条目",
+          "headless": "无浏览器时"
+        }
+      },
+      "hermes": {
+        "label": "Hermes",
+        "summary": "Hermes Agent 从 config.yaml 注册 HTTP MCP 服务器并自行完成登录，令牌保存在 ~/.hermes/mcp-tokens 下。",
+        "before": [
+          "已安装 Hermes Agent。密钥放在 ~/.hermes/.env 中，并在配置里以 ${VAR} 引用。"
+        ],
+        "add": [
+          "将 mcp_servers 块添加到 ~/.hermes/config.yaml。",
+          "在运行中的会话里发送 /reload-mcp。工具会以 mcp_markaestro_<tool> 的形式出现。"
+        ],
+        "signIn": [
+          "第一次调用工具时，Hermes 会打开授权页面。选择工作区和品牌，点击“允许”。",
+          "Hermes 会自行刷新令牌。用完后在“设置，API”中撤销即可。"
+        ],
+        "captions": {
+          "headless": "无浏览器时"
+        }
+      },
+      "generic": {
+        "label": "其他 MCP 客户端",
+        "summary": "任何支持 Streamable HTTP 以及带动态客户端注册的 OAuth 2.1 的客户端，只需服务器 URL 即可连接。",
+        "before": [
+          "客户端支持通过 Streamable HTTP 连接远程 MCP 服务器，并能为 OAuth 打开浏览器。如果不能，请使用“API 密钥”标签。"
+        ],
+        "add": [
+          "在客户端的 MCP 配置中添加服务器 URL。下面的 JSON 是常见的 mcpServers 格式。",
+          "不要配置客户端 ID 或密钥。客户端会在首次使用时自行注册。"
+        ],
+        "signIn": [
+          "第一次调用工具会收到登录质询，客户端随即打开授权页面。",
+          "选择工作区和品牌，点击“允许”。客户端用授权码换取绑定品牌的密钥，并每 30 天刷新一次。"
+        ]
+      },
+      "headless": {
+        "label": "API 密钥",
+        "summary": "适用于 CI 任务、cron 工作进程以及无法打开浏览器的客户端：在 Authorization header 中放入工作区 API 密钥，即可以相同权限访问同一服务器。",
+        "before": [
+          "你可以创建密钥：已验证邮箱的工作区所有者或管理员。"
+        ],
+        "add": [
+          "创建一个绑定到单个品牌、仅包含代理所需权限范围并设有过期时间的密钥。",
+          "对托管服务器以 bearer header 传入，或对本地 stdio 服务器以 MARKAESTRO_API_KEY 传入，后者还能从磁盘上传文件。"
+        ],
+        "signIn": [
+          "将密钥保存在代理的密钥存储中，切勿放在提示词或代码仓库里。",
+          "在“设置，API”中轮换或撤销。每个密钥都会显示最近使用时间和请求量。"
+        ]
+      }
+    }
   }
 }

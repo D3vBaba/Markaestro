@@ -67,6 +67,16 @@ Agents get the same API as MCP tools, three ways:
 - **Claude Code plugin** bundling the [`markaestro` skill](../skills/markaestro/SKILL.md)
   and the hosted server: `claude plugin marketplace add D3vBaba/Markaestro`.
 
+Per-client connection steps (Claude Code, Claude, Cursor, ChatGPT, Grok in
+its three surfaces, Grok Bot, OpenClaw, Hermes, generic MCP, API key) live in
+one place, `src/lib/agent-connect/clients.ts`, and render as the client
+picker on `/developers/agents` (`?client=<id>` deep links). The OAuth server
+validates RFC 8707 `resource` on consent and token requests, returns RFC 9207
+`iss` on every authorization response, accepts `x-api-key` as a bearer alias
+on the MCP route only, and can hold seeded first-party clients
+(`scripts/seed-oauth-clients.mjs`) for connector dialogs that ask for a
+client id instead of registering dynamically.
+
 All three are draft-first, send idempotency keys on every mutation, and use
 a normal workspace API key; a test key keeps evaluation away from live
 publishing.
@@ -77,6 +87,7 @@ publishing.
 - Post creation in the workspace's canonical `posts` collection
 - Async publish runs
 - Signed webhook delivery
+- Brand analytics: window totals, per-post metrics, and per-post metric history (`analytics.read`)
 
 ## Channel rules
 
@@ -137,6 +148,9 @@ created (Settings → API). A key only ever operates within its product:
   answer `404 NOT_FOUND` for anything outside the key's product — `404` rather
   than `403` so a key cannot probe for ids it doesn't own. A job run inherits
   the product of the post it acts on.
+- `GET /api/public/v1/analytics` and `GET /api/public/v1/analytics/posts`
+  report the key's product only; there is no workspace-wide view.
+  `GET /api/public/v1/analytics/posts/:id/history` answers `404` outside it.
 - Naming a different product (a `productId` for another product) is rejected
   with `VALIDATION_PRODUCT_SCOPE_MISMATCH`.
 
@@ -166,6 +180,9 @@ several products, create one key per product.
 - `DELETE /api/public/v1/posts/:id`
 - `POST /api/public/v1/posts/:id/publish`
 - `GET /api/public/v1/job-runs/:id`
+- `GET /api/public/v1/analytics` — `?days=`, `?since=&until=`, `?channel=`, `?tz=`
+- `GET /api/public/v1/analytics/posts` — `?sort=`, `?limit=` (max 500), same window params
+- `GET /api/public/v1/analytics/posts/:id/history`
 - `POST /api/public/v1/webhook-endpoints`
 - `GET /api/public/v1/webhook-endpoints`
 - `DELETE /api/public/v1/webhook-endpoints/:id`
@@ -178,7 +195,7 @@ several products, create one key per product.
 
 ### Endpoint reference
 
-Generated from the [OpenAPI description](/api/public/v1/openapi.json), which is itself generated from the schemas the routes validate against. 18 paths.
+Generated from the [OpenAPI description](/api/public/v1/openapi.json), which is itself generated from the schemas the routes validate against. 21 paths.
 
 | Endpoint | What it does | Query parameters |
 | --- | --- | --- |
@@ -208,6 +225,9 @@ Generated from the [OpenAPI description](/api/public/v1/openapi.json), which is 
 | `POST /api/public/v1/evergreen-queues/{id}/resume` | Resume an Evergreen queue | n/a |
 | `GET /api/public/v1/evergreen-queues/{id}/runs` | List Evergreen runs | n/a |
 | `GET /api/public/v1/evergreen-queues/{id}/analytics` | Get Evergreen analytics | n/a |
+| `GET /api/public/v1/analytics` | Get brand analytics | `days`, `since`, `until`, `channel`, `tz` |
+| `GET /api/public/v1/analytics/posts` | List post analytics | `days`, `since`, `until`, `channel`, `limit`, `sort` |
+| `GET /api/public/v1/analytics/posts/{id}/history` | Get post analytics history | n/a |
 
 ### Retryable errors
 
@@ -639,6 +659,56 @@ Deleting removes the post from Markaestro only:
   with no record. Wait for it to settle, then delete.
 - A **scheduled** post drops out of the publish sweep immediately; the
   scheduler selects by status and due time, so no orphaned job remains.
+
+## Analytics
+
+Analytics uses one read-only scope, `analytics.read`, and reports the key's
+brand only. The numbers are the ones the Analytics page shows: metrics are
+polled 1h, 6h, 24h, 72h, 7d, 14d, 30d, 60d, and 90d after publish and then
+frozen, so a request never triggers a platform call and polling the API in a
+loop gains nothing.
+
+Three endpoints:
+
+- `GET /api/public/v1/analytics` is the overview: `totals` (with `prior` for
+  the period before the window), `channels`, `daily` and `dailyActivity`
+  series, `breakdown` (likes, comments, shares, saves, clicks),
+  `followerTrend`, `leaderboard` (top 50 posts), `heatmap` (weekday by hour,
+  in the `tz` offset), `contentTypes`, `insights` (plain-language
+  observations with their sample size), and `coverage`.
+- `GET /api/public/v1/analytics/posts` is one row per published post with
+  its latest metrics summed across the channels in scope. `sort` takes
+  `published_at` (default), `views`, `reach`, `engagements`, or
+  `engagement_rate`, always descending with missing values last; `limit` is
+  100 by default and 500 at most, and `truncated` says whether more matched.
+- `GET /api/public/v1/analytics/posts/:id/history` is how one post earned its
+  numbers: the stored stage snapshots with the growth between them, plus
+  `post.latest` (the same row the list returns) and `post.metricsStatus`
+  (`active` while polling continues, `complete` once frozen, `unsupported`
+  where the platform reports nothing).
+
+The window is a preset (`days`, ending today UTC, default 28) or an explicit
+`since` and `until` (UTC dates, inclusive). Both are clamped to the plan's
+history window, and every response carries `maxDays` (`-1` for unlimited) so
+a client can tell a short window from a short plan. `channel` restricts every
+number to one channel.
+
+Engagement rate is by reach when any channel in scope reports reach, otherwise
+by views; both ratios are returned (`engagementRateByReach`,
+`engagementRateByViews`) and the missing one is `null`. TikTok and Threads
+never report reach. Any metric a platform does not report is `null`, never
+zero, so averages are over reported values only. Posts created by a test key
+never appear.
+
+```bash
+# What worked in the last quarter, best first
+curl -s "https://markaestro.com/api/public/v1/analytics/posts?days=90&sort=engagements&limit=10" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+
+# The overview for one channel, heatmap in New York time
+curl -s "https://markaestro.com/api/public/v1/analytics?days=28&channel=instagram&tz=-240" \
+  -H "Authorization: Bearer $MARKAESTRO_API_KEY"
+```
 
 ## Intelligent Evergreen
 

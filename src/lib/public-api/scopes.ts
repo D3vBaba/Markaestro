@@ -6,6 +6,7 @@ export const publicApiScopes = [
   'posts.publish',
   'evergreen.read',
   'evergreen.write',
+  'analytics.read',
   'job_runs.read',
   'webhooks.manage',
 ] as const;

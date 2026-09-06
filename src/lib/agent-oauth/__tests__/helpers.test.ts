@@ -2,13 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { hashToken, isValidCodeChallenge, isValidCodeVerifier, randomToken, s256Challenge, verifyPkce } from '../pkce';
 import { isAllowedRedirectUri, redirectUriMatches } from '../redirect-uri';
 import {
+  InvalidResource,
   authorizationServerMetadata,
   authorizePageOrigin,
   bearerChallenge,
+  canonicalResource,
+  normalizeResource,
   parseScopeParam,
   protectedResourceMetadata,
   requestOrigin,
 } from '../metadata';
+import { browserIssuerFor } from '../issuer';
 
 describe('PKCE', () => {
   it('accepts a verifier that hashes to the challenge and rejects the rest', () => {
@@ -124,7 +128,7 @@ describe('scope parameter', () => {
   it('falls back to the agent default set when nothing is requested', () => {
     const { scopes, unknown } = parseScopeParam(undefined);
     expect(unknown).toEqual([]);
-    expect(scopes).toEqual(['products.read', 'media.write', 'posts.read', 'posts.write', 'posts.publish', 'evergreen.read', 'evergreen.write', 'job_runs.read']);
+    expect(scopes).toEqual(['products.read', 'media.write', 'posts.read', 'posts.write', 'posts.publish', 'evergreen.read', 'evergreen.write', 'analytics.read', 'job_runs.read']);
     expect(scopes).not.toContain('webhooks.manage');
   });
 
@@ -132,5 +136,87 @@ describe('scope parameter', () => {
     const { scopes, unknown } = parseScopeParam('posts.read posts.read  bogus.scope posts.write');
     expect(scopes).toEqual(['posts.read', 'posts.write']);
     expect(unknown).toEqual(['bogus.scope']);
+  });
+});
+
+describe('RFC 8707 resource indicators', () => {
+  const ORIGIN = 'https://markaestro.com';
+
+  it('names the MCP endpoint as the canonical resource', () => {
+    expect(canonicalResource(ORIGIN)).toBe('https://markaestro.com/api/public/v1/mcp');
+    expect(canonicalResource(`${ORIGIN}/`)).toBe('https://markaestro.com/api/public/v1/mcp');
+    expect(protectedResourceMetadata(ORIGIN).resource).toBe(canonicalResource(ORIGIN));
+  });
+
+  it('accepts the exact resource on the request origin and treats absence as fine', () => {
+    expect(normalizeResource('https://markaestro.com/api/public/v1/mcp', ORIGIN, {})).toBe(canonicalResource(ORIGIN));
+    expect(normalizeResource(undefined, ORIGIN, {})).toBeNull();
+    expect(normalizeResource(null, ORIGIN, {})).toBeNull();
+    expect(normalizeResource('', ORIGIN, {})).toBeNull();
+  });
+
+  it('accepts the resource on the other origins this deployment answers on', () => {
+    const env = { NEXT_PUBLIC_APP_ORIGIN: 'https://app.markaestro.com', NEXT_PUBLIC_MARKETING_URL: 'https://markaestro.com/' };
+    // The consent page runs on the app host while the client discovered the
+    // API on the marketing apex (or the other way round).
+    expect(normalizeResource('https://markaestro.com/api/public/v1/mcp', 'https://app.markaestro.com', env)).toBe(
+      'https://markaestro.com/api/public/v1/mcp',
+    );
+    expect(normalizeResource('https://app.markaestro.com/api/public/v1/mcp', 'https://markaestro.com', env)).toBe(
+      'https://app.markaestro.com/api/public/v1/mcp',
+    );
+    // Local development.
+    expect(normalizeResource('http://localhost:3000/api/public/v1/mcp', 'http://localhost:3000', {})).toBe(
+      'http://localhost:3000/api/public/v1/mcp',
+    );
+  });
+
+  it('refuses anything that is not this server', () => {
+    const bad = [
+      'https://evil.example/api/public/v1/mcp', // another host
+      'https://markaestro.com/api/public/v1/posts', // another path
+      'https://markaestro.com/api/public/v1/mcp/', // trailing slash is a different resource
+      'https://markaestro.com/api/public/v1/mcp?x=1', // query
+      'https://markaestro.com/api/public/v1/mcp#frag', // fragment
+      'http://markaestro.com/api/public/v1/mcp', // plain http to a real host
+      'https://user:pw@markaestro.com/api/public/v1/mcp', // credentials
+      'not a url',
+      'x'.repeat(2049),
+    ];
+    for (const candidate of bad) {
+      expect(() => normalizeResource(candidate, ORIGIN, {}), candidate).toThrow(InvalidResource);
+    }
+    // Configured origins are exact: a lookalike subdomain is not covered.
+    expect(() =>
+      normalizeResource('https://app.markaestro.com.evil.example/api/public/v1/mcp', ORIGIN, {
+        NEXT_PUBLIC_APP_ORIGIN: 'https://app.markaestro.com',
+      }),
+    ).toThrow(InvalidResource);
+  });
+
+  it('advertises RFC 9207 iss support so stable-redirect clients can verify the issuer', () => {
+    const meta = authorizationServerMetadata(ORIGIN, {});
+    expect(meta.authorization_response_iss_parameter_supported).toBe(true);
+    expect(meta.issuer).toBe(ORIGIN);
+    expect(meta.code_challenge_methods_supported).toEqual(['S256']);
+    expect(meta.registration_endpoint).toBe(`${ORIGIN}/api/public/v1/oauth/register`);
+  });
+});
+
+describe('RFC 9207 issuer for browser-built error responses', () => {
+  const PAGE = 'https://app.markaestro.com';
+  const KNOWN = ['https://app.markaestro.com', 'https://markaestro.com/'];
+
+  it('names the resource origin when it is one of ours (the host the client discovered us on)', () => {
+    expect(browserIssuerFor('https://markaestro.com/api/public/v1/mcp', PAGE, KNOWN)).toBe('https://markaestro.com');
+    expect(browserIssuerFor('https://app.markaestro.com/api/public/v1/mcp', PAGE, KNOWN)).toBe('https://app.markaestro.com');
+  });
+
+  it('never echoes a foreign or malformed resource origin', () => {
+    expect(browserIssuerFor('https://evil.example/api/public/v1/mcp', PAGE, KNOWN)).toBe(PAGE);
+    expect(browserIssuerFor('https://markaestro.com.evil.example/api/public/v1/mcp', PAGE, KNOWN)).toBe(PAGE);
+    expect(browserIssuerFor('not a url', PAGE, KNOWN)).toBe(PAGE);
+    expect(browserIssuerFor('', PAGE, KNOWN)).toBe(PAGE);
+    expect(browserIssuerFor(null, PAGE, [undefined, null])).toBe(PAGE);
   });
 });

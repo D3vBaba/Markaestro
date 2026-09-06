@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Markaestro voor AI-agents | Verbind een MCP-client of gebruik een API-sleutel",
-    "description": "Verbind Claude Code, claude.ai, Cursor of elke MCP-client met Markaestro via een aanmelding in de browser, of geef een agent een merkgebonden API-sleutel. Ontdek gekoppelde social accounts, upload media, schrijf, plan en publiceer op Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest.",
+    "description": "Verbind Claude Code, Claude, Cursor, ChatGPT, Grok, OpenClaw, Hermes of elke MCP-client met Markaestro via een aanmelding in de browser, of geef een agent een merkgebonden API-sleutel. Ontdek gekoppelde social accounts, upload media, schrijf, plan en publiceer op Facebook, Instagram, TikTok, LinkedIn, Threads en Pinterest.",
     "ogTitle": "Markaestro voor AI-agents",
     "ogDescription": "Eén aanmelding of één API-sleutel maakt van Markaestro een publicatietool die je agent kan aanroepen: accounts ontdekken, media uploaden, schrijven, plannen, publiceren en terugkoppelen."
   },
@@ -235,7 +235,7 @@
       },
       {
         "name": "MCP-clients",
-        "body": "Claude Code, claude.ai, Cursor, ChatGPT: voeg de URL van de gehoste server toe en meld je aan via de browser. Voor clients die alleen stdio spreken, draait npx -y @markaestro/mcp dezelfde zeventien tools lokaal."
+        "body": "Claude Code, Claude, Cursor, ChatGPT, Grok, Grok Bot, OpenClaw, Hermes: voeg de URL van de gehoste server toe en meld je aan via de browser. Voor clients die alleen stdio spreken, draait npx -y @markaestro/mcp dezelfde eenendertig tools lokaal."
       },
       {
         "name": "n8n, Make, Zapier",
@@ -260,14 +260,8 @@
   "mcp": {
     "eyebrow": "MCP-clients",
     "title": "Meld je aan vanuit de client. Niets om te plakken.",
-    "intro1": "Claude Code, claude.ai, Cursor, ChatGPT en elke andere client die het Model Context Protocol spreekt, kan zonder geconfigureerde gegevens verbinding maken met de gehoste MCP-server van Markaestro. De eerste toolaanroep opent je browser: meld je aan, kies de werkruimte en het merk waarvoor de agent mag handelen, controleer de rechten en klik op Toestaan. De client ontvangt een sleutel die aan dat merk is gebonden en vernieuwt die zelf.",
-    "intro2": "Dit is standaard OAuth 2.1 met PKCE en dynamische clientregistratie, hetzelfde mechanisme als achter andere gehoste MCP-servers, dus het werkt zonder een Markaestro-specifieke plugin. De server staat op <code>https://markaestro.com/api/public/v1/mcp</code> en biedt zeventien tools bovenop de publieke API: merk- en bestemmingsdetectie, media-upload, concepten en geplande berichten, publiceren met run-polling, bulkbewerkingen, webhooks en de regels per kanaal.",
-    "installTitle": "Installeren",
-    "installDescription": "In Claude Code is de plugin de hele installatie: hij bundelt de agent-skill en de serverconfiguratie. Elke andere MCP-client neemt de server-URL op in zijn gebruikelijke configuratie.",
-    "headlessTitle": "Zonder browser",
-    "headlessDescription": "Een CI-job, een cron-worker of een client die geen browser kan openen, geeft in plaats daarvan een API-sleutel van de werkruimte mee als bearer-header. Beide routes komen uit op dezelfde server met dezelfde rechten.",
-    "bashLabel": "Bash",
-    "configLabel": "MCP-configuratie (json)",
+    "intro1": "Claude Code, Claude, Cursor, ChatGPT, Grok, Grok Bot, OpenClaw, Hermes en elke andere client die het Model Context Protocol spreekt, kan zonder geconfigureerde gegevens verbinding maken met de gehoste MCP-server van Markaestro. De eerste toolaanroep opent je browser: meld je aan, kies de werkruimte en het merk waarvoor de agent mag handelen, controleer de rechten en klik op Toestaan. De client ontvangt een sleutel die aan dat merk is gebonden en vernieuwt die zelf.",
+    "intro2": "Dit is standaard OAuth 2.1 met PKCE en dynamische clientregistratie, hetzelfde mechanisme als achter andere gehoste MCP-servers, dus het werkt zonder een Markaestro-specifieke plugin. De server staat op <code>https://markaestro.com/api/public/v1/mcp</code> en biedt eenendertig tools bovenop de publieke API: merk- en bestemmingsdetectie, media-upload, concepten en geplande berichten, publiceren met run-polling, bulkbewerkingen, webhooks en de regels per kanaal.",
     "flowTitle": "Wat er gebeurt als de client verbinding maakt",
     "flowIntro": "Vijf stappen, allemaal afgehandeld door de client en de browser. Jij ziet alleen de toestemmingspagina.",
     "steps": [
@@ -318,5 +312,220 @@
     "endpointsTitle": "Eindpunten",
     "endpointsDescription": "Voor wie een MCP-client bouwt of de flow controleert. Alles is vindbaar via de twee well-known-documenten; niets hiervan hoeft met de hand te worden geconfigureerd.",
     "endpointsLabel": "Referentie"
+  },
+  "connect": {
+    "eyebrow": "Verbind je agent",
+    "title": "Kies je agent. Drie stappen, daarna kan hij posten.",
+    "intro": "Elke client hieronder bereikt dezelfde gehoste MCP-server. De meeste melden zich aan via de browser: de eerste tool-aanroep opent een toestemmingspagina waar je de werkruimte en het merk kiest waarvoor de agent mag handelen, en de client krijgt een sleutel die aan dat merk is gebonden. Clients die geen browser kunnen openen gebruiken een API-sleutel van de werkruimte. Dezelfde server, dezelfde rechten, dezelfde lijst in Instellingen.",
+    "tabsLabel": "Kies je agent",
+    "path": {
+      "oauth": "Aanmelden via browser",
+      "key": "API-sleutel",
+      "both": "Aanmelden of API-sleutel"
+    },
+    "blocks": {
+      "before": "Voordat je begint",
+      "add": "Server toevoegen",
+      "signIn": "Aanmelden",
+      "key": "Een API-sleutel gebruiken",
+      "verify": "Controleren"
+    },
+    "snippetKinds": {
+      "bash": "Bash",
+      "json": "JSON",
+      "yaml": "YAML",
+      "toml": "TOML",
+      "text": "Waarden"
+    },
+    "docsLink": "{client}-documentatie",
+    "common": {
+      "adminRequired": "Je bent eigenaar of beheerder van de werkruimte met een geverifieerd e-mailadres, in een werkruimte met een actief abonnement en minstens één merk.",
+      "createKey": "API-sleutel aanmaken",
+      "preferSignIn": "Kies bij voorkeur voor aanmelden. Gebruik alleen een sleutel als de client geen browser kan openen.",
+      "verifyTool": "Vraag de agent om list_products aan te roepen. Het antwoord moet het ene toegestane merk en zijn gekoppelde kanalen bevatten.",
+      "verifySettings": "De verbinding staat in Instellingen, API met de badge Verbonden agent, het laatste gebruik en het aantal verzoeken. Daar kun je haar altijd intrekken.",
+      "openSettings": "Instellingen, API openen",
+      "oneClick": "Toevoegen aan {client}",
+      "oneClickHint": "Opent de app en voegt de server toe. Plak de JSON hieronder als de link niet opent."
+    },
+    "clients": {
+      "claude-code": {
+        "label": "Claude Code",
+        "summary": "De plugin installeert de skill en de gehoste server samen. Niets te configureren, niets te plakken.",
+        "before": [
+          "Claude Code is geïnstalleerd en aangemeld bij je Anthropic-account."
+        ],
+        "add": [
+          "Voer de twee plugin-opdrachten uit in een terminal, of voeg alleen de server toe met de derde opdracht."
+        ],
+        "signIn": [
+          "Vraag Claude iets over Markaestro, of voer /mcp uit en kies markaestro.",
+          "Je browser opent de toestemmingspagina. Kies werkruimte en merk, controleer de rechten en klik op Toestaan.",
+          "Om later van merk te wisselen voer je /mcp opnieuw uit, meld je je af en meld je je aan met het andere merk."
+        ]
+      },
+      "claude": {
+        "label": "Claude",
+        "summary": "claude.ai en Claude Desktop nemen de server-URL als aangepaste connector en melden zich aan via dezelfde toestemmingspagina.",
+        "before": [
+          "Aangepaste connectors zijn beschikbaar in de betaalde Claude-abonnementen. Bij Team en Enterprise moet een eigenaar ze mogelijk inschakelen."
+        ],
+        "add": [
+          "Open Instellingen, Connectors en dan Aangepaste connector toevoegen.",
+          "Plak de server-URL hieronder, laat de OAuth-clientvelden leeg en klik op Toevoegen."
+        ],
+        "signIn": [
+          "Klik op Verbinden naast Markaestro. De toestemmingspagina opent in een nieuw tabblad.",
+          "Kies werkruimte en merk, controleer de rechten en klik op Toestaan. Het tabblad sluit en de connector staat als verbonden.",
+          "Schakel Markaestro in een chat in via het toolsmenu wanneer de agent het moet gebruiken."
+        ]
+      },
+      "cursor": {
+        "label": "Cursor",
+        "summary": "Eén klik voegt de server toe aan Cursor. De eerste tool-aanroep opent de aanmelding in de browser; Cursor bewaart het token in de sleutelhanger van je systeem.",
+        "before": [
+          "Cursor met MCP ingeschakeld. Externe MCP-servers werken op elk Cursor-abonnement."
+        ],
+        "add": [
+          "Klik op Toevoegen aan Cursor en bevestig de installatie in Cursor.",
+          "Of plak de JSON in .cursor/mcp.json in een project (gedeeld met je team via git) of in ~/.cursor/mcp.json (alleen jij)."
+        ],
+        "signIn": [
+          "Open Cursor Settings, Tools & MCP. Markaestro toont Needs login; klik erop.",
+          "Je browser opent de toestemmingspagina. Kies werkruimte en merk en klik op Toestaan. Cursor pakt het token op en toont de tools.",
+          "Grok Bot in Cursor gebruikt dezelfde serverinvoer."
+        ],
+        "captions": {
+          "headless": "Voor een gedeelde buildmachine of CI vervangt een API-sleutel van de werkruimte in de headers de aanmelding."
+        }
+      },
+      "chatgpt": {
+        "label": "ChatGPT",
+        "summary": "ChatGPT verbindt met Markaestro als aangepaste app in de ontwikkelaarsmodus en meldt zich aan via de toestemmingspagina.",
+        "before": [
+          "De ontwikkelaarsmodus vereist ChatGPT Pro, Business, Enterprise of Edu. Pro toont alleen leestools; Business, Enterprise en Edu tonen alles.",
+          "Bij Business, Enterprise en Edu moet een beheerder aangepaste apps mogelijk toestaan voor de werkruimte."
+        ],
+        "add": [
+          "Open Instellingen, Apps en connectors, Geavanceerde instellingen en zet de ontwikkelaarsmodus aan.",
+          "Terug in Apps en connectors klik je op Maken. Noem het Markaestro, plak de server-URL, kies OAuth als authenticatie en klik op Tools scannen."
+        ],
+        "signIn": [
+          "De toestemmingspagina opent terwijl ChatGPT de tools scant. Kies werkruimte en merk, klik op Toestaan en daarna op Maken.",
+          "Klik in een chat op de plusknop, Meer en dan Markaestro om de tools beschikbaar te maken.",
+          "ChatGPT registreert zich één keer per verbinding bij Markaestro. Opnieuw verbinden maakt een nieuwe verbinding die je apart kunt intrekken."
+        ]
+      },
+      "grok": {
+        "label": "Grok",
+        "summary": "Grok bereikt Markaestro op drie manieren: als aangepaste connector op grok.com, vanuit de Grok Build-terminal en als externe MCP-tool in de xAI API.",
+        "before": [
+          "grok.com-connectors werken op persoonlijke abonnementen. Grok Business en Enterprise hebben een teambeheerder nodig die de connector inricht.",
+          "De xAI API-route draait aan de serverkant en gebruikt daarom altijd een API-sleutel van de werkruimte."
+        ],
+        "add": [
+          "grok.com: open grok.com/connectors, klik op New Connector, kies Custom en plak de server-URL. Vraagt het dialoogvenster om een client-id, gebruik dan de waarden hieronder.",
+          "Grok Build: voer de twee opdrachten uit in een terminal. Grok Build pikt een Markaestro-invoer ook op uit de .mcp.json van Claude Code of de mcp.json van Cursor.",
+          "xAI API: voeg het toolblok toe aan de tools-array van een Responses API-verzoek."
+        ],
+        "signIn": [
+          "grok.com en Grok Build openen de toestemmingspagina bij de eerste tool-aanroep. Kies werkruimte en merk en klik op Toestaan.",
+          "Maak voor de xAI API een API-sleutel van de werkruimte en geef die mee in het veld authorization."
+        ],
+        "captions": {
+          "web": "Aangepaste grok.com-connector",
+          "build": "Grok Build-terminal",
+          "api": "Toolblok voor de xAI Responses API"
+        }
+      },
+      "grok-bot": {
+        "label": "Grok Bot",
+        "summary": "Grok Bot draait op een cloudcomputer en accepteert aangepaste MCP-servers met een statische sleutel. De bèta heeft nog geen browseraanmelding voor aangepaste servers.",
+        "before": [
+          "Grok Bot is in vroege bèta op SuperGrok-abonnementen en in Cursor Pro. Enterprise-toegang via een wachtlijst.",
+          "Je hebt een API-sleutel van de werkruimte met de agent-scopes. Maak er een met de knop hieronder."
+        ],
+        "add": [
+          "Open de connectorinstellingen van je Bot en voeg een aangepaste MCP-server toe.",
+          "Plak de server-URL en voeg de sleutel toe als header met de waarden hieronder."
+        ],
+        "signIn": [
+          "Maak een sleutel voor één merk met een vervaldatum. Bewaar hem alleen in de connectorinstellingen van de Bot, nooit in een chatbericht.",
+          "Als Grok Bot browseraanmelding voor aangepaste servers toevoegt, verwijder dan de header en verbind opnieuw. Die route werkt op deze server al."
+        ],
+        "captions": {
+          "key": "Headerwaarden voor het connectordialoogvenster"
+        }
+      },
+      "openclaw": {
+        "label": "OpenClaw",
+        "summary": "OpenClaw voegt externe MCP-servers toe vanuit zijn CLI en rondt de aanmelding af op een loopback-poort, dus op de machine waarop je gateway draait.",
+        "before": [
+          "OpenClaw is geïnstalleerd en de gateway draait.",
+          "Een server zonder browser kan de aanmelding afronden met de --code-terugval."
+        ],
+        "add": [
+          "Voer de drie opdrachten uit, of voeg het serverblok toe aan ~/.openclaw/openclaw.json.",
+          "Zodra de Markaestro-skill op ClawHub staat, voegt openclaw skills install markaestro ook de agentinstructies toe."
+        ],
+        "signIn": [
+          "openclaw mcp login markaestro toont de aanmeld-URL en wacht op een loopback-poort.",
+          "Open de URL, kies werkruimte en merk en klik op Toestaan. OpenClaw bewaart de gegevens buiten het configuratiebestand.",
+          "Voer openclaw mcp reload uit zodat draaiende agents de tools oppikken."
+        ],
+        "captions": {
+          "config": "Gelijkwaardige configuratie-invoer",
+          "headless": "Zonder browser"
+        }
+      },
+      "hermes": {
+        "label": "Hermes",
+        "summary": "Hermes Agent registreert HTTP MCP-servers vanuit config.yaml en voert de aanmelding zelf uit, met het token onder ~/.hermes/mcp-tokens.",
+        "before": [
+          "Hermes Agent is geïnstalleerd. Geheimen horen in ~/.hermes/.env en worden als ${VAR} in de configuratie gebruikt."
+        ],
+        "add": [
+          "Voeg het mcp_servers-blok toe aan ~/.hermes/config.yaml.",
+          "Stuur in een lopende sessie /reload-mcp. De tools verschijnen als mcp_markaestro_<tool>."
+        ],
+        "signIn": [
+          "Bij de eerste tool-aanroep opent Hermes de toestemmingspagina. Kies werkruimte en merk en klik op Toestaan.",
+          "Hermes vernieuwt het token zelf. Trek het in via Instellingen, API als je klaar bent."
+        ],
+        "captions": {
+          "headless": "Zonder browser"
+        }
+      },
+      "generic": {
+        "label": "Andere MCP-client",
+        "summary": "Elke client die Streamable HTTP en OAuth 2.1 met dynamische clientregistratie spreekt, verbindt met alleen de server-URL.",
+        "before": [
+          "De client ondersteunt externe MCP-servers via Streamable HTTP en kan een browser openen voor OAuth. Zo niet, gebruik dan het tabblad API-sleutel."
+        ],
+        "add": [
+          "Voeg de server-URL toe in de MCP-configuratie van de client. De JSON hieronder is de gebruikelijke mcpServers-vorm.",
+          "Configureer geen client-id of secret. De client registreert zichzelf bij het eerste gebruik."
+        ],
+        "signIn": [
+          "De eerste tool-aanroep krijgt een aanmeldverzoek terug en de client opent de toestemmingspagina.",
+          "Kies werkruimte en merk en klik op Toestaan. De client wisselt de code in voor een merkgebonden sleutel en vernieuwt die elke 30 dagen."
+        ]
+      },
+      "headless": {
+        "label": "API-sleutel",
+        "summary": "Voor CI-jobs, cron-workers en clients zonder browser: een API-sleutel van de werkruimte in de Authorization-header bereikt dezelfde server met dezelfde rechten.",
+        "before": [
+          "Je kunt sleutels aanmaken: eigenaar of beheerder van de werkruimte met een geverifieerd e-mailadres."
+        ],
+        "add": [
+          "Maak een sleutel voor één merk met alleen de scopes die de agent nodig heeft en een vervaldatum.",
+          "Geef hem mee als bearer-header aan de gehoste server, of als MARKAESTRO_API_KEY aan de lokale stdio-server, die ook bestanden van schijf kan uploaden."
+        ],
+        "signIn": [
+          "Bewaar de sleutel in de secret store van de agent, nooit in een prompt of een repository.",
+          "Roteer of trek hem in via Instellingen, API. Elke sleutel toont zijn laatste gebruik en aantal verzoeken."
+        ]
+      }
+    }
   }
 }

@@ -52,6 +52,9 @@ const KNOWN_TOKENS = new Set([
   'Markaestro', 'TikTok', 'Meta', 'Facebook', 'Instagram', 'LinkedIn',
   'Threads', 'Pinterest', 'Firebase', 'Sentry', 'Stripe', 'Google', 'Cloud',
   'Claude', 'OpenAI', 'MCP', 'SDK', 'API', 'APIs', 'JSON', 'HTTP', 'HTTPS',
+  // Agent clients named on /developers/agents and the config formats their
+  // snippets are labelled with. Product names, never localized.
+  'Cursor', 'ChatGPT', 'Grok', 'Bot', 'OpenClaw', 'Hermes', 'Bash', 'YAML', 'TOML',
   'OAuth', 'HMAC', 'CSV', 'URL', 'ID', 'IDs', 'n8n', 'Make', 'Zapier',
   'LangChain', 'LlamaIndex', 'Delaware', 'GDPR', 'CCPA', 'EEA', 'UK', 'U.S.',
   'US$100', 'GB', 'MB', 'KB',
@@ -98,7 +101,6 @@ const KNOWN_TOKENS = new Set([
 const EXEMPT_KEY_PATHS = new Set([
   'quickstart.bashLabel',
   'recipes.bashLabel',
-  'mcp.bashLabel',
   'toolDefs.schemasLabel',
   'toolDefs.briefLabel',
   'connectApi.endpoints[3].path',

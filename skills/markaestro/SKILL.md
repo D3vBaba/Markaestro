@@ -1,6 +1,6 @@
 ---
 name: markaestro
-description: Schedule, publish, and review social posts through Markaestro (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X) and manage Intelligent Evergreen queues using its MCP server or public API. Use when a task mentions Markaestro, posting or scheduling to a connected social account, uploading media for a post, checking whether a post published, batch-scheduling content, managing proven recurring content, or wiring webhooks for post events.
+description: Schedule, publish, and review social posts through Markaestro (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X), read brand and per-post analytics, and manage Intelligent Evergreen queues using its MCP server or public API. Use when a task mentions Markaestro, posting or scheduling to a connected social account, uploading media for a post, checking whether a post published or how it performed, reporting on social performance, deciding what or when to post next, batch-scheduling content, managing proven recurring content, or wiring webhooks for post events.
 ---
 
 # Working with Markaestro
@@ -19,27 +19,35 @@ Read those when you need an exact field name.
 ## Before anything else
 
 1. Confirm the MCP server is connected: a `list_products` tool should be
-   available. If it is not:
-   - The server is installed but not signed in (a 401 or "needs
-     authentication" state): tell the user to run `/mcp`, pick
-     `markaestro`, and finish the sign-in in the browser. They choose the
-     workspace and brand there. Never ask the user for an API key.
-   - The server is not installed at all: the user runs
+   available. If it is not, the fix depends on the client you are running
+   in. Never ask the user for an API key when the client can open a browser;
+   the sign-in hands the client a key bound to one brand.
+   - Installed but not signed in (a 401 or "needs authentication" state):
+     Claude Code: run `/mcp`, pick `markaestro`, finish the sign-in.
+     Cursor: Cursor Settings, Tools & MCP, click Markaestro (Needs login).
+     ChatGPT: reconnect the Markaestro app in Apps & Connectors.
+     Grok Build: the next tool call reopens the sign-in; grok.com: reconnect
+     the connector. OpenClaw: `openclaw mcp login markaestro`, then
+     `openclaw mcp reload`. Hermes: `/reload-mcp`, then call a tool.
+   - Not installed at all: send the user to
+     `https://markaestro.com/developers/agents?client=<claude-code|claude|cursor|chatgpt|grok|grok-bot|openclaw|hermes>`,
+     which opens that client's steps. For Claude Code the whole setup is
      `claude plugin marketplace add D3vBaba/Markaestro` then
-     `claude plugin install markaestro@markaestro`, or
-     `claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp`.
-     The first tool call opens the browser sign-in.
-   - Headless or CI only (no browser): a workspace API key from Settings,
-     API can be passed as a header:
+     `claude plugin install markaestro@markaestro`; any client can also add
+     the server URL `https://markaestro.com/api/public/v1/mcp` directly.
+   - Headless or CI only (no browser), and Grok Bot: a workspace API key from
+     Settings, API is passed as a header instead:
      `claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp --header "Authorization: Bearer mk_..."`,
      or the local package: `claude mcp add markaestro -e MARKAESTRO_API_KEY=mk_... -- npx -y @markaestro/mcp`.
+     `https://markaestro.com/developers/agents?client=headless` has the same
+     header for other clients' config files.
 2. Call `get_channel_rules` once per session. It returns the per-channel
    rules and `keyMode`. If `keyMode` is `test`, say so when reporting
    results: test keys never reach a real platform.
 3. Call `list_products`. The brand in the answer is the only one this
    connection can act on. If the user names a different brand, they
-   reconnect (`/mcp`, sign out, sign in) and pick that brand, or use that
-   brand's key.
+   reconnect from their client (Claude Code: `/mcp`, sign out, sign in)
+   and pick that brand at consent, or use that brand's key.
 
 ## The posting model
 
@@ -93,6 +101,30 @@ the user can change or cancel it in Markaestro or with `delete_post`.
   as failed.
 - `partial_failed` means some targets published and some did not. Read
   `publishResults` on the post before retrying anything.
+
+## Reading performance
+
+- `get_analytics` is the brand overview for a window (`days`, or `since`
+  and `until`): totals with the prior period, per-channel rollups, daily
+  series, engagement breakdown, follower trend, top posts, a weekday-by-hour
+  heatmap, content-type averages, and `insights` (plain-language findings,
+  each with its `sampleSize`). Read it before recommending what, when, or
+  where to post, and quote the sample size when you repeat an insight.
+- `list_post_analytics` is one row per published post with its latest
+  metrics. `sort: "engagements"` or `"views"` finds what worked;
+  `get_post` has the full caption and media for any row.
+- `get_post_analytics_history` shows how one post earned its numbers (the
+  1h to 90d snapshots with growth between them) and whether polling is still
+  `active`. A post under 24 hours old is not yet comparable to older ones.
+- The window is clamped to the plan's history; `window.maxDays` in the
+  answer says the cap (`-1` is unlimited). If the user asks for more than
+  the plan keeps, say so rather than presenting the clamped window as the
+  full one.
+- `null` means the platform does not report that metric (TikTok and Threads
+  never report reach). Never read it as zero, and use
+  `engagementRateByViews` where reach is missing.
+- These tools need the `analytics.read` scope. A 403 here means the key
+  predates the scope: the user creates a new key, or reconnects the agent.
 
 ## Intelligent Evergreen
 

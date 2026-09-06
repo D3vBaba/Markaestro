@@ -20,3 +20,14 @@ register the server yourself instead:
 claude mcp add --transport http markaestro https://markaestro.com/api/public/v1/mcp \
   --header "Authorization: Bearer mk_live_..."
 ```
+
+## Other clients
+
+The plugin is Claude Code specific, but the server is not. Cursor, ChatGPT,
+Grok, Grok Bot, OpenClaw, Hermes, and any other MCP client connect to the
+same `https://markaestro.com/api/public/v1/mcp` with their own config; each
+one has a tab with exact steps at
+https://markaestro.com/developers/agents (add `?client=cursor`, `chatgpt`,
+`grok`, `grok-bot`, `openclaw`, or `hermes` to open it directly). The skill
+in this repository is client-agnostic and can be installed from ClawHub or
+by URL where the client supports Agent Skills.

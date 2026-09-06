@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Markaestro para agentes de IA | Conecte um cliente MCP ou use uma chave de API",
-    "description": "Conecte o Claude Code, o claude.ai, o Cursor ou qualquer cliente MCP ao Markaestro com um login no navegador, ou entregue a um agente uma chave de API vinculada a uma marca. Descubra contas sociais conectadas, envie mídia, redija, agende e publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest.",
+    "description": "Conecte o Claude Code, o Claude, o Cursor, o ChatGPT, o Grok, o OpenClaw, o Hermes ou qualquer cliente MCP ao Markaestro com um login no navegador, ou entregue a um agente uma chave de API vinculada a uma marca. Descubra contas sociais conectadas, envie mídia, redija, agende e publique no Facebook, Instagram, TikTok, LinkedIn, Threads e Pinterest.",
     "ogTitle": "Markaestro para agentes de IA",
     "ogDescription": "Um login ou uma chave de API transforma o Markaestro em uma ferramenta de publicação que seu agente pode chamar: descobrir contas, enviar mídia, redigir, agendar, publicar e reportar."
   },
@@ -235,7 +235,7 @@
       },
       {
         "name": "Clientes MCP",
-        "body": "Claude Code, claude.ai, Cursor, ChatGPT: adicione a URL do servidor hospedado e faça login pelo navegador. Para clientes só stdio, npx -y @markaestro/mcp executa as mesmas dezessete ferramentas localmente."
+        "body": "Claude Code, Claude, Cursor, ChatGPT, Grok, Grok Bot, OpenClaw, Hermes: adicione a URL do servidor hospedado e faça login pelo navegador. Para clientes só stdio, npx -y @markaestro/mcp executa as mesmas trinta e uma ferramentas localmente."
       },
       {
         "name": "n8n, Make, Zapier",
@@ -260,14 +260,8 @@
   "mcp": {
     "eyebrow": "Clientes MCP",
     "title": "Faça login pelo cliente. Nada para colar.",
-    "intro1": "Claude Code, claude.ai, Cursor, ChatGPT e qualquer outro cliente que fale o Model Context Protocol podem se conectar ao servidor MCP hospedado do Markaestro sem nenhuma credencial configurada. A primeira chamada de ferramenta abre seu navegador: faça login, escolha o espaço de trabalho e a marca em que o agente pode atuar, revise as permissões e clique em Permitir. O cliente recebe uma chave vinculada a essa marca e a renova sozinho.",
-    "intro2": "É OAuth 2.1 padrão com PKCE e registro dinâmico de clientes, o mesmo mecanismo por trás de outros servidores MCP hospedados, então funciona sem nenhum plugin específico do Markaestro. O servidor fica em <code>https://markaestro.com/api/public/v1/mcp</code> e expõe dezessete ferramentas sobre a API pública: descoberta de marcas e destinos, envio de mídia, rascunhos e posts agendados, publicação com acompanhamento de execuções, operações em lote, webhooks e as regras por canal.",
-    "installTitle": "Instalar",
-    "installDescription": "No Claude Code o plugin é toda a configuração: ele reúne a skill do agente e a entrada do servidor. Qualquer outro cliente MCP recebe a URL do servidor na sua configuração habitual.",
-    "headlessTitle": "Sem navegador",
-    "headlessDescription": "Um job de CI, um worker de cron ou um cliente que não consegue abrir um navegador passa, em vez disso, uma chave de API do espaço de trabalho como cabeçalho bearer. Os dois caminhos chegam ao mesmo servidor com as mesmas permissões.",
-    "bashLabel": "Bash",
-    "configLabel": "Configuração MCP (json)",
+    "intro1": "Claude Code, Claude, Cursor, ChatGPT, Grok, Grok Bot, OpenClaw, Hermes e qualquer outro cliente que fale o Model Context Protocol podem se conectar ao servidor MCP hospedado do Markaestro sem nenhuma credencial configurada. A primeira chamada de ferramenta abre seu navegador: faça login, escolha o espaço de trabalho e a marca em que o agente pode atuar, revise as permissões e clique em Permitir. O cliente recebe uma chave vinculada a essa marca e a renova sozinho.",
+    "intro2": "É OAuth 2.1 padrão com PKCE e registro dinâmico de clientes, o mesmo mecanismo por trás de outros servidores MCP hospedados, então funciona sem nenhum plugin específico do Markaestro. O servidor fica em <code>https://markaestro.com/api/public/v1/mcp</code> e expõe trinta e uma ferramentas sobre a API pública: descoberta de marcas e destinos, envio de mídia, rascunhos e posts agendados, publicação com acompanhamento de execuções, operações em lote, webhooks e as regras por canal.",
     "flowTitle": "O que acontece quando o cliente se conecta",
     "flowIntro": "Cinco passos, todos tratados pelo cliente e pelo navegador. Você só vê a página de consentimento.",
     "steps": [
@@ -318,5 +312,220 @@
     "endpointsTitle": "Pontos de acesso",
     "endpointsDescription": "Para quem constrói um cliente MCP ou audita o fluxo. Tudo é descoberto a partir dos dois documentos well-known; nada aqui precisa ser configurado à mão.",
     "endpointsLabel": "Referência"
+  },
+  "connect": {
+    "eyebrow": "Conecte seu agente",
+    "title": "Escolha seu agente. Três passos e ele já pode publicar.",
+    "intro": "Todos os clientes abaixo chegam ao mesmo servidor MCP hospedado. A maioria entra pelo navegador: a primeira chamada de ferramenta abre uma página de consentimento onde você escolhe o workspace e a marca em que o agente pode atuar, e o cliente recebe uma chave vinculada a essa marca. Clientes que não conseguem abrir um navegador usam uma chave de API do workspace. Mesmo servidor, mesmas permissões, mesma lista em Configurações.",
+    "tabsLabel": "Escolha seu agente",
+    "path": {
+      "oauth": "Login pelo navegador",
+      "key": "Chave de API",
+      "both": "Login ou chave de API"
+    },
+    "blocks": {
+      "before": "Antes de começar",
+      "add": "Adicionar o servidor",
+      "signIn": "Entrar",
+      "key": "Usar uma chave de API",
+      "verify": "Verificar"
+    },
+    "snippetKinds": {
+      "bash": "Bash",
+      "json": "JSON",
+      "yaml": "YAML",
+      "toml": "TOML",
+      "text": "Valores"
+    },
+    "docsLink": "Documentação do {client}",
+    "common": {
+      "adminRequired": "Você é proprietário ou administrador do workspace com e-mail verificado, em um workspace com plano ativo e pelo menos uma marca.",
+      "createKey": "Criar uma chave de API",
+      "preferSignIn": "Prefira o login. Use uma chave apenas quando o cliente não puder abrir um navegador.",
+      "verifyTool": "Peça ao agente para chamar list_products. Ele deve responder com a única marca autorizada e seus canais conectados.",
+      "verifySettings": "A conexão aparece em Configurações, API com o selo Agente conectado, o último uso e o volume de solicitações. Você pode revogá-la ali a qualquer momento.",
+      "openSettings": "Abrir Configurações, API",
+      "oneClick": "Adicionar ao {client}",
+      "oneClickHint": "Abre o app e adiciona o servidor. Se o link não abrir, cole o JSON abaixo."
+    },
+    "clients": {
+      "claude-code": {
+        "label": "Claude Code",
+        "summary": "O plugin instala a skill e o servidor hospedado juntos. Nada para configurar, nada para colar.",
+        "before": [
+          "O Claude Code está instalado e conectado à sua conta Anthropic."
+        ],
+        "add": [
+          "Execute os dois comandos do plugin em qualquer terminal, ou adicione só o servidor com o terceiro comando."
+        ],
+        "signIn": [
+          "Pergunte ao Claude qualquer coisa sobre o Markaestro, ou execute /mcp e escolha markaestro.",
+          "Seu navegador abre a página de consentimento. Escolha o workspace e a marca, revise as permissões e clique em Permitir.",
+          "Para trocar de marca depois, execute /mcp de novo, saia e entre com a outra marca."
+        ]
+      },
+      "claude": {
+        "label": "Claude",
+        "summary": "O claude.ai e o Claude Desktop recebem a URL do servidor como conector personalizado e entram pela mesma página de consentimento.",
+        "before": [
+          "Conectores personalizados estão disponíveis nos planos pagos do Claude. Em Team e Enterprise, um proprietário pode precisar ativá-los."
+        ],
+        "add": [
+          "Abra Configurações, Conectores e depois Adicionar conector personalizado.",
+          "Cole a URL do servidor abaixo, deixe os campos de cliente OAuth vazios e clique em Adicionar."
+        ],
+        "signIn": [
+          "Clique em Conectar ao lado de Markaestro. A página de consentimento abre em uma nova aba.",
+          "Escolha o workspace e a marca, revise as permissões e clique em Permitir. A aba fecha e o conector aparece como conectado.",
+          "Em um chat, ative o Markaestro no menu de ferramentas quando quiser que o agente o use."
+        ]
+      },
+      "cursor": {
+        "label": "Cursor",
+        "summary": "Um clique adiciona o servidor ao Cursor. A primeira chamada de ferramenta abre o login no navegador; o Cursor guarda o token nas chaves do sistema.",
+        "before": [
+          "Cursor com MCP ativado. Servidores MCP remotos funcionam em todos os planos do Cursor."
+        ],
+        "add": [
+          "Clique em Adicionar ao Cursor e confirme a instalação no Cursor.",
+          "Ou cole o JSON em .cursor/mcp.json em um projeto (compartilhado com a equipe via git) ou em ~/.cursor/mcp.json (só você)."
+        ],
+        "signIn": [
+          "Abra Cursor Settings, Tools & MCP. O Markaestro mostra Needs login; clique nele.",
+          "Seu navegador abre a página de consentimento. Escolha o workspace e a marca e clique em Permitir. O Cursor recebe o token e lista as ferramentas.",
+          "O Grok Bot dentro do Cursor usa esta mesma entrada de servidor."
+        ],
+        "captions": {
+          "headless": "Para uma máquina de build compartilhada ou CI, uma chave de API do workspace nos headers substitui o login."
+        }
+      },
+      "chatgpt": {
+        "label": "ChatGPT",
+        "summary": "O ChatGPT se conecta ao Markaestro como app personalizado no modo desenvolvedor e entra pela página de consentimento.",
+        "before": [
+          "O modo desenvolvedor exige ChatGPT Pro, Business, Enterprise ou Edu. O Pro expõe só ferramentas de leitura; Business, Enterprise e Edu expõem todas.",
+          "Em Business, Enterprise e Edu, um administrador pode precisar permitir apps personalizados no workspace."
+        ],
+        "add": [
+          "Abra Configurações, Apps e conectores, Configurações avançadas e ative o modo desenvolvedor.",
+          "De volta em Apps e conectores, clique em Criar. Nomeie como Markaestro, cole a URL do servidor, escolha OAuth como autenticação e clique em Escanear ferramentas."
+        ],
+        "signIn": [
+          "A página de consentimento abre enquanto o ChatGPT escaneia as ferramentas. Escolha o workspace e a marca, clique em Permitir e depois em Criar.",
+          "Em um chat, clique no botão de mais, Mais e depois em Markaestro para disponibilizar as ferramentas.",
+          "O ChatGPT se registra no Markaestro uma vez por conexão. Reconectar cria uma nova conexão que você pode revogar separadamente."
+        ]
+      },
+      "grok": {
+        "label": "Grok",
+        "summary": "O Grok chega ao Markaestro de três formas: como conector personalizado no grok.com, pelo terminal Grok Build e como ferramenta MCP remota na API da xAI.",
+        "before": [
+          "Os conectores do grok.com funcionam em planos pessoais. Grok Business e Enterprise precisam que um administrador da equipe provisione o conector.",
+          "O caminho da API da xAI roda no servidor, então sempre usa uma chave de API do workspace."
+        ],
+        "add": [
+          "grok.com: abra grok.com/connectors, clique em New Connector, escolha Custom e cole a URL do servidor. Se a caixa pedir um id de cliente, use os valores abaixo.",
+          "Grok Build: execute os dois comandos em um terminal. O Grok Build também aproveita uma entrada Markaestro do .mcp.json do Claude Code ou do mcp.json do Cursor.",
+          "API da xAI: adicione o bloco de ferramenta ao array tools de uma requisição à Responses API."
+        ],
+        "signIn": [
+          "grok.com e Grok Build abrem a página de consentimento na primeira chamada de ferramenta. Escolha o workspace e a marca e clique em Permitir.",
+          "Para a API da xAI, crie uma chave de API do workspace e passe-a no campo authorization."
+        ],
+        "captions": {
+          "web": "Conector personalizado do grok.com",
+          "build": "Terminal Grok Build",
+          "api": "Bloco de ferramenta da xAI Responses API"
+        }
+      },
+      "grok-bot": {
+        "label": "Grok Bot",
+        "summary": "O Grok Bot roda em um computador na nuvem e aceita servidores MCP personalizados com uma chave estática. A beta ainda não tem login pelo navegador para servidores personalizados.",
+        "before": [
+          "O Grok Bot está em beta inicial nos planos SuperGrok e dentro do Cursor Pro. O acesso Enterprise é por lista de espera.",
+          "Você tem uma chave de API do workspace com os escopos de agente. Crie uma com o botão abaixo."
+        ],
+        "add": [
+          "Abra as configurações de conectores do seu Bot e adicione um servidor MCP personalizado.",
+          "Cole a URL do servidor e adicione a chave como header com os valores abaixo."
+        ],
+        "signIn": [
+          "Crie uma chave limitada a uma marca e com validade. Guarde-a só nas configurações de conectores do Bot, nunca em uma mensagem de chat.",
+          "Se o Grok Bot adicionar login pelo navegador para servidores personalizados, remova o header e reconecte. Esse caminho já funciona neste servidor."
+        ],
+        "captions": {
+          "key": "Valores de header para a caixa do conector"
+        }
+      },
+      "openclaw": {
+        "label": "OpenClaw",
+        "summary": "O OpenClaw adiciona servidores MCP remotos pela sua CLI e conclui o login em uma porta loopback, então funciona na máquina que executa seu gateway.",
+        "before": [
+          "O OpenClaw está instalado e o gateway em execução.",
+          "Um servidor sem navegador pode concluir o login com a alternativa --code."
+        ],
+        "add": [
+          "Execute os três comandos, ou adicione o bloco do servidor em ~/.openclaw/openclaw.json.",
+          "Quando a skill do Markaestro estiver no ClawHub, openclaw skills install markaestro adiciona também as instruções do agente."
+        ],
+        "signIn": [
+          "openclaw mcp login markaestro imprime a URL de login e aguarda em uma porta loopback.",
+          "Abra a URL, escolha o workspace e a marca e clique em Permitir. O OpenClaw guarda as credenciais fora do arquivo de configuração.",
+          "Execute openclaw mcp reload para que agentes em execução carreguem as ferramentas."
+        ],
+        "captions": {
+          "config": "Entrada de configuração equivalente",
+          "headless": "Sem navegador"
+        }
+      },
+      "hermes": {
+        "label": "Hermes",
+        "summary": "O Hermes Agent registra servidores MCP HTTP a partir do config.yaml e faz o login sozinho, guardando o token em ~/.hermes/mcp-tokens.",
+        "before": [
+          "O Hermes Agent está instalado. Segredos ficam em ~/.hermes/.env e são referenciados como ${VAR} na configuração."
+        ],
+        "add": [
+          "Adicione o bloco mcp_servers ao ~/.hermes/config.yaml.",
+          "Em uma sessão em andamento, envie /reload-mcp. As ferramentas aparecem como mcp_markaestro_<tool>."
+        ],
+        "signIn": [
+          "Na primeira chamada de ferramenta, o Hermes abre a página de consentimento. Escolha o workspace e a marca e clique em Permitir.",
+          "O Hermes renova o token sozinho. Revogue-o em Configurações, API quando terminar."
+        ],
+        "captions": {
+          "headless": "Sem navegador"
+        }
+      },
+      "generic": {
+        "label": "Outro cliente MCP",
+        "summary": "Qualquer cliente que fale Streamable HTTP e OAuth 2.1 com registro dinâmico de cliente se conecta só com a URL do servidor.",
+        "before": [
+          "O cliente suporta servidores MCP remotos por Streamable HTTP e consegue abrir um navegador para OAuth. Se não conseguir, use a aba Chave de API."
+        ],
+        "add": [
+          "Adicione a URL do servidor na configuração MCP do cliente. O JSON abaixo é a forma comum de mcpServers.",
+          "Não configure id de cliente nem segredo. O cliente se registra sozinho no primeiro uso."
+        ],
+        "signIn": [
+          "A primeira chamada de ferramenta recebe um desafio de login e o cliente abre a página de consentimento.",
+          "Escolha o workspace e a marca e clique em Permitir. O cliente troca o código por uma chave vinculada à marca e a renova a cada 30 dias."
+        ]
+      },
+      "headless": {
+        "label": "Chave de API",
+        "summary": "Para jobs de CI, workers cron e clientes que não abrem navegador: uma chave de API do workspace no header Authorization chega ao mesmo servidor com as mesmas permissões.",
+        "before": [
+          "Você pode criar chaves: proprietário ou administrador do workspace com e-mail verificado."
+        ],
+        "add": [
+          "Crie uma chave vinculada a uma marca só com os escopos que o agente precisa e com validade.",
+          "Passe-a como header bearer ao servidor hospedado, ou como MARKAESTRO_API_KEY ao servidor stdio local, que também pode enviar arquivos do disco."
+        ],
+        "signIn": [
+          "Guarde a chave no cofre de segredos do agente, nunca em um prompt ou repositório.",
+          "Rotacione ou revogue em Configurações, API. Cada chave mostra o último uso e o volume de solicitações."
+        ]
+      }
+    }
   }
 }

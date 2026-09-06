@@ -16,6 +16,7 @@ import { publicApiScopes } from '@/lib/public-api/scopes';
 import { getOAuthClient, createAuthorizationCode } from '@/lib/agent-oauth/store';
 import { redirectUriMatches } from '@/lib/agent-oauth/redirect-uri';
 import { isValidCodeChallenge } from '@/lib/agent-oauth/pkce';
+import { InvalidResource, normalizeResource, requestOrigin } from '@/lib/agent-oauth/metadata';
 
 export const runtime = 'nodejs';
 
@@ -25,9 +26,21 @@ const consentSchema = z.object({
   codeChallenge: z.string().min(1).max(200),
   codeChallengeMethod: z.literal('S256'),
   state: z.string().max(2048).optional(),
+  /** RFC 8707 resource indicator, forwarded verbatim from the authorization request. */
+  resource: z.string().max(2048).optional(),
   productId: z.string().min(1).max(200),
   scopes: z.array(z.enum(publicApiScopes)).min(1),
 });
+
+/**
+ * RFC 9207: the issuer named in the authorization response. When the client
+ * sent a resource, its origin is the API host the client discovered us on
+ * and therefore the issuer it recorded; otherwise the host answering this
+ * request. Clients that check `iss` (ChatGPT) always send `resource`.
+ */
+function issuerFor(req: Request, resource: string | null): string {
+  return resource ? new URL(resource).origin : requestOrigin(req);
+}
 
 export async function POST(req: Request) {
   try {
@@ -59,6 +72,14 @@ export async function POST(req: Request) {
       return apiOk({ error: 'OAUTH_REDIRECT_URI_MISMATCH', message: 'The redirect address is not registered for this client.' }, 400);
     }
 
+    let resource: string | null;
+    try {
+      resource = normalizeResource(data.resource, requestOrigin(req));
+    } catch (error) {
+      if (!(error instanceof InvalidResource)) throw error;
+      return apiOk({ error: 'OAUTH_INVALID_RESOURCE', message: 'The agent asked for a resource this server does not serve.' }, 400);
+    }
+
     const productSnap = await adminDb.doc(`workspaces/${ctx.workspaceId}/products/${data.productId}`).get();
     if (!productSnap.exists) {
       return apiOk({ error: 'PRODUCT_NOT_FOUND', message: 'Selected brand does not exist.' }, 404);
@@ -73,11 +94,13 @@ export async function POST(req: Request) {
       productId: data.productId,
       uid: ctx.uid,
       clientName: client.clientName,
+      resource,
     });
 
     const redirect = new URL(data.redirectUri);
     redirect.searchParams.set('code', code);
     if (data.state) redirect.searchParams.set('state', data.state);
+    redirect.searchParams.set('iss', issuerFor(req, resource));
     return apiOk({ redirectTo: redirect.toString() });
   } catch (error) {
     return apiError(error);

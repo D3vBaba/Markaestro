@@ -88,6 +88,24 @@ user first. **`pause_evergreen_queue`** unschedules the pending occurrence,
 **`resume_evergreen_queue`** computes a fresh next run, and
 **`archive_evergreen_queue`** ends the queue permanently.
 
+## Analytics (needs the `analytics.read` scope)
+
+**`get_analytics`** `{ days?, since?, until?, channel?, tz? }` → `{ analytics: { window, totals, daily, priorDaily, dailyActivity, breakdown, followerTrend, channels, leaderboard, heatmap, contentTypes, insights, coverage } }`
+`window.maxDays` is the plan cap (`-1` unlimited); `totals.prior` is the
+period before the window; `heatmap.engagements[weekday][hour]` uses `tz`
+(minutes east of UTC, default 0, Monday is 0). `insights[].sampleSize` says
+how many posts each finding rests on.
+
+**`list_post_analytics`** `{ days?, since?, until?, channel?, sort?, limit? }` → `{ window, sort, posts: [{ id, content, channels, publishedAt, externalUrl, contentType, views, reach, likes, comments, shares, saves, clicks, engagements, erByReach, erByViews }], count, truncated }`
+`sort` is `published_at` (default), `views`, `reach`, `engagements`, or
+`engagement_rate`, descending, missing values last. `limit` defaults to 100
+(max 500); `truncated` is true when more matched. `content` is the first 160
+characters; use `get_post` for the whole caption.
+
+**`get_post_analytics_history`** `{ postId }` → `{ post: { id, content, publishedAt, channels, externalUrl, metricsStatus, nextPollAt, latest }, stages: [{ stageKey, capturedAt, hoursAfterPublish, views, reach, engagements, likes, comments, shares, saves, viewsDelta, engagementsDelta, byChannel }] }`
+Stages are oldest first (`1h`, `6h`, `24h`, ... `90d`, then `latest`).
+`NOT_FOUND` for a post outside this brand, a draft, or a sandbox post.
+
 ## Publish runs
 
 **`get_job_run`** `{ runId }` → `{ run: { status: queued | running | succeeded | failed, message, details } }`
