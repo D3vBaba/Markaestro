@@ -23,15 +23,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { publicApiScopes, type PublicApiScope } from "@/lib/public-api/scopes";
 import { browserIssuerFor } from "@/lib/agent-oauth/issuer";
+import { ALL_BRANDS_VALUE, isAllBrandsSelection, resolveBrandSelection } from "@/lib/agent-oauth/brand-selection";
 
 type ClientInfo = { id: string; name: string; uri: string | null };
 type Product = { id: string; name: string };
-
-/**
- * Sentinel brand value: the agent may act on every brand in the workspace
- * (a sitewide grant) rather than one. Sent to consent as allBrands: true.
- */
-const ALL_BRANDS_VALUE = "__all_brands__";
 
 const SCOPE_LABEL_KEY: Record<PublicApiScope, string> = {
   "products.read": "productsRead",
@@ -125,10 +120,13 @@ function AuthorizeContent() {
     { wsId: workspaceId },
   );
   const products = useMemo(() => productsData?.products ?? [], [productsData]);
-  const productId = useMemo(() => {
-    if (chosenProductId && products.some((p) => p.id === chosenProductId)) return chosenProductId;
-    return products[0]?.id ?? "";
-  }, [chosenProductId, products]);
+  // Resolves the effective brand value. Critically preserves the all-brands
+  // sentinel: testing the pick against the product list alone dropped it back
+  // to the first brand, which silently minted a single-brand key.
+  const productId = useMemo(
+    () => resolveBrandSelection(chosenProductId, products),
+    [chosenProductId, products],
+  );
 
   // Resolve who is asking, and that their redirect address is registered.
   useEffect(() => {
@@ -199,7 +197,7 @@ function AuthorizeContent() {
         codeChallengeMethod: "S256",
         state: request.state || undefined,
         resource: request.resource || undefined,
-        ...(productId === ALL_BRANDS_VALUE ? { allBrands: true } : { productId }),
+        ...(isAllBrandsSelection(productId) ? { allBrands: true } : { productId }),
         scopes: publicApiScopes.filter((s) => granted.has(s)),
       },
       workspaceId,
@@ -273,7 +271,7 @@ function AuthorizeContent() {
             </select>
           )}
           <p className="text-xs text-muted-foreground">
-            {productId === ALL_BRANDS_VALUE ? t("allBrandsHint") : t("brandHint")}
+            {isAllBrandsSelection(productId) ? t("allBrandsHint") : t("brandHint")}
           </p>
         </div>
 
