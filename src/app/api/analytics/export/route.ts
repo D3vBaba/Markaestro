@@ -5,6 +5,7 @@ import { apiError } from '@/lib/api-response';
 import { getEffectiveSubscription, effectiveTier } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
 import { fetchPostRowsForExport, type AnalyticsPostRow } from '@/lib/analytics/query';
+import { analyticsPostSources, type AnalyticsPostSource } from '@/lib/analytics/api-shape';
 import { socialChannels, type SocialChannel } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
@@ -26,7 +27,7 @@ function toCsv(rows: AnalyticsPostRow[]): string {
   const header = [
     'post_id', 'published_at', 'channels', 'content_type', 'content',
     'views', 'reach', 'likes', 'comments', 'shares', 'saves', 'clicks',
-    'engagements', 'engagement_rate_by_reach', 'url',
+    'engagements', 'engagement_rate_by_reach', 'url', 'source',
   ].join(',');
   const lines = rows.map((r) => [
     csvCell(r.id),
@@ -44,6 +45,7 @@ function toCsv(rows: AnalyticsPostRow[]): string {
     csvCell(r.engagements),
     csvCell(r.erByReach === null ? null : r.erByReach.toFixed(6)),
     csvCell(r.externalUrl),
+    csvCell(r.source),
   ].join(','));
   return [header, ...lines].join('\n');
 }
@@ -70,9 +72,13 @@ export async function GET(req: Request) {
       ? (channelParam as SocialChannel)
       : undefined;
     const productId = url.searchParams.get('productId') || undefined;
+    const sourceParam = url.searchParams.get('source') || undefined;
+    const source = sourceParam && (analyticsPostSources as readonly string[]).includes(sourceParam)
+      ? (sourceParam as AnalyticsPostSource)
+      : undefined;
 
     const sinceIso = new Date(Date.now() - days * 24 * 3600_000).toISOString();
-    const rows = await fetchPostRowsForExport(ctx.workspaceId, sinceIso, channel, productId);
+    const rows = await fetchPostRowsForExport(ctx.workspaceId, sinceIso, channel, productId, source);
     const csv = toCsv(rows);
 
     return new NextResponse(csv, {

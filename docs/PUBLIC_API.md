@@ -221,7 +221,7 @@ Generated from the [OpenAPI description](/api/public/v1/openapi.json), which is 
 | `GET /api/public/v1/posts` | List posts | `limit`, `cursor`, `status`, `productId` |
 | `POST /api/public/v1/posts` | Create a post | n/a |
 | `GET /api/public/v1/posts/{id}` | Get a post | n/a |
-| `DELETE /api/public/v1/posts/{id}` | Delete a post | n/a |
+| `DELETE /api/public/v1/posts/{id}` | Delete a post | `platform` |
 | `POST /api/public/v1/posts/{id}/publish` | Publish a post | n/a |
 | `POST /api/public/v1/posts/bulk` | Reschedule, delete, or restatus up to 25 posts | n/a |
 | `GET /api/public/v1/media` | List media assets | `limit`, `cursor`, `type` |
@@ -244,8 +244,8 @@ Generated from the [OpenAPI description](/api/public/v1/openapi.json), which is 
 | `POST /api/public/v1/evergreen-queues/{id}/resume` | Resume an Evergreen queue | n/a |
 | `GET /api/public/v1/evergreen-queues/{id}/runs` | List Evergreen runs | n/a |
 | `GET /api/public/v1/evergreen-queues/{id}/analytics` | Get Evergreen analytics | n/a |
-| `GET /api/public/v1/analytics` | Get brand analytics | `days`, `since`, `until`, `channel`, `tz` |
-| `GET /api/public/v1/analytics/posts` | List post analytics | `days`, `since`, `until`, `channel`, `limit`, `sort` |
+| `GET /api/public/v1/analytics` | Get brand analytics | `days`, `since`, `until`, `channel`, `source`, `tz` |
+| `GET /api/public/v1/analytics/posts` | List post analytics | `days`, `since`, `until`, `channel`, `source`, `limit`, `sort` |
 | `GET /api/public/v1/analytics/posts/{id}/history` | Get post analytics history | n/a |
 
 ### Retryable errors
@@ -662,17 +662,29 @@ curl -X DELETE "$MARKAESTRO_URL/api/public/v1/posts/pst_123" \
 ```
 
 ```json
-{ "deleted": true, "id": "pst_123" }
+{ "deleted": true, "id": "pst_123", "source": "markaestro", "platform": false }
 ```
 
 `status` matches one value — use `scheduled` for the queue, `draft`,
 `published`, `failed`, and so on for the rest. Every post carries `productId`,
   and a product-bound key only returns posts for its own brand.
 
-Deleting removes the post from Markaestro only:
+Deleting removes the post from Markaestro, and can take it down too:
 
-- A **published** post can be deleted, but its live platform copy stays up —
-  Markaestro just stops tracking it. Retract it on the platform itself.
+- A **published** post deleted without `platform=true` leaves its live
+  platform copy up; Markaestro just stops tracking it. With
+  `?platform=true` (needs the `posts.publish` scope) the post is first taken
+  down from every channel it went to, and the record goes only once every
+  live copy is gone. A channel that fails answers `CONNECTION_AUTH_ERROR`
+  (409), `PLATFORM_ERROR` (502), or `UNSUPPORTED` (400, TikTok does not let
+  apps delete videos) with `removedChannels` listing what already went, and
+  the record is kept so the call can be retried. A copy the platform no
+  longer has counts as removed.
+- A post **published directly on the platform** (an id from the analytics
+  endpoints with `source: native`) is always taken down from the platform,
+  since that is all there is to delete. The response says
+  `source: "native"`. `PLATFORM_POST_NOT_FOUND` (404) means the platform
+  no longer has it.
 - A post **mid-publish** is refused with `400 VALIDATION_POST_IS_PUBLISHING`.
   Deleting then would let the in-flight run publish anyway, leaving a live post
   with no record. Wait for it to settle, then delete.
@@ -686,6 +698,16 @@ brand only. The numbers are the ones the Analytics page shows: metrics are
 polled 1h, 6h, 24h, 72h, 7d, 14d, 30d, 60d, and 90d after publish and then
 frozen, so a request never triggers a platform call and polling the API in a
 loop gains nothing.
+
+The account is covered as a whole. Posts published through Markaestro come
+from its own records; posts published directly on the platform are
+discovered from the connected account (the last 90 days on Facebook,
+Instagram, Threads, TikTok, LinkedIn, and Pinterest, 30 on X, then every
+few hours for new ones) and polled on the same schedule from the moment
+they are found. Every post row carries `source` (`markaestro` or `native`),
+`coverage.bySource` counts both, and `source=` on either endpoint narrows
+to one half. A post that exists on both sides (Markaestro published it, or
+someone marked it as posted) counts once, as a Markaestro post.
 
 Three endpoints:
 
@@ -702,9 +724,11 @@ Three endpoints:
   100 by default and 500 at most, and `truncated` says whether more matched.
 - `GET /api/public/v1/analytics/posts/:id/history` is how one post earned its
   numbers: the stored stage snapshots with the growth between them, plus
-  `post.latest` (the same row the list returns) and `post.metricsStatus`
-  (`active` while polling continues, `complete` once frozen, `unsupported`
-  where the platform reports nothing).
+  `post.latest` (the same row the list returns), `post.source`, and
+  `post.metricsStatus` (`active` while polling continues, `complete` once
+  frozen, `unsupported` where the platform reports nothing). It takes any
+  id the overview or the list handed out; a native post's first snapshot is
+  `discovered`.
 
 The window is a preset (`days`, ending today UTC, default 28) or an explicit
 `since` and `until` (UTC dates, inclusive). Both are clamped to the plan's

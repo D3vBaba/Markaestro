@@ -1,7 +1,15 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { getAllMatchingDocs } from '@/lib/firestore-pagination';
+import { logger } from '@/lib/logger';
 import type { NormalizedPostMetrics } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
+import {
+  isNativePostDoc,
+  markaestroPlatformPostKeys,
+  nativePostsQuery,
+  platformPostKey,
+  type NativeSocialPostDoc,
+} from './native-posts';
 import { engagementTotal, type ChannelDayAggregate, type DailyAggregateDoc } from './types';
 
 function emptyChannelAggregate(): ChannelDayAggregate {
@@ -25,9 +33,56 @@ type PostDocData = {
   channel?: string;
   testMode?: boolean;
   productId?: string;
+  externalId?: string;
+  publishResults?: Array<{ channel?: string; success?: boolean; externalId?: string }>;
   publishedChannels?: string[];
   metricsByChannel?: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
 };
+
+/** One post as the rollup sees it, whichever collection it came from. */
+type RollupEntry = {
+  productId: string | null;
+  channels: string[];
+  metricsByChannel?: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
+};
+
+/**
+ * The native posts published on the day. A read failure (an index still
+ * deploying, a transient outage) is logged and yields none, so the rollup
+ * of the Markaestro posts still lands; the native poller's next observation
+ * of the day recomputes it.
+ */
+async function nativeRollupEntries(
+  workspaceId: string,
+  start: string,
+  end: string,
+  claimed: Set<string>,
+): Promise<RollupEntry[]> {
+  try {
+    const docs = await getAllMatchingDocs(nativePostsQuery(workspaceId, { sinceIso: start, untilIsoExclusive: end }));
+    const entries: RollupEntry[] = [];
+    for (const doc of docs) {
+      const native = doc.data() as NativeSocialPostDoc;
+      if (!isNativePostDoc(native)) continue;
+      // The same post seen from the account side; the `posts` row counts it.
+      if (claimed.has(platformPostKey(native.platform, native.externalId))) continue;
+      entries.push({
+        productId: typeof native.productId === 'string' && native.productId ? native.productId : null,
+        channels: [native.platform],
+        metricsByChannel: native.metricsByChannel,
+      });
+    }
+    return entries;
+  } catch (error) {
+    logger.warn('native posts unavailable to the daily rollup', {
+      event: 'analytics.native_rollup_unavailable',
+      workspaceId,
+      date: start.slice(0, 10),
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return [];
+  }
+}
 
 function accumulateChannelMetrics(
   agg: ChannelDayAggregate,
@@ -68,31 +123,38 @@ export async function recomputeDailyAggregates(workspaceId: string, dates: strin
         .where('publishedAt', '<', end),
     );
 
+    // Sandbox posts (mk_test_ keys) never reached a platform; counting them
+    // would inflate every rollup an integrator's test run touches.
+    const posts = docs.map((doc) => doc.data() as PostDocData).filter((post) => post.testMode !== true);
+    const entries: RollupEntry[] = posts.map((post) => ({
+      productId: typeof post.productId === 'string' && post.productId ? post.productId : null,
+      channels: (post.publishedChannels?.length ? post.publishedChannels : [post.channel])
+        .filter((c): c is string => Boolean(c)),
+      metricsByChannel: post.metricsByChannel,
+    }));
+    // Posts published directly on the platform join the same rollup, so the
+    // totals describe the account rather than the Markaestro half of it.
+    entries.push(...await nativeRollupEntries(workspaceId, start, end, markaestroPlatformPostKeys(posts)));
+
     const channels: Partial<Record<SocialChannel, ChannelDayAggregate>> = {};
     const byProduct: NonNullable<DailyAggregateDoc['byProduct']> = {};
     let totalPosts = 0;
 
-    for (const doc of docs) {
-      const post = doc.data() as PostDocData;
-      // Sandbox posts (mk_test_ keys) never reached a platform; counting them
-      // would inflate every rollup an integrator's test run touches.
-      if (post.testMode === true) continue;
+    for (const entry of entries) {
       totalPosts++;
-      const postChannels = (post.publishedChannels?.length ? post.publishedChannels : [post.channel])
-        .filter((c): c is string => Boolean(c));
 
       // Per-brand bucket alongside the workspace-wide one (5.10). The worker
       // already reads every post for the day, so the extra dimension costs
       // arithmetic, not reads.
-      const productId = typeof post.productId === 'string' && post.productId ? post.productId : null;
+      const productId = entry.productId;
       const productBucket = productId
         ? (byProduct[productId] ?? (byProduct[productId] = { posts: 0, channels: {} }))
         : null;
       if (productBucket) productBucket.posts++;
 
-      for (const channelName of new Set(postChannels)) {
+      for (const channelName of new Set(entry.channels)) {
         const channel = channelName as SocialChannel;
-        const metrics = post.metricsByChannel?.[channel];
+        const metrics = entry.metricsByChannel?.[channel];
         accumulateChannelMetrics(
           channels[channel] ?? (channels[channel] = emptyChannelAggregate()),
           metrics,

@@ -133,11 +133,19 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
     {
       name: "delete_post",
       title: "Delete a post",
-      description: "Delete a draft or cancel a scheduled post. A published post is only removed from Markaestro; the live platform copy stays up. Posts mid-publish cannot be deleted until the run settles.",
-      inputSchema: { postId: z.string() },
+      description: "Delete a draft, cancel a scheduled post, or take a post down. Without platform, a published Markaestro post is only removed from Markaestro and the live copy stays up; with platform: true it is first taken down from every channel it went to and the record goes only once every live copy is gone. A post published directly on the platform (an analytics id with source native) is always taken down from the platform, since that is all there is to delete. Taking a live post down needs the posts.publish scope. Posts mid-publish cannot be deleted until the run settles.",
+      inputSchema: {
+        postId: z.string().describe("A Markaestro post id, or the id of a native post from list_post_analytics"),
+        platform: z.boolean().optional().describe("Also take a published Markaestro post down from its platforms; implied for a native post"),
+      },
       readOnly: false,
       destructive: true,
-      handler: ({ postId }) => client.request("DELETE", `/api/public/v1/posts/${encodeURIComponent(String(postId))}`),
+      handler: ({ postId, platform }) => client.request(
+        "DELETE",
+        `/api/public/v1/posts/${encodeURIComponent(String(postId))}`,
+        undefined,
+        platform ? { platform: "true" } : undefined,
+      ),
     },
     {
       name: "bulk_posts",
@@ -300,41 +308,45 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
     {
       name: "get_analytics",
       title: "Get brand analytics",
-      description: "The brand's performance over a window: totals with the prior period for deltas, per-channel rollups, daily series, engagement breakdown, follower trend, top posts, posting-time heatmap, content-type averages, computed insights, and coverage. Read this before recommending what, when, or where to post. The window is clamped to the plan's history (the response reports maxDays). Unavailable provider metrics are null, not zero.",
+      description: "The brand's performance over a window: totals with the prior period for deltas, per-channel rollups, daily series, engagement breakdown, follower trend, top posts, posting-time heatmap, content-type averages, computed insights, and coverage. Covers the whole account: posts published through Markaestro and posts published directly on the platform (discovered from the connected account); coverage.bySource says how many of each. Read this before recommending what, when, or where to post. The window is clamped to the plan's history (the response reports maxDays). Unavailable provider metrics are null, not zero.",
       inputSchema: {
         days: z.number().int().min(1).max(365).optional().describe("Preset window ending today (UTC); default 28"),
         since: z.string().optional().describe("Explicit range start, YYYY-MM-DD (UTC); needs until"),
         until: z.string().optional().describe("Explicit range end, YYYY-MM-DD (UTC), inclusive"),
         channel: channel.optional().describe("Restrict every number to one channel"),
+        source: z.enum(["markaestro", "native"]).optional().describe("Only posts published through Markaestro, or only posts published directly on the platform; omit for the whole account"),
         tz: z.number().int().min(-840).max(840).optional().describe("Viewer timezone offset in minutes east of UTC; shapes the heatmap only"),
       },
       readOnly: true,
-      handler: ({ days, since, until, channel: ch, tz }) => get("/api/public/v1/analytics", {
+      handler: ({ days, since, until, channel: ch, source, tz }) => get("/api/public/v1/analytics", {
         days: days as number | undefined,
         since: since as string | undefined,
         until: until as string | undefined,
         channel: ch as string | undefined,
+        source: source as string | undefined,
         tz: tz as number | undefined,
       }),
     },
     {
       name: "list_post_analytics",
       title: "List post analytics",
-      description: "Every published post of the brand in the window with its latest metrics (views, reach, likes, comments, shares, saves, clicks, engagements, engagement rate), one row per post, sorted. Use sort=engagements or sort=views to find what worked; sort=published_at (default) for a chronological read. Pair with get_post for the full caption and media.",
+      description: "Every post of the brand in the window with its latest metrics (views, reach, likes, comments, shares, saves, clicks, engagements, engagement rate), one row per post, sorted. Includes posts published directly on the platform; each row's source says markaestro or native. Use sort=engagements or sort=views to find what worked; sort=published_at (default) for a chronological read. Pair with get_post for the full caption and media of a Markaestro post (native posts have externalUrl instead).",
       inputSchema: {
         days: z.number().int().min(1).max(365).optional().describe("Preset window ending today (UTC); default 28"),
         since: z.string().optional().describe("Explicit range start, YYYY-MM-DD (UTC); needs until"),
         until: z.string().optional().describe("Explicit range end, YYYY-MM-DD (UTC), inclusive"),
         channel: channel.optional(),
+        source: z.enum(["markaestro", "native"]).optional().describe("Only posts published through Markaestro, or only posts published directly on the platform; omit for the whole account"),
         sort: z.enum(["published_at", "views", "reach", "engagements", "engagement_rate"]).optional().describe("Descending; default published_at"),
         limit: z.number().int().min(1).max(500).optional().describe("Default 100"),
       },
       readOnly: true,
-      handler: ({ days, since, until, channel: ch, sort, limit }) => get("/api/public/v1/analytics/posts", {
+      handler: ({ days, since, until, channel: ch, source, sort, limit }) => get("/api/public/v1/analytics/posts", {
         days: days as number | undefined,
         since: since as string | undefined,
         until: until as string | undefined,
         channel: ch as string | undefined,
+        source: source as string | undefined,
         sort: sort as string | undefined,
         limit: limit as number | undefined,
       }),
@@ -342,7 +354,7 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
     {
       name: "get_post_analytics_history",
       title: "Get post analytics history",
-      description: "How one published post earned its numbers over time: the metric snapshots taken 1h, 6h, 24h, 72h, 7d, 14d, 30d, 60d, and 90d after publish, with the growth between stages, plus the current totals and whether polling is still active. Answers NOT_FOUND for posts outside this brand.",
+      description: "How one post earned its numbers over time: the metric snapshots taken 1h, 6h, 24h, 72h, 7d, 14d, 30d, 60d, and 90d after publish (a post published directly on the platform starts with a discovered snapshot), with the growth between stages, plus the current totals and whether polling is still active. Takes any id from get_analytics or list_post_analytics. Answers NOT_FOUND for posts outside this brand.",
       inputSchema: { postId: z.string() },
       readOnly: true,
       handler: ({ postId }) => get(`/api/public/v1/analytics/posts/${encodeURIComponent(String(postId))}/history`),

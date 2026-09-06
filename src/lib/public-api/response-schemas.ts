@@ -129,3 +129,15 @@ export const publicErrorResponseSchema = z.object({
   })).optional().describe('Per-field or per-channel detail, when the failure has more than one cause.'),
   requestId: z.string().optional().describe('Quote this when reporting a problem; it finds every log line for the request.'),
 });
+
+/** Body of `DELETE /api/public/v1/posts/{id}`. */
+export const publicPostDeletedSchema = z.object({
+  deleted: z.literal(true),
+  id: z.string(),
+  source: z.enum(['markaestro', 'native'])
+    .describe('markaestro for a Markaestro post; native for a post published directly on the platform, which is always taken down from it.'),
+  platform: z.union([
+    z.object({ channels: z.array(z.string()).describe('The channels the live copy was removed from.') }),
+    z.literal(false),
+  ]).describe('What happened on the platforms: the channels the post was taken down from, or false when only the Markaestro record went.'),
+});

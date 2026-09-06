@@ -92,6 +92,53 @@ describe('GET /api/public/v1/analytics/posts/[id]/history', () => {
     expect(response.headers.get('X-RateLimit-Limit')).toBe('20');
   });
 
+  it('resolves a post published directly on the platform by its canonical id', async () => {
+    const nativeDoc = {
+      provenance: 'platform_native',
+      platform: 'instagram',
+      externalId: 'ig_9',
+      productId: 'prod_1',
+      content: 'posted from the phone',
+      contentType: 'video',
+      permalink: 'https://instagram.com/p/9',
+      publishedAt: '2026-08-01T10:00:00.000Z',
+      metricsStatus: 'active',
+      metricsNextPollAt: '2026-08-08T10:00:00.000Z',
+      metricsUpdatedAt: '2026-08-04T10:00:00.000Z',
+      metricsByChannel: { instagram: metrics(300, 30) },
+    };
+    postGetMock
+      .mockResolvedValueOnce({ exists: false, data: () => undefined })
+      .mockResolvedValueOnce({ exists: true, data: () => nativeDoc });
+    snapshotsGetMock.mockResolvedValue({
+      docs: [
+        { data: () => ({ postId: 'native_9', stageKey: 'discovered', capturedAt: '2026-08-03T10:00:00.000Z', publishedAt: '2026-08-01T10:00:00.000Z', byChannel: { instagram: metrics(200, 20) } }) },
+      ],
+    });
+
+    const response = await call('native_9');
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.post).toEqual(expect.objectContaining({
+      id: 'native_9',
+      source: 'native',
+      channels: ['instagram'],
+      externalUrl: 'https://instagram.com/p/9',
+      metricsStatus: 'active',
+    }));
+    expect(body.post.latest).toEqual(expect.objectContaining({ source: 'native', contentType: 'video', views: 300 }));
+    expect(body.stages.map((stage: { stageKey: string }) => stage.stageKey)).toEqual(['discovered', 'latest']);
+  });
+
+  it('answers 404 for a native post in another brand', async () => {
+    postGetMock
+      .mockResolvedValueOnce({ exists: false, data: () => undefined })
+      .mockResolvedValueOnce({ exists: true, data: () => ({ provenance: 'platform_native', platform: 'instagram', externalId: 'ig_9', productId: 'prod_other', publishedAt: '2026-08-01T10:00:00.000Z' }) });
+
+    expect((await call('native_9')).status).toBe(404);
+  });
+
   it('answers 404, not 403, for a post in another brand', async () => {
     postGetMock.mockResolvedValue({ exists: true, data: () => publishedPost({ productId: 'prod_other' }) });
 

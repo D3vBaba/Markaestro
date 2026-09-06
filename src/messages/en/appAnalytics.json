@@ -115,6 +115,7 @@
     "provenance": {
       "base": "Metrics use each platform's API definitions and can lag native insights by up to 48 hours. A \"n/a\" means the platform doesn't provide that metric (for example, Threads and TikTok don't report reach). Engagement rate is engagements ÷ reach.",
       "truncated": " Post-level views are based on the {count} most recent posts in this window.",
+      "native": " {count} of these posts were published directly on the platform and discovered from the connected account.",
       "lastUpdate": " Last metrics update {date}."
     },
     "toasts": {
@@ -190,6 +191,7 @@
     },
     "empty": "No posts with metrics in this period yet. Metrics arrive about an hour after publishing.",
     "untitledPost": "Untitled Post",
+    "native": "Native",
     "sortBy": "Sort by {label}",
     "openOnPlatform": "Open on Platform",
     "byViews": "(views)"

@@ -1,6 +1,16 @@
 import { adminDb } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 import type { NormalizedPostMetrics } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
+import {
+  NATIVE_POST_ANALYTICS_FIELDS,
+  isNativePostDoc,
+  markaestroPlatformPostKeys,
+  nativePostToAnalyticsPost,
+  nativePostsQuery,
+  platformPostKey,
+  type NativeSocialPostDoc,
+} from './native-posts';
 import {
   engagementTotal,
   sumAcrossChannels,
@@ -12,6 +22,7 @@ import {
 
 import type {
   AnalyticsPostRow,
+  AnalyticsPostSource,
   AnalyticsResponse,
   AnalyticsTotals,
   PostContentType,
@@ -76,28 +87,109 @@ export type AnalyticsQueryOptions = {
   tier: string;
   channel?: SocialChannel;
   productId?: string;
+  /**
+   * Only posts from one source. Without it both sources are read together,
+   * which is the whole account: Markaestro posts plus the ones published
+   * directly on the platform.
+   */
+  source?: AnalyticsPostSource;
   /** Viewer timezone offset in minutes east of UTC (JS -getTimezoneOffset()). */
   tzOffsetMinutes?: number;
 };
 
-type PostDocData = {
+/**
+ * The post fields a row is built from. Markaestro `posts` documents carry
+ * these directly; a native post is mapped into the same shape by
+ * `nativePostToAnalyticsPost`, which is why `source` and the content-type
+ * hint exist.
+ */
+export type AnalyticsPostDoc = {
+  source?: AnalyticsPostSource;
   content?: string;
   channel?: string;
   testMode?: boolean;
   publishedChannels?: string[];
   publishedAt?: string;
   externalUrl?: string;
+  externalId?: string;
+  publishResults?: Array<{ channel?: string; success?: boolean; externalId?: string }>;
   productId?: string;
   mediaUrls?: string[];
+  /** The platform's own media type, when known; wins over guessing from URLs. */
+  contentTypeHint?: PostContentType;
   metricsByChannel?: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
   metricsUpdatedAt?: string;
 };
 
+type PostDocData = AnalyticsPostDoc;
+
 function selectAnalyticsPostFields(query: FirebaseFirestore.Query): FirebaseFirestore.Query {
+  // externalId and publishResults are read only to recognise the same post
+  // on the account side, so a native discovery of a Markaestro post never
+  // counts twice.
   return query.select(
-    'content', 'channel', 'publishedChannels', 'publishedAt', 'externalUrl',
-    'productId', 'mediaUrls', 'metricsByChannel', 'metricsUpdatedAt',
+    'content', 'channel', 'publishedChannels', 'publishedAt', 'externalUrl', 'externalId',
+    'publishResults', 'productId', 'mediaUrls', 'metricsByChannel', 'metricsUpdatedAt',
   );
+}
+
+type NativeAnalyticsDoc = { id: string; data: NativeSocialPostDoc & { platform: SocialChannel; externalId: string } };
+
+/**
+ * The native posts in scope, newest first, bounded like the Markaestro
+ * fetch. A read failure (an index still deploying, a transient outage) is
+ * logged and yields no native rows rather than failing the whole page: the
+ * Markaestro half of the account is still worth showing.
+ */
+async function fetchNativeAnalyticsDocs(
+  workspaceId: string,
+  opts: { productId?: string; sinceIso: string; limit: number },
+): Promise<{ docs: NativeAnalyticsDoc[]; truncated: boolean }> {
+  try {
+    const snap = await nativePostsQuery(workspaceId, { productId: opts.productId, sinceIso: opts.sinceIso })
+      .orderBy('publishedAt', 'desc')
+      .limit(opts.limit + 1)
+      .select(...NATIVE_POST_ANALYTICS_FIELDS)
+      .get();
+    const docs: NativeAnalyticsDoc[] = [];
+    for (const doc of snap.docs.slice(0, opts.limit)) {
+      const data = doc.data() as NativeSocialPostDoc;
+      if (!isNativePostDoc(data)) continue;
+      docs.push({ id: doc.id, data: { ...data, platform: data.platform as SocialChannel } });
+    }
+    return { docs, truncated: snap.docs.length > opts.limit };
+  } catch (error) {
+    logger.warn('native posts unavailable to analytics', {
+      event: 'analytics.native_posts_unavailable',
+      workspaceId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return { docs: [], truncated: false };
+  }
+}
+
+/**
+ * Both sources as one list of analytics post documents. Sandbox posts are
+ * dropped, the source filter is applied, and a native post that is really a
+ * Markaestro post seen from the account side (same platform id) is skipped,
+ * whichever source the caller asked for, so it is never counted twice or
+ * shown under the wrong source.
+ */
+function mergePostSources(
+  markaestroDocs: Array<{ id: string; post: PostDocData }>,
+  nativeDocs: NativeAnalyticsDoc[],
+  source: AnalyticsPostSource | undefined,
+): Array<{ id: string; post: PostDocData }> {
+  const markaestro = markaestroDocs.filter(({ post }) => post.testMode !== true);
+  const merged: Array<{ id: string; post: PostDocData }> = source === 'native' ? [] : [...markaestro];
+  if (source !== 'markaestro') {
+    const claimed = markaestroPlatformPostKeys(markaestro.map(({ post }) => post));
+    for (const { id, data } of nativeDocs) {
+      if (claimed.has(platformPostKey(data.platform, data.externalId))) continue;
+      merged.push({ id, post: nativePostToAnalyticsPost(data) });
+    }
+  }
+  return merged;
 }
 
 function isVideoUrl(url: string): boolean {
@@ -199,7 +291,8 @@ export function postToRow(id: string, post: PostDocData, channelFilter?: SocialC
     publishedAt: post.publishedAt || '',
     externalUrl: post.externalUrl || null,
     productId: post.productId || null,
-    contentType: contentTypeOf(post.mediaUrls ?? []),
+    contentType: post.contentTypeHint ?? contentTypeOf(post.mediaUrls ?? []),
+    source: post.source ?? 'markaestro',
     views,
     reach,
     likes: sumAcrossChannels(byChannel, (m) => m.likes),
@@ -379,7 +472,9 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
   const untilIsoExclusive = new Date(Date.parse(`${untilDate}T00:00:00.000Z`) + 86_400_000).toISOString();
   // Product-filtered totals come from post rows (aggregates are workspace-
   // wide), so fetch back to the prior window to keep the comparison deltas.
-  const fetchSinceIso = productId ? `${priorSinceDate}T00:00:00.000Z` : sinceIso;
+  // A source filter takes the same row path: the rollups hold both sources.
+  const rowsPath = Boolean(productId) || Boolean(opts.source);
+  const fetchSinceIso = rowsPath ? `${priorSinceDate}T00:00:00.000Z` : sinceIso;
   const postsBaseQuery = adminDb
     .collection(`workspaces/${workspaceId}/posts`)
     .where('status', '==', 'published');
@@ -390,7 +485,7 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       .limit(MAX_POSTS_ANALYZED + 1),
   );
 
-  const [aggSnap, audienceSnap, postsSnap, activitySnap] = await Promise.all([
+  const [aggSnap, audienceSnap, postsSnap, activitySnap, native] = await Promise.all([
     adminDb
       .collection(`workspaces/${workspaceId}/analyticsDaily`)
       .where('date', '>=', priorSinceDate)
@@ -406,24 +501,33 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       .where('date', '>=', sinceDate)
       .where('date', '<=', untilDate)
       .get(),
+    opts.source === 'markaestro'
+      ? Promise.resolve({ docs: [] as NativeAnalyticsDoc[], truncated: false })
+      : fetchNativeAnalyticsDocs(workspaceId, { productId, sinceIso: fetchSinceIso, limit: MAX_POSTS_ANALYZED }),
   ]);
 
   // ── Posts → rows (leaderboard, heatmap, content types, insights) ──
-  const truncated = postsSnap.docs.length > MAX_POSTS_ANALYZED;
+  const truncated = postsSnap.docs.length > MAX_POSTS_ANALYZED || native.truncated;
+  // Sandbox posts never reached a platform; they must not appear in any
+  // leaderboard or total an integrator's test run touches (mergePostSources
+  // drops them).
+  const analyzed = mergePostSources(
+    postsSnap.docs.slice(0, MAX_POSTS_ANALYZED).map((doc) => ({ id: doc.id, post: doc.data() as PostDocData })),
+    native.docs,
+    opts.source,
+  );
   const rows: AnalyticsPostRow[] = [];
   const priorRows: AnalyticsPostRow[] = [];
+  const bySource: Record<AnalyticsPostSource, number> = { markaestro: 0, native: 0 };
   let lastMetricsAt: string | null = null;
-  for (const doc of postsSnap.docs.slice(0, MAX_POSTS_ANALYZED)) {
-    const post = doc.data() as PostDocData;
-    // Sandbox posts never reached a platform; they must not appear in any
-    // leaderboard or total an integrator's test run touches.
-    if (post.testMode === true) continue;
+  for (const { id, post } of analyzed) {
     if (productId && post.productId !== productId) continue;
-    const row = postToRow(doc.id, post, channel);
+    const row = postToRow(id, post, channel);
     if (channel && !row.channels.includes(channel)) continue;
     if (row.publishedAt >= untilIsoExclusive) continue;
     if (row.publishedAt >= sinceIso) {
       rows.push(row);
+      bySource[row.source]++;
     } else {
       priorRows.push(row);
     }
@@ -448,7 +552,9 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
     && currentAggs.length > 0
     && currentAggs.every((doc) => doc.byProduct !== undefined)
     && priorAggs.every((doc) => doc.byProduct !== undefined);
-  const useAggregates = !productId || productAggsUsable;
+  // The rollups hold both sources together, so a source filter is always
+  // derived from rows.
+  const useAggregates = !opts.source && (!productId || productAggsUsable);
   const totalsFromRows = (list: AnalyticsPostRow[]): AnalyticsTotals => {
     const views = list.reduce<number | null>((a, r) => (r.views === null ? a : (a ?? 0) + r.views), null);
     const reach = list.reduce<number | null>((a, r) => (r.reach === null ? a : (a ?? 0) + r.reach), null);
@@ -676,16 +782,21 @@ export async function buildAnalyticsResponse(opts: AnalyticsQueryOptions): Promi
       postsWithMetrics: rowsWithMetrics.length,
       truncated,
       lastMetricsAt,
+      bySource,
     },
   };
 }
 
-/** The per-post rows for CSV export (unbounded window already plan-clamped). */
+/** Bounded per source; the export is newest first across both. */
+const EXPORT_POSTS_LIMIT = 5000;
+
+/** The per-post rows for CSV export (unbounded window already plan-clamped), newest first. */
 export async function fetchPostRowsForExport(
   workspaceId: string,
   sinceIso: string,
   channel?: SocialChannel,
   productId?: string,
+  source?: AnalyticsPostSource,
 ): Promise<AnalyticsPostRow[]> {
   const baseQuery = adminDb
     .collection(`workspaces/${workspaceId}/posts`)
@@ -694,20 +805,30 @@ export async function fetchPostRowsForExport(
     (productId ? baseQuery.where('productId', '==', productId) : baseQuery)
       .where('publishedAt', '>=', sinceIso)
       .orderBy('publishedAt', 'desc')
-      .limit(5000),
+      .limit(EXPORT_POSTS_LIMIT),
   );
-  const snap = await query.get();
+  const [snap, native] = await Promise.all([
+    query.get(),
+    source === 'markaestro'
+      ? Promise.resolve({ docs: [] as NativeAnalyticsDoc[], truncated: false })
+      : fetchNativeAnalyticsDocs(workspaceId, { productId, sinceIso, limit: EXPORT_POSTS_LIMIT }),
+  ]);
 
+  // Sandbox posts never reached a platform; they must not appear in any
+  // leaderboard or total an integrator's test run touches (mergePostSources
+  // drops them).
+  const analyzed = mergePostSources(
+    snap.docs.map((doc) => ({ id: doc.id, post: doc.data() as PostDocData })),
+    native.docs,
+    source,
+  );
   const rows: AnalyticsPostRow[] = [];
-  for (const doc of snap.docs) {
-    const post = doc.data() as PostDocData;
-    // Sandbox posts never reached a platform; they must not appear in any
-    // leaderboard or total an integrator's test run touches.
-    if (post.testMode === true) continue;
+  for (const { id, post } of analyzed) {
     if (productId && post.productId !== productId) continue;
-    const row = postToRow(doc.id, post, channel);
+    const row = postToRow(id, post, channel);
     if (channel && !row.channels.includes(channel)) continue;
     rows.push(row);
   }
-  return rows;
+  // Each source arrived newest first; the union has to be re-ordered.
+  return rows.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.id.localeCompare(b.id));
 }

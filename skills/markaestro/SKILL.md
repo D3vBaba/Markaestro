@@ -110,12 +110,22 @@ the user can change or cancel it in Markaestro or with `delete_post`.
   heatmap, content-type averages, and `insights` (plain-language findings,
   each with its `sampleSize`). Read it before recommending what, when, or
   where to post, and quote the sample size when you repeat an insight.
-- `list_post_analytics` is one row per published post with its latest
-  metrics. `sort: "engagements"` or `"views"` finds what worked;
-  `get_post` has the full caption and media for any row.
+- `list_post_analytics` is one row per post with its latest metrics,
+  including posts published directly on the platform (`source: "native"`)
+  that the connected account was scanned for. `sort: "engagements"` or
+  `"views"` finds what worked; `get_post` has the full caption and media
+  for a Markaestro row, and `externalUrl` opens a native one. Pass
+  `source` to compare the two halves of the account.
+- To take a post down, `delete_post` with `platform: true` removes a
+  published Markaestro post from its channels, and works on a native post's
+  id directly. Confirm with the user first: a platform delete cannot be
+  undone, and without `platform` a published post only leaves Markaestro.
 - `get_post_analytics_history` shows how one post earned its numbers (the
   1h to 90d snapshots with growth between them) and whether polling is still
   `active`. A post under 24 hours old is not yet comparable to older ones.
+- `coverage.bySource` in `get_analytics` says how many analyzed posts were
+  Markaestro posts and how many were native. A native post discovered
+  today has a `discovered` snapshot only; its history fills in from there.
 - The window is clamped to the plan's history; `window.maxDays` in the
   answer says the cap (`-1` is unlimited). If the user asks for more than
   the plan keeps, say so rather than presenting the clamped window as the

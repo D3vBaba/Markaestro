@@ -4,6 +4,7 @@ import { apiError, apiOk } from '@/lib/api-response';
 import { getEffectiveSubscription, effectiveTier } from '@/lib/stripe/subscription';
 import { PLANS } from '@/lib/stripe/plans';
 import { buildAnalyticsResponse } from '@/lib/analytics/query';
+import { analyticsPostSources, type AnalyticsPostSource } from '@/lib/analytics/api-shape';
 import { socialChannels, type SocialChannel } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
@@ -13,6 +14,8 @@ const MAX_WINDOW_DAYS = 365;
 /**
  * GET /api/analytics?days=28&channel=instagram&productId=...&tz=-120
  * or ?since=2026-08-01&until=2026-08-31 for an explicit range (clamped to the plan window).
+ * `source=markaestro` or `source=native` narrows to posts published through
+ * Markaestro or directly on the platform; without it the whole account counts.
  *
  * The history window is clamped server-side to the workspace's plan
  * (Starter 7d / Pro 90d / Business unlimited) — the UI mirrors this but the
@@ -33,6 +36,10 @@ export async function GET(req: Request) {
       ? (channelParam as SocialChannel)
       : undefined;
     const productId = url.searchParams.get('productId') || undefined;
+    const sourceParam = url.searchParams.get('source') || undefined;
+    const source = sourceParam && (analyticsPostSources as readonly string[]).includes(sourceParam)
+      ? (sourceParam as AnalyticsPostSource)
+      : undefined;
     const since = url.searchParams.get('since') || undefined;
     const until = url.searchParams.get('until') || undefined;
     const tzOffsetMinutes = Math.max(-840, Math.min(840,
@@ -54,6 +61,7 @@ export async function GET(req: Request) {
       tier,
       channel,
       productId,
+      source,
       tzOffsetMinutes,
     });
 

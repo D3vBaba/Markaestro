@@ -24,6 +24,7 @@ function row(id: string, publishedAt: string, metrics: Partial<AnalyticsPostRow>
     externalUrl: null,
     productId: 'prod_1',
     contentType: 'image',
+    source: 'markaestro',
     views: null,
     reach: null,
     likes: null,
@@ -69,7 +70,7 @@ describe('GET /api/public/v1/analytics/posts', () => {
       expect.objectContaining({ scope: 'analytics.read' }),
     );
     // (workspace, sinceIso, channel, productId): the brand comes from the key, never the query.
-    expect(fetchPostRowsForExportMock).toHaveBeenCalledWith('ws_1', expect.stringMatching(/T00:00:00\.000Z$/), 'instagram', 'prod_1');
+    expect(fetchPostRowsForExportMock).toHaveBeenCalledWith('ws_1', expect.stringMatching(/T00:00:00\.000Z$/), 'instagram', 'prod_1', undefined);
     const body = await response.json();
     expect(body.sort).toBe('published_at');
     expect(body.posts.map((post: AnalyticsPostRow) => post.id)).toEqual(['c', 'b', 'a']);
@@ -100,6 +101,12 @@ describe('GET /api/public/v1/analytics/posts', () => {
     const body = await response.json();
     expect(body.posts.map((post: AnalyticsPostRow) => post.id)).toEqual(['a']);
     expect(body.window).toEqual(expect.objectContaining({ since: '2026-08-01', until: '2026-08-10', days: 10 }));
+  });
+
+  it('passes the source filter to the row fetch', async () => {
+    const response = await call('?source=native');
+    expect(response.status).toBe(200);
+    expect(fetchPostRowsForExportMock).toHaveBeenCalledWith('ws_1', expect.any(String), undefined, 'prod_1', 'native');
   });
 
   it('rejects an unknown sort key', async () => {

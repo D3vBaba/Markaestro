@@ -16,6 +16,16 @@ import { canonicalSocialPostId } from '@/lib/intelligence/canonical-social-posts
 import { assertMetricsSupported, PLATFORM_CAPABILITY_REGISTRY } from '@/lib/platform/capabilities';
 import { upsertMarkaestroSocialPost } from '@/lib/intelligence/canonical-social-posts';
 import {
+  NATIVE_DISCOVERED_STAGE,
+  isNativePostDoc,
+  markaestroPlatformPostKeys,
+  nativePostsQuery,
+  nativeStageKey,
+  platformPostKey,
+  recordNativeObservation,
+  type NativeSocialPostDoc,
+} from './native-posts';
+import {
   MAX_METRIC_POLLS_PER_TICK,
   MAX_TRANSIENT_ATTEMPTS,
   METRIC_POLL_STAGES,
@@ -81,7 +91,8 @@ export function initialPollState(publishedAtIso: string, nowMs: number): { stage
   return { stage: METRIC_POLL_STAGES.length - 1, nextAt: new Date(nowMs).toISOString() };
 }
 
-function nextPollAfter(stage: number, publishedAtIso: string, nowMs: number): { stage: number; nextAt: string } | null {
+/** The next stage still in the future after `stage` (pass -1 for "before the first"), or null when the schedule is done. */
+export function nextPollAfter(stage: number, publishedAtIso: string, nowMs: number): { stage: number; nextAt: string } | null {
   const publishedMs = Date.parse(publishedAtIso);
   for (let i = stage + 1; i < METRIC_POLL_STAGES.length; i++) {
     const at = publishedMs + METRIC_POLL_STAGES[i].offsetMs;
@@ -99,9 +110,9 @@ function nextPollAfter(stage: number, publishedAtIso: string, nowMs: number): { 
  * Book metric growth under today's activity rollup. Sandbox posts never reached
  * a platform, and a failure here must not lose the poll itself.
  */
-async function bookActivity(
+export async function bookActivity(
   workspaceId: string,
-  post: PostDocData,
+  post: Pick<PostDocData, 'testMode' | 'productId' | 'metricsByChannel'>,
   byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>>,
   nowIso: string,
   snapshotRef?: FirebaseFirestore.DocumentReference,
@@ -160,16 +171,29 @@ export async function pollDueMetrics(workspaceId: string, nowIso: string): Promi
   return summary;
 }
 
-type ChannelFetchOutcome = 'ok' | 'auth' | 'not_found' | 'unsupported' | 'transient';
+export type ChannelFetchOutcome = 'ok' | 'auth' | 'not_found' | 'unsupported' | 'transient';
+
+/** The post fields a channel metrics fetch reads; the native poller builds one from a canonical post. */
+export type ChannelMetricsPost = Pick<
+  PostDocData,
+  'productId' | 'campaignId' | 'content' | 'mediaUrls' | 'mediaAssetIds' | 'destinationId'
+  | 'destinationProvider' | 'channelDestinations' | 'channel' | 'targetChannels' | 'metricsByChannel'
+>;
 
 /**
  * Fetch the latest metrics for each published channel target of a post.
- * Shared by the scheduled poller (pollOnePost) and the on-demand refresh
- * (refreshPostsNow). Connections are resolved through the provided cache, and
- * an auth failure flags the connection's health once per (provider, product).
+ * Shared by the scheduled poller (pollOnePost), the on-demand refresh
+ * (refreshPostsNow), and the native poller. Connections are resolved through
+ * the provided cache, and an auth failure flags the connection's health once
+ * per (provider, product).
+ *
+ * `canonicalUpsert` (default on) projects each fetched channel into the
+ * canonical social post as a Markaestro post. The native poller turns it
+ * off: its post already is the canonical document, and it must keep its
+ * native provenance.
  */
-async function fetchPostChannelMetrics(
-  post: PostDocData,
+export async function fetchPostChannelMetrics(
+  post: ChannelMetricsPost,
   targets: Array<{ channel: SocialChannel; externalId: string }>,
   publishedAt: string,
   workspaceId: string,
@@ -177,6 +201,7 @@ async function fetchPostChannelMetrics(
   connectionCache: Map<string, PlatformConnection | null>,
   authFlagged: Set<string>,
   refreshAttempted: Set<string> = new Set(),
+  options: { canonicalUpsert?: boolean } = {},
 ): Promise<{
   byChannel: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
   outcomes: ChannelFetchOutcome[];
@@ -290,6 +315,10 @@ async function fetchPostChannelMetrics(
       }
       const annotated = annotateMetricAvailability(target.channel, result.metrics, connection, capturedAt);
       byChannel[target.channel] = annotated;
+      if (options.canonicalUpsert === false) {
+        outcomes.push('ok');
+        continue;
+      }
       try {
         await upsertMarkaestroSocialPost({
           workspaceId,
@@ -469,16 +498,58 @@ async function pollOnePost(
 }
 
 /**
- * On-demand, ad-hoc metrics refresh for the most recent published posts,
- * optionally filtered by product / channel. Unlike pollDueMetrics this ignores
- * the decaying poll schedule and — deliberately — does NOT advance it: it only
+ * On-demand, ad-hoc metrics refresh for the most recent posts, optionally
+ * filtered by product / channel. Unlike pollDueMetrics this ignores the
+ * decaying poll schedule and — deliberately — does NOT advance it: it only
  * refreshes the denormalized `metricsByChannel` (and writes a snapshot at the
  * post's current stage) so the Analytics page can pull live numbers when the
- * user clicks Refresh. Bounded by `limit` and run with light concurrency to
- * stay within the request/client timeout while capping platform API load.
+ * user clicks Refresh. Covers the whole account: Markaestro posts and the
+ * posts published directly on the platform that the native importer found,
+ * newest first across both. Bounded by `limit` and run with light
+ * concurrency to stay within the request/client timeout while capping
+ * platform API load.
  */
 /** Upper bound on posts one on-demand refresh may touch; the deadline usually binds first. */
 export const MAX_REFRESH_POSTS = 60;
+
+type RefreshTask =
+  | { kind: 'markaestro'; doc: FirebaseFirestore.QueryDocumentSnapshot; publishedAt: string }
+  | { kind: 'native'; doc: FirebaseFirestore.QueryDocumentSnapshot; publishedAt: string };
+
+/**
+ * The native posts a refresh may touch: in scope, newest first, and not a
+ * Markaestro post seen from the account side (those refresh through their
+ * `posts` document). A read failure (an index still deploying) leaves the
+ * refresh to the Markaestro posts and says so in the log.
+ */
+async function nativeRefreshTasks(
+  workspaceId: string,
+  opts: { productId?: string; channel?: SocialChannel; sinceIso: string; limit: number },
+  claimed: Set<string>,
+): Promise<RefreshTask[]> {
+  try {
+    const snap = await nativePostsQuery(workspaceId, { productId: opts.productId, sinceIso: opts.sinceIso })
+      .orderBy('publishedAt', 'desc')
+      .limit(opts.limit)
+      .get();
+    const tasks: RefreshTask[] = [];
+    for (const doc of snap.docs) {
+      const post = doc.data() as NativeSocialPostDoc;
+      if (!isNativePostDoc(post)) continue;
+      if (opts.channel && post.platform !== opts.channel) continue;
+      if (claimed.has(platformPostKey(post.platform, post.externalId))) continue;
+      tasks.push({ kind: 'native', doc, publishedAt: post.publishedAt || '' });
+    }
+    return tasks;
+  } catch (error) {
+    logger.warn('native posts unavailable to the refresh', {
+      event: 'analytics.native_refresh_unavailable',
+      workspaceId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return [];
+  }
+}
 
 export async function refreshPostsNow(
   workspaceId: string,
@@ -507,14 +578,100 @@ export async function refreshPostsNow(
   query = query.where('publishedAt', '>=', sinceIso).orderBy('publishedAt', 'desc').limit(limit);
 
   const snap = await query.get();
-  summary.due = snap.size;
-  if (snap.empty) return summary;
+  const markaestroTasks: RefreshTask[] = snap.docs.map((doc) => ({
+    kind: 'markaestro',
+    doc,
+    publishedAt: (doc.data() as PostDocData).publishedAt || '',
+  }));
+  const claimed = markaestroPlatformPostKeys(snap.docs.map((doc) => doc.data() as PostDocData));
+  const nativeTasks = await nativeRefreshTasks(workspaceId, { productId: opts.productId, channel: opts.channel, sinceIso, limit }, claimed);
+  // Newest first across both sources, then the same cap as before.
+  const tasks = [...markaestroTasks, ...nativeTasks]
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, limit);
+  summary.due = tasks.length;
+  if (tasks.length === 0) return summary;
 
   const connectionCache = new Map<string, PlatformConnection | null>();
   const authFlagged = new Set<string>();
   const refreshAttempted = new Set<string>();
 
-  const refreshOne = async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+  const refreshOne = async (task: RefreshTask) => (
+    task.kind === 'native' ? refreshNative(task.doc) : refreshMarkaestro(task.doc)
+  );
+
+  /**
+   * A native post refreshes the same way, through the canonical document:
+   * one channel, a snapshot at its current stage (`discovered` until the
+   * scheduled poller has run), and no change to the schedule.
+   */
+  const refreshNative = async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+    const post = doc.data() as NativeSocialPostDoc;
+    if (post.metricsStatus === 'unsupported' || post.metricsStatus === 'failed') {
+      summary.skippedDead = (summary.skippedDead ?? 0) + 1;
+      return;
+    }
+    if (!isNativePostDoc(post)) return;
+    const channel = post.platform as SocialChannel;
+    const publishedAt = post.publishedAt || post.discoveredAt || nowIso;
+    const productId = typeof post.productId === 'string' && post.productId ? post.productId : undefined;
+
+    const { byChannel, outcomes, lastError, channelFetches } = await fetchPostChannelMetrics(
+      {
+        productId,
+        content: post.content ?? undefined,
+        channel,
+        destinationId: post.accountKey,
+        destinationProvider: post.provider,
+        metricsByChannel: post.metricsByChannel,
+      },
+      [{ channel, externalId: post.externalId }],
+      publishedAt,
+      workspaceId,
+      doc.id,
+      connectionCache,
+      authFlagged,
+      refreshAttempted,
+      { canonicalUpsert: false },
+    );
+    summary.channelFetches += channelFetches;
+
+    if (!outcomes.includes('ok')) {
+      const allDead = outcomes.length > 0 && outcomes.every((o) => o === 'unsupported' || o === 'not_found');
+      if (allDead) {
+        await doc.ref.update({
+          metricsStatus: 'unsupported',
+          metricsLastError: lastError || 'Metrics not available for this post',
+          metricsNextPollAt: FieldValue.delete(),
+          metricsUpdatedAt: nowIso,
+        });
+        summary.parked = (summary.parked ?? 0) + 1;
+        return;
+      }
+      if (lastError) summary.errors.push({ postId: doc.id, error: lastError });
+      return;
+    }
+
+    const snapshotRef = await recordNativeObservation(doc.ref, {
+      channel,
+      stageKey: nativeStageKey(post.metricsPollStage ?? NATIVE_DISCOVERED_STAGE),
+      capturedAt: nowIso,
+      publishedAt: post.publishedAt ?? null,
+      byChannel,
+    });
+    await bookActivity(workspaceId, { productId, metricsByChannel: post.metricsByChannel }, byChannel, nowIso, snapshotRef);
+    await doc.ref.update({
+      metricsByChannel: byChannel,
+      latestMetrics: byChannel[channel],
+      metricsUpdatedAt: nowIso,
+      metricsLastError: lastError || FieldValue.delete(),
+    });
+    summary.polled++;
+    const date = utcDateOf(publishedAt);
+    if (!summary.affectedDates.includes(date)) summary.affectedDates.push(date);
+  };
+
+  const refreshMarkaestro = async (doc: FirebaseFirestore.QueryDocumentSnapshot) => {
     const post = doc.data() as PostDocData;
     // Posts the scheduler already parked (deleted on the platform, metrics
     // not offered, retry budget spent) are not worth another platform call,
@@ -586,26 +743,25 @@ export async function refreshPostsNow(
 
   // Light concurrency: a shared cursor consumed by a few workers. JS is
   // single-threaded, so the shared summary/cache mutations need no locking.
-  const docs = snap.docs;
   let cursor = 0;
   const REFRESH_CONCURRENCY = 5;
   const worker = async () => {
-    while (cursor < docs.length) {
+    while (cursor < tasks.length) {
       // Stop taking new posts once the budget is spent; in-flight fetches
       // finish so a half-written post never lands.
       if (Date.now() >= deadlineMs) return;
-      const doc = docs[cursor++];
+      const task = tasks[cursor++];
       try {
-        await refreshOne(doc);
+        await refreshOne(task);
       } catch (err) {
-        summary.errors.push({ postId: doc.id, error: err instanceof Error ? err.message : 'unknown' });
+        summary.errors.push({ postId: task.doc.id, error: err instanceof Error ? err.message : 'unknown' });
       }
     }
   };
   await Promise.all(
-    Array.from({ length: Math.min(REFRESH_CONCURRENCY, docs.length) }, () => worker()),
+    Array.from({ length: Math.min(REFRESH_CONCURRENCY, tasks.length) }, () => worker()),
   );
-  summary.remaining = Math.max(0, docs.length - cursor);
+  summary.remaining = Math.max(0, tasks.length - cursor);
 
   return summary;
 }

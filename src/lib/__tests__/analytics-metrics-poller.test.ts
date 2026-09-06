@@ -354,6 +354,74 @@ describe('refreshPostsNow', () => {
     expect(fetchMetrics).toHaveBeenCalledTimes(1);
   });
 
+  it('refreshes posts published directly on the platform alongside Markaestro posts, newest first, without double-counting a shared one', async () => {
+    const markaestro = makePostDoc({
+      status: 'published',
+      channel: 'facebook',
+      productId: 'prod_123',
+      publishedAt: '2026-03-12T00:00:00.000Z',
+      metricsPollStage: 1,
+      publishResults: [{ channel: 'facebook', success: true, externalId: 'fb_shared' }],
+    });
+    const nativeOnly = makePostDoc({
+      provenance: 'platform_native',
+      platform: 'facebook',
+      provider: 'meta',
+      accountKey: 'page_1',
+      externalId: 'fb_native',
+      productId: 'prod_123',
+      publishedAt: '2026-03-13T00:00:00.000Z',
+      metricsStatus: 'active',
+      metricsPollStage: -1,
+      metricsNextPollAt: '2026-03-13T00:00:00.000Z',
+    });
+    nativeOnly.doc.id = 'native_only';
+    const nativeDup = makePostDoc({
+      provenance: 'platform_native',
+      platform: 'facebook',
+      provider: 'meta',
+      accountKey: 'page_1',
+      externalId: 'fb_shared',
+      productId: 'prod_123',
+      publishedAt: '2026-03-12T00:00:00.000Z',
+    });
+    nativeDup.doc.id = 'native_dup';
+    collectionMock.mockImplementation((path: string) => (
+      path.endsWith('/socialPosts') ? makeQuery([nativeOnly.doc, nativeDup.doc]) : makeQuery([markaestro.doc])
+    ));
+    const fetchMetrics = vi.fn(async (_connection: unknown, input: { externalId: string }) => ({
+      ok: true,
+      metrics: makeMetrics({ views: input.externalId === 'fb_native' ? 700 : 70 }),
+    }));
+    getAdapterForChannelMock.mockReturnValue({ fetchMetrics });
+
+    const { refreshPostsNow } = await import('../analytics/metrics-poller');
+    const summary = await refreshPostsNow('ws_123', '2026-03-15T12:00:00.000Z', { productId: 'prod_123' });
+
+    expect(summary.due).toBe(2);
+    expect(summary.polled).toBe(2);
+    expect(fetchMetrics).toHaveBeenCalledTimes(2);
+    // The native post refreshes through the account it was discovered on...
+    expect(getConnectionForChannelMock).toHaveBeenCalledWith('ws_123', 'facebook', 'prod_123', 'meta', 'page_1');
+    // ...writes its snapshot at its current stage with the single-platform metrics...
+    expect(nativeOnly.snapshotSet).toHaveBeenCalledWith(expect.objectContaining({
+      stageKey: 'discovered',
+      byChannel: { facebook: expect.objectContaining({ views: 700 }) },
+      metrics: expect.objectContaining({ views: 700 }),
+    }));
+    // ...and refreshes the denormalized fields only; the schedule is left to the poller.
+    const nativeUpdate = nativeOnly.ref.update.mock.calls[0][0] as Record<string, unknown>;
+    expect(nativeUpdate).toMatchObject({
+      metricsByChannel: { facebook: expect.objectContaining({ views: 700 }) },
+      latestMetrics: expect.objectContaining({ views: 700 }),
+    });
+    expect(nativeUpdate).not.toHaveProperty('metricsNextPollAt');
+    expect(nativeUpdate).not.toHaveProperty('metricsPollStage');
+    // The Markaestro post seen from the account side refreshes once, through its own record.
+    expect(nativeDup.ref.update).not.toHaveBeenCalled();
+    expect(markaestro.snapshotSet).toHaveBeenCalledWith(expect.objectContaining({ stageKey: '6h' }));
+  });
+
   it('only fetches the requested channel when a channel filter is supplied', async () => {
     const post = makePostDoc({
       productId: 'prod_123',

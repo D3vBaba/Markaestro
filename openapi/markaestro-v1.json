@@ -331,7 +331,7 @@
           "Posts"
         ],
         "summary": "Delete a post",
-        "description": "Refused while a publish run holds the post, so a live post can never end up with no record.",
+        "description": "Removes the post from Markaestro. With `platform=true` a published post is first taken down from every channel it went to (needs the `posts.publish` scope), and the record goes only once every live copy is gone. An id from analytics that names a post published directly on the platform (`source: native`) is always taken down from the platform, since that is all there is to delete. Refused while a publish run holds the post, so a live post can never end up with no record.",
         "operationId": "deletePost",
         "parameters": [
           {
@@ -341,15 +341,25 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Also take a published Markaestro post down from its platforms. Ignored for drafts and scheduled posts; implied for a native post."
           }
         ],
         "responses": {
           "200": {
-            "description": "Deleted.",
+            "description": "Deleted. `platform.channels` lists the channels the live copy was removed from, or `platform` is false.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Post"
+                  "$ref": "#/components/schemas/PostDeleted"
                 }
               }
             }
@@ -384,8 +394,38 @@
               }
             }
           },
+          "404": {
+            "description": "No such post in this key’s brand, or the platform no longer has it (`PLATFORM_POST_NOT_FOUND`).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The channel’s connection rejected the token (`CONNECTION_AUTH_ERROR`); reconnect the account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate limited. `Retry-After` says how long to wait.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The platform failed the delete (`PLATFORM_ERROR`); the record is kept so the call can be retried.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2091,6 +2131,19 @@
             "description": "Restrict every number to one channel."
           },
           {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "markaestro",
+                "native"
+              ]
+            },
+            "description": "Restrict to posts published through Markaestro (markaestro) or directly on the platform and discovered from the connected account (native). Without it the whole account counts."
+          },
+          {
             "name": "tz",
             "in": "query",
             "required": false,
@@ -2215,6 +2268,19 @@
               ]
             },
             "description": "Restrict every number to one channel."
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "markaestro",
+                "native"
+              ]
+            },
+            "description": "Restrict to posts published through Markaestro (markaestro) or directly on the platform and discovered from the connected account (native). Without it the whole account counts."
           },
           {
             "name": "limit",
@@ -3470,6 +3536,59 @@
           "slideshowCoverIndex",
           "createdAt",
           "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "PostDeleted": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "const": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "markaestro",
+              "native"
+            ],
+            "description": "markaestro for a Markaestro post; native for a post published directly on the platform, which is always taken down from it."
+          },
+          "platform": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "channels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The channels the live copy was removed from."
+                  }
+                },
+                "required": [
+                  "channels"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "boolean",
+                "const": false
+              }
+            ],
+            "description": "What happened on the platforms: the channels the post was taken down from, or false when only the Markaestro record went."
+          }
+        },
+        "required": [
+          "deleted",
+          "id",
+          "source",
+          "platform"
         ],
         "additionalProperties": false
       },
@@ -5977,6 +6096,14 @@
                         "text"
                       ]
                     },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "markaestro",
+                        "native"
+                      ],
+                      "description": "markaestro when the post went out through Markaestro (or was marked as posted by hand); native when it was published directly on the platform and discovered from the connected account."
+                    },
                     "views": {
                       "anyOf": [
                         {
@@ -6096,6 +6223,7 @@
                     "externalUrl",
                     "productId",
                     "contentType",
+                    "source",
                     "views",
                     "reach",
                     "likes",
@@ -6257,13 +6385,35 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "bySource": {
+                    "type": "object",
+                    "properties": {
+                      "markaestro": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "native": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "markaestro",
+                      "native"
+                    ],
+                    "additionalProperties": false,
+                    "description": "How many of the analyzed posts came from each source."
                   }
                 },
                 "required": [
                   "postsAnalyzed",
                   "postsWithMetrics",
                   "truncated",
-                  "lastMetricsAt"
+                  "lastMetricsAt",
+                  "bySource"
                 ],
                 "additionalProperties": false
               }
@@ -6405,6 +6555,14 @@
                     "text"
                   ]
                 },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "markaestro",
+                    "native"
+                  ],
+                  "description": "markaestro when the post went out through Markaestro (or was marked as posted by hand); native when it was published directly on the platform and discovered from the connected account."
+                },
                 "views": {
                   "anyOf": [
                     {
@@ -6524,6 +6682,7 @@
                 "externalUrl",
                 "productId",
                 "contentType",
+                "source",
                 "views",
                 "reach",
                 "likes",
@@ -6596,6 +6755,14 @@
                     "type": "null"
                   }
                 ]
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "markaestro",
+                  "native"
+                ],
+                "description": "markaestro for a post that went out through Markaestro; native for one published directly on the platform."
               },
               "metricsStatus": {
                 "anyOf": [
@@ -6696,6 +6863,14 @@
                       "carousel",
                       "text"
                     ]
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "markaestro",
+                      "native"
+                    ],
+                    "description": "markaestro when the post went out through Markaestro (or was marked as posted by hand); native when it was published directly on the platform and discovered from the connected account."
                   },
                   "views": {
                     "anyOf": [
@@ -6816,6 +6991,7 @@
                   "externalUrl",
                   "productId",
                   "contentType",
+                  "source",
                   "views",
                   "reach",
                   "likes",
@@ -6837,6 +7013,7 @@
               "publishedAt",
               "channels",
               "externalUrl",
+              "source",
               "metricsStatus",
               "nextPollAt",
               "latest"

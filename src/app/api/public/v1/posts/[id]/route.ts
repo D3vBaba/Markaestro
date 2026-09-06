@@ -1,11 +1,10 @@
 import { requirePublicApiContext } from '@/lib/public-api/auth';
 import {
-  assertPublicPostDeletable,
   assertPublicPostInBrandScope,
-  deletePublicPost,
   getPublicPost,
   serializePublicPost,
 } from '@/lib/public-api/posts';
+import { deletePublicPostById, parsePlatformFlag } from '@/lib/public-api/post-delete';
 import { publicApiError } from '@/lib/public-api/response';
 import {
   createRequestHash,
@@ -34,24 +33,30 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
 }
 
-// Deleting removes the scheduled post from Markaestro. It does not retract
-// anything already live on a platform — delete a published post and the
-// platform copy stays up.
+/**
+ * Deleting removes the post from Markaestro. With `?platform=true` a
+ * published post is also taken down from every channel it went to, and a
+ * post published directly on the platform (an analytics id with
+ * `source: native`) is always taken down, since that is all there is to
+ * delete. See `@/lib/public-api/post-delete`.
+ */
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requirePublicApiContext(req, {
       // Reuses the existing posts.write scope so keys issued before delete
-      // existed can call it without being reissued.
+      // existed can call it without being reissued. Taking a live post down
+      // additionally needs posts.publish; the delete helper checks.
       scope: 'posts.write',
       rateLimit: POSTS_RATE_LIMIT,
     });
     const { id } = await params;
+    const platform = parsePlatformFlag(new URL(req.url).searchParams.get('platform'));
 
     // A delete raced by its own retry answers NOT_FOUND on the second try,
     // which reads as a failure to a client that cannot tell "already gone"
     // from "never existed". With a key, the retry replays the original 200.
     const idempotencyKey = getIdempotencyKey(req);
-    const requestHash = idempotencyKey ? createRequestHash(`DELETE:posts:${id}`) : null;
+    const requestHash = idempotencyKey ? createRequestHash(`DELETE:posts:${id}:${platform ? 'platform' : 'record'}`) : null;
     if (idempotencyKey && requestHash) {
       const replay = await loadIdempotentResponse(ctx.workspaceId, idempotencyKey, requestHash);
       if (replay) {
@@ -60,13 +65,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       }
     }
 
-    const post = await getPublicPost(ctx.workspaceId, id);
-    assertPublicPostInBrandScope(post, ctx.productId ?? undefined);
-    assertPublicPostDeletable(post);
+    const responseBody = await deletePublicPostById(ctx, id, { platform });
 
-    await deletePublicPost(ctx.workspaceId, id);
-
-    const responseBody = { deleted: true, id };
     if (idempotencyKey && requestHash) {
       await persistIdempotentResponse(ctx.workspaceId, idempotencyKey, requestHash, 200, responseBody);
     }

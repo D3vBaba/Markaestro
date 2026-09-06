@@ -10,14 +10,11 @@
  * posts outside the key's brand.
  */
 
-import { adminDb } from '@/lib/firebase-admin';
 import { PLANS, type PlanTier } from '@/lib/stripe/plans';
 import { buildAnalyticsResponse, fetchPostRowsForExport, postToRow, resolveWindow } from '@/lib/analytics/query';
-import { buildPostHistory } from '@/lib/analytics/history';
-import { utcDateOf, type MetricSnapshotDoc } from '@/lib/analytics/types';
+import { loadPostHistoryRecord } from '@/lib/analytics/post-history';
+import { utcDateOf } from '@/lib/analytics/types';
 import type { AnalyticsPostRow, AnalyticsResponse } from '@/lib/analytics/api-shape';
-import type { NormalizedPostMetrics } from '@/lib/platform/types';
-import type { SocialChannel } from '@/lib/schemas';
 import type { PublicApiContext } from './auth';
 import type { AnalyticsPostSortKey, AnalyticsPostsQuery, AnalyticsWindowQuery } from './analytics-schemas';
 
@@ -70,6 +67,7 @@ export async function loadPublicAnalyticsOverview(
     maxDays,
     tier: principal.planTier,
     channel: query.channel,
+    source: query.source,
     // A brand-bound key sees only its brand; an all-brands (sitewide) key sees
     // the whole workspace, aggregated across every brand. Passing undefined is
     // what the aggregate layer reads as workspace-wide.
@@ -135,6 +133,7 @@ export async function loadPublicAnalyticsPosts(
     `${window.sinceDate}T00:00:00.000Z`,
     query.channel,
     principal.productId ?? undefined,
+    query.source,
   );
   // A custom range can end before today; the fetch is bounded by `since`
   // only, so drop what published after the window.
@@ -150,62 +149,38 @@ export async function loadPublicAnalyticsPosts(
   };
 }
 
-type HistoryPostDoc = {
-  status?: string;
-  productId?: string;
-  testMode?: boolean;
-  content?: string;
-  publishedAt?: string;
-  channel?: string;
-  publishedChannels?: string[];
-  externalUrl?: string;
-  mediaUrls?: string[];
-  metricsUpdatedAt?: string;
-  metricsByChannel?: Partial<Record<SocialChannel, NormalizedPostMetrics>>;
-  metricsStatus?: string;
-  metricsNextPollAt?: string;
-};
-
+/**
+ * The history of one post by id, whichever collection holds it: a Markaestro
+ * post or one published directly on the platform (the leaderboard and the
+ * list hand out both kinds of id).
+ */
 export async function loadPublicPostHistory(principal: AnalyticsPrincipal, id: string) {
-  if (!/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new Error('NOT_FOUND');
-  const postRef = adminDb.doc(`workspaces/${principal.workspaceId}/posts/${id}`);
-  const [postSnap, snapshots] = await Promise.all([
-    postRef.get(),
-    postRef.collection('metrics').orderBy('capturedAt', 'asc').limit(50).get(),
-  ]);
-  if (!postSnap.exists) throw new Error('NOT_FOUND');
-  const post = postSnap.data() as HistoryPostDoc;
+  const record = await loadPostHistoryRecord(principal.workspaceId, id);
   // 404 rather than 403 outside the key's brand, so a key cannot probe for
   // ids it does not own (the same rule the posts routes follow). An all-brands
   // key (no bound brand) may read any published post in the workspace.
   // Unpublished posts have no history, and sandbox posts never earned any.
   if (
-    (principal.productId && post.productId !== principal.productId) ||
-    post.status !== 'published' ||
-    post.testMode === true
+    !record ||
+    (principal.productId && record.productId !== principal.productId) ||
+    record.status !== 'published' ||
+    record.testMode
   ) {
     throw new Error('NOT_FOUND');
   }
 
-  const stages = buildPostHistory({
-    publishedAt: post.publishedAt ?? null,
-    snapshots: snapshots.docs.map((doc) => doc.data() as MetricSnapshotDoc),
-    latest: post.metricsUpdatedAt && post.metricsByChannel
-      ? { capturedAt: post.metricsUpdatedAt, byChannel: post.metricsByChannel }
-      : null,
-  });
-
   return {
     post: {
       id,
-      content: (post.content || '').slice(0, 160),
-      publishedAt: post.publishedAt ?? null,
-      channels: (post.publishedChannels?.length ? post.publishedChannels : [post.channel]).filter((c): c is string => Boolean(c)),
-      externalUrl: post.externalUrl ?? null,
-      metricsStatus: post.metricsStatus ?? null,
-      nextPollAt: post.metricsNextPollAt ?? null,
-      latest: postToRow(id, post),
+      content: (record.post.content || '').slice(0, 160),
+      publishedAt: record.post.publishedAt ?? null,
+      channels: record.channels,
+      externalUrl: record.post.externalUrl ?? null,
+      source: record.source,
+      metricsStatus: record.metricsStatus,
+      nextPollAt: record.nextPollAt,
+      latest: postToRow(id, record.post),
     },
-    stages,
+    stages: record.stages,
   };
 }

@@ -115,6 +115,7 @@
     "provenance": {
       "base": "Statistieken volgen de API-definities van elk platform en kunnen tot 48 uur achterlopen op de eigen inzichten van het platform. Een \"n/a\" betekent dat het platform die statistiek niet levert (Threads en TikTok rapporteren bijvoorbeeld geen bereik). Betrokkenheidspercentage is betrokkenheid ÷ bereik.",
       "truncated": " Weergaven per bericht zijn gebaseerd op de {count} meest recente berichten in deze periode.",
+      "native": " {count} van deze berichten zijn rechtstreeks op het platform geplaatst en via het gekoppelde account gevonden.",
       "lastUpdate": " Laatste update van statistieken: {date}."
     },
     "toasts": {
@@ -190,6 +191,7 @@
     },
     "empty": "Nog geen berichten met statistieken in deze periode. Statistieken komen ongeveer een uur na publicatie binnen.",
     "untitledPost": "Bericht zonder titel",
+    "native": "Native",
     "sortBy": "Sorteren op {label}",
     "openOnPlatform": "Openen op platform",
     "byViews": "(weergaven)"

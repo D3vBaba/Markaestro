@@ -438,6 +438,38 @@ async function runChecks() {
       .limit(1)
       .get(),
   );
+  await check('socialPosts.where(provenance).where(publishedAt >=).orderBy(publishedAt desc) [native analytics]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`)
+      .where('provenance', '==', 'platform_native')
+      .where('publishedAt', '>=', '2026-01-01T00:00:00.000Z')
+      .orderBy('publishedAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('socialPosts.where(provenance).where(productId).where(publishedAt >=).orderBy(publishedAt desc) [native analytics, brand]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`)
+      .where('provenance', '==', 'platform_native')
+      .where('productId', '==', 'sentinel')
+      .where('publishedAt', '>=', '2026-01-01T00:00:00.000Z')
+      .orderBy('publishedAt', 'desc')
+      .limit(1)
+      .get(),
+  );
+  await check('socialPosts.where(provenance).where(publishedAt >=).where(publishedAt <) [native daily rollup]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`)
+      .where('provenance', '==', 'platform_native')
+      .where('publishedAt', '>=', '2026-01-01T00:00:00.000Z')
+      .where('publishedAt', '<', '2026-01-02T00:00:00.000Z')
+      .limit(1)
+      .get(),
+  );
+  await check('socialPosts.where(metricsNextPollAt <=).orderBy(metricsNextPollAt) [native metrics poller]', (db) =>
+    db.collection(`workspaces/${WS}/socialPosts`)
+      .where('metricsNextPollAt', '<=', new Date().toISOString())
+      .orderBy('metricsNextPollAt', 'asc')
+      .limit(1)
+      .get(),
+  );
   await check('socialPosts.where(publishedAt >=).orderBy(publishedAt desc) [fingerprint backfill, recent]', (db) =>
     db.collection(`workspaces/${WS}/socialPosts`)
       .where('publishedAt', '>=', '2026-01-01T00:00:00.000Z')

@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { adminDb } from '@/lib/firebase-admin';
 import { attachPostThumbnails } from '@/lib/media/post-thumbnails';
+import { initialNativePollState } from '@/lib/analytics/native-posts';
 import type { SocialChannel } from '@/lib/schemas';
 import type { NormalizedPostMetrics, PlatformConnection, PlatformPostSummary } from '@/lib/platform/types';
 
@@ -141,13 +142,21 @@ export async function upsertNativeSocialPost(input: {
   const id = canonicalSocialPostId(input.post.channel, key, input.post.externalId);
   const ref = adminDb.doc(`workspaces/${input.workspaceId}/socialPosts/${id}`);
   const existing = await ref.get();
-  await ref.set(nativeSocialPostFields({
-    existing: existing.exists ? existing.data() : undefined,
+  const existingData = existing.exists ? existing.data() : undefined;
+  const fields = nativeSocialPostFields({
+    existing: existingData,
     workspaceId: input.workspaceId,
     productId: input.productId,
     connection: input.connection,
     post: input.post,
     discoveredAt: input.discoveredAt,
-  }), { merge: true });
+  });
+  // A newly discovered native post is due for metrics at once (the native
+  // poller in `@/lib/analytics`); one that already has a schedule keeps it,
+  // and a Markaestro post is polled from its `posts` document instead.
+  const schedule = fields.provenance === 'platform_native' && !existingData?.metricsStatus
+    ? initialNativePollState(input.discoveredAt)
+    : {};
+  await ref.set({ ...fields, ...schedule }, { merge: true });
   return id;
 }

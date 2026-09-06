@@ -8,6 +8,7 @@
 
 import { z } from 'zod';
 import { socialChannels } from '@/lib/schemas';
+import { analyticsPostSources } from '@/lib/analytics/api-shape';
 
 export const ANALYTICS_MAX_WINDOW_DAYS = 365;
 
@@ -27,6 +28,8 @@ export const analyticsWindowQuerySchema = z.object({
     .describe('Explicit range end as a UTC date, inclusive. Ends today when it names a future date.'),
   channel: z.enum(socialChannels).optional()
     .describe('Restrict every number to one channel.'),
+  source: z.enum(analyticsPostSources).optional()
+    .describe('Restrict to posts published through Markaestro (markaestro) or directly on the platform and discovered from the connected account (native). Without it the whole account counts.'),
   tz: z.coerce.number().int().min(-840).max(840).default(0)
     .describe('Viewer timezone offset in minutes east of UTC. Shapes the posting-time heatmap only.'),
 });
@@ -57,6 +60,8 @@ export const publicAnalyticsPostRowSchema = z.object({
   externalUrl: z.string().nullable().describe('The live post, when the platform reported one.'),
   productId: z.string().nullable(),
   contentType: z.enum(['image', 'video', 'carousel', 'text']),
+  source: z.enum(analyticsPostSources)
+    .describe('markaestro when the post went out through Markaestro (or was marked as posted by hand); native when it was published directly on the platform and discovered from the connected account.'),
   views: metric,
   reach: metric,
   likes: metric,
@@ -151,6 +156,10 @@ export const publicAnalyticsOverviewSchema = z.object({
     postsWithMetrics: count,
     truncated: z.boolean().describe('True when the window held more posts than the analysis cap (500).'),
     lastMetricsAt: z.string().nullable(),
+    bySource: z.object({
+      markaestro: count,
+      native: count,
+    }).describe('How many of the analyzed posts came from each source.'),
   }),
 });
 
@@ -211,6 +220,8 @@ export const publicAnalyticsPostHistorySchema = z.object({
     publishedAt: z.string().nullable(),
     channels: z.array(z.string()),
     externalUrl: z.string().nullable(),
+    source: z.enum(analyticsPostSources)
+      .describe('markaestro for a post that went out through Markaestro; native for one published directly on the platform.'),
     metricsStatus: z.enum(['active', 'complete', 'unsupported', 'failed']).or(z.string()).nullable()
       .describe('active: still being polled. complete: the 90-day schedule finished and the numbers are frozen. unsupported: the platform reports no metrics for this post.'),
     nextPollAt: z.string().nullable(),

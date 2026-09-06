@@ -13,6 +13,36 @@ file in the same change, not afterwards.
 
 ---
 
+## 2026-09-06
+
+### Analytics cover the whole account, not only Markaestro posts
+
+Additive. Posts published directly on a platform are now discovered from
+each connected account (Facebook, Instagram, Threads, TikTok, LinkedIn,
+Pinterest, X) and polled for metrics on the same 1h to 90d schedule, so
+`GET /api/public/v1/analytics` and `/analytics/posts` describe the account
+rather than the half of it that went through Markaestro. Every post row
+carries `source` (`markaestro` or `native`), the overview's `coverage`
+gains `bySource`, and both endpoints accept `source=` to narrow to one
+half. `/analytics/posts/:id/history` resolves either kind of id and says
+which in `post.source`; a native post's first snapshot is `discovered`.
+The MCP tools `get_analytics` and `list_post_analytics` take the same
+`source` input. The in-app Refresh on the Analytics page pulls live numbers
+for both kinds of post.
+
+### Delete takes a post down, and works on native posts
+
+Additive. `DELETE /api/public/v1/posts/:id` accepts `?platform=true` to
+take a published post down from every channel it went to before removing
+the record (needs `posts.publish`; the record is kept when a channel
+fails, and the error says which channel and what already went). The same
+endpoint now accepts the id of a post published directly on the platform,
+as handed out by the analytics endpoints with `source: native`, and takes
+it down. The response gains `source` and `platform`. The MCP tool
+`delete_post` takes the matching `platform` input.
+
+---
+
 ## 2026-09-05
 
 ### All-brands (sitewide) API keys and OAuth grants

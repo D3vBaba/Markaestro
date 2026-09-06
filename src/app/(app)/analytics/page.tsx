@@ -495,6 +495,7 @@ export default function AnalyticsPage() {
             <p className="m-0 text-xs leading-5 text-muted-foreground">
               {t("provenance.base")}
               {data.coverage.truncated && t("provenance.truncated", { count: data.coverage.postsAnalyzed })}
+              {data.coverage.bySource.native > 0 && t("provenance.native", { count: data.coverage.bySource.native })}
               {data.coverage.lastMetricsAt && t("provenance.lastUpdate", { date: new Date(data.coverage.lastMetricsAt).toLocaleString(locale) })}
             </p>
           )}

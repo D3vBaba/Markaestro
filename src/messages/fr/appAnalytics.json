@@ -115,6 +115,7 @@
     "provenance": {
       "base": "Les métriques utilisent les définitions de l'API de chaque plateforme et peuvent accuser jusqu'à 48 heures de retard par rapport aux statistiques natives. Un « : » signifie que la plateforme ne fournit pas cette métrique (par exemple, Threads et TikTok ne communiquent pas la portée). Le taux d'engagement correspond à l'engagement ÷ la portée.",
       "truncated": " Les vues par post se basent sur les {count} posts les plus récents de cette période.",
+      "native": " {count} de ces publications ont été publiées directement sur la plateforme et détectées via le compte connecté.",
       "lastUpdate": " Dernière mise à jour des métriques : {date}."
     },
     "toasts": {
@@ -190,6 +191,7 @@
     },
     "empty": "Aucun post avec des métriques pour cette période pour l'instant. Les métriques arrivent environ une heure après la publication.",
     "untitledPost": "Post sans titre",
+    "native": "Natif",
     "sortBy": "Trier par {label}",
     "openOnPlatform": "Ouvrir sur la plateforme",
     "byViews": "(vues)"

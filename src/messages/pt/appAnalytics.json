@@ -115,6 +115,7 @@
     "provenance": {
       "base": "As métricas seguem as definições de API de cada plataforma e podem ficar até 48 horas atrás das estatísticas nativas. Um \"n/a\" significa que a plataforma não fornece essa métrica (por exemplo, Threads e TikTok não informam alcance). A taxa de engajamento é engajamento ÷ alcance.",
       "truncated": " As visualizações por postagem se baseiam nas {count} postagens mais recentes deste período.",
+      "native": " {count} destas publicações foram publicadas diretamente na plataforma e detectadas pela conta conectada.",
       "lastUpdate": " Última atualização das métricas: {date}."
     },
     "toasts": {
@@ -190,6 +191,7 @@
     },
     "empty": "Ainda não há postagens com métricas neste período. As métricas chegam cerca de uma hora após a publicação.",
     "untitledPost": "Postagem sem título",
+    "native": "Nativo",
     "sortBy": "Ordenar por {label}",
     "openOnPlatform": "Abrir na plataforma",
     "byViews": "(visual.)"

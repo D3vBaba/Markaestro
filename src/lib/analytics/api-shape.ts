@@ -6,6 +6,14 @@ import type { SocialChannel } from '@/lib/schemas';
 
 export type PostContentType = 'image' | 'video' | 'carousel' | 'text';
 
+/**
+ * Where a post came from. `markaestro` posts went out through Markaestro (or
+ * were marked as posted by hand); `native` posts were published directly on
+ * the platform and discovered from the connected account.
+ */
+export type AnalyticsPostSource = 'markaestro' | 'native';
+export const analyticsPostSources = ['markaestro', 'native'] as const satisfies readonly AnalyticsPostSource[];
+
 export type AnalyticsPostRow = {
   id: string;
   content: string;
@@ -14,6 +22,7 @@ export type AnalyticsPostRow = {
   externalUrl: string | null;
   productId: string | null;
   contentType: PostContentType;
+  source: AnalyticsPostSource;
   views: number | null;
   reach: number | null;
   likes: number | null;
@@ -105,5 +114,7 @@ export type AnalyticsResponse = {
     postsWithMetrics: number;
     truncated: boolean;
     lastMetricsAt: string | null;
+    /** How many of the analyzed posts came from each source. */
+    bySource: Record<AnalyticsPostSource, number>;
   };
 };

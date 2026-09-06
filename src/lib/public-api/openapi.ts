@@ -29,6 +29,7 @@ import {
   publicMediaListResponseSchema,
   publicPostListResponseSchema,
   publicPostResponseSchema,
+  publicPostDeletedSchema,
 } from './response-schemas';
 import { listErrorCodes } from '@/lib/error-codes';
 import {
@@ -349,10 +350,26 @@ export function buildOpenApiDocument(): JsonObject {
         delete: {
           tags: ['Posts'],
           summary: 'Delete a post',
-          description: 'Refused while a publish run holds the post, so a live post can never end up with no record.',
+          description:
+            'Removes the post from Markaestro. With `platform=true` a published post is first taken down from every channel it went to (needs the `posts.publish` scope), and the record goes only once every live copy is gone. An id from analytics that names a post published directly on the platform (`source: native`) is always taken down from the platform, since that is all there is to delete. Refused while a publish run holds the post, so a live post can never end up with no record.',
           operationId: 'deletePost',
-          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
-          responses: { '200': okResponse('Deleted.', 'Post'), ...COMMON_ERRORS },
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            {
+              name: 'platform',
+              in: 'query',
+              required: false,
+              schema: { type: 'boolean', default: false },
+              description: 'Also take a published Markaestro post down from its platforms. Ignored for drafts and scheduled posts; implied for a native post.',
+            },
+          ],
+          responses: {
+            '200': okResponse('Deleted. `platform.channels` lists the channels the live copy was removed from, or `platform` is false.', 'PostDeleted'),
+            '404': errorResponse('No such post in this key’s brand, or the platform no longer has it (`PLATFORM_POST_NOT_FOUND`).'),
+            '409': errorResponse('The channel’s connection rejected the token (`CONNECTION_AUTH_ERROR`); reconnect the account.'),
+            '502': errorResponse('The platform failed the delete (`PLATFORM_ERROR`); the record is kept so the call can be retried.'),
+            ...COMMON_ERRORS,
+          },
         },
       },
       '/api/public/v1/posts/{id}/publish': {
@@ -628,6 +645,7 @@ export function buildOpenApiDocument(): JsonObject {
         BulkPostOperation: jsonSchema(bulkPostOperationSchema, 'input'),
         ListPostsQuery: jsonSchema(listPublicPostsSchema, 'input'),
         Post: jsonSchema(publicPostResponseSchema, 'output'),
+        PostDeleted: jsonSchema(publicPostDeletedSchema, 'output'),
         PostList: jsonSchema(publicPostListResponseSchema, 'output'),
         MediaAsset: jsonSchema(publicMediaAssetResponseSchema, 'output'),
         MediaList: jsonSchema(publicMediaListResponseSchema, 'output'),

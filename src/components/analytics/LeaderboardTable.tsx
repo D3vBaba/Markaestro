@@ -102,6 +102,11 @@ export function LeaderboardTable({ rows }: { rows: AnalyticsPostRow[] }) {
                         {row.channels.map((ch) => <Channel key={ch} channel={ch} size={15} />)}
                       </div>
                       <span className="line-clamp-2 min-w-0 text-foreground">{row.content || t("untitledPost")}</span>
+                      {row.source === "native" && (
+                        <span className="mt-0.5 shrink-0 rounded-md border border-mk-rule-soft px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                          {t("native")}
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className={`px-2 text-end ${FIGURE}`}>{cell(row.views, locale)}</td>

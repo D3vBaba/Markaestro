@@ -94,6 +94,16 @@ describe('GET /api/public/v1/analytics', () => {
     }));
   });
 
+  it('passes the source filter through and rejects an unknown one', async () => {
+    requirePublicApiContextMock.mockResolvedValue(context('business'));
+    expect((await call('?source=native')).status).toBe(200);
+    expect(buildAnalyticsResponseMock).toHaveBeenCalledWith(expect.objectContaining({ source: 'native' }));
+
+    buildAnalyticsResponseMock.mockClear();
+    expect((await call('?source=imported')).status).toBe(400);
+    expect(buildAnalyticsResponseMock).not.toHaveBeenCalled();
+  });
+
   it('rejects an unknown channel before reading anything', async () => {
     const response = await call('?channel=myspace');
 

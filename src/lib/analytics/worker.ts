@@ -9,6 +9,7 @@ import {
   pollDueMetrics,
   retryDeadMetricsPosts,
 } from './metrics-poller';
+import { pollDueNativePosts } from './native-metrics-poller';
 import { ANALYTICS_META_PATH, utcDateOf, type AnalyticsMetaDoc } from './types';
 import { importRecentNativePosts, type NativeImportResult } from '@/lib/intelligence/native-import';
 import { loadProductIntelligence, loadAudienceSnapshots } from '@/lib/intelligence/product-state';
@@ -34,6 +35,8 @@ export type AnalyticsTickResult = {
   backfilled?: number;
   swept?: number;
   polled: number;
+  /** Platform-native posts whose metrics were fetched this tick. */
+  nativePolled?: number;
   aggregatedDates: number;
   audienceCaptured?: number;
   deadRetried?: number;
@@ -48,9 +51,10 @@ export type AnalyticsTickResult = {
  * Per-workspace analytics step of the worker tick:
  *  1. one-time 90-day backfill of poll state for already-published posts
  *  2. recurring sweep initializing poll state on freshly published posts
- *  3. fetch metrics for due posts (decaying schedule)
- *  4. recompute daily rollups for dates whose posts got new metrics
- *  5. once per UTC day, snapshot follower counts per connected account
+ *  3. discover posts published directly on the connected accounts
+ *  4. fetch metrics for due posts, Markaestro and native (decaying schedule)
+ *  5. recompute daily rollups for dates whose posts got new metrics
+ *  6. once per UTC day, snapshot follower counts per connected account
  */
 export async function processAnalyticsTick(workspaceId: string): Promise<AnalyticsTickResult> {
   const nowIso = new Date().toISOString();
@@ -104,16 +108,45 @@ export async function processAnalyticsTick(workspaceId: string): Promise<Analyti
     }
   }
 
+  // Posts published directly on the connected accounts, discovered for every
+  // workspace so analytics describes the whole account rather than the
+  // Markaestro half of it. Cursor-driven and bounded per tick; a newly found
+  // post is due for metrics at once and lands in the native poll below.
+  try {
+    result.nativeImport = await importRecentNativePosts(workspaceId, nowIso);
+    result.nativeImport.errors.forEach((error) => result.errors.push({
+      kind: 'native-import',
+      error: `${error.connectionId}: ${error.error}`,
+    }));
+  } catch (err) {
+    result.errors.push({ kind: 'native-import', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  const affectedDates = new Set<string>();
   try {
     const poll = await pollDueMetrics(workspaceId, nowIso);
     result.polled = poll.polled;
     poll.errors.forEach((e) => result.errors.push({ kind: 'metrics-poll', error: `${e.postId}: ${e.error}` }));
-
-    if (poll.affectedDates.length > 0) {
-      result.aggregatedDates = await recomputeDailyAggregates(workspaceId, poll.affectedDates);
-    }
+    poll.affectedDates.forEach((date) => affectedDates.add(date));
   } catch (err) {
     result.errors.push({ kind: 'metrics-poll', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
+    const nativePoll = await pollDueNativePosts(workspaceId, nowIso);
+    result.nativePolled = nativePoll.polled;
+    nativePoll.errors.forEach((e) => result.errors.push({ kind: 'native-metrics-poll', error: `${e.postId}: ${e.error}` }));
+    nativePoll.affectedDates.forEach((date) => affectedDates.add(date));
+  } catch (err) {
+    result.errors.push({ kind: 'native-metrics-poll', error: err instanceof Error ? err.message : 'unknown' });
+  }
+
+  try {
+    if (affectedDates.size > 0) {
+      result.aggregatedDates = await recomputeDailyAggregates(workspaceId, [...affectedDates]);
+    }
+  } catch (err) {
+    result.errors.push({ kind: 'metrics-aggregate', error: err instanceof Error ? err.message : 'unknown' });
   }
 
   try {
@@ -145,14 +178,14 @@ export async function processAnalyticsTick(workspaceId: string): Promise<Analyti
   }
 
   try {
-    const nativeImportEnabled = await isIntelligencePhaseEnabled({
+    const foundationEnabled = await isIntelligencePhaseEnabled({
       phase: 'foundation',
       workspaceId,
       uid: 'system',
       entitled: true,
       includeShadow: true,
     });
-    if (nativeImportEnabled && !meta.socialPostsBackfillAt) {
+    if (foundationEnabled && !meta.socialPostsBackfillAt) {
       const page = await backfillLegacySocialPosts(workspaceId, nowIso, {
         afterId: meta.socialPostsBackfillAfterId,
       });
@@ -162,13 +195,6 @@ export async function processAnalyticsTick(workspaceId: string): Promise<Analyti
       } else if (page.lastId) {
         metaUpdate.socialPostsBackfillAfterId = page.lastId;
       }
-    }
-    if (nativeImportEnabled) {
-      result.nativeImport = await importRecentNativePosts(workspaceId, nowIso);
-      result.nativeImport.errors.forEach((error) => result.errors.push({
-        kind: 'native-import',
-        error: `${error.connectionId}: ${error.error}`,
-      }));
     }
     const learningPhase = await isIntelligencePhaseEnabled({
       phase: 'learning',

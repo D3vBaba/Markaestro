@@ -115,6 +115,7 @@
     "provenance": {
       "base": "数据指标采用各平台自身的 API 定义，可能比平台原生统计数据滞后最多 48 小时。「，」表示该平台未提供此项指标（例如 Threads 和 TikTok 不提供覆盖人数数据）。互动率 = 互动量 ÷ 覆盖人数。",
       "truncated": " 帖子级观看量基于此时间段内最近的 {count} 篇帖子。",
+      "native": " 其中 {count} 篇帖子直接在平台上发布，并通过已连接的账号发现。",
       "lastUpdate": " 数据最近更新于 {date}。"
     },
     "toasts": {
@@ -190,6 +191,7 @@
     },
     "empty": "此时间段内暂无带数据指标的帖子。数据通常在发布后约一小时到达。",
     "untitledPost": "无标题帖子",
+    "native": "原生",
     "sortBy": "按{label}排序",
     "openOnPlatform": "在平台上打开",
     "byViews": "（播放）"

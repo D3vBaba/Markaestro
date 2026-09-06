@@ -20,8 +20,9 @@ const MAX_REFRESH_WINDOW_DAYS = 90;
 
 /**
  * Ad-hoc "pull live data" for the Analytics page. Fetches fresh platform
- * metrics for the published posts in the page's current window (optionally
- * scoped to the product/channel filter), newest first, until the time budget
+ * metrics for the posts in the page's current window (optionally scoped to
+ * the product/channel filter), Markaestro posts and posts published directly
+ * on the platform alike, newest first, until the time budget
  * runs out; refreshes today's follower snapshots; rebuilds the affected daily
  * aggregates so the next read reflects the new numbers. Rate-limited per
  * user to protect platform quota. The response says how much of the window

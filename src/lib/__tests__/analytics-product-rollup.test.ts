@@ -88,3 +88,43 @@ describe('recomputeDailyAggregates byProduct', () => {
     expect(doc.byProduct).toEqual({});
   });
 });
+
+describe('recomputeDailyAggregates with native posts', () => {
+  it('rolls posts published directly on the platform into the same day, counting a shared post once', async () => {
+    getAllMatchingDocsMock
+      .mockResolvedValueOnce([
+        postDoc({
+          productId: 'brand_a',
+          channel: 'instagram',
+          publishedChannels: ['instagram'],
+          publishResults: [{ channel: 'instagram', success: true, externalId: 'ig_shared' }],
+          metricsByChannel: { instagram: { views: 100, reach: 80, likes: 10, comments: 1, shares: 0, saves: 2, clicks: 5 } },
+        }),
+      ])
+      .mockResolvedValueOnce([
+        postDoc({
+          provenance: 'platform_native', platform: 'instagram', externalId: 'ig_native', productId: 'brand_a',
+          metricsByChannel: { instagram: { views: 50, reach: 40, likes: 5, comments: 0, shares: 0, saves: 0, clicks: 1 } },
+        }),
+        postDoc({
+          provenance: 'platform_native', platform: 'instagram', externalId: 'ig_shared', productId: 'brand_a',
+          metricsByChannel: { instagram: { views: 100, reach: 80, likes: 10, comments: 1, shares: 0, saves: 2, clicks: 5 } },
+        }),
+        // Projected from a Markaestro post by the poller; not a native post.
+        postDoc({ provenance: 'markaestro', platform: 'instagram', externalId: 'ig_mk', productId: 'brand_a' }),
+      ]);
+
+    const { recomputeDailyAggregates } = await import('../analytics/aggregates');
+    await recomputeDailyAggregates('ws1', ['2026-09-05']);
+
+    const [, doc] = setMock.mock.calls[0] as [string, {
+      posts: number;
+      channels: Record<string, { posts: number; views: number; likes: number }>;
+      byProduct: Record<string, { posts: number; channels: Record<string, { views: number }> }>;
+    }];
+    expect(doc.posts).toBe(2);
+    expect(doc.channels.instagram).toEqual(expect.objectContaining({ posts: 2, views: 150, likes: 15 }));
+    expect(doc.byProduct.brand_a).toEqual(expect.objectContaining({ posts: 2 }));
+    expect(doc.byProduct.brand_a.channels.instagram.views).toBe(150);
+  });
+});

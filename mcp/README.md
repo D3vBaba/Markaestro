@@ -25,8 +25,8 @@ several.
 | `create_posts` | Up to 25 posts in one call, per-item results |
 | `upload_media` | Upload from a file path, URL, or data URL; returns the asset id |
 | `list_media`, `get_media` | Uploaded assets, processing state, reference counts |
-| `get_analytics` | Brand performance over a window: totals, channels, daily series, top posts, heatmap, insights |
-| `list_post_analytics` | Every published post in the window with its latest metrics, sortable by views, reach, engagements, or engagement rate |
+| `get_analytics` | Brand performance over a window: totals, channels, daily series, top posts, heatmap, insights. Covers posts published through Markaestro and posts published directly on the platform |
+| `list_post_analytics` | Every post in the window with its latest metrics and source, sortable by views, reach, engagements, or engagement rate |
 | `get_post_analytics_history` | The 1h to 90d metric snapshots of one post, with growth between stages |
 | `get_job_run`, `list_job_runs` | Follow a publish to succeeded or failed |
 | `list_webhook_endpoints`, `create_webhook_endpoint` | Webhook registration |

@@ -115,6 +115,7 @@
     "provenance": {
       "base": "Die Metriken folgen den API-Definitionen der jeweiligen Plattform und können bis zu 48 Stunden hinter den nativen Statistiken zurückliegen. Ein „: “ bedeutet, dass die Plattform diese Metrik nicht bereitstellt (Threads und TikTok melden beispielsweise keine Reichweite). Die Engagement-Rate ist Engagement ÷ Reichweite.",
       "truncated": " Beitragsbezogene Aufrufe basieren auf den {count} neuesten Beiträgen in diesem Zeitraum.",
+      "native": " {count} dieser Beiträge wurden direkt auf der Plattform veröffentlicht und über das verbundene Konto erkannt.",
       "lastUpdate": " Letzte Aktualisierung der Metriken: {date}."
     },
     "toasts": {
@@ -190,6 +191,7 @@
     },
     "empty": "Für diesen Zeitraum liegen noch keine Beiträge mit Metriken vor. Metriken treffen etwa eine Stunde nach der Veröffentlichung ein.",
     "untitledPost": "Beitrag ohne Titel",
+    "native": "Nativ",
     "sortBy": "Sortieren nach {label}",
     "openOnPlatform": "Auf der Plattform öffnen",
     "byViews": "(Aufrufe)"

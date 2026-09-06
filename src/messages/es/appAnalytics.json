@@ -115,6 +115,7 @@
     "provenance": {
       "base": "Las métricas usan las definiciones de la API de cada plataforma y pueden retrasarse hasta 48 horas respecto a las estadísticas nativas. Un «: » indica que la plataforma no proporciona esa métrica (por ejemplo, Threads y TikTok no informan el alcance). La tasa de interacción es interacción ÷ alcance.",
       "truncated": " Las vistas a nivel de publicación se basan en las {count} publicaciones más recientes de este período.",
+      "native": " {count} de estas publicaciones se publicaron directamente en la plataforma y se detectaron desde la cuenta conectada.",
       "lastUpdate": " Última actualización de métricas: {date}."
     },
     "toasts": {
@@ -190,6 +191,7 @@
     },
     "empty": "Aún no hay publicaciones con métricas en este período. Las métricas llegan aproximadamente una hora después de publicar.",
     "untitledPost": "Publicación sin título",
+    "native": "Nativo",
     "sortBy": "Ordenar por {label}",
     "openOnPlatform": "Abrir en la plataforma",
     "byViews": "(vistas)"
