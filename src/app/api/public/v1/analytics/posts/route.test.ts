@@ -25,6 +25,7 @@ function row(id: string, publishedAt: string, metrics: Partial<AnalyticsPostRow>
     productId: 'prod_1',
     contentType: 'image',
     source: 'markaestro',
+    canTakeDown: true,
     views: null,
     reach: null,
     likes: null,

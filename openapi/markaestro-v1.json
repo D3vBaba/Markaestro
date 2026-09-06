@@ -3569,10 +3569,36 @@
                       "type": "string"
                     },
                     "description": "The channels the live copy was removed from."
+                  },
+                  "skipped": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "channel": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string",
+                          "const": "unsupported"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "channel",
+                        "reason",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Channels that offer no delete to apps (Instagram, TikTok): not attempted, the copy stays up."
                   }
                 },
                 "required": [
-                  "channels"
+                  "channels",
+                  "skipped"
                 ],
                 "additionalProperties": false
               },
@@ -3581,7 +3607,7 @@
                 "const": false
               }
             ],
-            "description": "What happened on the platforms: the channels the post was taken down from, or false when only the Markaestro record went."
+            "description": "What happened on the platforms: the channels the post was taken down from and the ones skipped, or false when only the Markaestro record went."
           }
         },
         "required": [
@@ -6104,6 +6130,10 @@
                       ],
                       "description": "markaestro when the post went out through Markaestro (or was marked as posted by hand); native when it was published directly on the platform and discovered from the connected account."
                     },
+                    "canTakeDown": {
+                      "type": "boolean",
+                      "description": "Whether the live copy can be removed through the delete endpoint. False for a post only on Instagram or TikTok, which offer no delete to apps; do not offer to take such a post down."
+                    },
                     "views": {
                       "anyOf": [
                         {
@@ -6224,6 +6254,7 @@
                     "productId",
                     "contentType",
                     "source",
+                    "canTakeDown",
                     "views",
                     "reach",
                     "likes",
@@ -6563,6 +6594,10 @@
                   ],
                   "description": "markaestro when the post went out through Markaestro (or was marked as posted by hand); native when it was published directly on the platform and discovered from the connected account."
                 },
+                "canTakeDown": {
+                  "type": "boolean",
+                  "description": "Whether the live copy can be removed through the delete endpoint. False for a post only on Instagram or TikTok, which offer no delete to apps; do not offer to take such a post down."
+                },
                 "views": {
                   "anyOf": [
                     {
@@ -6683,6 +6718,7 @@
                 "productId",
                 "contentType",
                 "source",
+                "canTakeDown",
                 "views",
                 "reach",
                 "likes",
@@ -6872,6 +6908,10 @@
                     ],
                     "description": "markaestro when the post went out through Markaestro (or was marked as posted by hand); native when it was published directly on the platform and discovered from the connected account."
                   },
+                  "canTakeDown": {
+                    "type": "boolean",
+                    "description": "Whether the live copy can be removed through the delete endpoint. False for a post only on Instagram or TikTok, which offer no delete to apps; do not offer to take such a post down."
+                  },
                   "views": {
                     "anyOf": [
                       {
@@ -6992,6 +7032,7 @@
                   "productId",
                   "contentType",
                   "source",
+                  "canTakeDown",
                   "views",
                   "reach",
                   "likes",

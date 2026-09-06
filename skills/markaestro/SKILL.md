@@ -120,6 +120,9 @@ the user can change or cancel it in Markaestro or with `delete_post`.
   published Markaestro post from its channels, and works on a native post's
   id directly. Confirm with the user first: a platform delete cannot be
   undone, and without `platform` a published post only leaves Markaestro.
+  Instagram and TikTok posts cannot be taken down by any app; a row's
+  `canTakeDown: false` says so, and the answer is to remove it in that
+  app, not to try.
 - `get_post_analytics_history` shows how one post earned its numbers (the
   1h to 90d snapshots with growth between them) and whether polling is still
   `active`. A post under 24 hours old is not yet comparable to older ones.

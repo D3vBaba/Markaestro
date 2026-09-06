@@ -23,6 +23,12 @@ export type AnalyticsPostRow = {
   productId: string | null;
   contentType: PostContentType;
   source: AnalyticsPostSource;
+  /**
+   * Whether the live copy can be removed through Markaestro (the public
+   * delete with `platform`, the MCP `delete_post` tool). False for a post
+   * only on Instagram or TikTok, which offer no delete to apps.
+   */
+  canTakeDown: boolean;
   views: number | null;
   reach: number | null;
   likes: number | null;

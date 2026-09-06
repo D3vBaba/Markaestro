@@ -676,15 +676,20 @@ Deleting removes the post from Markaestro, and can take it down too:
   `?platform=true` (needs the `posts.publish` scope) the post is first taken
   down from every channel it went to, and the record goes only once every
   live copy is gone. A channel that fails answers `CONNECTION_AUTH_ERROR`
-  (409), `PLATFORM_ERROR` (502), or `UNSUPPORTED` (400, TikTok does not let
-  apps delete videos) with `removedChannels` listing what already went, and
-  the record is kept so the call can be retried. A copy the platform no
-  longer has counts as removed.
+  (409) or `PLATFORM_ERROR` (502) with `removedChannels` listing what
+  already went, and the record is kept so the call can be retried. A copy
+  the platform no longer has counts as removed.
+- **Instagram and TikTok** offer no delete to apps. They are never
+  attempted: a takedown lists them under `platform.skipped` with the copy
+  still up and goes ahead with the rest, and every analytics row carries
+  `canTakeDown` so a client need not try. Remove such a post in the
+  platform's own app.
 - A post **published directly on the platform** (an id from the analytics
   endpoints with `source: native`) is always taken down from the platform,
   since that is all there is to delete. The response says
   `source: "native"`. `PLATFORM_POST_NOT_FOUND` (404) means the platform
-  no longer has it.
+  no longer has it, and `UNSUPPORTED` (400) that the platform offers no
+  delete.
 - A post **mid-publish** is refused with `400 VALIDATION_POST_IS_PUBLISHING`.
   Deleting then would let the in-flight run publish anyway, leaving a live post
   with no record. Wait for it to settle, then delete.

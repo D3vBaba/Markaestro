@@ -19,6 +19,7 @@ import { getAdapterForChannel } from '@/lib/platform/registry';
 import { getConnectionForChannel, getLinkedInConnectionForDestination } from '@/lib/platform/connections';
 import { refreshConnectionToken } from '@/lib/oauth/token-refresh';
 import { getSocialChannelLabel } from '@/lib/social/channel-catalog';
+import { canDeleteOnPlatform, platformDeleteUnsupportedMessage } from '@/lib/platform/delete-support';
 import { canonicalSocialPostId, socialPostAccountKey } from '@/lib/intelligence/canonical-social-posts';
 import { oauthProviders, type OAuthProvider, type SocialChannel } from '@/lib/schemas';
 import type { PlatformConnection, PlatformRestriction } from '@/lib/platform/types';
@@ -96,6 +97,11 @@ export async function deletePlatformPost(
   workspaceId: string,
   input: DeletePlatformPostInput,
 ): Promise<PlatformDeleteResult> {
+  // Instagram and TikTok offer no delete; refused before any lookup or
+  // platform call, with the same words the app shows.
+  if (!canDeleteOnPlatform(input.channel)) {
+    return { ok: false, reason: 'unsupported', error: platformDeleteUnsupportedMessage(input.channel) };
+  }
   const adapter = getAdapterForChannel(input.channel);
   if (!adapter?.deletePost) {
     return { ok: false, reason: 'unsupported', error: `${getSocialChannelLabel(input.channel)} does not support deleting posts.` };

@@ -38,8 +38,10 @@ the record (needs `posts.publish`; the record is kept when a channel
 fails, and the error says which channel and what already went). The same
 endpoint now accepts the id of a post published directly on the platform,
 as handed out by the analytics endpoints with `source: native`, and takes
-it down. The response gains `source` and `platform`. The MCP tool
-`delete_post` takes the matching `platform` input.
+it down. Instagram and TikTok, which offer no delete to apps, are never
+attempted: a takedown lists them under `platform.skipped`, and analytics
+rows carry `canTakeDown`. The response gains `source` and `platform`. The
+MCP tool `delete_post` takes the matching `platform` input.
 
 ---
 

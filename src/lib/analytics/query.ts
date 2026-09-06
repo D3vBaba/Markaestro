@@ -1,5 +1,6 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { logger } from '@/lib/logger';
+import { canDeleteOnPlatform } from '@/lib/platform/delete-support';
 import type { NormalizedPostMetrics } from '@/lib/platform/types';
 import type { SocialChannel } from '@/lib/schemas';
 import {
@@ -282,17 +283,19 @@ export function postToRow(id: string, post: PostDocData, channelFilter?: SocialC
   const views = sumAcrossChannels(byChannel, (m) => m.views);
   const reach = sumAcrossChannels(byChannel, (m) => m.reach);
   const engagements = sumAcrossChannels(byChannel, (m) => engagementTotal(m));
+  const channels = (post.publishedChannels?.length ? post.publishedChannels : [post.channel])
+    .filter((c): c is SocialChannel => Boolean(c));
 
   return {
     id,
     content: (post.content || '').slice(0, 160),
-    channels: (post.publishedChannels?.length ? post.publishedChannels : [post.channel])
-      .filter((c): c is SocialChannel => Boolean(c)),
+    channels,
     publishedAt: post.publishedAt || '',
     externalUrl: post.externalUrl || null,
     productId: post.productId || null,
     contentType: post.contentTypeHint ?? contentTypeOf(post.mediaUrls ?? []),
     source: post.source ?? 'markaestro',
+    canTakeDown: channels.some(canDeleteOnPlatform),
     views,
     reach,
     likes: sumAcrossChannels(byChannel, (m) => m.likes),

@@ -18,17 +18,24 @@ import { POST_ID_PATTERN } from '@/lib/analytics/post-history';
 import { publishedChannelTargets } from '@/lib/intelligence/publish-targets';
 import { getPostChannelDestinations } from '@/lib/social/publisher';
 import { deletePlatformPost, type PlatformDeleteResult } from '@/lib/social/platform-post-delete';
+import { canDeleteOnPlatform, platformDeleteUnsupportedMessage } from '@/lib/platform/delete-support';
 import type { SocialChannel } from '@/lib/schemas';
 import { hasPublicApiScope, type PublicApiContext } from './auth';
 import { assertPublicPostDeletable, assertPublicPostInBrandScope, deletePublicPost } from './posts';
+
+export type SkippedTakedown = { channel: SocialChannel; reason: 'unsupported'; message: string };
 
 export type PublicPostDeleteBody = {
   deleted: true;
   id: string;
   /** `markaestro` for a Markaestro post; `native` for one published directly on the platform. */
   source: 'markaestro' | 'native';
-  /** The channels the live copy was removed from; false when only the record went. */
-  platform: { channels: SocialChannel[] } | false;
+  /**
+   * What happened on the platforms: the channels the live copy was removed
+   * from, and the channels that offer no delete (Instagram, TikTok) where
+   * the copy stays up; false when only the record went.
+   */
+  platform: { channels: SocialChannel[]; skipped: SkippedTakedown[] } | false;
 };
 
 /** `platform=true` or `platform=1` on the query string asks for the live copy to go too. */
@@ -105,6 +112,7 @@ export async function deletePublicPostById(
     assertPublicPostDeletable(post);
 
     const removed: SocialChannel[] = [];
+    const skipped: SkippedTakedown[] = [];
     if (opts.platform && post.status === 'published') {
       assertPlatformDeleteScope(ctx);
       const destinations = getPostChannelDestinations(post);
@@ -115,6 +123,13 @@ export async function deletePublicPostById(
         publishResults?: Array<{ channel?: string; success?: boolean; externalId?: string }>;
       });
       for (const target of targets) {
+        // A channel that offers no delete is not attempted and not a
+        // failure: the copy stays up, the response says so, and the rest
+        // of the takedown goes ahead.
+        if (!canDeleteOnPlatform(target.channel)) {
+          skipped.push({ channel: target.channel, reason: 'unsupported', message: platformDeleteUnsupportedMessage(target.channel) });
+          continue;
+        }
         const result = await deletePlatformPost(ctx.workspaceId, {
           channel: target.channel,
           externalId: target.externalId,
@@ -128,7 +143,12 @@ export async function deletePublicPostById(
     }
 
     await deletePublicPost(ctx.workspaceId, id);
-    return { deleted: true, id, source: 'markaestro', platform: removed.length > 0 ? { channels: removed } : false };
+    return {
+      deleted: true,
+      id,
+      source: 'markaestro',
+      platform: removed.length > 0 || skipped.length > 0 ? { channels: removed, skipped } : false,
+    };
   }
 
   const nativeRef = adminDb.doc(`workspaces/${ctx.workspaceId}/socialPosts/${id}`);
@@ -139,6 +159,12 @@ export async function deletePublicPostById(
   assertPlatformDeleteScope(ctx);
 
   const channel = native.platform as SocialChannel;
+  // Nothing to delete but the live copy, and this platform offers no
+  // delete: refused before any platform call. Rows carry canTakeDown so a
+  // caller need not get here.
+  if (!canDeleteOnPlatform(channel)) {
+    throw platformFailure({ ok: false, reason: 'unsupported', error: platformDeleteUnsupportedMessage(channel) }, channel, []);
+  }
   const nowIso = new Date().toISOString();
   const result = await deletePlatformPost(ctx.workspaceId, {
     channel,
@@ -154,5 +180,5 @@ export async function deletePublicPostById(
   // The delete helper reconciles by canonical id; this is the same document,
   // written directly so the outcome never depends on the id derivation.
   await markNativeDeleted(nativeRef, nowIso);
-  return { deleted: true, id, source: 'native', platform: { channels: [channel] } };
+  return { deleted: true, id, source: 'native', platform: { channels: [channel], skipped: [] } };
 }

@@ -63,7 +63,10 @@ describe('native posts in analytics', () => {
       views: 120,
       engagements: 16,
       erByReach: 0.16,
+      // Instagram offers no delete to apps; a caller must not offer a takedown.
+      canTakeDown: false,
     }));
+    expect(postToRow('fb', { channel: 'facebook', publishedChannels: ['facebook', 'instagram'] }).canTakeDown).toBe(true);
     // A platform that reports no media type falls back to what the URL says.
     expect(nativePostToAnalyticsPost({ platform: 'threads', contentType: 'unknown', mediaUrl: 'https://cdn/a.jpg' }).contentTypeHint).toBe('image');
     expect(nativePostToAnalyticsPost({ platform: 'threads', contentType: 'unknown', mediaUrl: null }).contentTypeHint).toBe('text');

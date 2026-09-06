@@ -137,7 +137,14 @@ export const publicPostDeletedSchema = z.object({
   source: z.enum(['markaestro', 'native'])
     .describe('markaestro for a Markaestro post; native for a post published directly on the platform, which is always taken down from it.'),
   platform: z.union([
-    z.object({ channels: z.array(z.string()).describe('The channels the live copy was removed from.') }),
+    z.object({
+      channels: z.array(z.string()).describe('The channels the live copy was removed from.'),
+      skipped: z.array(z.object({
+        channel: z.string(),
+        reason: z.literal('unsupported'),
+        message: z.string(),
+      })).describe('Channels that offer no delete to apps (Instagram, TikTok): not attempted, the copy stays up.'),
+    }),
     z.literal(false),
-  ]).describe('What happened on the platforms: the channels the post was taken down from, or false when only the Markaestro record went.'),
+  ]).describe('What happened on the platforms: the channels the post was taken down from and the ones skipped, or false when only the Markaestro record went.'),
 });

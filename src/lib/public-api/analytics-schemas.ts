@@ -62,6 +62,8 @@ export const publicAnalyticsPostRowSchema = z.object({
   contentType: z.enum(['image', 'video', 'carousel', 'text']),
   source: z.enum(analyticsPostSources)
     .describe('markaestro when the post went out through Markaestro (or was marked as posted by hand); native when it was published directly on the platform and discovered from the connected account.'),
+  canTakeDown: z.boolean()
+    .describe('Whether the live copy can be removed through the delete endpoint. False for a post only on Instagram or TikTok, which offer no delete to apps; do not offer to take such a post down.'),
   views: metric,
   reach: metric,
   likes: metric,

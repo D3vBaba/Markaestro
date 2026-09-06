@@ -70,24 +70,36 @@ describe('DELETE /api/public/v1/posts/[id]', () => {
   it('takes a post published directly on the platform down and stops tracking it', async () => {
     seed(`${POSTS}/native_9`, undefined);
     const native = seed(`${SOCIAL}/native_9`, {
-      provenance: 'platform_native', platform: 'instagram', externalId: 'ig_9', productId: 'prod_1',
-      provider: 'instagram', accountKey: 'ig_acct', publishedAt: '2026-08-01T10:00:00.000Z',
+      provenance: 'platform_native', platform: 'facebook', externalId: 'fb_9', productId: 'prod_1',
+      provider: 'meta', accountKey: 'page_1', publishedAt: '2026-08-01T10:00:00.000Z',
     });
 
     const response = await call('native_9');
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ deleted: true, id: 'native_9', source: 'native', platform: { channels: ['instagram'] } });
+    expect(await response.json()).toEqual({ deleted: true, id: 'native_9', source: 'native', platform: { channels: ['facebook'], skipped: [] } });
     expect(deletePlatformPostMock).toHaveBeenCalledWith('ws_1', {
-      channel: 'instagram', externalId: 'ig_9', productId: 'prod_1', destinationId: 'ig_acct',
+      channel: 'facebook', externalId: 'fb_9', productId: 'prod_1', destinationId: 'page_1',
     });
     expect(native.update).toHaveBeenCalledWith(expect.objectContaining({ deletedAt: expect.any(String), metricsStatus: 'unsupported' }));
     expect(native.delete).not.toHaveBeenCalled();
   });
 
+  it('refuses a native post on a platform that offers no delete, before any platform call', async () => {
+    seed(`${POSTS}/native_tt`, undefined);
+    const native = seed(`${SOCIAL}/native_tt`, { provenance: 'platform_native', platform: 'tiktok', externalId: 'tt_1', productId: 'prod_1' });
+
+    const response = await call('native_tt');
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual(expect.objectContaining({ error: 'UNSUPPORTED', channel: 'tiktok' }));
+    expect(deletePlatformPostMock).not.toHaveBeenCalled();
+    expect(native.update).not.toHaveBeenCalled();
+  });
+
   it('answers 404 for a native post in another brand, and never touches the platform', async () => {
     seed(`${POSTS}/native_9`, undefined);
-    seed(`${SOCIAL}/native_9`, { provenance: 'platform_native', platform: 'instagram', externalId: 'ig_9', productId: 'prod_other' });
+    seed(`${SOCIAL}/native_9`, { provenance: 'platform_native', platform: 'facebook', externalId: 'fb_9', productId: 'prod_other' });
 
     const response = await call('native_9');
 
@@ -98,7 +110,7 @@ describe('DELETE /api/public/v1/posts/[id]', () => {
   it('refuses to take a live post down without posts.publish', async () => {
     requirePublicApiContextMock.mockResolvedValue(context(['posts.write']));
     seed(`${POSTS}/native_9`, undefined);
-    seed(`${SOCIAL}/native_9`, { provenance: 'platform_native', platform: 'instagram', externalId: 'ig_9', productId: 'prod_1' });
+    seed(`${SOCIAL}/native_9`, { provenance: 'platform_native', platform: 'facebook', externalId: 'fb_9', productId: 'prod_1' });
 
     const response = await call('native_9');
 
@@ -120,28 +132,37 @@ describe('DELETE /api/public/v1/posts/[id]', () => {
     expect(post.delete).toHaveBeenCalledTimes(1);
 
     const takenDown = await call('pst_1', '?platform=true');
-    expect(await takenDown.json()).toEqual({ deleted: true, id: 'pst_1', source: 'markaestro', platform: { channels: ['facebook', 'instagram'] } });
+    // Instagram offers no delete: skipped and said so, never attempted; the rest goes ahead.
+    expect(await takenDown.json()).toEqual({
+      deleted: true,
+      id: 'pst_1',
+      source: 'markaestro',
+      platform: {
+        channels: ['facebook'],
+        skipped: [{ channel: 'instagram', reason: 'unsupported', message: expect.stringContaining('Instagram') }],
+      },
+    });
+    expect(deletePlatformPostMock).toHaveBeenCalledTimes(1);
     expect(deletePlatformPostMock).toHaveBeenCalledWith('ws_1', expect.objectContaining({ channel: 'facebook', externalId: 'fb_1', destinationId: 'page_1' }));
-    expect(deletePlatformPostMock).toHaveBeenCalledWith('ws_1', expect.objectContaining({ channel: 'instagram', externalId: 'ig_1', destinationId: 'ig_acct' }));
     expect(post.delete).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps the record when a channel refuses the takedown, and says what already went', async () => {
+  it('keeps the record when a channel fails the takedown, and says what already went', async () => {
     const post = seed(`${POSTS}/pst_1`, {
       status: 'published', productId: 'prod_1', channel: 'facebook',
-      publishResults: [{ channel: 'facebook', success: true, externalId: 'fb_1' }, { channel: 'tiktok', success: true, externalId: 'tt_1' }],
+      publishResults: [{ channel: 'facebook', success: true, externalId: 'fb_1' }, { channel: 'threads', success: true, externalId: 'th_1' }],
     });
     deletePlatformPostMock.mockImplementation(async (_ws: string, input: { channel: string }) => (
-      input.channel === 'tiktok'
-        ? { ok: false, reason: 'unsupported', error: 'TikTok does not allow apps to delete videos.' }
+      input.channel === 'threads'
+        ? { ok: false, reason: 'transient', error: 'Threads is having a moment' }
         : { ok: true, connection: {} }
     ));
 
     const response = await call('pst_1', '?platform=true');
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(502);
     expect(await response.json()).toEqual(expect.objectContaining({
-      error: 'UNSUPPORTED', channel: 'tiktok', removedChannels: ['facebook'],
+      error: 'PLATFORM_ERROR', channel: 'threads', removedChannels: ['facebook'],
     }));
     expect(post.delete).not.toHaveBeenCalled();
   });
@@ -155,7 +176,7 @@ describe('DELETE /api/public/v1/posts/[id]', () => {
     const response = await call('pst_1', '?platform=true');
 
     expect(response.status).toBe(200);
-    expect((await response.json()).platform).toEqual({ channels: ['facebook'] });
+    expect((await response.json()).platform).toEqual({ channels: ['facebook'], skipped: [] });
     expect(post.delete).toHaveBeenCalledTimes(1);
   });
 

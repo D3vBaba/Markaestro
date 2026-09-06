@@ -20,7 +20,7 @@ several.
 | `list_posts`, `get_post` | Read posts by status, page through with `cursor` |
 | `create_post` | Save a draft, or schedule when `scheduledAt` is set |
 | `publish_post` | Queue an immediate publish; returns a job run |
-| `delete_post` | Delete a draft or cancel a scheduled post |
+| `delete_post` | Delete a draft, cancel a scheduled post, or take a published or native post down from its platforms (`platform: true`) |
 | `bulk_posts` | Reschedule, delete, or restatus up to 25 posts |
 | `create_posts` | Up to 25 posts in one call, per-item results |
 | `upload_media` | Upload from a file path, URL, or data URL; returns the asset id |

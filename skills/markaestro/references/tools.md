@@ -48,13 +48,17 @@ instead of `targets`. Never send both.
 **`publish_post`** `{ postId }` → `{ run: { id, status, ... } }`
 Publishes now. Poll `get_job_run` with `run.id`.
 
-**`delete_post`** `{ postId, platform? }` → `{ deleted: true, id, source, platform: { channels } | false }`
+**`delete_post`** `{ postId, platform? }` → `{ deleted: true, id, source, platform: { channels, skipped } | false }`
 `platform: true` also takes a published Markaestro post down from every
 channel it went to (needs `posts.publish`); the record goes only once every
 live copy is gone, and a failure names the channel and what already went.
 A native post id (from `list_post_analytics`, `source: "native"`) is always
-taken down from the platform. `PLATFORM_POST_NOT_FOUND` (404) means the
-platform no longer has it; `CONNECTION_AUTH_ERROR` (409) means reconnect.
+taken down from the platform. Instagram and TikTok offer no delete to
+apps: they are never attempted, a takedown lists them under `skipped`
+with the copy still up, and a native post there answers `UNSUPPORTED`
+(400). Rows carry `canTakeDown`; do not offer a takedown when it is false.
+`PLATFORM_POST_NOT_FOUND` (404) means the platform no longer has it;
+`CONNECTION_AUTH_ERROR` (409) means reconnect.
 Cancels a scheduled post or removes a draft. A published post is only
 forgotten by Markaestro; the live copy stays on the platform.
 
@@ -104,7 +108,7 @@ how many posts each finding rests on. The account as a whole is counted:
 `source` is `markaestro` or `native` to narrow to one half, and
 `coverage.bySource` reports both counts.
 
-**`list_post_analytics`** `{ days?, since?, until?, channel?, source?, sort?, limit? }` → `{ window, sort, posts: [{ id, content, channels, publishedAt, externalUrl, contentType, source, views, reach, likes, comments, shares, saves, clicks, engagements, erByReach, erByViews }], count, truncated }`
+**`list_post_analytics`** `{ days?, since?, until?, channel?, source?, sort?, limit? }` → `{ window, sort, posts: [{ id, content, channels, publishedAt, externalUrl, contentType, source, canTakeDown, views, reach, likes, comments, shares, saves, clicks, engagements, erByReach, erByViews }], count, truncated }`
 `source` on a row is `markaestro` (went out through Markaestro) or `native`
 (published directly on the platform, discovered from the connected account).
 `sort` is `published_at` (default), `views`, `reach`, `engagements`, or

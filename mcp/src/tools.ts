@@ -133,7 +133,7 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
     {
       name: "delete_post",
       title: "Delete a post",
-      description: "Delete a draft, cancel a scheduled post, or take a post down. Without platform, a published Markaestro post is only removed from Markaestro and the live copy stays up; with platform: true it is first taken down from every channel it went to and the record goes only once every live copy is gone. A post published directly on the platform (an analytics id with source native) is always taken down from the platform, since that is all there is to delete. Taking a live post down needs the posts.publish scope. Posts mid-publish cannot be deleted until the run settles.",
+      description: "Delete a draft, cancel a scheduled post, or take a post down. Without platform, a published Markaestro post is only removed from Markaestro and the live copy stays up; with platform: true it is first taken down from every channel it went to and the record goes only once every live copy is gone. A post published directly on the platform (an analytics id with source native) is always taken down from the platform, since that is all there is to delete. Instagram and TikTok offer no delete to apps: a takedown skips those channels and lists them under platform.skipped, and a native post there is refused; check canTakeDown on the analytics row before offering. Taking a live post down needs the posts.publish scope. Posts mid-publish cannot be deleted until the run settles.",
       inputSchema: {
         postId: z.string().describe("A Markaestro post id, or the id of a native post from list_post_analytics"),
         platform: z.boolean().optional().describe("Also take a published Markaestro post down from its platforms; implied for a native post"),
@@ -330,7 +330,7 @@ export function createTools(client: MarkaestroClient): ToolDefinition[] {
     {
       name: "list_post_analytics",
       title: "List post analytics",
-      description: "Every post of the brand in the window with its latest metrics (views, reach, likes, comments, shares, saves, clicks, engagements, engagement rate), one row per post, sorted. Includes posts published directly on the platform; each row's source says markaestro or native. Use sort=engagements or sort=views to find what worked; sort=published_at (default) for a chronological read. Pair with get_post for the full caption and media of a Markaestro post (native posts have externalUrl instead).",
+      description: "Every post of the brand in the window with its latest metrics (views, reach, likes, comments, shares, saves, clicks, engagements, engagement rate), one row per post, sorted. Includes posts published directly on the platform; each row's source says markaestro or native, and canTakeDown says whether delete_post can remove the live copy (false on Instagram and TikTok). Use sort=engagements or sort=views to find what worked; sort=published_at (default) for a chronological read. Pair with get_post for the full caption and media of a Markaestro post (native posts have externalUrl instead).",
       inputSchema: {
         days: z.number().int().min(1).max(365).optional().describe("Preset window ending today (UTC); default 28"),
         since: z.string().optional().describe("Explicit range start, YYYY-MM-DD (UTC); needs until"),
