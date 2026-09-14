@@ -24,4 +24,4 @@ The customer should start a fresh upload because earlier signed sessions have ex
 
 The invitation regression test accepts an invite through `acceptPendingInvite`, resolves the member's premium limits without a personal subscription, and reserves the incident's upload size above the old free cap. Additional cases cover canonical records, lower personal plans, workspace switching, cancellation, expired trials, background callers, and invalid ownership metadata.
 
-Validation: 1,468 tests passed, 23 skipped; TypeScript, targeted ESLint, and diff whitespace checks passed. The application change has not been deployed. The earlier production data repair remains effective immediately.
+Validation: 1,468 tests passed, 23 skipped; TypeScript, targeted ESLint, and diff whitespace checks passed. The permanent change was deployed on September 14 in revision `markaestro-build-2026-09-14-001`. The isolated production invite/upload smoke test passed; see `release-2026-09-14.md`. The earlier customer data repair remains in place.
