@@ -3,32 +3,22 @@
     "eyebrow": "Prijzen",
     "titleLead": "Je volledige marketingmotor,",
     "titleHighlight": "één simpele prijs",
-    "subtitle": "Geen verborgen kosten, geen verrassingen per gebruiker. Begin gratis, elk betaald abonnement bevat een gratis proefperiode van {trialDays} dagen. Op elk moment op te zeggen.",
+    "subtitle": "Geen kosten voor {trialDays} dagen · Op elk moment op te zeggen",
     "monthlyToggle": "Maandelijks",
     "annualToggle": "Jaarlijks",
-    "annualSaveBadge": "BESPAAR 17%",
-    "trialLine": "Gratis proefperiode van {trialDays} dagen op alle betaalde abonnementen, geen kosten tot dag {trialEndDay}",
-    "annualSavingsSuffix": " · Jaarlijkse facturering bespaart 17%"
+    "annualSaveBadge": "Bespaar tot 17%",
+    "trialLine": "Geen kosten voor {trialDays} dagen · Op elk moment op te zeggen",
+    "annualSavingsSuffix": " · Bespaar tot 17%"
   },
   "planNames": {
     "free": "Gratis",
     "starter": "Starter",
     "pro": "Pro",
-    "business": "Business"
+    "business": "Business",
+    "growth": "Growth"
   },
-  "mostPopularBadge": "Meest Populair",
+  "mostPopularBadge": "Aanbevolen",
   "plans": {
-    "free": {
-      "description": "Probeer Markaestro met één merk, voor altijd gratis.",
-      "features": [
-        "1 merk",
-        "2 sociale kanalen",
-        "15 posts / maand",
-        "1 GB opslag",
-        "1 teamlid, 1 workspace",
-        "Analyse (7-daags venster)"
-      ]
-    },
     "starter": {
       "description": "Voor solo-marketeers die op elk platform inplannen.",
       "features": [
@@ -39,7 +29,7 @@
         "Merkstem per merk",
         "10 GB opslag",
         "Volledige publicatie-API",
-        "Analytics (venster van 30 dagen)"
+        "Onbeperkte analyticsgeschiedenis + CSV-export"
       ]
     },
     "pro": {
@@ -51,7 +41,7 @@
         "Aanbevelingen voor de beste posttijd",
         "Merkstem + merkidentiteit (logo & kleuren)",
         "100 GB opslag",
-        "Analytics (venster van 1 jaar)",
+        "Onbeperkte analyticsgeschiedenis + CSV-export",
         "Prioriteitssupport",
         "10 Intelligent Evergreen-wachtrijen per merk"
       ]
@@ -66,25 +56,35 @@
         "Prioriteitssupport",
         "Onbeperkt Intelligent Evergreen-wachtrijen"
       ]
+    },
+    "growth": {
+      "description": "Voor kleine teams met meerdere merken.",
+      "features": [
+        "4 merken",
+        "Tot 8 kanalen per merk",
+        "Onbeperkt ingeplande posts",
+        "Contentkalender",
+        "Merkstem per merk",
+        "50 GB opslag",
+        "Volledige publicatie-API",
+        "Onbeperkte analyticsgeschiedenis + CSV-export",
+        "2 teamleden"
+      ]
     }
   },
   "planCard": {
     "perMonth": "/mnd",
     "billedAnnually": "· Jaarlijks gefactureerd (${annualTotal}/jaar)",
     "justPerDay": "Dat is slechts ${dailyCost}/dag",
-    "billedMonthly": "Maandelijks gefactureerd · Schakel over naar jaarlijks en bespaar 17%",
+    "billedMonthly": "Maandelijks · Bespaar tot 17%",
     "startTrialButton": "Start Gratis Proefperiode van {trialDays} Dagen",
     "noChargeLine": "Geen kosten voor {trialDays} dagen · Op elk moment op te zeggen",
-    "everythingIncluded": "Alles inbegrepen",
-    "freeForever": "Voor altijd gratis",
-    "startFreeButton": "Gratis beginnen",
-    "noCardLine": "Geen kaart vereist · Altijd te upgraden"
+    "everythingIncluded": "Alles inbegrepen"
   },
   "comparison": {
     "titleLead": "Vergelijk",
     "titleHighlight": "elke functie",
     "subtitle": "Zie precies wat er in elk abonnement is inbegrepen.",
-    "freeNote": "Het Gratis-abonnement bevat 1 merk, 2 kanalen, 15 posts per maand, 1 GB opslag en 7-daagse analyse, geen API-toegang.",
     "categories": [
       {
         "name": "Publiceren",
@@ -188,10 +188,6 @@
   "faqTitleHighlight": "Prijzen",
   "faqs": [
     {
-      "q": "Is er een gratis abonnement?",
-      "a": "Ja. Het Gratis-abonnement kost voor altijd $ 0, geen kaart vereist. Je krijgt 1 merk, 2 sociale kanalen, 15 posts per maand, 1 GB opslag en een 7-daags analysevenster, met 1 teamlid in 1 workspace. API-toegang vereist een betaald abonnement. Upgrade wanneer je er klaar voor bent."
-    },
-    {
       "q": "Kan ik op elk moment van abonnement wisselen?",
       "a": "Ja. Je kunt je abonnement op elk moment upgraden of downgraden. Bij een upgrade wordt het naar rato berekende verschil in rekening gebracht. Bij een downgrade gaat het nieuwe tarief in bij je volgende factureringscyclus."
     },
@@ -201,7 +197,7 @@
     },
     {
       "q": "Hoe werkt opslag?",
-      "a": "Opslag is de totale grootte van de afbeeldingen en video's in de mediabibliotheek van je workspace. Het Gratis-abonnement bevat 1 GB, Starter 10 GB, Pro 100 GB en Business heeft onbeperkte opslag. Het hergebruiken van een reeds geüpload bestand in meerdere posts kost geen extra opslag."
+      "a": "Starter: 10 GB opslag. Growth: 50 GB opslag. Pro: 100 GB opslag. Business: Onbeperkte opslag."
     },
     {
       "q": "Wat gebeurt er als ik mijn opslaglimiet bereik?",
@@ -213,7 +209,7 @@
     },
     {
       "q": "Welke abonnementen bevatten de gratis proefperiode?",
-      "a": "Alle abonnementen (Starter, Pro, Business) met zowel maandelijkse als jaarlijkse facturering bevatten de gratis proefperiode van {trialDays} dagen. Jaarlijkse facturering bespaart je bovendien 17% ten opzichte van maandelijks."
+      "a": "Geen kosten voor {trialDays} dagen · Op elk moment op te zeggen. Bespaar tot 17%."
     },
     {
       "q": "Kan mijn AI-agent of mijn eigen software Markaestro gebruiken?",
@@ -230,7 +226,7 @@
   ],
   "cta": {
     "title": "Probeer Markaestro {trialDays} dagen gratis",
-    "subtitle": "Volledige toegang bij elk jaarabonnement. Geen kosten tot dag {trialEndDay}. Op elk moment op te zeggen.",
+    "subtitle": "Geen kosten voor {trialDays} dagen · Op elk moment op te zeggen",
     "primaryButton": "Start Gratis Proefperiode",
     "secondaryButton": "Praat met Sales"
   }

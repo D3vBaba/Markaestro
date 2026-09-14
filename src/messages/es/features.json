@@ -105,8 +105,8 @@
   },
   "cta": {
     "title": "¿Listo para verlo en acción?",
-    "subtitle": "Empieza gratis. Sin tarjeta de crédito. Conecta tu primer canal en menos de dos minutos.",
-    "primaryButton": "Comienza gratis",
+    "subtitle": "Sin cargo durante 7 días · Cancela cuando quieras",
+    "primaryButton": "Iniciar prueba gratuita de 7 días",
     "secondaryButton": "Contactar con ventas"
   },
   "intelligence": {
@@ -164,6 +164,6 @@
       "Siempre indica qué alimentó un resultado: Medido, Calculado, Recomendado, Declarado o Generado."
     ],
     "plans": "Audience Fit está en todos los planes. Guía, Oportunidades, enlaces con seguimiento y Pregunta a Markaestro empiezan en Pro; Experimentos en Business. Las acciones de IA como Crear borrador tienen un límite mensual según el plan.",
-    "cta": "Empieza gratis y conecta un canal"
+    "cta": "Iniciar prueba gratuita de 7 días"
   }
 }

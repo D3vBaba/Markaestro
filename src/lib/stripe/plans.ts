@@ -1,4 +1,4 @@
-export type PlanTier = 'free' | 'starter' | 'pro' | 'business';
+export type PlanTier = 'free' | 'starter' | 'growth' | 'pro' | 'business';
 export type BillingInterval = 'monthly' | 'annual';
 
 export type PlanLimits = {
@@ -42,33 +42,28 @@ export type PlanConfig = {
 
 export const PLANS: Record<PlanTier, PlanConfig> = {
   /**
-   * The tier every workspace without an active subscription resolves to —
+   * Legacy unpaid sentinel (no publishing, storage or intelligence usage).
+   * The tier every workspace without an active subscription resolves to:
    * lapsed, canceled, and never-subscribed alike. Not purchasable and not
    * rendered on the pricing page (PLAN_TIERS excludes it).
    */
   free: {
     tier: 'free',
-    name: 'Free',
-    description: 'Try Markaestro with one brand.',
+    name: 'No active plan',
+    description: 'Choose a paid plan to start your trial.',
     price: { monthly: 0, annual: 0 },
     highlighted: false,
-    features: [
-      '1 brand, 2 channels',
-      '15 posts / month',
-      'Content calendar',
-      '1 GB storage',
-      'Analytics (7-day window)',
-    ],
+    features: [],
     limits: {
       brands: 1,
       channelsPerBrand: 2,
-      storageGb: 1,
-      postsPerMonth: 15,
+      storageGb: 0,
+      postsPerMonth: 0,
       teamMembers: 1,
       workspaces: 1,
-      analyticsWindowDays: 7,
+      analyticsWindowDays: 0,
       apiRequestsPerMinute: 0,
-      intelligenceAiOperationsPerMonth: 5,
+      intelligenceAiOperationsPerMonth: 0,
       strategistTurnsPerMonth: 0,
       evergreenQueuesPerBrand: 0,
     },
@@ -77,7 +72,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       brandIdentity: false,
       prioritySupport: false,
       analyticsCsvExport: false,
-      audienceFit: true,
+      audienceFit: false,
       intelligenceOptimization: false,
       intelligenceStrategist: false,
       intelligenceExperiments: false,
@@ -88,7 +83,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     tier: 'starter',
     name: 'Starter',
     description: 'For solo marketers scheduling across every platform.',
-    price: { monthly: 29, annual: 24 },
+    price: { monthly: 19, annual: 16 },
     highlighted: false,
     features: [
       '2 brands across all 7 platforms',
@@ -98,7 +93,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Brand voice per brand',
       '10 GB storage',
       'Full publishing API',
-      'Analytics (30-day window)',
+      'Unlimited analytics history + CSV export',
     ],
     limits: {
       brands: 2,
@@ -107,7 +102,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       postsPerMonth: -1,
       teamMembers: 1,
       workspaces: 1,
-      analyticsWindowDays: 30,
+      analyticsWindowDays: -1,
       apiRequestsPerMinute: 60,
       intelligenceAiOperationsPerMonth: 30,
       strategistTurnsPerMonth: 0,
@@ -117,7 +112,49 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       smartScheduling: false,
       brandIdentity: false,
       prioritySupport: false,
-      analyticsCsvExport: false,
+      analyticsCsvExport: true,
+      audienceFit: true,
+      intelligenceOptimization: false,
+      intelligenceStrategist: false,
+      intelligenceExperiments: false,
+      evergreenOptimization: false,
+    },
+  },
+  growth: {
+    tier: 'growth',
+    name: 'Growth',
+    description: 'For small teams building a consistent presence across brands.',
+    price: { monthly: 29.99, annual: 24.99 },
+    highlighted: false,
+    features: [
+      '4 brands across all 7 platforms',
+      'Up to 8 channels per brand',
+      'Unlimited scheduled posts',
+      'Content calendar',
+      'Brand voice per brand',
+      '50 GB storage',
+      '2 team members',
+      'Full publishing API',
+      'Unlimited analytics history + CSV export',
+    ],
+    limits: {
+      brands: 4,
+      channelsPerBrand: 8,
+      storageGb: 50,
+      postsPerMonth: -1,
+      teamMembers: 2,
+      workspaces: 1,
+      analyticsWindowDays: -1,
+      apiRequestsPerMinute: 90,
+      intelligenceAiOperationsPerMonth: 100,
+      strategistTurnsPerMonth: 0,
+      evergreenQueuesPerBrand: 0,
+    },
+    gated: {
+      smartScheduling: false,
+      brandIdentity: false,
+      prioritySupport: false,
+      analyticsCsvExport: true,
       audienceFit: true,
       intelligenceOptimization: false,
       intelligenceStrategist: false,
@@ -129,9 +166,9 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     tier: 'pro',
     name: 'Pro',
     description: 'For growing teams managing several brands.',
-    price: { monthly: 69, annual: 57 },
+    price: { monthly: 59, annual: 49 },
     highlighted: true,
-    badge: 'Most Popular',
+    badge: 'Recommended',
     features: [
       '6 brands',
       '5 team members with roles',
@@ -139,7 +176,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       'Best-time posting recommendations',
       'Brand voice + brand identity (logo & colors)',
       '100 GB storage',
-      'Analytics (1-year window)',
+      'Unlimited analytics history + CSV export',
       'Priority support',
       '10 Intelligent Evergreen queues per brand',
     ],
@@ -150,7 +187,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       postsPerMonth: -1,
       teamMembers: 5,
       workspaces: 5,
-      analyticsWindowDays: 365,
+      analyticsWindowDays: -1,
       apiRequestsPerMinute: 120,
       intelligenceAiOperationsPerMonth: 300,
       strategistTurnsPerMonth: 30,
@@ -160,7 +197,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
       smartScheduling: true,
       brandIdentity: true,
       prioritySupport: true,
-      analyticsCsvExport: false,
+      analyticsCsvExport: true,
       audienceFit: true,
       intelligenceOptimization: true,
       intelligenceStrategist: true,
@@ -172,7 +209,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
     tier: 'business',
     name: 'Business',
     description: 'For agencies managing many brands at scale.',
-    price: { monthly: 199, annual: 165 },
+    price: { monthly: 149, annual: 124 },
     highlighted: false,
     features: [
       '20 brands',
@@ -210,7 +247,7 @@ export const PLANS: Record<PlanTier, PlanConfig> = {
 };
 
 /** Purchasable tiers, in display order. Excludes 'free'. */
-export const PLAN_TIERS: PlanTier[] = ['starter', 'pro', 'business'];
+export const PLAN_TIERS: PlanTier[] = ['starter', 'growth', 'pro', 'business'];
 
 export const TRIAL_DAYS = 7;
 
@@ -230,7 +267,7 @@ export const ADDONS: Record<AddonKey, {
   brand: {
     name: 'Extra brand',
     price: { monthly: 10, annual: 100 },
-    availableOn: ['starter', 'pro'],
+    availableOn: ['starter', 'growth', 'pro'],
   },
   seat: {
     name: 'Extra seat',
@@ -243,36 +280,36 @@ export const COMPARISON_CATEGORIES = [
   {
     name: 'Publishing',
     features: [
-      { name: 'Brands', starter: '2', pro: '6', business: '20' },
-      { name: 'Channels per Brand', starter: '8', pro: '8', business: '8' },
-      { name: 'Platforms (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)', starter: true, pro: true, business: true },
-      { name: 'Scheduled Posts', starter: 'Unlimited', pro: 'Unlimited', business: 'Unlimited' },
-      { name: 'Content Calendar', starter: true, pro: true, business: true },
-      { name: 'Best-Time Posting Recommendations', starter: false, pro: true, business: true },
+      { name: 'Brands', starter: '2', growth: '4', pro: '6', business: '20' },
+      { name: 'Channels per Brand', starter: '8', growth: '8', pro: '8', business: '8' },
+      { name: 'Platforms (Facebook, Instagram, TikTok, Threads, Pinterest, LinkedIn, X)', starter: true, growth: true, pro: true, business: true },
+      { name: 'Scheduled Posts', starter: 'Unlimited', growth: 'Unlimited', pro: 'Unlimited', business: 'Unlimited' },
+      { name: 'Content Calendar', starter: true, growth: true, pro: true, business: true },
+      { name: 'Best-Time Posting Recommendations', starter: false, growth: false, pro: true, business: true },
     ],
   },
   {
     name: 'Media Library',
     features: [
-      { name: 'Storage', starter: '10 GB', pro: '100 GB', business: 'Unlimited' },
-      { name: 'Brand Voice', starter: 'Per brand', pro: 'Per brand', business: 'Per brand' },
-      { name: 'Brand Identity (Logo & Colors)', starter: false, pro: true, business: true },
+      { name: 'Storage', starter: '10 GB', growth: '50 GB', pro: '100 GB', business: 'Unlimited' },
+      { name: 'Brand Voice', starter: 'Per brand', growth: 'Per brand', pro: 'Per brand', business: 'Per brand' },
+      { name: 'Brand Identity (Logo & Colors)', starter: false, growth: false, pro: true, business: true },
     ],
   },
   {
     name: 'Analytics',
     features: [
-      { name: 'Post & Follower Analytics', starter: true, pro: true, business: true },
-      { name: 'History Window', starter: '30 days', pro: '1 year', business: 'Unlimited' },
-      { name: 'CSV Export', starter: false, pro: false, business: true },
+      { name: 'Post & Follower Analytics', starter: true, growth: true, pro: true, business: true },
+      { name: 'History Window', starter: 'Unlimited', growth: 'Unlimited', pro: 'Unlimited', business: 'Unlimited' },
+      { name: 'CSV Export', starter: true, growth: true, pro: true, business: true },
     ],
   },
   {
     name: 'Team & Workspace',
     features: [
-      { name: 'Team Members', starter: '1', pro: '5 (+ add-on seats)', business: 'Unlimited' },
-      { name: 'Workspaces', starter: '1', pro: '5', business: 'Unlimited' },
-      { name: 'Role-Based Access Control', starter: true, pro: true, business: true },
+      { name: 'Team Members', starter: '1', growth: '2', pro: '5 (+ add-on seats)', business: 'Unlimited' },
+      { name: 'Workspaces', starter: '1', growth: '1', pro: '5', business: 'Unlimited' },
+      { name: 'Role-Based Access Control', starter: true, growth: true, pro: true, business: true },
     ],
   },
   {
@@ -282,18 +319,18 @@ export const COMPARISON_CATEGORIES = [
     // limits.apiRequestsPerMinute.
     name: 'Developers & AI Agents',
     features: [
-      { name: 'Workspace API Keys', starter: true, pro: true, business: true },
-      { name: 'Publishing API (Connect + Full v1)', starter: true, pro: true, business: true },
-      { name: 'Signed Webhooks', starter: true, pro: true, business: true },
-      { name: 'Per-Brand Key Scoping & Expiry', starter: true, pro: true, business: true },
-      { name: 'API Rate Limit', starter: '60 req/min', pro: '120 req/min', business: '300 req/min' },
+      { name: 'Workspace API Keys', starter: true, growth: true, pro: true, business: true },
+      { name: 'Publishing API (Connect + Full v1)', starter: true, growth: true, pro: true, business: true },
+      { name: 'Signed Webhooks', starter: true, growth: true, pro: true, business: true },
+      { name: 'Per-Brand Key Scoping & Expiry', starter: true, growth: true, pro: true, business: true },
+      { name: 'API Rate Limit', starter: '60 req/min', growth: '90 req/min', pro: '120 req/min', business: '300 req/min' },
     ],
   },
   {
     name: 'Support',
     features: [
-      { name: 'Email Support', starter: true, pro: true, business: true },
-      { name: 'Priority Support', starter: false, pro: true, business: true },
+      { name: 'Email Support', starter: true, growth: true, pro: true, business: true },
+      { name: 'Priority Support', starter: false, growth: false, pro: true, business: true },
     ],
   },
 ];

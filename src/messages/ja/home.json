@@ -1,6 +1,6 @@
 {
   "hero": {
-    "primaryButton": "無料で始める",
+    "primaryButton": "7日間の無料トライアルを開始",
     "secondaryButton": "機能を見る",
     "signInPrompt": "すでにアカウントをお持ちですか？",
     "signInLink": "ログイン",
@@ -132,8 +132,8 @@
   },
   "ctaBand": {
     "title": "すべてのブランドの投稿を始めませんか？",
-    "subtitle": "無料で開始。チャネルを接続して、数分で最初の投稿を予約できます。",
-    "button": "無料で始める"
+    "subtitle": "7日間は請求なし ・ いつでも解約可能",
+    "button": "7日間の無料トライアルを開始"
   },
   "wallOfLove": {
     "title": "利用者の声"

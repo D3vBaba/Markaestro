@@ -3,32 +3,22 @@
     "eyebrow": "Pricing",
     "titleLead": "Your Entire Marketing Engine,",
     "titleHighlight": "One Plan per Workspace",
-    "subtitle": "No hidden fees, no per-user surprises. Start free. Every paid plan includes a {trialDays}-day free trial. Cancel anytime.",
+    "subtitle": "No permanent free plan. Every paid plan includes a {trialDays}-day trial for new customers. A payment method is required; cancel before the trial ends to avoid a charge.",
     "monthlyToggle": "Monthly",
     "annualToggle": "Annual",
-    "annualSaveBadge": "SAVE 17%",
-    "trialLine": "{trialDays}-day free trial on all paid plans, no charge until day {trialEndDay}",
-    "annualSavingsSuffix": " · Annual billing saves 17%"
+    "annualSaveBadge": "Save up to 17%",
+    "trialLine": "No charge for {trialDays} days · Cancel anytime",
+    "annualSavingsSuffix": " · Save up to 17%"
   },
   "planNames": {
-    "free": "Free",
+    "free": "No active plan",
     "starter": "Starter",
     "pro": "Pro",
-    "business": "Business"
+    "business": "Business",
+    "growth": "Growth"
   },
-  "mostPopularBadge": "Most Popular",
+  "mostPopularBadge": "Recommended",
   "plans": {
-    "free": {
-      "description": "Try Markaestro with one brand, free forever.",
-      "features": [
-        "1 brand",
-        "2 social channels",
-        "15 posts / month",
-        "1 GB storage",
-        "1 team member, 1 workspace",
-        "Analytics (7-day window)"
-      ]
-    },
     "starter": {
       "description": "For solo marketers scheduling across every platform.",
       "features": [
@@ -39,7 +29,7 @@
         "Brand voice per brand",
         "10 GB storage",
         "Full publishing API",
-        "Analytics (30-day window)"
+        "Unlimited analytics history + CSV export"
       ]
     },
     "pro": {
@@ -51,7 +41,7 @@
         "Best-time posting recommendations",
         "Brand voice + brand identity (logo & colors)",
         "100 GB storage",
-        "Analytics (1-year window)",
+        "Unlimited analytics history + CSV export",
         "Priority support",
         "10 Intelligent Evergreen queues per brand"
       ]
@@ -66,25 +56,35 @@
         "Priority support",
         "Unlimited Intelligent Evergreen queues"
       ]
+    },
+    "growth": {
+      "description": "For small teams managing several brands.",
+      "features": [
+        "4 brands",
+        "Up to 8 channels per brand",
+        "Unlimited scheduled posts",
+        "Content calendar",
+        "Brand voice per brand",
+        "50 GB storage",
+        "Full publishing API",
+        "Unlimited analytics history + CSV export",
+        "2 team members"
+      ]
     }
   },
   "planCard": {
     "perMonth": "/mo",
     "billedAnnually": "· Billed annually (${annualTotal}/yr)",
     "justPerDay": "That's just ${dailyCost}/day",
-    "billedMonthly": "Billed monthly · Switch to annual and save 17%",
+    "billedMonthly": "Monthly · Save up to 17%",
     "startTrialButton": "Start {trialDays}-day Free Trial",
     "noChargeLine": "No charge for {trialDays} days · Cancel anytime",
-    "everythingIncluded": "Everything Included",
-    "freeForever": "Free Forever",
-    "startFreeButton": "Start Free",
-    "noCardLine": "No card required · Upgrade anytime"
+    "everythingIncluded": "Everything Included"
   },
   "comparison": {
     "titleLead": "Compare",
     "titleHighlight": "Every Feature",
     "subtitle": "See exactly what's included in each plan.",
-    "freeNote": "The Free plan includes 1 brand, 2 channels, 15 posts/month, 1 GB storage, and 7-day analytics, no API access.",
     "categories": [
       {
         "name": "Publishing",
@@ -188,10 +188,6 @@
   "faqTitleHighlight": "FAQ",
   "faqs": [
     {
-      "q": "Is there a free plan?",
-      "a": "Yes. The Free plan is $0 forever, no card required. You get 1 brand, 2 social channels, 15 posts per month, 1 GB of storage, and a 7-day analytics window, with 1 team member in 1 workspace. API access requires a paid plan. Upgrade whenever you're ready."
-    },
-    {
       "q": "Can I switch plans at any time?",
       "a": "Yes. You can upgrade or downgrade your plan at any time. When upgrading, you'll be charged the prorated difference. When downgrading, the new rate takes effect at your next billing cycle."
     },
@@ -201,7 +197,7 @@
     },
     {
       "q": "How does storage work?",
-      "a": "Storage is the total size of the images and videos in your workspace's media library. The Free plan includes 1 GB, Starter 10 GB, Pro 100 GB, and Business has unlimited storage. Reusing an already-uploaded file across multiple posts doesn't use extra storage."
+      "a": "Starter: 10 GB storage. Growth: 50 GB storage. Pro: 100 GB storage. Business: Unlimited storage."
     },
     {
       "q": "What happens when I reach my storage limit?",
@@ -213,7 +209,7 @@
     },
     {
       "q": "Which plans include the free trial?",
-      "a": "All plans (Starter, Pro, Business) on both monthly and annual billing include the {trialDays}-day free trial. Annual billing also saves you 17% compared to monthly."
+      "a": "No charge for {trialDays} days · Cancel anytime. Save up to 17%."
     },
     {
       "q": "Can my AI agent or my own software use Markaestro?",
@@ -230,7 +226,7 @@
   ],
   "cta": {
     "title": "Try Markaestro Free for {trialDays} Days",
-    "subtitle": "Full access on any annual plan. No charge until day {trialEndDay}. Cancel anytime.",
+    "subtitle": "No charge for {trialDays} days · Cancel anytime",
     "primaryButton": "Start Free Trial",
     "secondaryButton": "Talk to Sales"
   }

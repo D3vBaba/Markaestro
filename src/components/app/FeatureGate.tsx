@@ -21,7 +21,7 @@ type FeatureGateProps = {
 };
 
 function getMinimumTier(feature: FeatureKey): PlanTier {
-  const tiers: PlanTier[] = ["starter", "pro", "business"];
+  const tiers: PlanTier[] = ["starter", "growth", "pro", "business"];
   for (const tier of tiers) {
     if (PLANS[tier].gated[feature]) return tier;
   }

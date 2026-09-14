@@ -50,7 +50,7 @@ function toCsv(rows: AnalyticsPostRow[]): string {
   return [header, ...lines].join('\n');
 }
 
-/** GET /api/analytics/export?days=90 — per-post CSV. Business plan only. */
+/** GET /api/analytics/export?days=90 — per-post CSV. Available on every paid plan and active trial. */
 export async function GET(req: Request) {
   try {
     const ctx = await requireContext(req);

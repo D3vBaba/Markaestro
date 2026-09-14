@@ -13,7 +13,7 @@
     "export": {
       "idle": "Esporta CSV",
       "exporting": "Esportazione…",
-      "lockedTitle": "L'esportazione CSV è inclusa nel piano Business"
+      "lockedTitle": "Scegli un piano per pubblicare. I contenuti salvati restano disponibili dopo la prova."
     },
     "filters": {
       "allPlatforms": "Tutte le piattaforme",

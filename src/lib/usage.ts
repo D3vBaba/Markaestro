@@ -66,10 +66,13 @@ export async function checkAndIncrementUsage(
   type: UsageType,
   workspaceId?: string,
 ): Promise<UsageCheckResult> {
-  // Workspaces without an active subscription resolve to the 'free' tier and
-  // meter against its limits rather than being blocked outright.
+  // The legacy free sentinel has no productive usage allowance.
   const sub = await getEffectiveSubscription(uid, workspaceId);
-  const plan = PLANS[effectiveTier(sub)];
+  const tier = effectiveTier(sub);
+  if (tier === 'free') {
+    return { allowed: false, current: 0, limit: 0, reason: 'subscription_required' };
+  }
+  const plan = PLANS[tier];
 
   const limit = plan.limits[LIMIT_KEY[type]];
 

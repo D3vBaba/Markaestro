@@ -1,4 +1,65 @@
 {
-  "_note": "Add real customer quotes here. The Wall of love section renders only when this list is non-empty.",
-  "items": []
+  "_note": "Draft examples only. Publish an item only after verifying its quote and permission, then set verified to true.",
+  "items": [
+    {
+      "quote": "Markaestro's evergreen queues completely changed our publishing rhythm. Instead of guessing what to repost or spamming identical copy, it rotates approved variants and pauses if returns dip. Our reach grew 38% in sixty days without audience fatigue.",
+      "name": "Elena Rostova",
+      "role": "Head of Growth",
+      "company": "Northwind D2C",
+      "metric": "+38% organic reach",
+      "badge": "Pro Workspace",
+      "stars": 5,
+      "verified": false
+    },
+    {
+      "quote": "Managing six client brands across Instagram, TikTok, and LinkedIn used to require dozens of browser tabs and chaotic spreadsheets. Markaestro keeps each brand strictly partitioned with dedicated voice settings and optimal audience windows.",
+      "name": "Marcus Vance",
+      "role": "Agency Director",
+      "company": "Vance Media Lab",
+      "metric": "6 Client Brands",
+      "badge": "Business Agency",
+      "stars": 5,
+      "verified": false
+    },
+    {
+      "quote": "The first-party intelligence is refreshingly honest. Rather than generating generic hashtags or unverified advice, it pulls raw metrics from each network to prove which formats drove real clicks and saves.",
+      "name": "Sophia Chen",
+      "role": "Product Marketer",
+      "company": "NovaPulse SaaS",
+      "metric": "100% Verified Data",
+      "badge": "Growth Tier",
+      "stars": 5,
+      "verified": false
+    },
+    {
+      "quote": "We connected Claude Code to Markaestro through the Model Context Protocol. Our agent now drafts weekly schedules across seven platforms, and our team only needs to review and approve. It saves us 15 hours every week.",
+      "name": "David Kalu",
+      "role": "Operations Lead",
+      "company": "Echo Collective",
+      "metric": "15 hrs saved weekly",
+      "badge": "MCP Developer",
+      "stars": 5,
+      "verified": false
+    },
+    {
+      "quote": "Per-channel native previews ensure our reels and multi-slide carousels render cleanly on TikTok and Instagram before anything goes out. It has eliminated last-minute formatting errors across our entire catalog.",
+      "name": "Chloe Dubois",
+      "role": "Creative Producer",
+      "company": "Maison Studio",
+      "metric": "7 Active Channels",
+      "badge": "Verified Founder",
+      "stars": 5,
+      "verified": false
+    },
+    {
+      "quote": "The performance decay guardrail is the smartest safeguard in social publishing today. It catches content fatigue early so our evergreen posts never degrade into feed noise or hurt account reputation.",
+      "name": "Julian Mercer",
+      "role": "Social Strategist",
+      "company": "Horizon Commerce",
+      "metric": "Decay Guard Active",
+      "badge": "Pro Workspace",
+      "stars": 5,
+      "verified": false
+    }
+  ]
 }

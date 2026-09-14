@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { PLANS } from '@/lib/stripe/plans';
 
 const requirePublicApiContextMock = vi.fn();
 const buildAnalyticsResponseMock = vi.fn();
@@ -60,26 +59,13 @@ describe('GET /api/public/v1/analytics', () => {
     expect(response.headers.get('X-RateLimit-Limit')).toBe('20');
   });
 
-  it('clamps the window to the plan’s history and reports the cap', async () => {
-    const cap = PLANS.starter.limits.analyticsWindowDays;
-    expect(cap).toBeGreaterThan(0);
-
-    await call('?days=365');
-
+  it.each(['starter', 'growth', 'pro', 'business'])('keeps all history available on %s', async (tier) => {
+    requirePublicApiContextMock.mockResolvedValue(context(tier));
+    await call('?days=365&since=2020-01-01&until=2026-08-31');
     expect(buildAnalyticsResponseMock).toHaveBeenCalledWith(expect.objectContaining({
-      days: Math.min(365, cap),
-      requestedDays: 365,
-      maxDays: cap,
+      days: 365, requestedDays: 365, maxDays: -1,
+      since: '2020-01-01', until: '2026-08-31',
     }));
-  });
-
-  it('leaves an unlimited plan unclamped', async () => {
-    requirePublicApiContextMock.mockResolvedValue(context('business'));
-    expect(PLANS.business.limits.analyticsWindowDays).toBe(-1);
-
-    await call('?days=365');
-
-    expect(buildAnalyticsResponseMock).toHaveBeenCalledWith(expect.objectContaining({ days: 365, maxDays: -1 }));
   });
 
   it('passes an explicit range through and defaults the rest', async () => {

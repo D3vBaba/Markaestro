@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const tier = body.tier as PlanTier;
-    const interval = (body.interval || 'annual') as BillingInterval;
+    const interval = (body.interval || 'monthly') as BillingInterval;
     // Where the user pressed "upgrade". Untrusted input, so it is validated as
     // an internal path; null means the caller named no origin.
     const requestedReturnTo = safeInternalPathOrNull(
@@ -146,7 +146,6 @@ export async function POST(req: Request) {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
-      payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       subscription_data: {
         ...(trialEligible ? { trial_period_days: TRIAL_DAYS } : {}),

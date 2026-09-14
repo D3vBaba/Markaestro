@@ -1,6 +1,6 @@
 {
   "hero": {
-    "primaryButton": "Kostenlos starten",
+    "primaryButton": "7-tägige kostenlose Testphase starten",
     "secondaryButton": "Funktionen ansehen",
     "signInPrompt": "Du hast schon ein Konto?",
     "signInLink": "Anmelden",
@@ -132,8 +132,8 @@
   },
   "ctaBand": {
     "title": "Bereit, jede Marke zum Posten zu bringen?",
-    "subtitle": "Kostenlos starten. Verbinde einen Kanal und plane deinen ersten Beitrag in Minuten.",
-    "button": "Kostenlos starten"
+    "subtitle": "Keine Kosten für 7 Tage · Jederzeit kündbar",
+    "button": "7-tägige kostenlose Testphase starten"
   },
   "wallOfLove": {
     "title": "Was andere sagen"

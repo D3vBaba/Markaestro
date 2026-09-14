@@ -204,7 +204,7 @@ export async function POST(req: Request) {
         current: quota.current,
         limit: quota.limit,
       });
-      return apiError(new Error('QUOTA_EXCEEDED_POSTS'));
+      return apiError(new Error(quota.reason === 'subscription_required' ? 'SUBSCRIPTION_REQUIRED' : 'QUOTA_EXCEEDED_POSTS'));
     }
     if (quota.limit !== -1) {
       reservedQuota = { uid: ctx.uid, workspaceId: ctx.workspaceId };

@@ -3,32 +3,22 @@
     "eyebrow": "Prezzi",
     "titleLead": "Tutto il tuo motore di marketing,",
     "titleHighlight": "un prezzo semplice",
-    "subtitle": "Nessuna commissione nascosta, nessuna sorpresa per utente. Inizia gratis, ogni piano a pagamento include una prova gratuita di {trialDays} giorni. Annulla in qualsiasi momento.",
+    "subtitle": "Nessun addebito per {trialDays} giorni · Annulla in qualsiasi momento",
     "monthlyToggle": "Mensile",
     "annualToggle": "Annuale",
-    "annualSaveBadge": "RISPARMIA IL 17%",
-    "trialLine": "Prova gratuita di {trialDays} giorni su tutti i piani a pagamento, nessun addebito fino al giorno {trialEndDay}",
-    "annualSavingsSuffix": " · La fatturazione annuale fa risparmiare il 17%"
+    "annualSaveBadge": "Risparmia fino al 17%",
+    "trialLine": "Nessun addebito per {trialDays} giorni · Annulla in qualsiasi momento",
+    "annualSavingsSuffix": " · Risparmia fino al 17%"
   },
   "planNames": {
     "free": "Gratis",
     "starter": "Starter",
     "pro": "Pro",
-    "business": "Business"
+    "business": "Business",
+    "growth": "Growth"
   },
-  "mostPopularBadge": "Più Popolare",
+  "mostPopularBadge": "Consigliato",
   "plans": {
-    "free": {
-      "description": "Prova Markaestro con un brand, gratis per sempre.",
-      "features": [
-        "Un brand",
-        "2 canali social",
-        "15 post / mese",
-        "1 GB di archiviazione",
-        "1 membro del team, 1 workspace",
-        "Analisi (finestra di 7 giorni)"
-      ]
-    },
     "starter": {
       "description": "Per marketer singoli che programmano su tutte le piattaforme.",
       "features": [
@@ -39,7 +29,7 @@
         "Voce del brand per brand",
         "10 GB di spazio",
         "API di pubblicazione completa",
-        "Analytics (finestra di 30 giorni)"
+        "Cronologia analytics illimitata + esportazione CSV"
       ]
     },
     "pro": {
@@ -51,7 +41,7 @@
         "Consigli sugli orari migliori per pubblicare",
         "Voce del brand + identità del brand (logo e colori)",
         "100 GB di spazio",
-        "Analytics (finestra di 1 anno)",
+        "Cronologia analytics illimitata + esportazione CSV",
         "Supporto prioritario",
         "10 code Intelligent Evergreen per brand"
       ]
@@ -66,25 +56,35 @@
         "Supporto prioritario",
         "Code Intelligent Evergreen illimitate"
       ]
+    },
+    "growth": {
+      "description": "Per piccoli team che gestiscono più brand.",
+      "features": [
+        "4 brand",
+        "Fino a 8 canali per brand",
+        "Post programmati illimitati",
+        "Calendario dei contenuti",
+        "Voce del brand per brand",
+        "50 GB di spazio",
+        "API di pubblicazione completa",
+        "Cronologia analytics illimitata + esportazione CSV",
+        "2 membri del team"
+      ]
     }
   },
   "planCard": {
     "perMonth": "/mese",
     "billedAnnually": "· Fatturato annualmente (${annualTotal}/anno)",
     "justPerDay": "Sono solo ${dailyCost}/giorno",
-    "billedMonthly": "Fatturato mensilmente · Passa all'annuale e risparmia il 17%",
+    "billedMonthly": "Mensile · Risparmia fino al 17%",
     "startTrialButton": "Inizia la Prova Gratuita di {trialDays} Giorni",
     "noChargeLine": "Nessun addebito per {trialDays} giorni · Annulla in qualsiasi momento",
-    "everythingIncluded": "Tutto incluso",
-    "freeForever": "Gratis per sempre",
-    "startFreeButton": "Inizia gratis",
-    "noCardLine": "Nessuna carta richiesta · Fai l'upgrade in qualsiasi momento"
+    "everythingIncluded": "Tutto incluso"
   },
   "comparison": {
     "titleLead": "Confronta",
     "titleHighlight": "ogni funzionalità",
     "subtitle": "Scopri esattamente cosa è incluso in ogni piano.",
-    "freeNote": "Il piano Gratis include 1 brand, 2 canali, 15 post al mese, 1 GB di archiviazione e analisi di 7 giorni, senza accesso API.",
     "categories": [
       {
         "name": "Pubblicazione",
@@ -188,10 +188,6 @@
   "faqTitleHighlight": "Prezzi",
   "faqs": [
     {
-      "q": "Esiste un piano gratuito?",
-      "a": "Sì. Il piano Gratis costa 0 $ per sempre, nessuna carta richiesta. Ottieni 1 brand, 2 canali social, 15 post al mese, 1 GB di archiviazione e una finestra di analisi di 7 giorni, con 1 membro del team in 1 workspace. L'accesso API richiede un piano a pagamento. Fai l'upgrade quando sei pronto."
-    },
-    {
       "q": "Posso cambiare piano in qualsiasi momento?",
       "a": "Sì. Puoi effettuare l'upgrade o il downgrade del tuo piano in qualsiasi momento. In caso di upgrade, ti verrà addebitata la differenza proporzionale. In caso di downgrade, la nuova tariffa entrerà in vigore al ciclo di fatturazione successivo."
     },
@@ -201,7 +197,7 @@
     },
     {
       "q": "Come funziona l'archiviazione?",
-      "a": "L'archiviazione è la dimensione totale di immagini e video nella libreria contenuti del tuo workspace. Il piano Gratis include 1 GB, Starter 10 GB, Pro 100 GB e Business archiviazione illimitata. Riutilizzare un file già caricato su più post non consuma archiviazione aggiuntiva."
+      "a": "Starter: 10 GB di spazio. Growth: 50 GB di spazio. Pro: 100 GB di spazio. Business: Spazio illimitato."
     },
     {
       "q": "Cosa succede quando raggiungo il limite di archiviazione?",
@@ -213,7 +209,7 @@
     },
     {
       "q": "Quali piani includono la prova gratuita?",
-      "a": "Tutti i piani (Starter, Pro, Business) sia con fatturazione mensile che annuale includono la prova gratuita di {trialDays} giorni. La fatturazione annuale ti fa anche risparmiare il 17% rispetto a quella mensile."
+      "a": "Nessun addebito per {trialDays} giorni · Annulla in qualsiasi momento. Risparmia fino al 17%."
     },
     {
       "q": "Il mio agente IA o il mio software può usare Markaestro?",
@@ -230,7 +226,7 @@
   ],
   "cta": {
     "title": "Prova Markaestro gratis per {trialDays} giorni",
-    "subtitle": "Accesso completo su qualsiasi piano annuale. Nessun addebito fino al giorno {trialEndDay}. Annulla in qualsiasi momento.",
+    "subtitle": "Nessun addebito per {trialDays} giorni · Annulla in qualsiasi momento",
     "primaryButton": "Inizia la Prova Gratuita",
     "secondaryButton": "Parla con il Team Commerciale"
   }

@@ -57,7 +57,8 @@
     "manageBilling": "Abrechnung Verwalten",
     "loading": "Wird geladen...",
     "openingPortal": "Abrechnungsportal wird geöffnet…",
-    "portalError": "Das Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut."
+    "portalError": "Das Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut.",
+    "inactive": "Wähle einen Tarif zum Veröffentlichen. Gespeicherte Inhalte bleiben nach der Testphase zugänglich."
   },
   "verifyEmailBanner": {
     "prompt": "Bestätige deine E-Mail-Adresse, um zu veröffentlichen",

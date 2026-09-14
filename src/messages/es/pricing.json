@@ -3,32 +3,22 @@
     "eyebrow": "Precios",
     "titleLead": "Todo tu motor de marketing,",
     "titleHighlight": "un precio simple",
-    "subtitle": "Sin comisiones ocultas, sin sorpresas por usuario. Empieza gratis, todos los planes de pago incluyen una prueba gratuita de {trialDays} días. Cancela cuando quieras.",
+    "subtitle": "Sin cargo durante {trialDays} días · Cancela cuando quieras",
     "monthlyToggle": "Mensual",
     "annualToggle": "Anual",
-    "annualSaveBadge": "AHORRA 17%",
-    "trialLine": "Prueba gratuita de {trialDays} días en todos los planes de pago, sin cargo hasta el día {trialEndDay}",
-    "annualSavingsSuffix": " · La facturación anual ahorra un 17%"
+    "annualSaveBadge": "Ahorra hasta un 17 %",
+    "trialLine": "Sin cargo durante {trialDays} días · Cancela cuando quieras",
+    "annualSavingsSuffix": " · Ahorra hasta un 17 %"
   },
   "planNames": {
     "free": "Gratis",
     "starter": "Starter",
     "pro": "Pro",
-    "business": "Business"
+    "business": "Business",
+    "growth": "Growth"
   },
-  "mostPopularBadge": "Más popular",
+  "mostPopularBadge": "Recomendado",
   "plans": {
-    "free": {
-      "description": "Prueba Markaestro con una marca, gratis para siempre.",
-      "features": [
-        "1 marca",
-        "2 canales sociales",
-        "15 publicaciones al mes",
-        "1 GB de almacenamiento",
-        "1 miembro del equipo, 1 espacio de trabajo",
-        "Analíticas (ventana de 7 días)"
-      ]
-    },
     "starter": {
       "description": "Para profesionales en solitario que programan en todas las plataformas.",
       "features": [
@@ -39,7 +29,7 @@
         "Voz de marca por marca",
         "10 GB de almacenamiento",
         "API de publicación completa",
-        "Analíticas (ventana de 30 días)"
+        "Historial de analíticas ilimitado + exportación CSV"
       ]
     },
     "pro": {
@@ -51,7 +41,7 @@
         "Recomendaciones de mejor hora para publicar",
         "Voz de marca + identidad de marca (logo y colores)",
         "100 GB de almacenamiento",
-        "Analíticas (ventana de 1 año)",
+        "Historial de analíticas ilimitado + exportación CSV",
         "Soporte prioritario",
         "10 colas de Intelligent Evergreen por marca"
       ]
@@ -66,25 +56,35 @@
         "Soporte prioritario",
         "Colas de Intelligent Evergreen ilimitadas"
       ]
+    },
+    "growth": {
+      "description": "Para equipos pequeños que gestionan varias marcas.",
+      "features": [
+        "4 marcas",
+        "Hasta 8 canales por marca",
+        "Publicaciones programadas ilimitadas",
+        "Calendario de contenido",
+        "Voz de marca por marca",
+        "50 GB de almacenamiento",
+        "API de publicación completa",
+        "Historial de analíticas ilimitado + exportación CSV",
+        "2 miembros del equipo"
+      ]
     }
   },
   "planCard": {
     "perMonth": "/mes",
     "billedAnnually": "· Facturado anualmente (${annualTotal}/año)",
     "justPerDay": "Eso es solo ${dailyCost}/día",
-    "billedMonthly": "Facturado mensualmente · Cambia a anual y ahorra un 17%",
+    "billedMonthly": "Mensual · Ahorra hasta un 17 %",
     "startTrialButton": "Iniciar prueba gratuita de {trialDays} días",
     "noChargeLine": "Sin cargo durante {trialDays} días · Cancela cuando quieras",
-    "everythingIncluded": "Todo incluido",
-    "freeForever": "Gratis para siempre",
-    "startFreeButton": "Empezar gratis",
-    "noCardLine": "No se requiere tarjeta · Mejora cuando quieras"
+    "everythingIncluded": "Todo incluido"
   },
   "comparison": {
     "titleLead": "Compara",
     "titleHighlight": "cada función",
     "subtitle": "Ve exactamente qué incluye cada plan.",
-    "freeNote": "El plan Gratis incluye 1 marca, 2 canales, 15 publicaciones al mes, 1 GB de almacenamiento y analíticas de 7 días, sin acceso a la API.",
     "categories": [
       {
         "name": "Publicación",
@@ -188,10 +188,6 @@
   "faqTitleHighlight": "sobre precios",
   "faqs": [
     {
-      "q": "¿Hay un plan gratuito?",
-      "a": "Sí. El plan Gratis cuesta 0 $ para siempre, sin tarjeta. Obtienes 1 marca, 2 canales sociales, 15 publicaciones al mes, 1 GB de almacenamiento y una ventana de analíticas de 7 días, con 1 miembro del equipo en 1 espacio de trabajo. El acceso a la API requiere un plan de pago. Mejora tu plan cuando estés listo."
-    },
-    {
       "q": "¿Puedo cambiar de plan en cualquier momento?",
       "a": "Sí. Puedes mejorar o reducir tu plan en cualquier momento. Al mejorar, se te cobrará la diferencia prorrateada. Al reducir, la nueva tarifa entra en vigor en tu siguiente ciclo de facturación."
     },
@@ -201,7 +197,7 @@
     },
     {
       "q": "¿Cómo funciona el almacenamiento?",
-      "a": "El almacenamiento es el tamaño total de las imágenes y vídeos de la biblioteca de contenido de tu espacio de trabajo. El plan Gratis incluye 1 GB, Starter 10 GB, Pro 100 GB y Business almacenamiento ilimitado. Reutilizar un archivo ya subido en varias publicaciones no consume almacenamiento adicional."
+      "a": "Starter: 10 GB de almacenamiento. Growth: 50 GB de almacenamiento. Pro: 100 GB de almacenamiento. Business: Almacenamiento ilimitado."
     },
     {
       "q": "¿Qué ocurre cuando alcanzo mi límite de almacenamiento?",
@@ -213,7 +209,7 @@
     },
     {
       "q": "¿Qué planes incluyen la prueba gratuita?",
-      "a": "Todos los planes (Starter, Pro, Business), tanto en facturación mensual como anual, incluyen la prueba gratuita de {trialDays} días. La facturación anual también te ahorra un 17% frente a la mensual."
+      "a": "Sin cargo durante {trialDays} días · Cancela cuando quieras. Ahorra hasta un 17 %."
     },
     {
       "q": "¿Puede mi agente de IA o mi propio software usar Markaestro?",
@@ -230,7 +226,7 @@
   ],
   "cta": {
     "title": "Prueba Markaestro gratis durante {trialDays} días",
-    "subtitle": "Acceso completo con cualquier plan anual. Sin cargo hasta el día {trialEndDay}. Cancela cuando quieras.",
+    "subtitle": "Sin cargo durante {trialDays} días · Cancela cuando quieras",
     "primaryButton": "Iniciar prueba gratuita",
     "secondaryButton": "Hablar con ventas"
   }

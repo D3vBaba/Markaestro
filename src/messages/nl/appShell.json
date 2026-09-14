@@ -57,7 +57,8 @@
     "manageBilling": "Facturering Beheren",
     "loading": "Bezig met laden...",
     "openingPortal": "Factureringsportaal wordt geopend…",
-    "portalError": "Kon het factureringsportaal niet openen. Probeer het opnieuw."
+    "portalError": "Kon het factureringsportaal niet openen. Probeer het opnieuw.",
+    "inactive": "Kies een abonnement om te publiceren. Opgeslagen inhoud blijft na de proefperiode beschikbaar."
   },
   "verifyEmailBanner": {
     "prompt": "Bevestig je e-mailadres om te publiceren",

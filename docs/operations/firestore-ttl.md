@@ -29,6 +29,7 @@ declare -a TTL_COLLECTIONS=(
   'rawPlatformMetrics'
   'aiArtifacts'
   'conversionClicks'
+  'providerUsageDedupe'
   'publishAttempts'
   'oauth_clients'
   'oauth_codes'
@@ -64,6 +65,7 @@ done
 | `rawPlatformMetrics` | 90 days | Metadata pointers and checksums for immutable compressed platform payloads |
 | `aiArtifacts` | 30 days | Validated AI response artifacts used for audit and repair diagnostics |
 | `conversionClicks` | 90 days | Opaque click identifiers retained beyond the default attribution window |
+| `providerUsageDedupe` | 35 days | Hashed daily X resource-read reservations used to mirror provider billing deduplication |
 | `publishAttempts` | 90 days | Per-channel, per-attempt publish outcomes behind the coarser `job_runs` summary |
 | `oauth_clients` | 180 days since last token exchange | Dynamically registered MCP clients (agent OAuth). Seeded first-party clients (`firstParty: true`, from `scripts/seed-oauth-clients.mjs`) carry no `expiresAt` and are never deleted by the policy |
 | `oauth_codes` | 10 minutes | Single-use authorization codes, stored hashed |

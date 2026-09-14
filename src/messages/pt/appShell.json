@@ -57,7 +57,8 @@
     "manageBilling": "Gerenciar Faturamento",
     "loading": "Carregando...",
     "openingPortal": "Abrindo o portal de faturamento…",
-    "portalError": "Não foi possível abrir o portal de faturamento. Tente novamente."
+    "portalError": "Não foi possível abrir o portal de faturamento. Tente novamente.",
+    "inactive": "Escolha um plano para publicar. O conteúdo guardado continua disponível após o teste."
   },
   "verifyEmailBanner": {
     "prompt": "Verifique seu e-mail para publicar",

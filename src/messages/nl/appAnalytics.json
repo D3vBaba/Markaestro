@@ -13,7 +13,7 @@
     "export": {
       "idle": "CSV exporteren",
       "exporting": "Bezig met exporteren…",
-      "lockedTitle": "CSV-export is inbegrepen bij het Business-plan"
+      "lockedTitle": "Kies een abonnement om te publiceren. Opgeslagen inhoud blijft na de proefperiode beschikbaar."
     },
     "filters": {
       "allPlatforms": "Alle platforms",

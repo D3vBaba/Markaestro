@@ -4,7 +4,8 @@ import { ConnectionStatus, PlatformCapability, type PlatformConnection } from '@
 vi.mock('@/lib/crypto', () => ({ decrypt: () => 'access-token' }));
 vi.mock('@/lib/platform/cost-guardrails', () => ({
   reserveProviderUsage: vi.fn(async () => undefined),
-  xReadCostUsd: () => 0.005,
+  settleProviderUsage: vi.fn(async () => undefined),
+  xReadCostUsd: (resources = 1) => 0.005 * resources,
   xUserReadCostUsd: () => 0.01,
   xDeleteCostUsd: () => 0.01,
   xWorkspaceHardBudgetUsd: () => 25,
@@ -12,7 +13,7 @@ vi.mock('@/lib/platform/cost-guardrails', () => ({
 }));
 
 import { xPublishingAdapter } from './x-publishing';
-import { reserveProviderUsage } from '@/lib/platform/cost-guardrails';
+import { reserveProviderUsage, settleProviderUsage } from '@/lib/platform/cost-guardrails';
 
 const connection: PlatformConnection = {
   provider: 'x',
@@ -111,5 +112,74 @@ describe('X publishing adapter', () => {
       expect(result.metrics).toMatchObject({ impressions: 100, views: 100, likes: 8, comments: 2, shares: 4 });
       expect(result.metrics.reach).toBeNull();
     }
+    expect(reserveProviderUsage).toHaveBeenCalledWith(expect.objectContaining({
+      operation: 'metrics',
+      dailyDedupeKey: 'post:123',
+    }));
+  });
+
+  it('asks X only for posts newer than the caller cutoff, so the page bills nothing when none exist', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      data: [],
+      meta: {},
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+
+    const result = await xPublishingAdapter.listPosts!(connection, {
+      channel: 'x',
+      limit: 50,
+      sinceIso: '2026-09-11T10:30:00.123Z',
+    });
+
+    expect(result.ok).toBe(true);
+    const url = new URL(String(fetchMock.mock.calls[0][0]));
+    // Whole seconds: X rejects a start_time carrying milliseconds.
+    expect(url.searchParams.get('start_time')).toBe('2026-09-11T10:30:00Z');
+    expect(url.searchParams.get('max_results')).toBe('50');
+    // Reserved a full page, settled to the nothing that came back.
+    expect(reserveProviderUsage).toHaveBeenCalledWith(expect.objectContaining({
+      operation: 'list_posts',
+      estimatedCostUsd: 0.25,
+    }));
+    expect(settleProviderUsage).toHaveBeenCalledWith(expect.objectContaining({
+      operation: 'list_posts',
+      reservedCostUsd: 0.25,
+      unitCostUsd: 0.005,
+      resourceKeys: [],
+    }));
+  });
+
+  it('settles a page read against the posts X actually returned', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      data: [
+        { id: '1', text: 'one', created_at: '2026-09-12T00:00:00.000Z' },
+        { id: '2', text: 'two', created_at: '2026-09-12T01:00:00.000Z' },
+      ],
+      meta: { next_token: 'page-2' },
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+
+    const result = await xPublishingAdapter.listPosts!(connection, { channel: 'x', limit: 50 });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.posts.map((post) => post.externalId)).toEqual(['1', '2']);
+    expect(settleProviderUsage).toHaveBeenCalledWith(expect.objectContaining({
+      reservedCostUsd: 0.25,
+      // Same key shape as a single-post metrics read, so a post read twice in
+      // a UTC day is charged once.
+      resourceKeys: ['post:1', 'post:2'],
+    }));
+  });
+
+  it('refunds the reservation when the page read fails', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      title: 'Too Many Requests',
+    }), { status: 429, headers: { 'Content-Type': 'application/json' } }));
+
+    const result = await xPublishingAdapter.listPosts!(connection, { channel: 'x', limit: 50 });
+
+    expect(result).toMatchObject({ ok: false, reason: 'transient' });
+    expect(settleProviderUsage).toHaveBeenCalledWith(expect.objectContaining({
+      reservedCostUsd: 0.25,
+      resourceKeys: [],
+    }));
   });
 });

@@ -1,3 +1,4 @@
+import { requirePaidPublishing } from '@/lib/stripe/publishing-access';
 import { adminDb } from '@/lib/firebase-admin';
 import { requireContext } from '@/lib/server-auth';
 import { requirePermission } from '@/lib/rbac';
@@ -80,6 +81,7 @@ async function getFreshChannelResults(
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await requireContext(req);
+    await requirePaidPublishing(ctx.workspaceId, ctx.uid);
     requirePermission(ctx, 'posts.publish');
 
     // Outbound publishing is the one action gated on email verification.
@@ -241,7 +243,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       workspaceId: ctx.workspaceId,
       postId: id,
       pending: result.pending,
-      channelResults: result.channels.map((c) => ({ channel: c.channel, success: c.success })),
+      channelResults: result.channels.map((c) => ({
+        channel: c.channel,
+        success: c.success,
+        ...(c.error ? { errorCode: classifyPublishError(c.error).code } : {}),
+      })),
     });
 
     // `actionRequired` means every channel is waiting on the user;

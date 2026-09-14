@@ -13,7 +13,7 @@
     "export": {
       "idle": "Exporter en CSV",
       "exporting": "Exportation…",
-      "lockedTitle": "L'export CSV est inclus dans le forfait Business"
+      "lockedTitle": "Choisissez un forfait pour publier. Votre contenu reste accessible après l’essai."
     },
     "filters": {
       "allPlatforms": "Toutes les plateformes",

@@ -105,8 +105,8 @@
   },
   "cta": {
     "title": "Klaar om het in actie te zien?",
-    "subtitle": "Start gratis. Geen creditcard nodig. Verbind je eerste kanaal in minder dan twee minuten.",
-    "primaryButton": "Gratis aan de slag",
+    "subtitle": "Geen kosten voor 7 dagen · Op elk moment op te zeggen",
+    "primaryButton": "Start Gratis Proefperiode van 7 Dagen",
     "secondaryButton": "Contact met sales"
   },
   "intelligence": {
@@ -164,6 +164,6 @@
       "Zegt altijd wat een resultaat heeft gevoed: Gemeten, Berekend, Aanbevolen, Opgegeven of Gegenereerd."
     ],
     "plans": "Audience Fit zit in elk abonnement. Draaiboek, Kansen, getraceerde links en Ask Markaestro beginnen bij Pro; Experimenten bij Business. AI-acties zoals Maak concept worden per maand geteld, afhankelijk van je abonnement.",
-    "cta": "Begin gratis en koppel een kanaal"
+    "cta": "Start Gratis Proefperiode van 7 Dagen"
   }
 }

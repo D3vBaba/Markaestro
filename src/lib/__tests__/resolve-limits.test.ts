@@ -67,7 +67,7 @@ describe('resolveLimits', () => {
     expect(starter.apiRequestsPerMinute).toBe(PLANS.starter.limits.apiRequestsPerMinute);
 
     // Free (no subscription) meters 1 GB and has no API access.
-    expect(resolveLimits(null).storageGb).toBe(1);
+    expect(resolveLimits(null).storageGb).toBe(0);
     expect(resolveLimits(null).apiRequestsPerMinute).toBe(0);
   });
 
@@ -82,7 +82,7 @@ describe('resolveLimits', () => {
 
   it('meters posts on free only; every paid tier is unlimited', () => {
     expect(resolveLimits(null).postsPerMonth).toBe(PLANS.free.limits.postsPerMonth);
-    for (const tier of ['starter', 'pro', 'business'] as const) {
+    for (const tier of ['starter', 'growth', 'pro', 'business'] as const) {
       expect(resolveLimits(record({ tier })).postsPerMonth).toBe(-1);
     }
   });
@@ -97,8 +97,15 @@ describe('hasFeature', () => {
     expect(hasFeature(null, 'smartScheduling')).toBe(false);
   });
 
-  it('gates CSV export to Business', () => {
-    expect(hasFeature(record({ tier: 'business' }), 'analyticsCsvExport')).toBe(true);
-    expect(hasFeature(record({ tier: 'pro' }), 'analyticsCsvExport')).toBe(false);
+  it('includes unlimited analytics and CSV export in every paid plan and trial', () => {
+    for (const tier of ['starter', 'growth', 'pro', 'business'] as const) {
+      for (const status of ['active', 'trialing']) {
+        const subscription = record({ tier, status });
+        expect(resolveLimits(subscription).analyticsWindowDays).toBe(-1);
+        expect(hasFeature(subscription, 'analyticsCsvExport')).toBe(true);
+      }
+      expect(hasFeature(record({ tier, status: 'canceled' }), 'analyticsCsvExport')).toBe(false);
+    }
+    expect(hasFeature(null, 'analyticsCsvExport')).toBe(false);
   });
 });

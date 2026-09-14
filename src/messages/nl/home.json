@@ -1,6 +1,6 @@
 {
   "hero": {
-    "primaryButton": "Start gratis",
+    "primaryButton": "Start Gratis Proefperiode van 7 Dagen",
     "secondaryButton": "Bekijk functies",
     "signInPrompt": "Heb je al een account?",
     "signInLink": "Inloggen",
@@ -132,8 +132,8 @@
   },
   "ctaBand": {
     "title": "Klaar om elk merk te laten posten?",
-    "subtitle": "Gratis om te starten. Koppel een kanaal en plan je eerste post binnen een paar minuten in.",
-    "button": "Gratis starten"
+    "subtitle": "Geen kosten voor 7 dagen · Op elk moment op te zeggen",
+    "button": "Start Gratis Proefperiode van 7 Dagen"
   },
   "wallOfLove": {
     "title": "Wat mensen zeggen"

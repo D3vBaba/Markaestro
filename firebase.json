@@ -33,7 +33,11 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         "output",
-        ".next"
+        ".next",
+        ".env*",
+        "*.tsbuildinfo",
+        ".claude",
+        ".agents"
       ],
       "alwaysDeployFromSource": true
     }

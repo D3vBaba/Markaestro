@@ -99,7 +99,8 @@ const FLOW_STEPS = [
 
 function recommendPlan(role: string, teamSize: string): PlanTier {
   if (role === "agency" || teamSize === "large" || teamSize === "medium") return "business";
-  if (teamSize === "small" || role === "marketer") return "pro";
+  if (teamSize === "small") return "growth";
+  if (role === "marketer") return "pro";
   return "starter";
 }
 
@@ -376,7 +377,7 @@ export default function OnboardingPage() {
     signInWithCode,
     signInGoogle,
   } = useAuth();
-  const { status: subStatus, loading: subLoading, refresh: refreshSubscription } = useSubscription();
+  const { status: subStatus, loading: subLoading } = useSubscription();
   const router = useRouter();
 
   const saved = loadState();
@@ -416,9 +417,8 @@ export default function OnboardingPage() {
 
   // Plan
   const [selectedTier, setSelectedTier] = useState<PlanTier>(saved.selectedTier ?? "pro");
-  const [interval, setInterval] = useState<BillingInterval>(saved.interval ?? "annual");
+  const [interval, setInterval] = useState<BillingInterval>(saved.interval ?? "monthly");
   const [busy, setBusy] = useState(false);
-  const [freeBusy, setFreeBusy] = useState(false);
 
   // Register — passwordless: email first, then the one-time code we sent.
   const [regStage, setRegStage] = useState<"email" | "code">("email");
@@ -761,26 +761,6 @@ export default function OnboardingPage() {
     } catch (e: unknown) {
       setRegError(friendlyAuthError(e, tAuthErrors));
       setRegBusy(false);
-    }
-  }
-
-  // Continue into the app on the Free plan — no checkout. The app shell's
-  // onboarding gate (`/api/onboarding/status`) treats a workspace as onboarded
-  // once it has EITHER a product OR subscription history; with no checkout on
-  // this path, the brand must exist before we leave (falls back to a
-  // placeholder name the user can rename later — same as connectSocial).
-  async function handleContinueFree() {
-    setFreeBusy(true);
-    try {
-      await ensureOnboardingProduct();
-      // Force-refresh the shared bootstrap cache so the dashboard's shell sees
-      // hasProducts=true instead of a stale snapshot bouncing us back here.
-      await refreshSubscription();
-      try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
-      router.replace("/dashboard");
-    } catch {
-      toast.error(t("paywall.freeOption.failed"));
-      setFreeBusy(false);
     }
   }
 
@@ -1541,7 +1521,7 @@ export default function OnboardingPage() {
                   </div>
 
                   {/* Plan cards */}
-                  <div className="grid gap-4 sm:gap-3 sm:grid-cols-3">
+                  <div className="grid gap-4 sm:gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {PLAN_TIERS.map((tierKey) => {
                       const plan = PLANS[tierKey];
                       const price = interval === "annual" ? plan.price.annual : plan.price.monthly;
@@ -1595,7 +1575,8 @@ export default function OnboardingPage() {
                   </p>
                   {interval === "annual" && (
                     <p className="text-center text-xs text-muted-foreground mt-1">
-                      {t("paywall.annualSavingsNote")}
+                      {t("paywall.annualBill", { annualTotal: (PLANS[selectedTier].price.annual * 12).toFixed(2) })}
+                      {" · "}{t("paywall.annualSavingsNote")}
                     </p>
                   )}
 
@@ -1603,7 +1584,7 @@ export default function OnboardingPage() {
                     size="lg"
                     className="mt-6 w-full"
                     onClick={handleCheckout}
-                    disabled={busy || freeBusy}
+                    disabled={busy}
                   >
                     {busy
                       ? t("paywall.settingUp")
@@ -1613,28 +1594,6 @@ export default function OnboardingPage() {
                     {t("paywall.cardRequired")}
                   </p>
 
-                  {/* Free plan — deliberately low-emphasis escape hatch: lets
-                      the user into the app without checkout, with the free
-                      limits spelled out so the choice is informed. */}
-                  <div className="mt-8 border-t pt-6 text-center border-border">
-                    <p className="text-sm font-medium text-foreground">
-                      {t("paywall.freeOption.title")}
-                    </p>
-                    <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed max-w-md mx-auto">
-                      {t("paywall.freeOption.limits")}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      className="mt-3 h-10 px-5 text-muted-foreground"
-                      onClick={handleContinueFree}
-                      disabled={busy || freeBusy}
-                    >
-                      {freeBusy ? t("paywall.settingUp") : t("paywall.freeOption.continueButton")}
-                    </Button>
-                    <p className="mt-1 text-[11px] text-muted-foreground/80">
-                      {t("paywall.freeOption.noCard")}
-                    </p>
-                  </div>
                 </motion.div>
               </motion.div>
             )}

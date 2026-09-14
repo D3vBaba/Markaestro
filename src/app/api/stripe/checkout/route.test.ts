@@ -134,6 +134,22 @@ describe('POST /api/stripe/checkout', () => {
     );
   });
 
+  it('offers Growth with exactly seven trial days on either billing interval', async () => {
+    for (const interval of ['monthly', 'annual']) {
+      expect((await post({ tier: 'growth', interval })).status).toBe(200);
+      const [session] = stripeCheckoutCreateMock.mock.calls.at(-1)!;
+      expect(session.subscription_data.trial_period_days).toBe(7);
+      expect(session.subscription_data.metadata).toMatchObject({ tier: 'growth', interval });
+    }
+  });
+
+  it('does not grant another trial to a returning customer', async () => {
+    stripeSubscriptionsListMock.mockResolvedValue({ data: [{ id: 'sub_previous' }] });
+    await post({ tier: 'growth', interval: 'monthly' });
+    const [session] = stripeCheckoutCreateMock.mock.calls.at(-1)!;
+    expect(session.subscription_data.trial_period_days).toBeUndefined();
+  });
+
   describe('return destination', () => {
     function urlsFromLastSession() {
       const [args] = stripeCheckoutCreateMock.mock.calls.at(-1)!;

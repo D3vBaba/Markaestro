@@ -63,7 +63,8 @@
     "manageBilling": "Manage Billing",
     "loading": "Loading...",
     "openingPortal": "Opening billing portal…",
-    "portalError": "Could not open the billing portal. Please try again."
+    "portalError": "Could not open the billing portal. Please try again.",
+    "inactive": "Choose a plan to publish. Your saved content remains available after the trial."
   },
   "verifyEmailBanner": {
     "prompt": "Verify your email to publish",

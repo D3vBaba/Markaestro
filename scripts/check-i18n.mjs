@@ -62,7 +62,7 @@ const KNOWN_TOKENS = new Set([
   // SaaS practice (Stripe, Notion, ...) so "the Business plan" means the same
   // thing in support tickets regardless of UI language. "Social" and "Legal"
   // are true cognates across the Romance languages in this set (es/fr/it/pt).
-  'Starter', 'Pro', 'Business', 'Social', 'Legal',
+  'Starter', 'Growth', 'Pro', 'Business', 'Social', 'Legal',
   // Loanwords carried into every locale in this set unchanged — translating
   // "Zoom" into de/es/fr/it/pt would read as worse UI, not better.
   'Zoom',

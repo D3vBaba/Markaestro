@@ -1,6 +1,6 @@
 {
   "hero": {
-    "primaryButton": "Start for Free",
+    "primaryButton": "Start 7-day Free Trial",
     "secondaryButton": "See Features",
     "signInPrompt": "Already have an account?",
     "signInLink": "Sign In",
@@ -132,8 +132,8 @@
   },
   "ctaBand": {
     "title": "Ready to get every brand posting?",
-    "subtitle": "Free to start. Connect a channel and schedule your first post in minutes.",
-    "button": "Start for Free"
+    "subtitle": "No charge for 7 days · Cancel anytime",
+    "button": "Start 7-day Free Trial"
   },
   "wallOfLove": {
     "title": "What People Say"

@@ -13,7 +13,7 @@
     "export": {
       "idle": "CSVをエクスポート",
       "exporting": "エクスポート中…",
-      "lockedTitle": "CSVエクスポートはBusinessプランに含まれます"
+      "lockedTitle": "投稿するにはプランを選択してください。保存済みコンテンツは試用期間終了後も閲覧できます。"
     },
     "filters": {
       "allPlatforms": "すべてのプラットフォーム",

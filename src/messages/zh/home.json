@@ -1,6 +1,6 @@
 {
   "hero": {
-    "primaryButton": "免费开始",
+    "primaryButton": "开始 7 天免费试用",
     "secondaryButton": "查看功能",
     "signInPrompt": "已有账号？",
     "signInLink": "登录",
@@ -132,8 +132,8 @@
   },
   "ctaBand": {
     "title": "准备好让每个品牌都动起来了吗？",
-    "subtitle": "免费开始。连接一个渠道，几分钟内排期你的第一条帖子。",
-    "button": "免费开始"
+    "subtitle": "7 天内不产生任何费用 · 随时可取消",
+    "button": "开始 7 天免费试用"
   },
   "wallOfLove": {
     "title": "用户评价"

@@ -105,8 +105,8 @@
   },
   "cta": {
     "title": "Bereit, es in Aktion zu sehen?",
-    "subtitle": "Starte kostenlos. Keine Kreditkarte erforderlich. Verbinde deinen ersten Kanal in unter zwei Minuten.",
-    "primaryButton": "Kostenlos loslegen",
+    "subtitle": "Keine Kosten für 7 Tage · Jederzeit kündbar",
+    "primaryButton": "7-tägige kostenlose Testphase starten",
     "secondaryButton": "Vertrieb kontaktieren"
   },
   "intelligence": {
@@ -164,6 +164,6 @@
       "Sagt immer, was ein Ergebnis gespeist hat: Gemessen, Berechnet, Empfohlen, Angegeben oder Generiert."
     ],
     "plans": "Audience Fit ist in jedem Plan enthalten. Leitfaden, Chancen, getrackte Links und Ask Markaestro starten mit Pro; Experimente mit Business. KI-Aktionen wie „Entwurf erstellen“ werden monatlich je nach Plan gezählt.",
-    "cta": "Kostenlos starten und einen Kanal verbinden"
+    "cta": "7-tägige kostenlose Testphase starten"
   }
 }

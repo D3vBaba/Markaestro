@@ -13,7 +13,7 @@
     "export": {
       "idle": "Export CSV",
       "exporting": "Exporting…",
-      "lockedTitle": "CSV Export Is Included in the Business Plan"
+      "lockedTitle": "Choose a plan to publish. Your saved content remains available after the trial."
     },
     "filters": {
       "allPlatforms": "All Platforms",

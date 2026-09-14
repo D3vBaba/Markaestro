@@ -13,7 +13,7 @@
     "export": {
       "idle": "تصدير CSV",
       "exporting": "جارٍ التصدير…",
-      "lockedTitle": "تصدير CSV مضمّن في خطة Business"
+      "lockedTitle": "اختر خطة للنشر. يظل المحتوى المحفوظ متاحًا بعد انتهاء التجربة."
     },
     "filters": {
       "allPlatforms": "جميع المنصات",

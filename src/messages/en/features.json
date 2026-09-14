@@ -105,8 +105,8 @@
   },
   "cta": {
     "title": "Ready to see it in action?",
-    "subtitle": "Start for free. No credit card required. Connect your first channel in under two minutes.",
-    "primaryButton": "Get Started Free",
+    "subtitle": "No charge for 7 days · Cancel anytime",
+    "primaryButton": "Start 7-day Free Trial",
     "secondaryButton": "Contact Sales"
   },
   "intelligence": {
@@ -164,6 +164,6 @@
       "Always says what fed a result: Measured, Calculated, Recommended, Declared, or Generated."
     ],
     "plans": "Audience Fit is on every plan. Playbook, Opportunities, tracked links, Ask Markaestro, and up to 10 Intelligent Evergreen queues per brand start on Pro; Business adds unlimited Evergreen queues and Experiments. AI actions such as Draft this are metered per month by plan.",
-    "cta": "Start free and connect a channel"
+    "cta": "Start 7-day Free Trial"
   }
 }

@@ -57,7 +57,8 @@
     "manageBilling": "管理账单",
     "loading": "加载中...",
     "openingPortal": "正在打开账单管理页面…",
-    "portalError": "无法打开账单管理页面，请重试。"
+    "portalError": "无法打开账单管理页面，请重试。",
+    "inactive": "请选择方案以发布内容。试用结束后仍可查看已保存的内容。"
   },
   "verifyEmailBanner": {
     "prompt": "验证邮箱后即可发布",

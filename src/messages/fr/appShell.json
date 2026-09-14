@@ -57,7 +57,8 @@
     "manageBilling": "Gérer la Facturation",
     "loading": "Chargement...",
     "openingPortal": "Ouverture du portail de facturation…",
-    "portalError": "Impossible d'ouvrir le portail de facturation. Veuillez réessayer."
+    "portalError": "Impossible d'ouvrir le portail de facturation. Veuillez réessayer.",
+    "inactive": "Choisissez un forfait pour publier. Votre contenu reste accessible après l’essai."
   },
   "verifyEmailBanner": {
     "prompt": "Vérifiez votre e-mail pour publier",

@@ -2,6 +2,7 @@ import { decrypt } from '@/lib/crypto';
 import { asXSettings } from '@/lib/public-api/post-settings';
 import {
   reserveProviderUsage,
+  settleProviderUsage,
   xReadCostUsd,
   xUserReadCostUsd,
   xDeleteCostUsd,
@@ -189,13 +190,51 @@ function xMetrics(payload: Record<string, unknown>): NormalizedPostMetrics {
   };
 }
 
-async function meterRead(connection: PlatformConnection, operation: string, estimatedCostUsd = xReadCostUsd()) {
-  await reserveProviderUsage({
+async function meterRead(
+  connection: PlatformConnection,
+  operation: string,
+  estimatedCostUsd = xReadCostUsd(),
+  dailyDedupeKey?: string,
+) {
+  return reserveProviderUsage({
     workspaceId: connection.workspaceId,
     provider: 'x',
     operation,
     estimatedCostUsd,
     hardBudgetUsd: xWorkspaceHardBudgetUsd(),
+    dailyDedupeKey,
+  });
+}
+
+/** RFC 3339 as X wants it for `start_time`: whole seconds, no milliseconds. */
+function xTimestamp(iso: string): string | null {
+  const ms = Date.parse(iso);
+  return Number.isFinite(ms) ? new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z') : null;
+}
+
+/**
+ * Settle a page read against the Posts X actually returned. The reservation
+ * was taken at the requested page size because the count is unknowable before
+ * the response; X bills per resource returned, so a `start_time` window that
+ * matched nothing costs nothing, and a Post already read today is free.
+ */
+async function settleListRead(
+  connection: PlatformConnection,
+  reservedCostUsd: number,
+  reservedAt: Date,
+  rows: Array<Record<string, unknown>>,
+) {
+  await settleProviderUsage({
+    workspaceId: connection.workspaceId,
+    provider: 'x',
+    operation: 'list_posts',
+    reservedCostUsd,
+    reservedAt,
+    unitCostUsd: xReadCostUsd(),
+    resourceKeys: rows
+      .map((row) => String(row.id || ''))
+      .filter((id) => id !== '')
+      .map((id) => `post:${id}`),
   });
 }
 
@@ -261,7 +300,7 @@ export const xPublishingAdapter: PlatformAdapter = {
 
   async fetchMetrics(connection: PlatformConnection, input: MetricsFetchInput): Promise<MetricsFetchResult> {
     const fields = 'public_metrics,non_public_metrics,organic_metrics,created_at';
-    await meterRead(connection, 'metrics');
+    await meterRead(connection, 'metrics', xReadCostUsd(), `post:${input.externalId}`);
     const { response, payload } = await xRequest(connection, `${X_API}/tweets/${encodeURIComponent(input.externalId)}?tweet.fields=${fields}`);
     if (response.ok) return { ok: true, metrics: xMetrics(payload) };
     if (response.status === 401 || response.status === 403) return { ok: false, reason: 'auth', error: responseError(response, payload) };
@@ -285,7 +324,8 @@ export const xPublishingAdapter: PlatformAdapter = {
   async listPosts(connection: PlatformConnection, input: ListPostsInput): Promise<ListPostsResult> {
     const accountId = connection.accountKey || String(connection.metadata.xUserId || '');
     const requestedLimit = Math.min(100, Math.max(5, input.limit ?? 25));
-    await meterRead(connection, 'list_posts', xReadCostUsd(requestedLimit));
+    const reservedCostUsd = xReadCostUsd(requestedLimit);
+    const reservedAt = await meterRead(connection, 'list_posts', reservedCostUsd);
     const params = new URLSearchParams({
       max_results: String(requestedLimit),
       'tweet.fields': 'created_at,attachments',
@@ -293,11 +333,16 @@ export const xPublishingAdapter: PlatformAdapter = {
       'media.fields': 'type,url,preview_image_url',
     });
     if (input.cursor) params.set('pagination_token', input.cursor);
+    // Filter server-side: every Post X returns is billed, including the ones
+    // the importer would drop for being older than its cutoff.
+    const startTime = input.sinceIso ? xTimestamp(input.sinceIso) : null;
+    if (startTime) params.set('start_time', startTime);
     const { response, payload } = await xRequest(connection, `${X_API}/users/${encodeURIComponent(accountId)}/tweets?${params}`);
+    const rows = response.ok && Array.isArray(payload.data) ? payload.data as Array<Record<string, unknown>> : [];
+    await settleListRead(connection, reservedCostUsd, reservedAt, rows);
     if (!response.ok) {
       return { ok: false, reason: response.status === 401 || response.status === 403 ? 'auth' : 'transient', error: responseError(response, payload) };
     }
-    const rows = Array.isArray(payload.data) ? payload.data as Array<Record<string, unknown>> : [];
     const username = typeof connection.metadata.username === 'string' ? connection.metadata.username : '';
     const meta = payload.meta as Record<string, unknown> | undefined;
     const includes = payload.includes && typeof payload.includes === 'object'

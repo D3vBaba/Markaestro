@@ -46,13 +46,30 @@ remaining allowance. All paid X operations return
 `CHANNEL_BILLING_ACTION_REQUIRED` when the next reservation would exceed
 `X_API_WORKSPACE_HARD_BUDGET_USD`.
 
+Post lookups also create a hashed daily reservation marker in
+`providerUsageDedupe`. X bills the same Post resource once per UTC day, so
+repeated scheduled and on-demand metrics reads still increment request counts
+but reserve estimated spend only once. The markers expire after 35 days.
+
+Page reads (the native post importer) cannot know their resource count before
+the response, so they reserve a full page up front and then settle against the
+Posts X actually returned, writing the same daily markers. Two consequences
+worth keeping: a page whose `start_time` window matched nothing settles to
+zero, and a Post already charged today by either path is free to the other.
+
+The importer passes its own cutoff to the adapter as `sinceIso`, which the X
+adapter sends as `start_time`. Any adapter that can filter server-side must do
+the same: on a per-resource price sheet, history fetched only to be discarded
+client-side is paid for. An idle connected account therefore costs its daily
+follower read and nothing else.
+
 Keep the unit-price variables aligned with the active X developer-console
 price sheet:
 
 - `X_API_BASIC_WRITE_COST_USD`, default `0.015`
 - `X_API_URL_WRITE_COST_USD`, default `0.20`
-- `X_API_READ_COST_USD`, default `0.005` per post resource
-- `X_API_USER_READ_COST_USD`, default `0.01` per user resource
+- `X_API_READ_COST_USD`, default `0.001` per owned post resource
+- `X_API_USER_READ_COST_USD`, default `0.001` per owned user resource
 - `X_API_DELETE_COST_USD`, default `0.01`
 
 Pricing is operational configuration, not a compile-time promise. Confirm the

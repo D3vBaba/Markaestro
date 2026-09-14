@@ -47,28 +47,35 @@ import { dirname, resolve } from 'node:path';
 // change the pricing in plans.ts. Amounts are in dollars; Stripe needs
 // them in cents, which we convert below.
 
-/** @type {Array<{ tier: 'starter' | 'pro' | 'business'; name: string; description: string; monthly: number; annual: number }>} */
+/** @type {Array<{ tier: 'starter' | 'growth' | 'pro' | 'business'; name: string; description: string; monthly: number; annual: number }>} */
 const TIERS = [
   {
     tier: 'starter',
     name: 'Markaestro Starter',
-    description: 'For solo marketers publishing across Meta and TikTok.',
-    monthly: 29,
-    annual: 24, // per-month equivalent — billed 24*12 = 288 / year
+    description: 'For solo marketers scheduling across supported social platforms.',
+    monthly: 19,
+    annual: 16, // billed 16*12 = 192 / year
+  },
+  {
+    tier: 'growth',
+    name: 'Markaestro Growth',
+    description: 'For small teams managing several brands.',
+    monthly: 29.99,
+    annual: 24.99, // billed 299.88 / year
   },
   {
     tier: 'pro',
     name: 'Markaestro Pro',
-    description: 'For growing teams that need ad management, AI, and collaboration.',
-    monthly: 69,
-    annual: 57, // billed 57*12 = 684 / year
+    description: 'For growing teams using content intelligence and collaboration.',
+    monthly: 59,
+    annual: 49, // billed 49*12 = 588 / year
   },
   {
     tier: 'business',
     name: 'Markaestro Business',
     description: 'For agencies managing multiple brands at scale.',
-    monthly: 199,
-    annual: 165, // billed 165*12 = 1,980 / year
+    monthly: 149,
+    annual: 124, // billed 124*12 = 1,488 / year
   },
 ];
 
@@ -97,7 +104,7 @@ async function verifyAgainstPlansFile() {
   for (const t of TIERS) {
     // Each tier appears as: <tier>: { ... price: { monthly: N, annual: N }, ... }
     const blockRe = new RegExp(
-      `${t.tier}:\\s*\\{[\\s\\S]*?price:\\s*\\{\\s*monthly:\\s*(\\d+)\\s*,\\s*annual:\\s*(\\d+)\\s*\\}`,
+      `${t.tier}:\\s*\\{[\\s\\S]*?price:\\s*\\{\\s*monthly:\\s*(\\d+(?:\\.\\d+)?)\\s*,\\s*annual:\\s*(\\d+(?:\\.\\d+)?)\\s*\\}`,
       'm',
     );
     const m = source.match(blockRe);

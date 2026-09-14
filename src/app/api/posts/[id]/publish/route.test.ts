@@ -1,3 +1,4 @@
+vi.mock('@/lib/stripe/publishing-access', () => ({ requirePaidPublishing: vi.fn().mockResolvedValue(undefined) }));
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { callRoute, createFirestoreStub, mockContext } from '@/test/route-harness';
 

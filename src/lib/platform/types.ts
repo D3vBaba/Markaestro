@@ -243,6 +243,13 @@ export type ListPostsInput = {
   cursor?: string;
   /** Max posts per page; adapters clamp to platform limits. */
   limit?: number;
+  /**
+   * Oldest publish instant the caller will keep. Adapters that can express it
+   * as a platform-side filter must do so: a provider that bills per resource
+   * returned (X) should never be asked for — or charged for — history the
+   * importer is about to discard.
+   */
+  sinceIso?: string;
   /** LinkedIn destination to list from (profile vs page). */
   destinationId?: string;
 };

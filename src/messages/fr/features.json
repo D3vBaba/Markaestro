@@ -105,8 +105,8 @@
   },
   "cta": {
     "title": "Prêt à le voir en action ?",
-    "subtitle": "Commencez gratuitement. Aucune carte bancaire requise. Connectez votre premier canal en moins de deux minutes.",
-    "primaryButton": "Commencer gratuitement",
+    "subtitle": "Aucun paiement pendant 7 jours · Annulez à tout moment",
+    "primaryButton": "Démarrer l'essai gratuit de 7 jours",
     "secondaryButton": "Contacter les ventes"
   },
   "intelligence": {
@@ -164,6 +164,6 @@
       "Dit toujours ce qui a nourri un résultat : Mesuré, Calculé, Recommandé, Déclaré ou Généré."
     ],
     "plans": "Audience Fit est inclus dans tous les plans. Guide, Opportunités, liens suivis et Demander à Markaestro commencent avec Pro; les Expériences avec Business. Les actions IA comme Rédiger un brouillon sont limitées par mois selon le plan.",
-    "cta": "Commencez gratuitement et connectez un canal"
+    "cta": "Démarrer l'essai gratuit de 7 jours"
   }
 }

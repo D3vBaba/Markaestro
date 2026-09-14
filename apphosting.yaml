@@ -144,9 +144,13 @@ env:
     availability:
       - RUNTIME
   - variable: X_API_READ_COST_USD
-    value: "0.005"
+    value: "0.001"
+    availability:
+      - RUNTIME
   - variable: X_API_USER_READ_COST_USD
-    value: "0.01"
+    value: "0.001"
+    availability:
+      - RUNTIME
   - variable: X_API_DELETE_COST_USD
     value: "0.01"
     availability:
@@ -247,27 +251,27 @@ env:
 
   # Stripe — price IDs are public identifiers (same as .env.local)
   - variable: STRIPE_PRICE_STARTER_MONTHLY
-    value: price_1TFpVrJUPkOCaFhqipVPE5Yj
+    value: price_1UFDhoJUPkOCaFhqCwtqy0fU
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_STARTER_ANNUAL
-    value: price_1TFpVsJUPkOCaFhqwKHHhVxV
+    value: price_1UFDhpJUPkOCaFhqgAiPjTcD
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_PRO_MONTHLY
-    value: price_1TKF0dJUPkOCaFhqF0Tx9L4h
+    value: price_1UFDhuJUPkOCaFhq3GwyLcNg
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_PRO_ANNUAL
-    value: price_1TKF0eJUPkOCaFhquNkrVZ9x
+    value: price_1UFDhvJUPkOCaFhq74806UAa
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_BUSINESS_MONTHLY
-    value: price_1TFpVtJUPkOCaFhqLRfEpTWH
+    value: price_1UFDhwJUPkOCaFhqnxBFXMik
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_BUSINESS_ANNUAL
-    value: price_1TKF0fJUPkOCaFhqfUPfC8n4
+    value: price_1UFDhxJUPkOCaFhqn7dXuWJI
     availability:
       - RUNTIME
   - variable: STRIPE_PRICE_ADDON_BRAND_MONTHLY
@@ -284,6 +288,16 @@ env:
       - RUNTIME
   - variable: STRIPE_PRICE_ADDON_SEAT_ANNUAL
     value: price_1U5keXJUPkOCaFhqE7XGiNY7
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_GROWTH_MONTHLY
+    value: price_1UFDhrJUPkOCaFhqupmcQ9Og
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_GROWTH_ANNUAL
+    value: price_1UFDhsJUPkOCaFhqENpgAGW6
     availability:
       - RUNTIME
 

@@ -105,8 +105,8 @@
   },
   "cta": {
     "title": "准备好实际体验一下了吗？",
-    "subtitle": "免费开始，无需信用卡。两分钟内即可连接你的第一个渠道。",
-    "primaryButton": "免费开始",
+    "subtitle": "7 天内不产生任何费用 · 随时可取消",
+    "primaryButton": "开始 7 天免费试用",
     "secondaryButton": "联系销售"
   },
   "intelligence": {
@@ -164,6 +164,6 @@
       "始终说明结果的来源：实测、计算、建议、声明或生成。"
     ],
     "plans": "Audience Fit 所有套餐均含。行动手册、机会、跟踪链接和 Ask Markaestro 从 Pro 起提供；实验从 Business 起提供。“生成草稿”等 AI 操作按套餐每月计量。",
-    "cta": "免费开始并连接一个渠道"
+    "cta": "开始 7 天免费试用"
   }
 }

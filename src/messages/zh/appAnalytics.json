@@ -13,7 +13,7 @@
     "export": {
       "idle": "导出 CSV",
       "exporting": "正在导出…",
-      "lockedTitle": "CSV 导出功能包含在 Business 套餐中"
+      "lockedTitle": "请选择方案以发布内容。试用结束后仍可查看已保存的内容。"
     },
     "filters": {
       "allPlatforms": "所有平台",

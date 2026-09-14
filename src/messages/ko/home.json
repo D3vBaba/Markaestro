@@ -1,6 +1,6 @@
 {
   "hero": {
-    "primaryButton": "무료로 시작하기",
+    "primaryButton": "7일 무료 체험 시작",
     "secondaryButton": "기능 보기",
     "signInPrompt": "이미 계정이 있으신가요?",
     "signInLink": "로그인",
@@ -132,8 +132,8 @@
   },
   "ctaBand": {
     "title": "모든 브랜드가 게시하도록 준비되셨나요?",
-    "subtitle": "무료로 시작하세요. 채널을 연결하고 몇 분 안에 첫 게시물을 예약하세요.",
-    "button": "무료로 시작"
+    "subtitle": "7일 동안 요금 청구 없음 · 언제든 해지 가능",
+    "button": "7일 무료 체험 시작"
   },
   "wallOfLove": {
     "title": "사용자 이야기"

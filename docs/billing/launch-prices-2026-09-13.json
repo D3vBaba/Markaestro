@@ -1,0 +1,78 @@
+{
+  "accountId": "acct_1R1sAIJUPkOCaFhq",
+  "trialDays": 7,
+  "prices": [
+    {
+      "tier": "starter",
+      "interval": "monthly",
+      "product": "prod_UEI6aCRKuvsY5J",
+      "priceId": "price_1UFDhoJUPkOCaFhqCwtqy0fU",
+      "unitAmount": 1900,
+      "currency": "usd",
+      "livemode": true
+    },
+    {
+      "tier": "starter",
+      "interval": "annual",
+      "product": "prod_UEI6aCRKuvsY5J",
+      "priceId": "price_1UFDhpJUPkOCaFhqgAiPjTcD",
+      "unitAmount": 19200,
+      "currency": "usd",
+      "livemode": true
+    },
+    {
+      "tier": "growth",
+      "interval": "monthly",
+      "product": "prod_VFjAE5UXoHjVOf",
+      "priceId": "price_1UFDhrJUPkOCaFhqupmcQ9Og",
+      "unitAmount": 2999,
+      "currency": "usd",
+      "livemode": true
+    },
+    {
+      "tier": "growth",
+      "interval": "annual",
+      "product": "prod_VFjAE5UXoHjVOf",
+      "priceId": "price_1UFDhsJUPkOCaFhqENpgAGW6",
+      "unitAmount": 29988,
+      "currency": "usd",
+      "livemode": true
+    },
+    {
+      "tier": "pro",
+      "interval": "monthly",
+      "product": "prod_UEI69eR4SHAvVn",
+      "priceId": "price_1UFDhuJUPkOCaFhq3GwyLcNg",
+      "unitAmount": 5900,
+      "currency": "usd",
+      "livemode": true
+    },
+    {
+      "tier": "pro",
+      "interval": "annual",
+      "product": "prod_UEI69eR4SHAvVn",
+      "priceId": "price_1UFDhvJUPkOCaFhq74806UAa",
+      "unitAmount": 58800,
+      "currency": "usd",
+      "livemode": true
+    },
+    {
+      "tier": "business",
+      "interval": "monthly",
+      "product": "prod_UEI6NmSY8zajVD",
+      "priceId": "price_1UFDhwJUPkOCaFhqnxBFXMik",
+      "unitAmount": 14900,
+      "currency": "usd",
+      "livemode": true
+    },
+    {
+      "tier": "business",
+      "interval": "annual",
+      "product": "prod_UEI6NmSY8zajVD",
+      "priceId": "price_1UFDhxJUPkOCaFhqn7dXuWJI",
+      "unitAmount": 148800,
+      "currency": "usd",
+      "livemode": true
+    }
+  ]
+}

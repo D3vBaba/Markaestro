@@ -1,3 +1,4 @@
+import { requirePaidPublishing } from '@/lib/stripe/publishing-access';
 import crypto from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
@@ -268,6 +269,10 @@ async function recordAuthFailure(
 
 export function classifyPublishError(error: string): PublishErrorClassification {
   const normalized = error.toLowerCase();
+
+  if (normalized.includes('channel_billing_action_required')) {
+    return { code: 'CHANNEL_BILLING_ACTION_REQUIRED', category: 'permanent', retryable: false };
+  }
 
   // Meta/Instagram-specific rate-limit and quota errors get longer backoff
   const metaRateLimitPatterns: Array<{ pattern: RegExp; code: string }> = [
@@ -1241,6 +1246,7 @@ export async function publishStoredPost(
   post: Record<string, unknown>,
   options: PublishStoredPostOptions = {},
 ): Promise<MultiChannelPublishResult> {
+  await requirePaidPublishing(workspaceId);
   const targetChannels = getPostTargetChannels(post);
   const [primaryChannel] = targetChannels;
   const mediaUrls = asStringArray(post.mediaUrls) ?? [];

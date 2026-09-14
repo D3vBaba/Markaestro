@@ -3233,7 +3233,7 @@ function BillingTab() {
   // Live billing status straight from the API — the provider's bootstrap copy
   // lacks `billable`, which decides portal access vs. the checkout fallback.
   const [billing, setBilling] = useState<BillingStatusInfo | null>(null);
-  const [pageInterval, setPageInterval] = useState<BillingInterval>("annual");
+  const [pageInterval, setPageInterval] = useState<BillingInterval>("monthly");
   const [confirmTarget, setConfirmTarget] = useState<{ tier: PlanTier; kind: PlanChangeKind } | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [confirmError, setConfirmError] = useState<string[] | null>(null);

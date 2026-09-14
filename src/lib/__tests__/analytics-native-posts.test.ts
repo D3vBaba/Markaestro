@@ -17,6 +17,7 @@ import {
   NATIVE_REFRESH_INTERVAL_MS,
   NATIVE_REFRESH_OVERLAP_MS,
   planNativeImportRun,
+  walkComplete,
 } from '@/lib/intelligence/native-import';
 import { postToRow } from '@/lib/analytics/query';
 
@@ -117,6 +118,39 @@ describe('native import cadence', () => {
     expect(planNativeImportRun({ completedAt }, now, 30 * DAY)).toEqual(expect.objectContaining({ mode: 'incremental', cutoffMs: now - 30 * DAY }));
     expect(planNativeImportRun({ leaseUntil: new Date(now + 60_000).toISOString() }, now, lookback)).toEqual({ run: false, reason: 'leased' });
     expect(planNativeImportRun({ nextRunAt: new Date(now + 60_000).toISOString() }, now, lookback)).toEqual({ run: false, reason: 'not_due' });
+  });
+
+  it('ends an incremental walk on the empty page a filtered request returns', () => {
+    const cutoffMs = Date.parse('2026-09-11T00:00:00.000Z');
+    const base = { cutoffMs, pagesWalked: 1 } as const;
+
+    // Steady state: nothing published since the last run, so nothing returned
+    // and, on a per-resource price sheet, nothing billed.
+    expect(walkComplete({ ...base, mode: 'incremental', posts: [], nextCursor: 'page-2' })).toBe(true);
+    // The first pass keeps paging: an empty page can sit mid-history.
+    expect(walkComplete({ ...base, mode: 'initial', posts: [], nextCursor: 'page-2' })).toBe(false);
+    // A post older than the cutoff still ends any walk, filtered or not.
+    expect(walkComplete({
+      ...base,
+      mode: 'initial',
+      posts: [{ publishedAt: '2026-09-10T00:00:00.000Z' }],
+      nextCursor: 'page-2',
+    })).toBe(true);
+    // Nothing older and more to read: keep going.
+    expect(walkComplete({
+      ...base,
+      mode: 'initial',
+      posts: [{ publishedAt: '2026-09-12T00:00:00.000Z' }],
+      nextCursor: 'page-2',
+    })).toBe(false);
+    // A provider that never stops handing out cursors is stopped here.
+    expect(walkComplete({
+      ...base,
+      pagesWalked: 20,
+      mode: 'initial',
+      posts: [{ publishedAt: '2026-09-12T00:00:00.000Z' }],
+      nextCursor: 'page-2',
+    })).toBe(true);
   });
 
   it('treats a cursor completed before the cadence existed as due for an incremental run', () => {

@@ -5,6 +5,7 @@ import { useWorkspace } from "@/components/providers/WorkspaceProvider";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api-client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Clock } from "lucide-react";
 import { ShellBanner } from "./ShellBanner";
 import { toast } from "sonner";
@@ -14,17 +15,23 @@ export function TrialBanner() {
   const { status, trialDaysLeft } = useSubscription();
   const { current: workspace } = useWorkspace();
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
   const t = useTranslations("shell.trialBanner");
 
-  if (!status?.trialing || trialDaysLeft === null) return null;
+  if (!status) return null;
+  if (status.active && (!status.trialing || trialDaysLeft === null)) return null;
 
   // Billing is owner-only (the server enforces billing.manage); everyone
   // else sees the countdown without a dead button.
   const canManageBilling = workspace?.role === "owner";
 
-  const urgent = trialDaysLeft <= 2;
+  const urgent = !status.active || (trialDaysLeft ?? 0) <= 2;
 
   async function handleUpgrade() {
+    if (!status?.active) {
+      router.push("/settings?tab=billing");
+      return;
+    }
     setBusy(true);
     try {
       const res = await apiFetch<{ url: string }>('/api/stripe/portal', { method: 'POST' });
@@ -52,7 +59,7 @@ export function TrialBanner() {
       }
     >
       <span className="font-medium">
-        {trialDaysLeft === 0 ? t("endsToday") : t("daysLeft", { days: trialDaysLeft })}
+        {!status.active ? t("inactive") : trialDaysLeft === 0 ? t("endsToday") : t("daysLeft", { days: trialDaysLeft ?? 0 })}
       </span>
       {status.tier && (
         <span className="ms-2 hidden text-muted-foreground sm:inline">

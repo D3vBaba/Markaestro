@@ -57,7 +57,8 @@
     "manageBilling": "Gestisci Fatturazione",
     "loading": "Caricamento...",
     "openingPortal": "Apertura del portale di fatturazione…",
-    "portalError": "Impossibile aprire il portale di fatturazione. Riprova."
+    "portalError": "Impossibile aprire il portale di fatturazione. Riprova.",
+    "inactive": "Scegli un piano per pubblicare. I contenuti salvati restano disponibili dopo la prova."
   },
   "verifyEmailBanner": {
     "prompt": "Verifica la tua email per pubblicare",

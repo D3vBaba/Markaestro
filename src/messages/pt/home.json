@@ -1,6 +1,6 @@
 {
   "hero": {
-    "primaryButton": "Comece grátis",
+    "primaryButton": "Iniciar Teste Grátis de 7 Dias",
     "secondaryButton": "Ver recursos",
     "signInPrompt": "Já tem uma conta?",
     "signInLink": "Entrar",
@@ -132,8 +132,8 @@
   },
   "ctaBand": {
     "title": "Pronto para pôr todas as marcas a publicar?",
-    "subtitle": "Grátis para começar. Ligue um canal e agende a sua primeira publicação em minutos.",
-    "button": "Começar grátis"
+    "subtitle": "Sem cobrança por 7 dias · Cancele quando quiser",
+    "button": "Iniciar Teste Grátis de 7 Dias"
   },
   "wallOfLove": {
     "title": "O que dizem"

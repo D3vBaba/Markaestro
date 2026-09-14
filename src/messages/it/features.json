@@ -105,8 +105,8 @@
   },
   "cta": {
     "title": "Pronto a vederlo in azione?",
-    "subtitle": "Inizia gratis. Nessuna carta di credito richiesta. Connetti il tuo primo canale in meno di due minuti.",
-    "primaryButton": "Inizia gratis",
+    "subtitle": "Nessun addebito per 7 giorni · Annulla in qualsiasi momento",
+    "primaryButton": "Inizia la Prova Gratuita di 7 Giorni",
     "secondaryButton": "Contatta il team commerciale"
   },
   "intelligence": {
@@ -164,6 +164,6 @@
       "Dice sempre cosa ha alimentato un risultato: Misurato, Calcolato, Consigliato, Dichiarato o Generato."
     ],
     "plans": "Audience Fit è incluso in tutti i piani. Strategia, Opportunità, link tracciati e Chiedi a Markaestro partono da Pro; gli Esperimenti da Business. Le azioni IA come Crea bozza hanno un limite mensile in base al piano.",
-    "cta": "Inizia gratis e collega un canale"
+    "cta": "Inizia la Prova Gratuita di 7 Giorni"
   }
 }

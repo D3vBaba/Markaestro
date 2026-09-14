@@ -13,9 +13,10 @@ if (!key) {
 const stripe = new Stripe(key);
 
 const tiers = [
-  { tier: 'starter', name: 'Markaestro Starter', monthly: 2900, annual: 28800 },
-  { tier: 'pro', name: 'Markaestro Pro', monthly: 7900, annual: 79200 },
-  { tier: 'business', name: 'Markaestro Business', monthly: 19900, annual: 199200 },
+  { tier: 'starter', name: 'Markaestro Starter', monthly: 1900, annual: 19200 },
+  { tier: 'growth', name: 'Markaestro Growth', monthly: 2999, annual: 29988 },
+  { tier: 'pro', name: 'Markaestro Pro', monthly: 5900, annual: 58800 },
+  { tier: 'business', name: 'Markaestro Business', monthly: 14900, annual: 148800 },
 ];
 
 const lines = [];

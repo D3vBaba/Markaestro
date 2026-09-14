@@ -8,8 +8,8 @@ import { PLANS, PLAN_TIERS, type PlanTier } from './plans';
  * transfers and multi-owner teams don't lose billing state.
  *
  * Legacy uid-keyed data (`subscriptions/{uid}`) was migrated by
- * `scripts/backfill-workspace-subscriptions.mjs`; the resolver no longer
- * consults uid-keyed docs.
+ * `scripts/backfill-workspace-subscriptions.mjs`. Missing workspace records
+ * fall back to the workspace creator's legacy subscription for every member.
  */
 const COLLECTION = 'subscriptions';
 /**
@@ -24,8 +24,10 @@ const ACTIVE_STATUSES = new Set(['active', 'trialing']);
 
 export async function getSubscriptionForWorkspace(workspaceId: string): Promise<SubscriptionRecord | null> {
   const doc = await adminDb.collection(COLLECTION).doc(workspaceId).get();
-  if (!doc.exists) return null;
-  return doc.data() as SubscriptionRecord;
+  // A canonical record is authoritative even when canceled or downgraded.
+  // Never resurrect an older paid plan over a newer workspace decision.
+  if (doc.exists) return doc.data() as SubscriptionRecord;
+  return getLegacySubscriptionForOwnedWorkspace(workspaceId);
 }
 
 /**
@@ -44,23 +46,19 @@ export function legacySubscriptionAppliesToWorkspace(
 }
 
 async function getLegacySubscriptionForOwnedWorkspace(
-  uid: string,
   workspaceId: string,
 ): Promise<SubscriptionRecord | null> {
-  const [legacySnap, workspaceSnap] = await adminDb.getAll(
-    adminDb.collection(COLLECTION).doc(uid),
-    adminDb.collection('workspaces').doc(workspaceId),
-  );
-  if (!legacySnap.exists || !workspaceSnap.exists) return null;
+  // Resolve from the workspace, never the requesting member. An invitee or
+  // a background job must receive the same workspace plan as the creator.
+  const workspaceSnap = await adminDb.collection('workspaces').doc(workspaceId).get();
+  const creatorUid = workspaceSnap.data()?.createdBy;
+  if (typeof creatorUid !== 'string' || !creatorUid || creatorUid.includes('/')) return null;
+  const legacySnap = await adminDb.collection(COLLECTION).doc(creatorUid).get();
+  if (!legacySnap.exists) return null;
 
   const legacy = legacySnap.data() as SubscriptionRecord;
-  return legacySubscriptionAppliesToWorkspace(
-    legacy,
-    uid,
-    workspaceId,
-    workspaceSnap.data()?.createdBy,
-  )
-    ? legacy
+  return legacySubscriptionAppliesToWorkspace(legacy, creatorUid, workspaceId, creatorUid)
+    ? { ...legacy, workspaceId }
     : null;
 }
 
@@ -135,7 +133,13 @@ export async function findUidByCustomerId(customerId: string): Promise<string | 
 
 /** True when the record grants entitlements right now (active or trialing). */
 export function isActiveSubscription(sub: SubscriptionRecord | null | undefined): sub is SubscriptionRecord {
-  return Boolean(sub && ACTIVE_STATUSES.has(sub.status));
+  if (!sub || !ACTIVE_STATUSES.has(sub.status)) return false;
+  // A delayed webhook must not extend a trial past its recorded end.
+  if (sub.status === 'trialing' && sub.trialEnd) {
+    const end = Date.parse(sub.trialEnd);
+    return Number.isFinite(end) && end > Date.now();
+  }
+  return true;
 }
 
 function tierRank(tier: string | undefined): number {
@@ -207,16 +211,7 @@ export async function getEffectiveSubscription(
     workspaceId ? getSubscriptionForWorkspace(workspaceId) : Promise.resolve(null),
   ]);
 
-  // Most workspaces use workspace-keyed subscription records. A small number
-  // of paid accounts predate that migration; if their record was missed, use
-  // it only for the workspace they own instead of silently treating them as
-  // unsubscribed.
-  const legacySubscription =
-    !workspaceSubscription && uid && workspaceId
-      ? await getLegacySubscriptionForOwnedWorkspace(uid, workspaceId)
-      : null;
-
-  return pickEffectiveSubscription(account, workspaceSubscription ?? legacySubscription);
+  return pickEffectiveSubscription(account, workspaceSubscription);
 }
 
 export type SubscriptionStatus = {
@@ -244,14 +239,14 @@ export function resolveStatus(sub: SubscriptionRecord | null): SubscriptionStatu
     };
   }
 
-  const active = ACTIVE_STATUSES.has(sub.status);
+  const active = isActiveSubscription(sub) && effectiveTier(sub) !== 'free';
 
   return {
     active,
     hasSubscriptionHistory: true,
     tier: (sub.tier as PlanTier) || null,
     interval: sub.interval || null,
-    trialing: sub.status === 'trialing',
+    trialing: active && sub.status === 'trialing',
     trialEnd: sub.trialEnd || null,
     cancelAtPeriodEnd: sub.cancelAtPeriodEnd || false,
     currentPeriodEnd: sub.currentPeriodEnd || null,

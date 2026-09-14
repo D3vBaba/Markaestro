@@ -3,32 +3,22 @@
     "eyebrow": "价格",
     "titleLead": "你的整个营销引擎，",
     "titleHighlight": "只需一个简单的价格",
-    "subtitle": "没有隐藏费用，也不会因用户数量产生意外账单。免费开始使用，每个付费套餐均包含 {trialDays} 天免费试用，随时可取消。",
+    "subtitle": "{trialDays} 天内不产生任何费用 · 随时可取消",
     "monthlyToggle": "按月付费",
     "annualToggle": "按年付费",
-    "annualSaveBadge": "立省 17%",
-    "trialLine": "所有付费套餐均享 {trialDays} 天免费试用，第 {trialEndDay} 天前不产生任何费用",
-    "annualSavingsSuffix": " · 按年付费可节省 17%"
+    "annualSaveBadge": "最高节省17%",
+    "trialLine": "{trialDays} 天内不产生任何费用 · 随时可取消",
+    "annualSavingsSuffix": " · 最高节省17%"
   },
   "planNames": {
     "free": "免费",
     "starter": "Starter",
     "pro": "Pro",
-    "business": "Business"
+    "business": "Business",
+    "growth": "Growth"
   },
-  "mostPopularBadge": "最受欢迎",
+  "mostPopularBadge": "推荐",
   "plans": {
-    "free": {
-      "description": "用一个品牌试用 Markaestro，永久免费。",
-      "features": [
-        "1 个品牌",
-        "2 个社交渠道",
-        "每月 15 篇内容",
-        "1 GB 存储空间",
-        "1 名成员、1 个工作区",
-        "数据分析（7 天数据窗口）"
-      ]
-    },
     "starter": {
       "description": "适合在所有平台排期发布的个人营销者。",
       "features": [
@@ -39,7 +29,7 @@
         "每个品牌独立的品牌声音",
         "10 GB 存储",
         "完整发布 API",
-        "分析（30 天窗口）"
+        "无限分析历史 + CSV 导出"
       ]
     },
     "pro": {
@@ -51,7 +41,7 @@
         "最佳发布时间推荐",
         "品牌声音 + 品牌视觉识别（Logo 与配色）",
         "100 GB 存储",
-        "分析（1 年窗口）",
+        "无限分析历史 + CSV 导出",
         "优先支持",
         "每个品牌 10 条 Intelligent Evergreen 队列"
       ]
@@ -66,25 +56,35 @@
         "优先支持",
         "无限 Intelligent Evergreen 队列"
       ]
+    },
+    "growth": {
+      "description": "适合管理多个品牌的小型团队。",
+      "features": [
+        "4个品牌",
+        "每个品牌最多 8 个渠道",
+        "无限排期帖子",
+        "内容日历",
+        "每个品牌独立的品牌声音",
+        "50 GB 存储",
+        "完整发布 API",
+        "无限分析历史 + CSV 导出",
+        "2名团队成员"
+      ]
     }
   },
   "planCard": {
     "perMonth": "/月",
     "billedAnnually": "· 按年结算（${annualTotal}/年）",
     "justPerDay": "相当于每天仅需 ${dailyCost}",
-    "billedMonthly": "按月结算 · 切换至年付可节省 17%",
+    "billedMonthly": "按月付费 · 最高节省17%",
     "startTrialButton": "开始 {trialDays} 天免费试用",
     "noChargeLine": "{trialDays} 天内不产生任何费用 · 随时可取消",
-    "everythingIncluded": "所有功能均已包含",
-    "freeForever": "永久免费",
-    "startFreeButton": "免费开始",
-    "noCardLine": "无需绑卡 · 随时可升级"
+    "everythingIncluded": "所有功能均已包含"
   },
   "comparison": {
     "titleLead": "比较",
     "titleHighlight": "各项功能",
     "subtitle": "准确了解每个套餐所包含的具体内容。",
-    "freeNote": "免费套餐包含 1 个品牌、2 个渠道、每月 15 篇内容、1 GB 存储空间和 7 天数据分析，不含 API 访问。",
     "categories": [
       {
         "name": "发布",
@@ -188,10 +188,6 @@
   "faqTitleHighlight": "常见问题",
   "faqs": [
     {
-      "q": "有免费套餐吗？",
-      "a": "有。免费套餐永久 0 美元，无需绑卡。你将获得 1 个品牌、2 个社交渠道、每月 15 篇内容、1 GB 存储空间和 7 天数据分析窗口，可供 1 个工作区中的 1 名成员使用。API 访问需要付费套餐。需要更多时可随时升级。"
-    },
-    {
       "q": "我可以随时更换套餐吗？",
       "a": "可以。你可以随时升级或降级套餐。升级时，将按比例收取差价费用；降级时，新价格会从下一个计费周期开始生效。"
     },
@@ -201,7 +197,7 @@
     },
     {
       "q": "存储空间如何计算？",
-      "a": "存储空间指工作区素材库中所有图片和视频文件的总大小。免费套餐包含 1 GB，Starter 为 10 GB，Pro 为 100 GB，Business 则不限存储空间。已上传的文件在多篇内容中复用时不会占用额外存储空间。"
+      "a": "Starter: 10 GB 存储. Growth: 50 GB 存储. Pro: 100 GB 存储. Business: 无限存储."
     },
     {
       "q": "达到存储空间上限后会发生什么？",
@@ -213,7 +209,7 @@
     },
     {
       "q": "哪些套餐包含免费试用？",
-      "a": "所有套餐（Starter、Pro、Business）无论按月还是按年付费，均包含 {trialDays} 天免费试用。相较于按月付费，按年付费还可额外节省 17%。"
+      "a": "{trialDays} 天内不产生任何费用 · 随时可取消. 最高节省17%."
     },
     {
       "q": "我的 AI 代理或自有软件可以使用 Markaestro 吗？",
@@ -230,7 +226,7 @@
   ],
   "cta": {
     "title": "免费试用 Markaestro {trialDays} 天",
-    "subtitle": "任意年付套餐均可获得完整功能。第 {trialEndDay} 天前不产生任何费用，随时可取消。",
+    "subtitle": "{trialDays} 天内不产生任何费用 · 随时可取消",
     "primaryButton": "开始免费试用",
     "secondaryButton": "联系销售团队"
   }

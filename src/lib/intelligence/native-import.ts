@@ -15,6 +15,13 @@ const PAGE_SIZE = 50;
 /** Products walked per tick — the loop stops at MAX_PAGES_PER_TICK anyway. */
 const MAX_PRODUCTS_PER_TICK = 50;
 /**
+ * Hard stop for one walk of an account, across ticks. The first pass ends on
+ * the platform's own end-of-results, but a provider that pages inside a time
+ * window can keep handing out a cursor past the last result. At PAGE_SIZE
+ * this covers far more history than any lookback window asks for.
+ */
+const MAX_PAGES_PER_WALK = 20;
+/**
  * How often a completed import looks for new posts. Native posting is not
  * bursty at the scale of hours, and the metrics poller carries the stage
  * schedule from discovery, so a few hours of delay costs nothing an agent
@@ -33,6 +40,8 @@ export type NativeImportCursorState = {
   completedAt?: string | null;
   nextRunAt?: string | null;
   leaseUntil?: string | null;
+  /** Pages this walk has taken; reset when the walk completes. */
+  pagesWalked?: number | null;
 };
 
 export type NativeImportPlan =
@@ -65,6 +74,34 @@ export function planNativeImportRun(
     };
   }
   return { run: true, mode: 'initial', cursor, cutoffMs: lookbackCutoff };
+}
+
+/**
+ * Whether this page ends the walk of one account.
+ *
+ * A page carrying a post older than the cutoff is the classic signal, but an
+ * adapter that pushes `sinceIso` down to the platform never returns one: the
+ * walk ends on an empty page instead. Only the incremental run may stop
+ * there, since its window is the 48h overlap and an empty page is the steady
+ * state for an account that has not posted since the last run. The first pass
+ * keeps following the cursor, because a page can come back empty mid-history,
+ * and is bounded by MAX_PAGES_PER_WALK rather than by trusting the provider
+ * to stop handing out cursors.
+ */
+export function walkComplete(input: {
+  mode: 'initial' | 'incremental';
+  posts: ReadonlyArray<{ publishedAt?: string | null }>;
+  nextCursor?: string;
+  cutoffMs: number;
+  pagesWalked: number;
+}): boolean {
+  const reachedCutoff = input.posts.some((post) =>
+    Boolean(post.publishedAt && Date.parse(post.publishedAt) < input.cutoffMs),
+  );
+  return reachedCutoff
+    || !input.nextCursor
+    || (input.mode === 'incremental' && input.posts.length === 0)
+    || input.pagesWalked >= MAX_PAGES_PER_WALK;
 }
 
 export type NativeImportResult = {
@@ -154,6 +191,7 @@ export async function importRecentNativePosts(
             cursor: plan.cursor,
             limit: PAGE_SIZE,
             destinationId: connection.accountKey,
+            sinceIso: new Date(cutoffMs).toISOString(),
           });
           remainingPages -= 1;
           result.pages += 1;
@@ -181,11 +219,16 @@ export async function importRecentNativePosts(
           })));
           result.imported += inWindow.length;
 
-          const reachedCutoff = page.posts.some((post) =>
-            Boolean(post.publishedAt && Date.parse(post.publishedAt) < cutoffMs),
-          );
-          const complete = reachedCutoff || !page.nextCursor;
+          const pagesWalked = (state.pagesWalked ?? 0) + 1;
+          const complete = walkComplete({
+            mode: plan.mode,
+            posts: page.posts,
+            nextCursor: page.nextCursor,
+            cutoffMs,
+            pagesWalked,
+          });
           await ref.set({
+            pagesWalked: complete ? 0 : pagesWalked,
             cursor: complete ? null : page.nextCursor,
             // An unfinished run keeps the previous completion, which is what
             // the incremental cutoff is measured from.

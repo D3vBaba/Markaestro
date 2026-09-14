@@ -13,7 +13,7 @@
     "export": {
       "idle": "CSV 내보내기",
       "exporting": "내보내는 중…",
-      "lockedTitle": "CSV 내보내기는 Business 요금제에 포함되어 있습니다"
+      "lockedTitle": "게시하려면 플랜을 선택하세요. 저장한 콘텐츠는 체험 종료 후에도 이용할 수 있습니다."
     },
     "filters": {
       "allPlatforms": "모든 플랫폼",
