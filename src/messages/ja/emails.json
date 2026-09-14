@@ -112,15 +112,15 @@
     }
   },
   "intelligenceDigest": {
-    "subject": "Your week on Markaestro",
-    "preheader": "This week against last week, and the one move to make next.",
-    "intro": "Here is how each brand did this week compared with last week, with the next move Markaestro suggests.",
-    "posts": "Posts",
-    "views": "Views",
-    "engagements": "Engagements",
-    "move": "Next move:",
-    "window": "Best window:",
+    "subject": "マルカエストロでの 1 週間",
+    "preheader": "先週に対する今週、そして次に行うべき一手。",
+    "intro": "各ブランドが先週と比較して今週どうなったか、マルカエストロが示唆する次の動きは次のとおりです。",
+    "posts": "投稿",
+    "views": "ビュー",
+    "engagements": "エンゲージメント",
+    "move": "次の動き:",
+    "window": "最適なウィンドウ:",
     "cta": "Open Intelligence",
-    "footerNote": "You receive this weekly summary because you are an owner or admin of this workspace."
+    "footerNote": "あなたはこのワークスペースの所有者または管理者であるため、この週次の概要を受け取ります。"
   }
 }

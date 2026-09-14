@@ -112,15 +112,15 @@
     }
   },
   "intelligenceDigest": {
-    "subject": "Your week on Markaestro",
-    "preheader": "This week against last week, and the one move to make next.",
-    "intro": "Here is how each brand did this week compared with last week, with the next move Markaestro suggests.",
-    "posts": "Posts",
-    "views": "Views",
-    "engagements": "Engagements",
-    "move": "Next move:",
-    "window": "Best window:",
+    "subject": "أسبوعك في ماركايسترو",
+    "preheader": "هذا الأسبوع مقابل الأسبوع الماضي، والخطوة الوحيدة التي يجب القيام بها بعد ذلك.",
+    "intro": "إليكم أداء كل علامة تجارية هذا الأسبوع مقارنة بالأسبوع الماضي، مع الخطوة التالية التي يقترحها ماركايسترو.",
+    "posts": "المنشورات",
+    "views": "مشاهدات",
+    "engagements": "التفاعلات",
+    "move": "الخطوة التالية:",
+    "window": "أفضل نافذة:",
     "cta": "Open Intelligence",
-    "footerNote": "You receive this weekly summary because you are an owner or admin of this workspace."
+    "footerNote": "تتلقى هذا الملخص الأسبوعي لأنك مالك أو مسؤول عن مساحة العمل هذه."
   }
 }

@@ -93,6 +93,8 @@ const KNOWN_TOKENS = new Set([
   // "Conversions" is spelled identically in French, and "Intelligence" is the
   // feature's proper name kept as-is in fr/it marketing copy.
   'Conversions', 'conversions', 'Intelligence',
+  // Common interface loanwords retained in several locale translations.
+  'Video', 'Hashtags', 'Impressions', 'Week', 'Variant', 'Planning', 'Webhooks',
 ]);
 
 // Specific key paths that are intentionally identical in every locale — code/

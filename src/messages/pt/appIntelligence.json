@@ -832,5 +832,100 @@
     "noMove": "Nada para fazer ainda. Passos aparecem quando uma janela, plataforma ou padrão supera sua média.",
     "noWindow": "Mais {missing} posts desbloqueiam janelas.",
     "noWindowYet": "Nenhuma janela tem posts suficientes ainda."
+  },
+  "weekPulse": {
+    "title": "Esta semana",
+    "subtitle": "Os últimos sete dias contra os sete anteriores, por data de publicação.",
+    "posts": "Postagens",
+    "views": "Visualizações",
+    "engagements": "Engajamentos",
+    "vsLastWeek": "vs semana passada",
+    "noPrior": "Nenhuma postagem na semana passada para comparar",
+    "quiet": "Nada publicado nos últimos sete dias. A melhor janela abaixo é um bom lugar para começar."
+  },
+  "cohorts": {
+    "title": "O que funciona para você",
+    "subtitle": "Média de engajamentos por postagem por formato. Somente postagens medidas, portanto grupos pequenos são barulhentos.",
+    "dimensions": {
+      "format": "Formato",
+      "length": "Comprimento da legenda",
+      "cta": "Pergunte",
+      "hashtags": "Hashtags"
+    },
+    "keys": {
+      "0": "Sem hashtags",
+      "video": "Vídeo",
+      "image": "Imagem",
+      "carousel": "Carrossel",
+      "text": "Somente texto",
+      "short": "Curto (menos de 80 caracteres)",
+      "medium": "Médio (80 a 220)",
+      "long": "Longo (mais de 220)",
+      "none": "Sem legenda",
+      "cta": "Tem um apelo à ação",
+      "question": "Faz uma pergunta",
+      "none-cta": "Não pergunte",
+      "1-3": "1 a 3 hashtags",
+      "4+": "4 ou mais hashtags"
+    },
+    "posts": "{count, plural, one {# postagem} other {# postagens}}",
+    "avgEngagements": "Média de engajamentos",
+    "rate": "Taxa",
+    "tooFew": "As formas aparecem uma vez que pelo menos cinco postes carregam medidas."
+  },
+  "pillarCoverage": {
+    "title": "Cobertura do Pilar",
+    "subtitle": "A frequência com que cada pilar de conteúdo foi publicado nos últimos 30 dias, em comparação com os 30 dias anteriores.",
+    "last30": "Últimos 30 dias",
+    "prior30": "Antes de 30 dias",
+    "avg": "Média de engajamentos",
+    "quiet": "Ficou quieto",
+    "empty": "Adicione pilares de conteúdo ao perfil do público e a Markaestro acompanhará a cobertura aqui."
+  },
+  "outcomes": {
+    "testThis": "Teste isso"
+  },
+  "provenTests": {
+    "title": "Comprovado por Experimentos",
+    "subtitle": "Testes A/B concluídos com um vencedor claro. Esses são os padrões em que você mais pode confiar.",
+    "winnerA": "Braço A venceu",
+    "winnerB": "Braço B venceu",
+    "inconclusive": "Inconclusivo",
+    "stoppedEarly": "Parou cedo",
+    "inconclusiveCount": "{count, plural, one {# teste finalizado} other {# testes terminaram}} sem um vencedor claro.",
+    "empty": "Nenhum teste finalizado ainda. Execute um na guia Experimentos."
+  },
+  "testIdeas": {
+    "title": "Ideias para testar",
+    "subtitle": "Extraído da sua melhor janela e dos padrões mais fortes. Cada um configura o compositor para você.",
+    "setUp": "Configurar",
+    "arms": "A: {a}. B: {b}.",
+    "kinds": {
+      "timing": "Tempo",
+      "platform": "Plataforma",
+      "hook": "Gancho",
+      "pillar": "Pilar"
+    },
+    "titles": {
+      "timing": "Postar em {a} em vez de {b}",
+      "platform": "Mesma postagem sobre {a} versus {b}",
+      "hook": "Uma legenda com um gancho em vez do seu abridor habitual",
+      "pillar": "Uma postagem {a} versus sua próxima postagem planejada"
+    }
+  },
+  "audienceSignals": {
+    "title": "Sinais de audiência",
+    "subtitle": "Quão bem as postagens recentes correspondem ao público que você declarou e se isso é emocionante.",
+    "fit": "Ajuste ao público",
+    "coverage": "{value}% de postagens recentes pontuadas",
+    "noFit": "O ajuste aparece quando as postagens trazem instantâneos do público.",
+    "driftTitle": "Bandeira de deriva",
+    "associationNote": "A deriva é uma associação nos dados, não uma causa comprovada.",
+    "noDrift": "Nenhum desvio detectado. As postagens recentes ainda correspondem ao público declarado."
+  },
+  "askActions": {
+    "draft": "Rascunho desta evidência",
+    "test": "Transforme-se em um teste",
+    "followUp": "Peça um acompanhamento"
   }
 }

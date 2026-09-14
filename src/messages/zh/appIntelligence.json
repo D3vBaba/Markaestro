@@ -832,5 +832,100 @@
     "noMove": "暂无可执行事项。当某个时段、平台或规律超过你的平均值时会出现行动。",
     "noWindow": "再有 {missing} 篇帖子即可解锁时段。",
     "noWindowYet": "尚无帖子足够多的时段。"
+  },
+  "weekPulse": {
+    "title": "本周",
+    "subtitle": "按发布日期计算的最后 7 天与前 7 天的对比。",
+    "posts": "帖子",
+    "views": "观点",
+    "engagements": "互动",
+    "vsLastWeek": "与上周相比",
+    "noPrior": "上周没有帖子可供比较",
+    "quiet": "过去 7 天内没有发布任何内容。下面的最佳窗口是一个很好的起点。"
+  },
+  "cohorts": {
+    "title": "什么对你有用",
+    "subtitle": "按形状划分的每个帖子的平均参与度。仅测量帖子，因此小团体会很吵。",
+    "dimensions": {
+      "format": "格式",
+      "length": "标题长度",
+      "cta": "提问",
+      "hashtags": "标签"
+    },
+    "keys": {
+      "0": "没有主题标签",
+      "video": "视频",
+      "image": "图片",
+      "carousel": "轮播",
+      "text": "仅文本",
+      "short": "简短（80 个字符以下）",
+      "medium": "中（80 至 220）",
+      "long": "长（超过220）",
+      "none": "没有标题",
+      "cta": "有号召性用语",
+      "question": "问一个问题",
+      "none-cta": "不提问",
+      "1-3": "1 到 3 个主题标签",
+      "4+": "4 个或更多主题标签"
+    },
+    "posts": "{count, plural, one {# 个帖子} other {# 个帖子}}",
+    "avgEngagements": "平均参与度",
+    "rate": "评分",
+    "tooFew": "一旦至少有五个帖子带有测量值，就会出现形状。"
+  },
+  "pillarCoverage": {
+    "title": "支柱覆盖",
+    "subtitle": "过去 30 天内每个内容支柱的发布频率（与之前的 30 天相比）。",
+    "last30": "过去 30 天",
+    "prior30": "之前 30 天",
+    "avg": "平均参与度",
+    "quiet": "安静了",
+    "empty": "将内容支柱添加到受众档案中，Markaestro 将在此处跟踪报道。"
+  },
+  "outcomes": {
+    "testThis": "测试一下"
+  },
+  "provenTests": {
+    "title": "实验证明",
+    "subtitle": "完成了 A/B 测试，并取得了明显的胜利。这些是您最值得信赖的模式。",
+    "winnerA": "Arm A won",
+    "winnerB": "Arm B won",
+    "inconclusive": "尚无定论",
+    "stoppedEarly": "提前停止",
+    "inconclusiveCount": "{count, plural, one {# 测试结束} other {# 测试结束}} 没有明显的赢家。",
+    "empty": "尚未完成测试。从“实验”选项卡运行一项。"
+  },
+  "testIdeas": {
+    "title": "测试想法",
+    "subtitle": "从您最好的窗口和最强的模式中提取。每一个都为您设置了作曲家。",
+    "setUp": "Set Up",
+    "arms": "A: {a}. B: {b}.",
+    "kinds": {
+      "timing": "Timing",
+      "platform": "平台",
+      "hook": "钩",
+      "pillar": "支柱"
+    },
+    "titles": {
+      "timing": "发帖在 {a} 而不是 {b}",
+      "platform": "关于 {a} 与 {b} 的同一篇文章",
+      "hook": "带钩子的标题与通常的开场白",
+      "pillar": "{a} 帖子与您的下一个计划帖子"
+    }
+  },
+  "audienceSignals": {
+    "title": "观众信号",
+    "subtitle": "最近的帖子与您宣称的受众的匹配程度如何，以及是否具有吸引力。",
+    "fit": "受众匹配度",
+    "coverage": "最近帖子的 {value}% 得分",
+    "noFit": "一旦帖子包含受众快照，就会出现适合度。",
+    "driftTitle": "漂移旗帜",
+    "associationNote": "漂移是数据中的一种关联，而不是经过证实的原因。",
+    "noDrift": "未检测到漂移。最近的帖子仍然符合声明的受众。"
+  },
+  "askActions": {
+    "draft": "此证据的草稿",
+    "test": "变成一个测试",
+    "followUp": "询问后续"
   }
 }

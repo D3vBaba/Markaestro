@@ -832,5 +832,100 @@
     "noMove": "Rien à faire pour l'instant. Les actions apparaissent quand un créneau, une plateforme ou un schéma dépasse votre moyenne.",
     "noWindow": "{missing} posts de plus débloquent les créneaux.",
     "noWindowYet": "Aucun créneau n'a encore assez de posts."
+  },
+  "weekPulse": {
+    "title": "Cette semaine",
+    "subtitle": "Les sept derniers jours contre les sept précédents, par date de publication.",
+    "posts": "Messages",
+    "views": "Vues",
+    "engagements": "Interactions",
+    "vsLastWeek": "vs la semaine dernière",
+    "noPrior": "Aucun message la semaine dernière pour comparer",
+    "quiet": "Rien de publié ces sept derniers jours. La meilleure fenêtre ci-dessous est un bon point de départ."
+  },
+  "cohorts": {
+    "title": "Ce qui fonctionne pour vous",
+    "subtitle": "Engagements moyens par publication par forme. Messages mesurés uniquement, donc les petits groupes sont bruyants.",
+    "dimensions": {
+      "format": "Formater",
+      "length": "Longueur de la légende",
+      "cta": "Demandez",
+      "hashtags": "Hashtags"
+    },
+    "keys": {
+      "0": "Aucun hashtag",
+      "video": "Vidéo",
+      "image": "Images",
+      "carousel": "Carrousel",
+      "text": "Texte uniquement",
+      "short": "Court (moins de 80 caractères)",
+      "medium": "Moyen (80 à 220)",
+      "long": "Longue (plus de 220)",
+      "none": "Pas de légende",
+      "cta": "A un appel à l’action",
+      "question": "Pose une question",
+      "none-cta": "Non demander",
+      "1-3": "1 à 3 hashtags",
+      "4+": "4 hashtags ou plus"
+    },
+    "posts": "{count, plural, one {# message} other {# messages}}",
+    "avgEngagements": "Engagements moyens",
+    "rate": "Tarif",
+    "tooFew": "Les formes apparaissent une fois qu'au moins cinq messages portent des mesures."
+  },
+  "pillarCoverage": {
+    "title": "Couverture des piliers",
+    "subtitle": "À quelle fréquence chaque pilier de contenu a été publié au cours des 30 derniers jours, contre les 30 précédents.",
+    "last30": "30 derniers jours",
+    "prior30": "Avant 30 jours",
+    "avg": "Engagements moyens",
+    "quiet": "Devenu silencieux",
+    "empty": "Ajoutez des piliers de contenu au profil d'audience et Markaestro suivra la couverture ici."
+  },
+  "outcomes": {
+    "testThis": "Testez ceci"
+  },
+  "provenTests": {
+    "title": "Prouvé par des expériences",
+    "subtitle": "Tests A/B terminés avec un gagnant clair. Ce sont les modèles auxquels vous pouvez le plus faire confiance.",
+    "winnerA": "Le bras A a gagné",
+    "winnerB": "Le bras B a gagné",
+    "inconclusive": "Non concluant",
+    "stoppedEarly": "Arrêté tôt",
+    "inconclusiveCount": "{count, plural, one {# test terminé} other {# tests terminés}} sans vainqueur clair.",
+    "empty": "Aucun test terminé pour l'instant. Exécutez-en un à partir de l’onglet Expériences."
+  },
+  "testIdeas": {
+    "title": "Idées à tester",
+    "subtitle": "Tiré de votre meilleure fenêtre et de vos modèles les plus forts. Chacun configure le compositeur pour vous.",
+    "setUp": "Configurer",
+    "arms": "A: {a}. B: {b}.",
+    "kinds": {
+      "timing": "Calendrier",
+      "platform": "Plateforme",
+      "hook": "Crochet",
+      "pillar": "Pilier"
+    },
+    "titles": {
+      "timing": "Publier à {a} au lieu de {b}",
+      "platform": "Même article sur {a} contre {b}",
+      "hook": "Une légende avec un crochet versus votre ouvreur habituel",
+      "pillar": "Une publication {a} par rapport à votre prochaine publication prévue"
+    }
+  },
+  "audienceSignals": {
+    "title": "Signaux d'audience",
+    "subtitle": "Dans quelle mesure les publications récentes correspondent-elles à l'audience que vous avez déclarée et si celle-ci évolue.",
+    "fit": "Ajustement du public",
+    "coverage": "{value}% des messages récents notés",
+    "noFit": "Fit apparaît une fois que les publications contiennent des instantanés d'audience.",
+    "driftTitle": "Drapeau de dérive",
+    "associationNote": "La dérive est une association dans les données et non une cause prouvée.",
+    "noDrift": "Aucune dérive détectée. Les publications récentes correspondent toujours à l'audience déclarée."
+  },
+  "askActions": {
+    "draft": "Brouillon de cette preuve",
+    "test": "Transformez-vous en test",
+    "followUp": "Demander un suivi"
   }
 }

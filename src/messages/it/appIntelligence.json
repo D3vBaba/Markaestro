@@ -832,5 +832,100 @@
     "noMove": "Niente da fare per ora. Le mosse compaiono quando una finestra, piattaforma o schema supera la tua media.",
     "noWindow": "{missing} post in più sbloccano le finestre.",
     "noWindowYet": "Nessuna finestra ha ancora abbastanza post."
+  },
+  "weekPulse": {
+    "title": "Questa settimana",
+    "subtitle": "Gli ultimi sette giorni contro i sette precedenti, per data di pubblicazione.",
+    "posts": "Messaggi",
+    "views": "Visualizzazioni",
+    "engagements": "Interazioni",
+    "vsLastWeek": "rispetto alla settimana scorsa",
+    "noPrior": "Nessun post da confrontare la settimana scorsa",
+    "quiet": "Niente pubblicato negli ultimi sette giorni. La migliore finestra qui sotto è un buon punto di partenza."
+  },
+  "cohorts": {
+    "title": "Cosa funziona per te",
+    "subtitle": "Coinvolgimenti medi per post per forma. Solo post misurati, quindi piccoli gruppi sono rumorosi.",
+    "dimensions": {
+      "format": "Formato",
+      "length": "Lunghezza della didascalia",
+      "cta": "Chiedi",
+      "hashtags": "Hashtag"
+    },
+    "keys": {
+      "0": "Nessun hashtag",
+      "video": "Video",
+      "image": "Immagine",
+      "carousel": "Carosello",
+      "text": "Solo testo",
+      "short": "Breve (meno di 80 caratteri)",
+      "medium": "Medio (da 80 a 220)",
+      "long": "Lungo (oltre 220)",
+      "none": "Nessuna didascalia",
+      "cta": "Ha un invito all'azione",
+      "question": "Fa una domanda",
+      "none-cta": "Non chiedere",
+      "1-3": "Da 1 a 3 hashtag",
+      "4+": "4 o più hashtag"
+    },
+    "posts": "{count, plural, one {# post} other {# post}}",
+    "avgEngagements": "Interazioni medie",
+    "rate": "Vota",
+    "tooFew": "Le forme vengono visualizzate quando almeno cinque post contengono misurazioni."
+  },
+  "pillarCoverage": {
+    "title": "Copertura del pilastro",
+    "subtitle": "La frequenza con cui ogni pilastro di contenuto è stato pubblicato negli ultimi 30 giorni, rispetto ai 30 precedenti.",
+    "last30": "Ultimi 30 giorni",
+    "prior30": "Prima dei 30 giorni",
+    "avg": "Interazioni medie",
+    "quiet": "Si è calmato",
+    "empty": "Aggiungi pilastri di contenuto al profilo del pubblico e Markaestro monitorerà la copertura qui."
+  },
+  "outcomes": {
+    "testThis": "Prova questo"
+  },
+  "provenTests": {
+    "title": "Provato dagli esperimenti",
+    "subtitle": "Test A/B completati con un chiaro vincitore. Questi sono i modelli di cui ti puoi fidare di più.",
+    "winnerA": "Il braccio A ha vinto",
+    "winnerB": "Il braccio B ha vinto",
+    "inconclusive": "Inconcludente",
+    "stoppedEarly": "Mi sono fermato presto",
+    "inconclusiveCount": "{count, plural, one {# test terminato} other {# test terminati}} senza un chiaro vincitore.",
+    "empty": "Nessun test ancora finito. Eseguine uno dalla scheda Esperimenti."
+  },
+  "testIdeas": {
+    "title": "Idee da testare",
+    "subtitle": "Disegnato dalla tua finestra migliore e dai modelli più forti. Ognuno imposta il compositore per te.",
+    "setUp": "Imposta",
+    "arms": "A: {a}. B: {b}.",
+    "kinds": {
+      "timing": "Tempistica",
+      "platform": "Piattaforma",
+      "hook": "Gancio",
+      "pillar": "Pilastro"
+    },
+    "titles": {
+      "timing": "Pubblica su {a} anziché {b}",
+      "platform": "Stesso post su {a} rispetto a {b}",
+      "hook": "Una didascalia con un gancio invece della solita apertura",
+      "pillar": "Un post {a} rispetto al tuo prossimo post pianificato"
+    }
+  },
+  "audienceSignals": {
+    "title": "Segnali del pubblico",
+    "subtitle": "Quanto bene i post recenti corrispondono al pubblico che hai dichiarato e se questo si sta muovendo.",
+    "fit": "Il pubblico è adatto",
+    "coverage": "{value}% dei post recenti hanno ottenuto",
+    "noFit": "L'adattamento viene visualizzato quando i post contengono istantanee del pubblico.",
+    "driftTitle": "Bandiera di deriva",
+    "associationNote": "La deriva è un'associazione nei dati, non una causa provata.",
+    "noDrift": "Nessuna deriva rilevata. I post recenti corrispondono ancora al pubblico dichiarato."
+  },
+  "askActions": {
+    "draft": "Bozza da questa prova",
+    "test": "Trasformarsi in un test",
+    "followUp": "Chiedi un follow-up"
   }
 }

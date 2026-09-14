@@ -133,7 +133,7 @@
       "empty": "In diesem Zeitraum noch keine Interaktionen gemeldet.",
       "share": "{pct}% der Interaktionen",
       "types": {
-        "likes": "Likes",
+        "likes": "Gefällt mir",
         "comments": "Kommentare",
         "shares": "Geteilt",
         "saves": "Gespeichert",

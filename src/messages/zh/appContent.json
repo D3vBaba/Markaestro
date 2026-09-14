@@ -410,16 +410,27 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "该帖子没有渠道",
         "SOURCE_NOT_PUBLISHED": "尚未发布",
-        "SOURCE_PUBLISH_DATE_MISSING": "发布日期未知"
+        "SOURCE_PUBLISH_DATE_MISSING": "发布日期未知",
+        "SOURCE_PUBLISH_DATE_FUTURE": "发布日期是未来"
       },
-      "search": "搜索已发布帖子"
+      "search": "搜索已发布帖子",
+      "view": "查看",
+      "recent": "最近",
+      "topPerforming": "表现最佳",
+      "channel": "平台",
+      "allChannels": "所有平台",
+      "metric": "按指标排序",
+      "rankingDescription": "在该品牌最近发布的多达 200 条帖子中，最高记录数首先出现在所选平台上。没有此指标的帖子将被排除在外；包括测量的零点。计数不会根据帖子年龄或受众规模进行调整。重复使用之前检查内容。",
+      "results": "{count, plural, one {# 匹配帖子} other {# 匹配的帖子}}",
+      "noMeasuredMatches": "没有帖子与该指标的记录值匹配。尝试其他指标、平台或搜索。",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "previewFailed": "无法检查此帖子",
     "queueName": "队列名称",
     "removeVariant": "移除",
     "reviewEach": "逐次审核",
     "reviewPolicy": "审批策略",
-    "runs": "{count, plural, other {已创建 # 次运行}}",
+    "runs": "{count, plural, one {# 次运行} other {# 次运行}} 已创建",
     "saving": "正在创建...",
     "selectBrand": "选择一个品牌以管理其 Evergreen 队列。",
     "selectedSource": "已选帖子",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "文案变体",
     "variantNumber": "文案变体 {number}",
-    "variants": "文案变体"
+    "variants": "文案变体",
+    "pageTitle": "Evergreen",
+    "pageSubtitle": "检查内容的持久相关性，然后选择重复使用的内容和时间。",
+    "summary": {
+      "title": "Evergreen 带来的成果",
+      "window": "最后 {days} 天",
+      "occurrences": "转发已发表",
+      "views": "观点",
+      "engagements": "互动",
+      "clicks": "跟踪点击次数",
+      "conversions": "Conversions",
+      "perPost": "每次转发与每次新帖子",
+      "evergreenLabel": "Evergreen",
+      "freshLabel": "新鲜帖子",
+      "empty": "此窗口中尚未发布任何转发。"
+    },
+    "reviews": {
+      "title": "等待您的审核",
+      "subtitle": "审查每次运行的队列中发生的事件。",
+      "approve": "批准",
+      "skip": "跳过",
+      "edit": "在草稿中编辑",
+      "plannedFor": "计划用于 {date}",
+      "approved": "预定发生",
+      "skipped": "跳过事件",
+      "failed": "无法更新此事件",
+      "empty": "没有什么等待审核。"
+    },
+    "queues": {
+      "title": "您的队列",
+      "upcoming": "接下来运行",
+      "variantsTitle": "字幕记分板",
+      "variantRuns": "{count, plural, one {# 次运行} other {# 次运行}}",
+      "variantRetired": "两次表现不佳后退役",
+      "variantNoRuns": "还没用过",
+      "shifted": "移动 {days, plural, one {# 天} other {# 天}} 以避免新帖子"
+    },
+    "createFlow": {
+      "title": "新的常青队列",
+      "subtitle": "选择一个经过验证的帖子，选择它的返回方式，然后让数字决定它何时停止。",
+      "sourceStep": "来源帖子",
+      "captionsStep": "字幕",
+      "scheduleStep": "时间表",
+      "suggestCaptions": "建议字幕",
+      "suggesting": "书写字幕",
+      "suggestHint": "以您的品牌语气改写四个版本：新的开场、较短版本、一个问题，以及不同的行动号召。勾选您想要的版本。",
+      "suggestFailed": "现在无法写字幕",
+      "angles": {
+        "new_hook": "新钩子",
+        "shorter": "较短",
+        "question": "问题",
+        "different_cta": "不同的号召性用语"
+      },
+      "useVariant": "使用",
+      "duplicateWarning": "与 {date} 上发布的帖子相同。平台会降低重复内容的表现；请修改几个词。",
+      "channelsTitle": "渠道",
+      "channelsHint": "选择源通道。添加另一个连接的频道也可以在那里重新发布。",
+      "channelNotReady": "未连接",
+      "nextDates": "首次运行"
+    },
+    "assessment": {
+      "needsReview": "内容需要审核",
+      "needsUpdate": "内容需要更新",
+      "reusable": "内容确认可重复使用",
+      "unavailable": "基准比较不可用",
+      "manualHint": "您可以在查看后选择重复使用该内容。仅凭记录的观看次数或高参与率并不能证明重复观看效果良好。",
+      "benchmarkReason": "匹配比较需要相同的度量公式、受众、付费或自然状态以及测量年龄。 Markaestro 尚未验证该比较；这并不意味着您的帐户缺少数据。",
+      "captured": "捕获的指标 {date}",
+      "unknownCapture": "指标捕获时间不可用",
+      "references": "研究参考文献",
+      "referenceHint": "已发布的提供商品牌样本平均值，以供参考。它们不是最低浏览量，也不是应该重复这篇文章的证据。格式和公式不同；这些参考文献并不能使帖子获得推荐。",
+      "average": "报告的平均参与率：{value}%",
+      "noReference": "此处没有针对该平台的经过验证的参考。",
+      "confirm": "我已经审查了每个标题及其媒体和链接。内容仍然有用且准确，没有过期的优惠、过时的说明或依赖于过去事件的声明。当情况发生变化时，我会更新或暂停它。",
+      "xManual": "X 次使用手动发布提醒。发布前审查并调整内容；重复出现相同或基本相似的自动帖子受 X 限制。",
+      "reviewContent": "评论内容",
+      "saveReview": "确认内容审核",
+      "metrics": {
+        "views": "浏览量",
+        "impressions": "展示次数",
+        "reach": "覆盖人数",
+        "likes": "点赞",
+        "comments": "评论",
+        "shares": "分享",
+        "saves": "收藏",
+        "clicks": "点击次数"
+      },
+      "formats": {
+        "all": "所有格式",
+        "image": "图片",
+        "video": "视频",
+        "text": "文字"
+      },
+      "sourceHint": "选择已发布的帖子进行审查以供重复使用。仅凭性能指标并不能确定长期适用性。",
+      "pageSubtitle": "检查内容的持久相关性，然后选择重复使用的内容和时间。",
+      "openMedia": "打开附加媒体",
+      "measurementsAvailable": "可用性能数据",
+      "noMeasurements": "尚未记录指标",
+      "notEvaluated": "未评估重用建议",
+      "reviewForReuse": "审查重用"
+    },
+    "library": {
+      "title": "已发布帖子供审核",
+      "description": "浏览您录制的演奏并选择要查看以供重复使用的内容。该列表在您创建队列之前可用。我们会显示所选品牌最近发布的最多 200 条帖子。",
+      "counts": "{count, plural, one {# 个已发布帖子} other {# 个已发布帖子}} 已显示 · {measured} 个有记录的指标",
+      "failed": "无法加载已发布的帖子。您的数据未被清除。",
+      "retry": "再试一次"
+    }
   }
 }

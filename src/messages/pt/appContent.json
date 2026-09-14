@@ -372,7 +372,7 @@
     "analytics": {
       "conversions": "Conversões",
       "details": "Desempenho",
-      "engagements": "Interações",
+      "engagements": "Engajamentos",
       "loadFailed": "Não foi possível carregar o desempenho da fila",
       "loading": "A carregar o desempenho da fila...",
       "measured": "Execuções medidas",
@@ -410,16 +410,27 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Esta publicação não tem canal",
         "SOURCE_NOT_PUBLISHED": "Ainda não publicada",
-        "SOURCE_PUBLISH_DATE_MISSING": "Data de publicação desconhecida"
+        "SOURCE_PUBLISH_DATE_MISSING": "Data de publicação desconhecida",
+        "SOURCE_PUBLISH_DATE_FUTURE": "A data de publicação está no futuro"
       },
-      "search": "Pesquisar publicações publicadas"
+      "search": "Pesquisar publicações publicadas",
+      "view": "Ver",
+      "recent": "Mais recente",
+      "topPerforming": "Melhor desempenho",
+      "channel": "Plataforma",
+      "allChannels": "Todas as plataformas",
+      "metric": "Classificar por",
+      "rankingDescription": "As contagens mais altas registradas primeiro na plataforma selecionada, entre até 200 postagens publicadas recentemente para esta marca. Postagens sem essa métrica são excluídas; zeros medidos são incluídos. As contagens não são ajustadas à idade da postagem ou ao tamanho do público. Revise o conteúdo antes de reutilizá-lo.",
+      "results": "{count, plural, one {# postagem correspondente} other {# postagens correspondentes}}",
+      "noMeasuredMatches": "Nenhuma postagem corresponde a um valor registrado para esta métrica. Experimente outra métrica, plataforma ou pesquisa.",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "previewFailed": "Não foi possível verificar esta publicação",
     "queueName": "Nome da fila",
     "removeVariant": "Remover",
     "reviewEach": "Rever cada ocorrência",
     "reviewPolicy": "Política de aprovação",
-    "runs": "{count, plural, one {# execução criada} other {# execuções criadas}}",
+    "runs": "{count, plural, one {# execução} other {# execuções}} criado",
     "saving": "A criar...",
     "selectBrand": "Selecione uma marca para gerir as suas filas evergreen.",
     "selectedSource": "Publicação selecionada",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "Variante da legenda",
     "variantNumber": "Variante da legenda {number}",
-    "variants": "Variantes da legenda"
+    "variants": "Variantes da legenda",
+    "pageTitle": "Sempre-viva",
+    "pageSubtitle": "Revise o conteúdo para obter relevância duradoura e escolha o que reutilizar e quando.",
+    "summary": {
+      "title": "O que a Evergreen ganhou",
+      "window": "Últimos dias {days}",
+      "occurrences": "Repostagens publicadas",
+      "views": "Visualizações",
+      "engagements": "Engajamentos",
+      "clicks": "Cliques rastreados",
+      "conversions": "Conversões",
+      "perPost": "Por repostagem vs por postagem nova",
+      "evergreenLabel": "Sempre-viva",
+      "freshLabel": "Postagens recentes",
+      "empty": "Nenhuma republicação foi publicada nesta janela ainda."
+    },
+    "reviews": {
+      "title": "Aguardando sua avaliação",
+      "subtitle": "Ocorrências de filas que analisam cada execução.",
+      "approve": "Aprovar",
+      "skip": "Pular",
+      "edit": "Editar em rascunhos",
+      "plannedFor": "Planejado para {date}",
+      "approved": "Ocorrência agendada",
+      "skipped": "Ocorrência ignorada",
+      "failed": "Não foi possível atualizar esta ocorrência",
+      "empty": "Nada está esperando para revisão."
+    },
+    "queues": {
+      "title": "Suas filas",
+      "upcoming": "Próximas execuções",
+      "variantsTitle": "Placar de legenda",
+      "variantRuns": "{count, plural, one {# execução} other {# execuções}}",
+      "variantRetired": "Aposentado após duas temporadas fracas",
+      "variantNoRuns": "Ainda não utilizado",
+      "shifted": "Movido {days, plural, one {# dia} other {# dias}} para evitar uma nova postagem"
+    },
+    "createFlow": {
+      "title": "Nova fila perene",
+      "subtitle": "Escolha uma postagem comprovada, escolha como ela retornará e deixe os números decidirem quando ela irá parar.",
+      "sourceStep": "Postagem fonte",
+      "captionsStep": "Legendas",
+      "scheduleStep": "Cronograma",
+      "suggestCaptions": "Sugerir legendas",
+      "suggesting": "Escrevendo legendas",
+      "suggestHint": "Quatro reescritas na voz da sua marca: um novo gancho, um corte mais curto, uma pergunta e uma frase de chamariz diferente. Marque os que você deseja.",
+      "suggestFailed": "Não foi possível escrever legendas no momento",
+      "angles": {
+        "new_hook": "Novo gancho",
+        "shorter": "Mais curto",
+        "question": "Pergunta",
+        "different_cta": "Chamada à ação diferente"
+      },
+      "useVariant": "Usar",
+      "duplicateWarning": "Idêntico a um post publicado no {date}. As plataformas penalizam as repetições; mude algumas palavras.",
+      "channelsTitle": "Canais",
+      "channelsHint": "Os canais de origem são selecionados. Adicione outro canal conectado para repassar lá também.",
+      "channelNotReady": "Não conectado",
+      "nextDates": "Primeiras execuções"
+    },
+    "assessment": {
+      "needsReview": "O conteúdo precisa de revisão",
+      "needsUpdate": "O conteúdo precisa ser atualizado",
+      "reusable": "Conteúdo confirmado como reutilizável",
+      "unavailable": "Comparação de índices de referência indisponível",
+      "manualHint": "Você pode optar por reutilizar este conteúdo após revisá-lo. As visualizações gravadas ou uma alta porcentagem de engajamento por si só não estabelecem que a repetição terá um bom desempenho.",
+      "benchmarkReason": "Uma comparação correspondente requer a mesma fórmula métrica, público, status pago ou orgânico e idade de medição. Markaestro ainda não validou essa comparação; isso não significa que sua conta não tenha dados.",
+      "captured": "Métricas capturadas {date}",
+      "unknownCapture": "Tempo de captura de métrica indisponível",
+      "references": "Referências de pesquisa",
+      "referenceHint": "Médias publicadas da amostra da marca do fornecedor, mostradas para fins de contexto. Não são contagens mínimas de visualizações ou evidências de que esta postagem deva ser repetida. Os formatos e fórmulas são diferentes; essas referências não qualificam uma postagem para recomendação.",
+      "average": "Taxa média de engajamento relatada: {value}%",
+      "noReference": "Nenhuma referência verificada está disponível aqui para esta plataforma.",
+      "confirm": "Eu revisei cada legenda e suas mídias e links. O conteúdo permanece útil e preciso, sem ofertas expiradas, instruções desatualizadas ou reivindicações que dependam de eventos passados. Vou atualizá-lo ou pausá-lo quando isso mudar.",
+      "xManual": "As ocorrências X usam lembretes de publicação manual. Revise e adapte o conteúdo antes de postar; Postagens automatizadas idênticas ou substancialmente semelhantes recorrentes são restritas por X.",
+      "reviewContent": "Revise o conteúdo",
+      "saveReview": "Confirmar revisão do conteúdo",
+      "metrics": {
+        "views": "Visualizações",
+        "impressions": "Impressões",
+        "reach": "Alcance",
+        "likes": "Curtidas",
+        "comments": "Comentários",
+        "shares": "Compartilhamentos",
+        "saves": "Salvamentos",
+        "clicks": "Cliques"
+      },
+      "formats": {
+        "all": "Todos os formatos",
+        "image": "Imagem",
+        "video": "Vídeo",
+        "text": "Texto"
+      },
+      "sourceHint": "Escolha uma postagem publicada para revisar e reutilizar. As métricas de desempenho por si só não estabelecem a adequação perene.",
+      "pageSubtitle": "Revise o conteúdo para obter relevância duradoura e escolha o que reutilizar e quando.",
+      "openMedia": "Abrir mídia anexada",
+      "measurementsAvailable": "Dados de desempenho disponíveis",
+      "noMeasurements": "Nenhuma métrica registrada ainda",
+      "notEvaluated": "Recomendação de reutilização não avaliada",
+      "reviewForReuse": "Revisão para reutilização"
+    },
+    "library": {
+      "title": "Postagens publicadas para revisão",
+      "description": "Navegue pela sua performance gravada e escolha o conteúdo para revisar e reutilizar. Esta lista está disponível antes de você criar uma fila. Mostramos até 200 postagens publicadas recentemente para a marca selecionada.",
+      "counts": "{count, plural, one {# postagem publicada} other {# postagens publicadas}} mostrado · {measured} com métricas registradas",
+      "failed": "Não foi possível carregar as postagens publicadas. Seus dados não foram apagados.",
+      "retry": "Tente novamente"
+    }
   }
 }

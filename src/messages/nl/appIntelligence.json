@@ -814,7 +814,7 @@
     "retry": "Opnieuw proberen"
   },
   "legend": {
-    "button": "Labels",
+    "button": "Etiketten",
     "title": "Wat elk label betekent",
     "intro": "Elk getal en elke zin op deze pagina draagt een van deze labels, zodat je altijd weet waar het vandaan komt."
   },
@@ -832,5 +832,100 @@
     "noMove": "Nog niets te doen. Stappen verschijnen als een tijdvak, platform of patroon je gemiddelde verslaat.",
     "noWindow": "Nog {missing} posts ontgrendelen tijdvakken.",
     "noWindowYet": "Nog geen tijdvak heeft genoeg posts."
+  },
+  "weekPulse": {
+    "title": "Deze week",
+    "subtitle": "De laatste zeven dagen tegen de zeven daarvoor, op publicatiedatum.",
+    "posts": "Posts",
+    "views": "Weergaven",
+    "engagements": "Betrokkenheid",
+    "vsLastWeek": "versus vorige week",
+    "noPrior": "Afgelopen week geen berichten om te vergelijken",
+    "quiet": "Er is de afgelopen zeven dagen niets gepubliceerd. Het beste venster hieronder is een goed beginpunt."
+  },
+  "cohorts": {
+    "title": "Wat voor u werkt",
+    "subtitle": "Gemiddelde betrokkenheid per bericht per vorm. Alleen palen gemeten, dus kleine groepen zijn luidruchtig.",
+    "dimensions": {
+      "format": "Formaat",
+      "length": "Lengte bijschrift",
+      "cta": "Vraag",
+      "hashtags": "Hashtags"
+    },
+    "keys": {
+      "0": "Geen hashtags",
+      "video": "Video",
+      "image": "Image",
+      "carousel": "Carrousel",
+      "text": "Alleen tekst",
+      "short": "Kort (minder dan 80 tekens)",
+      "medium": "Gemiddeld (80 tot 220)",
+      "long": "Lang (meer dan 220)",
+      "none": "Geen onderschrift",
+      "cta": "Heeft een call-to-action",
+      "question": "Stelt een vraag",
+      "none-cta": "No ask",
+      "1-3": "1 tot 3 hashtags",
+      "4+": "4 of meer hashtags"
+    },
+    "posts": "{count, plural, one {# bericht} other {# berichten}}",
+    "avgEngagements": "Gem. betrokkenheid",
+    "rate": "Beoordeel",
+    "tooFew": "Vormen verschijnen zodra ten minste vijf palen afmetingen hebben."
+  },
+  "pillarCoverage": {
+    "title": "Pijlerdekking",
+    "subtitle": "Hoe vaak elke contentpijler in de afgelopen 30 dagen is gepubliceerd, vergeleken met de 30 daarvoor.",
+    "last30": "Afgelopen 30 dagen",
+    "prior30": "Voorafgaande 30 dagen",
+    "avg": "Gem. betrokkenheid",
+    "quiet": "Het is stil geworden",
+    "empty": "Voeg contentpijlers toe aan het doelgroepprofiel en Markaestro houdt de berichtgeving hier bij."
+  },
+  "outcomes": {
+    "testThis": "Test dit"
+  },
+  "provenTests": {
+    "title": "Bewezen door experimenten",
+    "subtitle": "A/B-tests afgerond met een duidelijke winnaar. Dit zijn de patronen waarop u het meest kunt vertrouwen.",
+    "winnerA": "Arm A won",
+    "winnerB": "Arm B won",
+    "inconclusive": "Niet doorslaggevend",
+    "stoppedEarly": "Vroeg gestopt",
+    "inconclusiveCount": "{count, plural, one {# test beëindigd} other {# tests beëindigd}} zonder duidelijke winnaar.",
+    "empty": "Nog geen voltooide tests. Voer er een uit vanaf het tabblad Experimenten."
+  },
+  "testIdeas": {
+    "title": "Ideeën om te testen",
+    "subtitle": "Getekend vanuit je beste venster en sterkste patronen. Bij elk wordt de componist voor u ingesteld.",
+    "setUp": "Set Up",
+    "arms": "A: {a}. B: {b}.",
+    "kinds": {
+      "timing": "Timing",
+      "platform": "Platform",
+      "hook": "Haak",
+      "pillar": "Pijler"
+    },
+    "titles": {
+      "timing": "Post op {a} in plaats van {b}",
+      "platform": "Hetzelfde bericht op {a} versus {b}",
+      "hook": "Een onderschrift met een hook versus je gebruikelijke opener",
+      "pillar": "Een {a}-bericht versus je volgende geplande bericht"
+    }
+  },
+  "audienceSignals": {
+    "title": "Publieksignalen",
+    "subtitle": "Hoe goed recente berichten overeenkomen met het publiek dat u heeft aangegeven, en of dat ontroerend is.",
+    "fit": "Doelgroepmatch",
+    "coverage": "{value}% van de recente berichten gescoord",
+    "noFit": "Fit verschijnt zodra berichten momentopnamen van het publiek bevatten.",
+    "driftTitle": "Drift vlag",
+    "associationNote": "Drift is een verband in de gegevens, geen bewezen oorzaak.",
+    "noDrift": "Geen drift gedetecteerd. Recente berichten komen nog steeds overeen met het aangegeven publiek."
+  },
+  "askActions": {
+    "draft": "Ontwerp van dit bewijsmateriaal",
+    "test": "Verander in een test",
+    "followUp": "Vraag om een ​​vervolg"
   }
 }

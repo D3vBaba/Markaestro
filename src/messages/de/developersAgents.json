@@ -230,7 +230,7 @@
         "body": "Füge die obigen Tool-Definitionen zu deiner Tool-Liste hinzu. Die JSON-Schema-Formen liegen bereits im Claude-Tool-Use-Format vor."
       },
       {
-        "name": "OpenAI Function Calling",
+        "name": "OpenAI-Funktionsaufruf",
         "body": "Dieselben Schemas lassen sich eins zu eins auf Funktionsdefinitionen übertragen, input_schema wird einfach zu parameters umbenannt."
       },
       {

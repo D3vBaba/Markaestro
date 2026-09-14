@@ -13,7 +13,8 @@
       "posts": "内容",
       "calendar": "日历",
       "connectChannels": "频道连接指南",
-      "settings": "设置"
+      "settings": "设置",
+      "evergreen": "常绿"
     },
     "signOut": "退出登录",
     "workspaceSwitcher": {

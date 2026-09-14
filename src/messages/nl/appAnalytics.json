@@ -133,7 +133,7 @@
       "empty": "Nog geen betrokkenheid gerapporteerd in deze periode.",
       "share": "{pct}% van de betrokkenheid",
       "types": {
-        "likes": "Likes",
+        "likes": "Vind ik leuk",
         "comments": "Reacties",
         "shares": "Gedeeld",
         "saves": "Opgeslagen",
@@ -191,7 +191,7 @@
     },
     "empty": "Nog geen berichten met statistieken in deze periode. Statistieken komen ongeveer een uur na publicatie binnen.",
     "untitledPost": "Bericht zonder titel",
-    "native": "Native",
+    "native": "Oorspronkelijk",
     "sortBy": "Sorteren op {label}",
     "openOnPlatform": "Openen op platform",
     "byViews": "(weergaven)"

@@ -63,7 +63,7 @@
     "title": "Voor wie is Markaestro?",
     "items": [
       {
-        "title": "Founders",
+        "title": "Oprichters",
         "desc": "Eén product, een handvol kanalen en geen tijd om overal in te loggen. Schrijf één keer, plan de maand in en ga weer bouwen."
       },
       {
@@ -75,7 +75,7 @@
         "desc": "Elke klant is een merk met eigen kanalen, stem en kalender. Wissel met één klik."
       },
       {
-        "title": "Creators",
+        "title": "Makers",
         "desc": "Je eigen naam is ook een merk. Plan de week, post op elk platform en zie wat echt werkte."
       }
     ]
@@ -126,7 +126,7 @@
         "label": "AI-agents"
       },
       {
-        "label": "Webhooks"
+        "label": "Webhaken"
       }
     ]
   },

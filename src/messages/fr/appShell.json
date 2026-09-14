@@ -13,7 +13,8 @@
       "posts": "Publications",
       "calendar": "Calendrier",
       "connectChannels": "Guide de connexion des canaux",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "evergreen": "À feuilles persistantes"
     },
     "signOut": "Se déconnecter",
     "workspaceSwitcher": {

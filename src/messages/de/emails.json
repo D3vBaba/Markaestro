@@ -112,15 +112,15 @@
     }
   },
   "intelligenceDigest": {
-    "subject": "Your week on Markaestro",
-    "preheader": "This week against last week, and the one move to make next.",
-    "intro": "Here is how each brand did this week compared with last week, with the next move Markaestro suggests.",
+    "subject": "Deine Woche auf Markaestro",
+    "preheader": "Diese Woche im Vergleich zur letzten Woche und der nächste Schritt.",
+    "intro": "Hier sehen Sie, wie sich jede Marke diese Woche im Vergleich zur letzten Woche geschlagen hat, mit dem nächsten Schritt, den Markaestro vorschlägt.",
     "posts": "Posts",
-    "views": "Views",
-    "engagements": "Engagements",
-    "move": "Next move:",
-    "window": "Best window:",
+    "views": "Ansichten",
+    "engagements": "Interaktionen",
+    "move": "Nächster Zug:",
+    "window": "Bestes Fenster:",
     "cta": "Open Intelligence",
-    "footerNote": "You receive this weekly summary because you are an owner or admin of this workspace."
+    "footerNote": "Sie erhalten diese wöchentliche Zusammenfassung, weil Sie Eigentümer oder Administrator dieses Arbeitsbereichs sind."
   }
 }

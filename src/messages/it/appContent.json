@@ -410,9 +410,20 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Nessun canale su questo post",
         "SOURCE_NOT_PUBLISHED": "Non ancora pubblicato",
-        "SOURCE_PUBLISH_DATE_MISSING": "Data di pubblicazione sconosciuta"
+        "SOURCE_PUBLISH_DATE_MISSING": "Data di pubblicazione sconosciuta",
+        "SOURCE_PUBLISH_DATE_FUTURE": "La data di pubblicazione è futura"
       },
-      "search": "Cerca tra i post pubblicati"
+      "search": "Cerca tra i post pubblicati",
+      "view": "Visualizza",
+      "recent": "Più recente",
+      "topPerforming": "Con le migliori prestazioni",
+      "channel": "Piattaforma",
+      "allChannels": "Tutte le piattaforme",
+      "metric": "Classifica per",
+      "rankingDescription": "I conteggi più alti registrati vengono conteggiati per primi sulla piattaforma selezionata, tra un massimo di 200 post pubblicati di recente per questo brand. I post senza questa metrica sono esclusi; sono inclusi gli zeri misurati. I conteggi non vengono adeguati in base all'età della pubblicazione o alle dimensioni del pubblico. Esaminare il contenuto prima di riutilizzarlo.",
+      "results": "{count, plural, one {# post corrispondente} other {# post corrispondenti}}",
+      "noMeasuredMatches": "Nessun post corrisponde a un valore registrato per questa metrica. Prova un'altra metrica, piattaforma o ricerca.",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "previewFailed": "Impossibile verificare questo post",
     "queueName": "Nome della coda",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "Variante di didascalia",
     "variantNumber": "Variante di didascalia {number}",
-    "variants": "Varianti di didascalia"
+    "variants": "Varianti di didascalia",
+    "pageTitle": "Sempreverde",
+    "pageSubtitle": "Esamina i contenuti per verificarne la pertinenza duratura, quindi scegli cosa riutilizzare e quando.",
+    "summary": {
+      "title": "Quanto ha guadagnato Evergreen",
+      "window": "Ultimi giorni {days}",
+      "occurrences": "Ripost pubblicati",
+      "views": "Visualizzazioni",
+      "engagements": "Interazioni",
+      "clicks": "Clic monitorati",
+      "conversions": "Conversioni",
+      "perPost": "Per ripubblicare o per nuovo post",
+      "evergreenLabel": "Sempreverde",
+      "freshLabel": "Nuovi post",
+      "empty": "Nessun repost è stato ancora pubblicato in questa finestra."
+    },
+    "reviews": {
+      "title": "Aspetto la tua recensione",
+      "subtitle": "Occorrenze da code che esaminano ogni esecuzione.",
+      "approve": "Approvare",
+      "skip": "Salta",
+      "edit": "Modifica in Bozze",
+      "plannedFor": "Previsto per {date}",
+      "approved": "Evento programmato",
+      "skipped": "Evento saltato",
+      "failed": "Impossibile aggiornare questa occorrenza",
+      "empty": "Niente è in attesa di revisione."
+    },
+    "queues": {
+      "title": "Le tue code",
+      "upcoming": "Successivamente viene eseguito",
+      "variantsTitle": "Tabellone segnapunti delle didascalie",
+      "variantRuns": "{count, plural, one {# esecuzione} other {# esecuzioni}}",
+      "variantRetired": "Ritirato dopo due serie deboli",
+      "variantNoRuns": "Non ancora utilizzato",
+      "shifted": "Spostato {days, plural, one {# giorno} other {# giorni}} per evitare un nuovo post"
+    },
+    "createFlow": {
+      "title": "Nuova coda sempreverde",
+      "subtitle": "Scegli un post collaudato, scegli come tornare e lascia che siano i numeri a decidere quando si fermerà.",
+      "sourceStep": "Articolo di origine",
+      "captionsStep": "Didascalie",
+      "scheduleStep": "Programma",
+      "suggestCaptions": "Suggerisci didascalie",
+      "suggesting": "Scrivere didascalie",
+      "suggestHint": "Quattro riscritture nella voce del tuo brand: un nuovo hook, un taglio più breve, una domanda e un diverso invito all'azione. Seleziona quelli che desideri.",
+      "suggestFailed": "Impossibile scrivere i sottotitoli in questo momento",
+      "angles": {
+        "new_hook": "Nuovo gancio",
+        "shorter": "Più breve",
+        "question": "Domanda",
+        "different_cta": "Invito all'azione diverso"
+      },
+      "useVariant": "Utilizzare",
+      "duplicateWarning": "Identico ad un post pubblicato su {date}. Le piattaforme penalizzano le ripetizioni; cambiare qualche parola.",
+      "channelsTitle": "Canali",
+      "channelsHint": "I canali sorgente sono selezionati. Aggiungi un altro canale connesso per ripubblicare anche lì.",
+      "channelNotReady": "Non connesso",
+      "nextDates": "Prime esecuzioni"
+    },
+    "assessment": {
+      "needsReview": "Il contenuto necessita di revisione",
+      "needsUpdate": "Il contenuto deve essere aggiornato",
+      "reusable": "Contenuto confermato riutilizzabile",
+      "unavailable": "Confronto benchmark non disponibile",
+      "manualHint": "Puoi scegliere di riutilizzare questo contenuto dopo averlo esaminato. Le visualizzazioni registrate o un'elevata percentuale di coinvolgimento da sole non dimostrano che ripeterlo avrà un buon rendimento.",
+      "benchmarkReason": "Un confronto con corrispondenze richiede la stessa formula metrica, pubblico, stato a pagamento o organico ed età di misurazione. Markaestro non ha ancora convalidato tale confronto; questo non significa che nel tuo account manchino dati.",
+      "captured": "Metriche acquisite {date}",
+      "unknownCapture": "Tempo di acquisizione metrica non disponibile",
+      "references": "Riferimenti di ricerca",
+      "referenceHint": "Medie pubblicate dal campione del marchio del fornitore, mostrate per contesto. Non si tratta di conteggi minimi di visualizzazioni o di prove che questo post debba essere ripetuto. Formati e formule differiscono; questi riferimenti non qualificano un post per una raccomandazione.",
+      "average": "Tasso di coinvolgimento medio riportato: {value}%",
+      "noReference": "Nessun riferimento verificato è disponibile qui per questa piattaforma.",
+      "confirm": "Ho esaminato ogni didascalia, i relativi media e collegamenti. Il contenuto rimane utile e accurato, senza offerte scadute, istruzioni obsolete o affermazioni che dipendono da un evento passato. Lo aggiornerò o lo metterò in pausa quando la situazione cambierà.",
+      "xManual": "X occorrenze utilizzano promemoria di pubblicazione manuale. Rivedere e adattare il contenuto prima di pubblicarlo; i post automatizzati ricorrenti identici o sostanzialmente simili sono limitati da X.",
+      "reviewContent": "Esamina il contenuto",
+      "saveReview": "Conferma la revisione dei contenuti",
+      "metrics": {
+        "views": "Visualizzazioni",
+        "impressions": "Impressioni",
+        "reach": "Copertura",
+        "likes": "Mi piace",
+        "comments": "Commenti",
+        "shares": "Condivisioni",
+        "saves": "Salvataggi",
+        "clicks": "Clic"
+      },
+      "formats": {
+        "all": "Tutti i formati",
+        "image": "Immagine",
+        "video": "Video",
+        "text": "Testo"
+      },
+      "sourceHint": "Scegli un post pubblicato da rivedere per il riutilizzo. I parametri prestazionali da soli non stabiliscono l’idoneità sempreverde.",
+      "pageSubtitle": "Esamina i contenuti per verificarne la pertinenza duratura, quindi scegli cosa riutilizzare e quando.",
+      "openMedia": "Apri il supporto allegato",
+      "measurementsAvailable": "Dati sulle prestazioni disponibili",
+      "noMeasurements": "Ancora nessuna metrica registrata",
+      "notEvaluated": "Raccomandazione sul riutilizzo non valutata",
+      "reviewForReuse": "Revisione per il riutilizzo"
+    },
+    "library": {
+      "title": "Post pubblicati da rivedere",
+      "description": "Sfoglia le tue performance registrate e scegli i contenuti da rivedere per il riutilizzo. Questo elenco è disponibile prima di creare una coda. Mostriamo fino a 200 post pubblicati di recente per il marchio selezionato.",
+      "counts": "{count, plural, one {# post pubblicato} other {# post pubblicati}} mostrato · {measured} con metriche registrate",
+      "failed": "Impossibile caricare i post pubblicati. I tuoi dati non sono stati cancellati.",
+      "retry": "Riprova"
+    }
   }
 }

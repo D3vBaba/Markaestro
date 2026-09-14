@@ -410,16 +410,27 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "この投稿にチャネルがありません",
         "SOURCE_NOT_PUBLISHED": "まだ公開されていません",
-        "SOURCE_PUBLISH_DATE_MISSING": "公開日が不明"
+        "SOURCE_PUBLISH_DATE_MISSING": "公開日が不明",
+        "SOURCE_PUBLISH_DATE_FUTURE": "発行日は将来の日付です"
       },
-      "search": "公開済み投稿を検索"
+      "search": "公開済み投稿を検索",
+      "view": "見る",
+      "recent": "最新",
+      "topPerforming": "最高のパフォーマンス",
+      "channel": "プラットフォーム",
+      "allChannels": "すべてのプラットフォーム",
+      "metric": "指標で並べ替え",
+      "rankingDescription": "このブランドで最近公開された最大 200 件の投稿を、選択したプラットフォームで記録数が高い順に表示します。この指標がない投稿は除外し、測定された 0 は含めます。投稿の経過時間やオーディエンス規模による調整は行いません。再利用する前にコンテンツを確認してください。",
+      "results": "{count, plural, one {# 件の一致する投稿} other {# 件の一致する投稿}}",
+      "noMeasuredMatches": "このメトリクスの記録された値と一致する投稿はありません。別の指標、プラットフォーム、または検索を試してください。",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "previewFailed": "この投稿を確認できませんでした",
     "queueName": "キュー名",
     "removeVariant": "削除",
     "reviewEach": "毎回確認する",
     "reviewPolicy": "承認ポリシー",
-    "runs": "{count, plural, other {#回のランを作成}}",
+    "runs": "{count, plural, one {# 回} other {# 回}} 作成",
     "saving": "作成中...",
     "selectBrand": "Evergreenキューを管理するブランドを選択してください。",
     "selectedSource": "選択した投稿",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "キャプションのバリエーション",
     "variantNumber": "キャプションのバリエーション {number}",
-    "variants": "キャプションのバリエーション"
+    "variants": "キャプションのバリエーション",
+    "pageTitle": "Evergreen",
+    "pageSubtitle": "コンテンツの継続的な関連性を確認し、何をいつ再利用するかを選択します。",
+    "summary": {
+      "title": "エバーグリーンが得たもの",
+      "window": "過去 {days} 日間",
+      "occurrences": "再投稿が公開されました",
+      "views": "ビュー",
+      "engagements": "エンゲージメント",
+      "clicks": "追跡されたクリック数",
+      "conversions": "Conversions",
+      "perPost": "再投稿ごとと新しい投稿ごと",
+      "evergreenLabel": "Evergreen",
+      "freshLabel": "新しい投稿",
+      "empty": "このウィンドウにはまだ再投稿が公開されていません。"
+    },
+    "reviews": {
+      "title": "あなたのレビューを待っています",
+      "subtitle": "すべての実行をレビューするキューからの発生。",
+      "approve": "承認する",
+      "skip": "スキップ",
+      "edit": "下書きで編集",
+      "plannedFor": "{date}の予定",
+      "approved": "発生予定",
+      "skipped": "オカレンスがスキップされました",
+      "failed": "このオカレンスを更新できませんでした",
+      "empty": "レビューを待っているものは何もありません。"
+    },
+    "queues": {
+      "title": "あなたのキュー",
+      "upcoming": "次の実行",
+      "variantsTitle": "キャプションスコアボード",
+      "variantRuns": "{count, plural, one {# 回} other {# 回}}",
+      "variantRetired": "2回の不調でリタイア",
+      "variantNoRuns": "まだ使用されていません",
+      "shifted": "新しい投稿を避けるために {days, plural, one {# 日} other {# 日}} を移動しました"
+    },
+    "createFlow": {
+      "title": "新しい常緑のキュー",
+      "subtitle": "実績のある投稿を選択し、それがどのように戻ってくるかを選択し、いつ停止するかを数値に任せます。",
+      "sourceStep": "ソース投稿",
+      "captionsStep": "キャプション",
+      "scheduleStep": "スケジュール",
+      "suggestCaptions": "キャプションを提案する",
+      "suggesting": "キャプションを書く",
+      "suggestHint": "ブランド ボイスを 4 つ書き換えます。新しいフック、短いカット、質問、そして別の行動喚起です。必要なものにチェックを入れてください。",
+      "suggestFailed": "現在キャプションを書き込めませんでした",
+      "angles": {
+        "new_hook": "新しいフック",
+        "shorter": "短い",
+        "question": "質問",
+        "different_cta": "異なる行動喚起"
+      },
+      "useVariant": "使用",
+      "duplicateWarning": "{date} に公開された投稿と同じです。プラットフォームはリピートにペナルティを課します。いくつかの言葉を変えてください。",
+      "channelsTitle": "チャンネル",
+      "channelsHint": "ソースチャンネルが選択されます。接続されている別のチャンネルを追加して、そこにも再投稿します。",
+      "channelNotReady": "接続されていません",
+      "nextDates": "最初の実行"
+    },
+    "assessment": {
+      "needsReview": "コンテンツを確認する必要があります",
+      "needsUpdate": "コンテンツを更新する必要があります",
+      "reusable": "コンテンツは再利用可能であることが確認されました",
+      "unavailable": "ベンチマーク比較は利用できません",
+      "manualHint": "このコンテンツを確認した後、再利用することを選択できます。記録された再生回数や高いエンゲージメント率だけでは、それを繰り返すことでパフォーマンスが向上するとは限りません。",
+      "benchmarkReason": "一致した比較には、同じ指標式、オーディエンス、有料ステータスまたはオーガニックステータス、および測定年齢が必要です。 Markaestro はまだその比較を検証していません。これは、アカウントにデータが不足しているという意味ではありません。",
+      "captured": "キャプチャされたメトリクス {date}",
+      "unknownCapture": "メトリクスのキャプチャ時間が利用できません",
+      "references": "研究参考文献",
+      "referenceHint": "プロバイダーのブランド サンプルからの公表された平均値。コンテキストのために示されています。これらは最低閲覧数や、この投稿を繰り返す必要があるという証拠ではありません。形式と式は異なります。これらの参照は、投稿を推奨の対象とするものではありません。",
+      "average": "報告された平均エンゲージメント率: {value}%",
+      "noReference": "このプラットフォームに関する検証済みのリファレンスはここにはありません。",
+      "confirm": "私はすべてのキャプションとそのメディア、リンクを確認しました。コンテンツは有用で正確なままであり、期限切れのオファー、古い説明、または過去のイベントに依存する主張はありません。変更があった場合は更新または一時停止します。",
+      "xManual": "X の投稿は手動公開リマインダーを使用します。投稿前に内容を確認して調整してください。X では、同一または実質的に類似する自動投稿の繰り返しが制限されています。",
+      "reviewContent": "コンテンツを確認",
+      "saveReview": "コンテンツのレビューを確認する",
+      "metrics": {
+        "views": "閲覧数",
+        "impressions": "インプレッション",
+        "reach": "リーチ",
+        "likes": "いいね",
+        "comments": "コメント",
+        "shares": "シェア",
+        "saves": "保存",
+        "clicks": "クリック数"
+      },
+      "formats": {
+        "all": "すべての形式",
+        "image": "画像",
+        "video": "ビデオ",
+        "text": "テキスト"
+      },
+      "sourceHint": "再利用のためにレビューする公開済みの投稿を選択します。パフォーマンス指標だけでは、常に最新の適合性を確立することはできません。",
+      "pageSubtitle": "コンテンツの継続的な関連性を確認し、何をいつ再利用するかを選択します。",
+      "openMedia": "添付されたメディアを開く",
+      "measurementsAvailable": "パフォーマンス データが利用可能",
+      "noMeasurements": "まだ記録されたメトリクスがありません",
+      "notEvaluated": "再利用の推奨事項は評価されていません",
+      "reviewForReuse": "再利用のためにレビュー"
+    },
+    "library": {
+      "title": "レビューする公開済みの投稿",
+      "description": "記録されたパフォーマンスを参照し、再利用するためにレビューするコンテンツを選択します。このリストは、キューを作成する前に利用できます。選択したブランドの最近公開された投稿が最大 200 件表示されます。",
+      "counts": "{count, plural, one {# 公開された投稿} other {公開された投稿の数}} が表示されます。{measured} は記録されたメトリクスとともに表示されます",
+      "failed": "公開された投稿を読み込むことができませんでした。あなたのデータは消去されていません。",
+      "retry": "もう一度やり直してください"
+    }
   }
 }

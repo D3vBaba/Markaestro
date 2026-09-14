@@ -333,7 +333,7 @@
       "description": "Aktiviere dies, um anzugeben, dass dieser Beitrag eine Marke, ein Produkt oder eine Dienstleistung bewirbt.",
       "yourBrand": "Deine Marke",
       "yourBrandNotice": "Dein Foto/Video wird als „Werbeinhalt“ gekennzeichnet. Das lässt sich nach der Veröffentlichung nicht mehr ändern.",
-      "brandedContent": "Branded Content",
+      "brandedContent": "Markeninhalte",
       "brandedContentNotice": "Dein Foto/Video wird als „Bezahlte Partnerschaft“ gekennzeichnet. Das lässt sich nach der Veröffentlichung nicht mehr ändern.",
       "selectionRequired": "Du musst angeben, ob dein Inhalt dich selbst, Dritte oder beides bewirbt."
     },
@@ -410,9 +410,20 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Kein Kanal an diesem Beitrag",
         "SOURCE_NOT_PUBLISHED": "Noch nicht veröffentlicht",
-        "SOURCE_PUBLISH_DATE_MISSING": "Veröffentlichungsdatum unbekannt"
+        "SOURCE_PUBLISH_DATE_MISSING": "Veröffentlichungsdatum unbekannt",
+        "SOURCE_PUBLISH_DATE_FUTURE": "Veröffentlichungsdatum liegt in der Zukunft"
       },
-      "search": "Veröffentlichte Beiträge durchsuchen"
+      "search": "Veröffentlichte Beiträge durchsuchen",
+      "view": "Ansicht",
+      "recent": "Neueste",
+      "topPerforming": "Top-Leistung",
+      "channel": "Plattform",
+      "allChannels": "Alle Plattformen",
+      "metric": "Rang nach",
+      "rankingDescription": "Der höchste aufgezeichnete Wert zählt zuerst auf der ausgewählten Plattform, unter den bis zu 200 kürzlich veröffentlichten Beiträgen für diese Marke. Beiträge ohne diese Kennzahl werden ausgeschlossen; gemessene Nullen sind enthalten. Die Anzahl wird nicht an das Alter des Beitrags oder die Zielgruppengröße angepasst. Überprüfen Sie den Inhalt vor der Wiederverwendung.",
+      "results": "{count, plural, one {# passender Beitrag} other {# passende Beiträge}}",
+      "noMeasuredMatches": "Keine Beiträge stimmen mit einem aufgezeichneten Wert für diese Metrik überein. Versuchen Sie es mit einer anderen Metrik, Plattform oder Suche.",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "previewFailed": "Dieser Beitrag konnte nicht geprüft werden",
     "queueName": "Name der Warteschlange",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "Caption-Variante",
     "variantNumber": "Caption-Variante {number}",
-    "variants": "Caption-Varianten"
+    "variants": "Caption-Varianten",
+    "pageTitle": "Immergrün",
+    "pageSubtitle": "Überprüfen Sie Inhalte auf dauerhafte Relevanz und entscheiden Sie dann, was Sie wann wiederverwenden möchten.",
+    "summary": {
+      "title": "Was Evergreen verdient hat",
+      "window": "Letzte {days} Tage",
+      "occurrences": "Reposts veröffentlicht",
+      "views": "Ansichten",
+      "engagements": "Interaktionen",
+      "clicks": "Verfolgte Klicks",
+      "conversions": "Konvertierungen",
+      "perPost": "Pro Repost vs. pro neuem Post",
+      "evergreenLabel": "Immergrün",
+      "freshLabel": "Neue Beiträge",
+      "empty": "In diesem Fenster wurden noch keine Reposts veröffentlicht."
+    },
+    "reviews": {
+      "title": "Warten auf Ihre Bewertung",
+      "subtitle": "Vorkommen aus Warteschlangen, die jede Ausführung überprüfen.",
+      "approve": "Genehmigen",
+      "skip": "Überspringen",
+      "edit": "In Entwürfen bearbeiten",
+      "plannedFor": "Geplant für {date}",
+      "approved": "Geplantes Auftreten",
+      "skipped": "Vorkommen übersprungen",
+      "failed": "Dieses Vorkommen konnte nicht aktualisiert werden",
+      "empty": "Nichts wartet auf eine Überprüfung."
+    },
+    "queues": {
+      "title": "Ihre Warteschlangen",
+      "upcoming": "Als nächstes wird",
+      "variantsTitle": "ausgeführt Bildunterschrift: Anzeigetafel",
+      "variantRuns": "{count, plural, one {# Lauf} other {# Läufe}}",
+      "variantRetired": "Nach zwei schwachen Läufen ausgeschieden",
+      "variantNoRuns": "Noch nicht verwendet",
+      "shifted": "{days, plural, one {# Tag} other {# Tage}} verschoben, um einen neuen Beitrag zu vermeiden"
+    },
+    "createFlow": {
+      "title": "Neue immergrüne Warteschlange",
+      "subtitle": "Wählen Sie einen bewährten Beitrag aus, legen Sie fest, wie er zurückkommt, und lassen Sie die Zahlen entscheiden, wann er aufhört.",
+      "sourceStep": "Quellbeitrag",
+      "captionsStep": "Bildunterschriften",
+      "scheduleStep": "Zeitplan",
+      "suggestCaptions": "Untertitel vorschlagen",
+      "suggesting": "Bildunterschriften schreiben",
+      "suggestHint": "Vier Umschreibungen Ihrer Markenstimme: ein neuer Hook, ein kürzerer Schnitt, eine Frage und ein anderer Call-to-Action. Kreuzen Sie die gewünschten an.",
+      "suggestFailed": "Untertitel konnten momentan nicht geschrieben werden",
+      "angles": {
+        "new_hook": "Neuer Haken",
+        "shorter": "Kürzer",
+        "question": "Frage",
+        "different_cta": "Anderer Call-to-Action"
+      },
+      "useVariant": "Verwenden Sie",
+      "duplicateWarning": "Identisch mit einem auf {date} veröffentlichten Beitrag. Plattformen bestrafen Wiederholungen; Ändere ein paar Worte.",
+      "channelsTitle": "Kanäle",
+      "channelsHint": "Die Quellkanäle werden ausgewählt. Fügen Sie einen weiteren verbundenen Kanal hinzu, um dort ebenfalls erneut zu posten.",
+      "channelNotReady": "Nicht verbunden",
+      "nextDates": "Erste Läufe"
+    },
+    "assessment": {
+      "needsReview": "Inhalt muss überprüft werden",
+      "needsUpdate": "Der Inhalt muss aktualisiert werden",
+      "reusable": "Inhalt bestätigt wiederverwendbar",
+      "unavailable": "Benchmark-Vergleich nicht verfügbar",
+      "manualHint": "Sie können diesen Inhalt nach der Überprüfung wiederverwenden. Aufgezeichnete Aufrufe oder ein hoher Engagement-Prozentsatz allein beweisen nicht, dass eine Wiederholung eine gute Wirkung erzielen wird.",
+      "benchmarkReason": "Für einen passenden Vergleich sind dieselbe Metrikformel, dieselbe Zielgruppe, der gleiche bezahlte oder organische Status und das gleiche Messalter erforderlich. Markaestro hat diesen Vergleich noch nicht validiert; Dies bedeutet nicht, dass Ihrem Konto Daten fehlen.",
+      "captured": "Erfasste Metriken {date}",
+      "unknownCapture": "Metrikerfassungszeit nicht verfügbar",
+      "references": "Forschungsreferenzen",
+      "referenceHint": "Veröffentlichte Durchschnittswerte aus der Markenstichprobe des Anbieters, angezeigt zum Kontext. Dabei handelt es sich nicht um eine Mindestanzahl an Aufrufen oder um einen Beweis dafür, dass dieser Beitrag wiederholt werden sollte. Formate und Formeln unterscheiden sich; Diese Referenzen qualifizieren einen Beitrag nicht für eine Empfehlung.",
+      "average": "Gemeldete durchschnittliche Engagement-Rate: {value} %",
+      "noReference": "Für diese Plattform ist hier keine verifizierte Referenz verfügbar.",
+      "confirm": "Ich habe jede Bildunterschrift sowie ihre Medien und Links überprüft. Der Inhalt bleibt nützlich und korrekt, ohne abgelaufene Angebote, veraltete Anweisungen oder Ansprüche, die von einem vergangenen Ereignis abhängen. Ich werde es aktualisieren oder pausieren, wenn sich das ändert.",
+      "xManual": "X-Vorkommen verwenden manuelle Veröffentlichungserinnerungen. Überprüfen Sie den Inhalt und passen Sie ihn an, bevor Sie ihn veröffentlichen. Wiederkehrende identische oder im Wesentlichen ähnliche automatisierte Beiträge werden durch X eingeschränkt.",
+      "reviewContent": "Inhalt überprüfen",
+      "saveReview": "Inhaltsüberprüfung bestätigen",
+      "metrics": {
+        "views": "Ansichten",
+        "impressions": "Impressionen",
+        "reach": "Reichweite",
+        "likes": "Gefällt mir",
+        "comments": "Kommentare",
+        "shares": "Aktien",
+        "saves": "Speichert",
+        "clicks": "Klicks"
+      },
+      "formats": {
+        "all": "Alle Formate",
+        "image": "Bild",
+        "video": "Videoformat",
+        "text": "Text"
+      },
+      "sourceHint": "Wählen Sie einen veröffentlichten Beitrag aus, um ihn zur Wiederverwendung zu überprüfen. Leistungskennzahlen allein begründen noch keine Evergreen-Eignung.",
+      "pageSubtitle": "Überprüfen Sie Inhalte auf dauerhafte Relevanz und entscheiden Sie dann, was Sie wann wiederverwenden möchten.",
+      "openMedia": "Angehängte Medien öffnen",
+      "measurementsAvailable": "Leistungsdaten verfügbar",
+      "noMeasurements": "Noch keine aufgezeichneten Messwerte",
+      "notEvaluated": "Wiederverwendungsempfehlung nicht bewertet",
+      "reviewForReuse": "Überprüfung zur Wiederverwendung"
+    },
+    "library": {
+      "title": "Veröffentlichte Beiträge zur Überprüfung",
+      "description": "Durchsuchen Sie Ihre aufgezeichnete Darbietung und wählen Sie Inhalte aus, die Sie zur Wiederverwendung überprüfen möchten. Diese Liste ist verfügbar, bevor Sie eine Warteschlange erstellen. Wir zeigen bis zu 200 kürzlich veröffentlichte Beiträge für die ausgewählte Marke.",
+      "counts": "{count, plural, one {# veröffentlichter Beitrag} other {# veröffentlichte Beiträge}} angezeigt · {measured} mit aufgezeichneten Messwerten",
+      "failed": "Veröffentlichte Beiträge konnten nicht geladen werden. Ihre Daten wurden nicht gelöscht.",
+      "retry": "Versuchen Sie es erneut"
+    }
   }
 }

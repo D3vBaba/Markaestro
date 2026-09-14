@@ -112,15 +112,15 @@
     }
   },
   "intelligenceDigest": {
-    "subject": "Your week on Markaestro",
-    "preheader": "This week against last week, and the one move to make next.",
-    "intro": "Here is how each brand did this week compared with last week, with the next move Markaestro suggests.",
-    "posts": "Posts",
-    "views": "Views",
-    "engagements": "Engagements",
-    "move": "Next move:",
-    "window": "Best window:",
+    "subject": "您在 Markaestro 的一周",
+    "preheader": "本周与上周相比，以及下一步要采取的行动。",
+    "intro": "以下是每个品牌本周与上周相比的表现，以及 Markaestro 建议的下一步行动。",
+    "posts": "帖子",
+    "views": "观点",
+    "engagements": "互动",
+    "move": "下一步：",
+    "window": "最佳窗口：",
     "cta": "Open Intelligence",
-    "footerNote": "You receive this weekly summary because you are an owner or admin of this workspace."
+    "footerNote": "您收到此每周摘要是因为您是此工作区的所有者或管理员。"
   }
 }

@@ -371,8 +371,8 @@
     "addVariant": "Ajouter une variante",
     "analytics": {
       "conversions": "Conversions",
-      "details": "Performance",
-      "engagements": "Engagements",
+      "details": "Performances",
+      "engagements": "Interactions",
       "loadFailed": "Impossible de charger la performance de la file",
       "loading": "Chargement de la performance de la file...",
       "measured": "Exécutions mesurées",
@@ -410,16 +410,27 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Aucun canal sur cette publication",
         "SOURCE_NOT_PUBLISHED": "Pas encore publiée",
-        "SOURCE_PUBLISH_DATE_MISSING": "Date de publication inconnue"
+        "SOURCE_PUBLISH_DATE_MISSING": "Date de publication inconnue",
+        "SOURCE_PUBLISH_DATE_FUTURE": "La date de publication est dans le futur"
       },
-      "search": "Rechercher des publications publiées"
+      "search": "Rechercher des publications publiées",
+      "view": "Voir",
+      "recent": "Le plus récent",
+      "topPerforming": "Les plus performants",
+      "channel": "Plateforme",
+      "allChannels": "Toutes les plateformes",
+      "metric": "Classer par",
+      "rankingDescription": "Le plus grand nombre enregistré est en premier sur la plateforme sélectionnée, parmi un maximum de 200 publications récentes pour cette marque. Les publications sans cette métrique sont exclues ; les zéros mesurés sont inclus. Les chiffres ne sont pas ajustés en fonction de l’âge de la publication ou de la taille de l’audience. Vérifiez le contenu avant de le réutiliser.",
+      "results": "{count, plural, one {# message correspondant} other {# messages correspondants}}",
+      "noMeasuredMatches": "Aucune publication ne correspond à une valeur enregistrée pour cette métrique. Essayez une autre métrique, plateforme ou recherche.",
+      "rankedMetric": "{channel} · {metric} : {value}"
     },
     "previewFailed": "Impossible de vérifier cette publication",
     "queueName": "Nom de la file",
     "removeVariant": "Retirer",
     "reviewEach": "Examiner chaque occurrence",
     "reviewPolicy": "Politique d'approbation",
-    "runs": "{count, plural, one {# exécution créée} other {# exécutions créées}}",
+    "runs": "{count, plural, one {# exécution} other {# exécutions}} créées",
     "saving": "Création...",
     "selectBrand": "Sélectionnez une marque pour gérer ses files evergreen.",
     "selectedSource": "Publication sélectionnée",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "Variante de légende",
     "variantNumber": "Variante de légende {number}",
-    "variants": "Variantes de légende"
+    "variants": "Variantes de légende",
+    "pageTitle": "À feuilles persistantes",
+    "pageSubtitle": "Examinez le contenu pour en vérifier la pertinence durable, puis choisissez ce que vous souhaitez réutiliser et quand.",
+    "summary": {
+      "title": "Ce qu'Evergreen a gagné",
+      "window": "Derniers jours {days}",
+      "occurrences": "Rediffusions publiées",
+      "views": "Vues",
+      "engagements": "Interactions",
+      "clicks": "Clics suivis",
+      "conversions": "Conversions",
+      "perPost": "Par republication ou par nouvelle publication",
+      "evergreenLabel": "À feuilles persistantes",
+      "freshLabel": "Nouveaux articles",
+      "empty": "Aucune republication n'a encore été publiée dans cette fenêtre."
+    },
+    "reviews": {
+      "title": "En attente de votre avis",
+      "subtitle": "Occurrences des files d’attente qui examinent chaque exécution.",
+      "approve": "Approuver",
+      "skip": "Sauter",
+      "edit": "Modifier dans les brouillons",
+      "plannedFor": "Prévu pour {date}",
+      "approved": "Événement prévu",
+      "skipped": "Occurrence ignorée",
+      "failed": "Impossible de mettre à jour cette occurrence",
+      "empty": "Rien n'attend d'être examiné."
+    },
+    "queues": {
+      "title": "Vos files d'attente",
+      "upcoming": "Prochaines courses",
+      "variantsTitle": "Tableau de bord des légendes",
+      "variantRuns": "{count, plural, one {# exécution} other {# exécutions}}",
+      "variantRetired": "Retraité après deux courses faibles",
+      "variantNoRuns": "Pas encore utilisé",
+      "shifted": "{days, plural, one {# jour} other {# jours}} a été déplacé pour éviter un nouveau message"
+    },
+    "createFlow": {
+      "title": "Nouvelle file d'attente à feuilles persistantes",
+      "subtitle": "Choisissez une publication éprouvée, choisissez comment elle reviendra et laissez les chiffres décider quand elle s'arrêtera.",
+      "sourceStep": "Article source",
+      "captionsStep": "Légendes",
+      "scheduleStep": "Calendrier",
+      "suggestCaptions": "Proposer des légendes",
+      "suggesting": "Rédaction de légendes",
+      "suggestHint": "Quatre réécritures dans la voix de votre marque : une nouvelle accroche, une coupe plus courte, une question et un appel à l'action différent. Cochez ceux que vous souhaitez.",
+      "suggestFailed": "Impossible d'écrire les légendes pour le moment",
+      "angles": {
+        "new_hook": "Nouveau crochet",
+        "shorter": "Plus court",
+        "question": "Question",
+        "different_cta": "Différents appels à l'action"
+      },
+      "useVariant": "Utilisez",
+      "duplicateWarning": "Identique à un article publié sur {date}. Les plateformes pénalisent les rediffusions ; changer quelques mots.",
+      "channelsTitle": "Chaînes",
+      "channelsHint": "Les canaux sources sont sélectionnés. Ajoutez une autre chaîne connectée pour y republier également.",
+      "channelNotReady": "Non connecté",
+      "nextDates": "Premiers passages"
+    },
+    "assessment": {
+      "needsReview": "Le contenu doit être révisé",
+      "needsUpdate": "Le contenu doit être mis à jour",
+      "reusable": "Contenu confirmé réutilisable",
+      "unavailable": "Comparaison de référence indisponible",
+      "manualHint": "Vous pouvez choisir de réutiliser ce contenu après l'avoir examiné. Les vues enregistrées ou un pourcentage d'engagement élevé ne suffisent pas à établir que la répétition fonctionnera bien.",
+      "benchmarkReason": "Une comparaison correspondante nécessite la même formule métrique, la même audience, le même statut payant ou organique et l'âge de la mesure. Markaestro n'a pas encore validé cette comparaison ; cela ne signifie pas que votre compte manque de données.",
+      "captured": "Métriques capturées {date}",
+      "unknownCapture": "Temps de capture métrique indisponible",
+      "references": "Références de recherche",
+      "referenceHint": "Moyennes publiées à partir de l’échantillon de marque du fournisseur, affichées à titre de contexte. Il ne s’agit pas d’un nombre minimum de vues ni d’une preuve que ce message doit être répété. Les formats et les formules diffèrent ; ces références ne qualifient pas un poste pour une recommandation.",
+      "average": "Taux d'engagement moyen déclaré : {value}%",
+      "noReference": "Aucune référence vérifiée n'est disponible ici pour cette plateforme.",
+      "confirm": "J'ai examiné chaque légende, ses médias et ses liens. Le contenu reste utile et précis, sans offres expirées, instructions obsolètes ou réclamations dépendant d'un événement passé. Je le mettrai à jour ou le mettrai en pause lorsque cela changera.",
+      "xManual": "X occurrences utilisent des rappels de publication manuelle. Réviser et adapter le contenu avant de le publier ; les publications automatisées récurrentes identiques ou substantiellement similaires sont restreintes par X.",
+      "reviewContent": "Réviser le contenu",
+      "saveReview": "Confirmer la révision du contenu",
+      "metrics": {
+        "views": "Vues",
+        "impressions": "Impressions",
+        "reach": "Atteindre",
+        "likes": "J'aime",
+        "comments": "Commentaires",
+        "shares": "Actions",
+        "saves": "Enregistre",
+        "clicks": "Clics"
+      },
+      "formats": {
+        "all": "Tous formats",
+        "image": "Images",
+        "video": "Vidéo",
+        "text": "Texte"
+      },
+      "sourceHint": "Choisissez un article publié à réviser pour le réutiliser. Les mesures de performance à elles seules ne suffisent pas à établir une adéquation permanente.",
+      "pageSubtitle": "Examinez le contenu pour en vérifier la pertinence durable, puis choisissez ce que vous souhaitez réutiliser et quand.",
+      "openMedia": "Ouvrir le média joint",
+      "measurementsAvailable": "Données de performances disponibles",
+      "noMeasurements": "Aucune métrique enregistrée pour le moment",
+      "notEvaluated": "Recommandation de réutilisation non évaluée",
+      "reviewForReuse": "Révision pour réutilisation"
+    },
+    "library": {
+      "title": "Articles publiés à examiner",
+      "description": "Parcourez vos performances enregistrées et choisissez le contenu à examiner pour réutilisation. Cette liste est disponible avant de créer une file d'attente. Nous affichons jusqu'à 200 articles récemment publiés pour la marque sélectionnée.",
+      "counts": "{count, plural, one {# article publié} other {# articles publiés}} affiché · {measured} avec métriques enregistrées",
+      "failed": "Les messages publiés n'ont pas pu être chargés. Vos données n'ont pas été effacées.",
+      "retry": "Réessayez"
+    }
   }
 }

@@ -410,16 +410,27 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Esta publicación no tiene canal",
         "SOURCE_NOT_PUBLISHED": "Aún no publicada",
-        "SOURCE_PUBLISH_DATE_MISSING": "Fecha de publicación desconocida"
+        "SOURCE_PUBLISH_DATE_MISSING": "Fecha de publicación desconocida",
+        "SOURCE_PUBLISH_DATE_FUTURE": "La fecha de publicación es en el futuro"
       },
-      "search": "Buscar publicaciones publicadas"
+      "search": "Buscar publicaciones publicadas",
+      "view": "Ver",
+      "recent": "Más reciente",
+      "topPerforming": "Mejor rendimiento",
+      "channel": "Plataforma",
+      "allChannels": "Todas las plataformas",
+      "metric": "Clasificar por",
+      "rankingDescription": "Los registros más altos cuentan primero en la plataforma seleccionada, entre hasta 200 publicaciones publicadas recientemente para esta marca. Las publicaciones sin esta métrica están excluidas; Se incluyen los ceros medidos. Los recuentos no se ajustan a la edad de la publicación ni al tamaño de la audiencia. Revise el contenido antes de reutilizarlo.",
+      "results": "{count, plural, one {# publicación coincidente} other {# publicaciones coincidentes}}",
+      "noMeasuredMatches": "Ninguna publicación coincide con un valor registrado para esta métrica. Pruebe con otra métrica, plataforma o búsqueda.",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "previewFailed": "No se pudo comprobar esta publicación",
     "queueName": "Nombre de la cola",
     "removeVariant": "Quitar",
     "reviewEach": "Revisar cada repetición",
     "reviewPolicy": "Política de aprobación",
-    "runs": "{count, plural, one {# ejecución creada} other {# ejecuciones creadas}}",
+    "runs": "{count, plural, one {# ejecución} other {# ejecuciones}} creadas",
     "saving": "Creando...",
     "selectBrand": "Selecciona una marca para gestionar sus colas evergreen.",
     "selectedSource": "Publicación seleccionada",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "Variante del pie",
     "variantNumber": "Variante del pie {number}",
-    "variants": "Variantes del pie"
+    "variants": "Variantes del pie",
+    "pageTitle": "Hoja perenne",
+    "pageSubtitle": "Revise el contenido para determinar su relevancia duradera y luego elija qué reutilizar y cuándo.",
+    "summary": {
+      "title": "Lo que ganó Evergreen",
+      "window": "Últimos días {days}",
+      "occurrences": "Reposts publicados",
+      "views": "Vistas",
+      "engagements": "Interacciones",
+      "clicks": "Clics rastreados",
+      "conversions": "Conversiones",
+      "perPost": "Por nueva publicación versus por publicación nueva",
+      "evergreenLabel": "Hoja perenne",
+      "freshLabel": "Publicaciones nuevas",
+      "empty": "Aún no se han publicado publicaciones en esta ventana."
+    },
+    "reviews": {
+      "title": "Esperando tu reseña",
+      "subtitle": "Ocurrencias de colas que revisan cada ejecución.",
+      "approve": "Aprobar",
+      "skip": "Saltar",
+      "edit": "Editar en borradores",
+      "plannedFor": "Planificado para {date}",
+      "approved": "Ocurrencia prevista",
+      "skipped": "Ocurrencia omitida",
+      "failed": "No se pudo actualizar esta ocurrencia",
+      "empty": "No hay nada pendiente de revisión."
+    },
+    "queues": {
+      "title": "Tus colas",
+      "upcoming": "Próximas ejecuciones",
+      "variantsTitle": "Marcador de subtítulos",
+      "variantRuns": "{count, plural, one {# ejecución} other {# ejecuciones}}",
+      "variantRetired": "Retirado tras dos rachas débiles",
+      "variantNoRuns": "Aún no usado",
+      "shifted": "Se movió {days, plural, one {# día} other {# días}} para evitar una publicación nueva."
+    },
+    "createFlow": {
+      "title": "Nueva cola permanente",
+      "subtitle": "Elija una publicación probada, elija cómo regresa y deje que los números decidan cuándo se detendrá.",
+      "sourceStep": "Publicación fuente",
+      "captionsStep": "Subtítulos",
+      "scheduleStep": "Horario",
+      "suggestCaptions": "Sugerir subtítulos",
+      "suggesting": "Escribir subtítulos",
+      "suggestHint": "Cuatro reescrituras en la voz de tu marca: un nuevo gancho, un atajo, una pregunta y un llamado a la acción diferente. Marca las que quieras.",
+      "suggestFailed": "No se pudieron escribir subtítulos en este momento",
+      "angles": {
+        "new_hook": "Nuevo gancho",
+        "shorter": "Más corto",
+        "question": "Pregunta",
+        "different_cta": "Llamado a la acción diferente"
+      },
+      "useVariant": "Uso",
+      "duplicateWarning": "Idéntico a una publicación publicada en {date}. Las plataformas penalizan las repeticiones; cambiar algunas palabras.",
+      "channelsTitle": "Canales",
+      "channelsHint": "Se seleccionan los canales de origen. Agrega otro canal conectado para volver a publicar allí también.",
+      "channelNotReady": "No conectado",
+      "nextDates": "Primeras carreras"
+    },
+    "assessment": {
+      "needsReview": "El contenido necesita revisión",
+      "needsUpdate": "El contenido necesita actualización",
+      "reusable": "Contenido confirmado reutilizable",
+      "unavailable": "Comparación de referencia no disponible",
+      "manualHint": "Puede optar por reutilizar este contenido después de revisarlo. Las vistas grabadas o un alto porcentaje de participación por sí solos no establecen que repetirlo funcionará bien.",
+      "benchmarkReason": "Una comparación coincidente requiere la misma fórmula métrica, audiencia, estado orgánico u pagado y edad de medición. Markaestro aún no ha validado esa comparación; Esto no significa que a su cuenta le falten datos.",
+      "captured": "Métricas capturadas {date}",
+      "unknownCapture": "Tiempo de captura de métricas no disponible",
+      "references": "Referencias de investigación",
+      "referenceHint": "Promedios publicados de la muestra de marcas del proveedor, mostrados para contexto. No son recuentos mínimos de vistas ni evidencia de que esta publicación deba repetirse. Los formatos y fórmulas difieren; Estas referencias no califican una publicación para una recomendación.",
+      "average": "Tasa de participación promedio reportada: {value}%",
+      "noReference": "No hay ninguna referencia verificada disponible aquí para esta plataforma.",
+      "confirm": "He revisado cada título y sus medios y enlaces. El contenido sigue siendo útil y preciso, sin ofertas caducadas, instrucciones desactualizadas ni afirmaciones que dependan de un evento pasado. Lo actualizaré o lo pausaré cuando eso cambie.",
+      "xManual": "X ocurrencias utilizan recordatorios de publicación manual. Revisar y adaptar el contenido antes de publicarlo; Las publicaciones automatizadas recurrentes idénticas o sustancialmente similares están restringidas por X.",
+      "reviewContent": "Revisar contenido",
+      "saveReview": "Confirmar revisión de contenido",
+      "metrics": {
+        "views": "Vistas",
+        "impressions": "Impresiones",
+        "reach": "Alcance",
+        "likes": "Me gusta",
+        "comments": "Comentarios",
+        "shares": "Acciones",
+        "saves": "Guarda",
+        "clicks": "Clics"
+      },
+      "formats": {
+        "all": "Todos los formatos",
+        "image": "Imagen",
+        "video": "Vídeo",
+        "text": "Texto"
+      },
+      "sourceHint": "Elija una publicación publicada para revisarla y reutilizarla. Las métricas de desempeño por sí solas no establecen la idoneidad de siempre.",
+      "pageSubtitle": "Revise el contenido para determinar su relevancia duradera y luego elija qué reutilizar y cuándo.",
+      "openMedia": "Abrir medios adjuntos",
+      "measurementsAvailable": "Datos de rendimiento disponibles",
+      "noMeasurements": "Aún no hay métricas registradas",
+      "notEvaluated": "Recomendación de reutilización no evaluada",
+      "reviewForReuse": "Revisión para reutilización"
+    },
+    "library": {
+      "title": "Publicaciones publicadas para revisar",
+      "description": "Explore su interpretación grabada y elija el contenido para revisarlo y reutilizarlo. Esta lista está disponible antes de crear una cola. Mostramos hasta 200 publicaciones publicadas recientemente para la marca seleccionada.",
+      "counts": "Se muestra {count, plural, one {# publicación publicada} other {# publicaciones publicadas}} · {measured} con métricas registradas",
+      "failed": "No se pudieron cargar las publicaciones publicadas. Tus datos no han sido borrados.",
+      "retry": "Intentar otra vez"
+    }
   }
 }

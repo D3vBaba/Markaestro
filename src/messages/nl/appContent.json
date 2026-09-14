@@ -372,7 +372,7 @@
     "analytics": {
       "conversions": "Conversies",
       "details": "Prestaties",
-      "engagements": "Interacties",
+      "engagements": "Betrokkenheid",
       "loadFailed": "Kon de prestaties van de wachtrij niet laden",
       "loading": "Prestaties van de wachtrij laden...",
       "measured": "Gemeten runs",
@@ -410,16 +410,27 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "Geen kanaal op deze post",
         "SOURCE_NOT_PUBLISHED": "Nog niet gepubliceerd",
-        "SOURCE_PUBLISH_DATE_MISSING": "Publicatiedatum onbekend"
+        "SOURCE_PUBLISH_DATE_MISSING": "Publicatiedatum onbekend",
+        "SOURCE_PUBLISH_DATE_FUTURE": "De publicatiedatum ligt in de toekomst"
       },
-      "search": "Zoek in gepubliceerde posts"
+      "search": "Zoek in gepubliceerde posts",
+      "view": "Bekijk",
+      "recent": "Meest recente",
+      "topPerforming": "Best presterende",
+      "channel": "Platform",
+      "allChannels": "Alle platforms",
+      "metric": "Rangschikken op",
+      "rankingDescription": "De hoogste geregistreerde aantallen worden als eerste weergegeven op het geselecteerde platform, tussen maximaal 200 recent gepubliceerde berichten voor dit merk. Berichten zonder deze statistiek zijn uitgesloten; gemeten nullen zijn inbegrepen. Tellingen worden niet aangepast aan de leeftijd van de post of de grootte van het publiek. Controleer de inhoud voordat u deze opnieuw gebruikt.",
+      "results": "{count, plural, one {# overeenkomend bericht} other {# overeenkomende berichten}}",
+      "noMeasuredMatches": "Er zijn geen berichten die overeenkomen met een geregistreerde waarde voor deze statistiek. Probeer een andere statistiek, platform of zoekopdracht.",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "previewFailed": "Kon deze post niet controleren",
     "queueName": "Naam van de wachtrij",
     "removeVariant": "Verwijderen",
     "reviewEach": "Elke herhaling beoordelen",
     "reviewPolicy": "Goedkeuringsbeleid",
-    "runs": "{count, plural, one {# run} other {# runs}} gemaakt",
+    "runs": "{count, plural, one {# uitvoering} other {# uitvoeringen}} aangemaakt",
     "saving": "Bezig met maken...",
     "selectBrand": "Selecteer een merk om zijn evergreen-wachtrijen te beheren.",
     "selectedSource": "Geselecteerde post",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "Bijschriftvariant",
     "variantNumber": "Bijschriftvariant {number}",
-    "variants": "Bijschriftvarianten"
+    "variants": "Bijschriftvarianten",
+    "pageTitle": "Evergreen",
+    "pageSubtitle": "Controleer de inhoud op blijvende relevantie en kies vervolgens wat u wilt hergebruiken en wanneer.",
+    "summary": {
+      "title": "Wat Evergreen verdiende",
+      "window": "Laatste {days}-dagen",
+      "occurrences": "Herposten gepubliceerd",
+      "views": "Weergaven",
+      "engagements": "Betrokkenheid",
+      "clicks": "Bijgehouden klikken",
+      "conversions": "Conversions",
+      "perPost": "Per repost versus per nieuw bericht",
+      "evergreenLabel": "Evergreen",
+      "freshLabel": "Nieuwe berichten",
+      "empty": "Er zijn nog geen reposts in dit venster gepubliceerd."
+    },
+    "reviews": {
+      "title": "Wachten op uw beoordeling",
+      "subtitle": "Voorvallen uit wachtrijen die elke uitvoering beoordelen.",
+      "approve": "Goedkeuren",
+      "skip": "",
+      "edit": "overslaan Bewerken in concepten",
+      "plannedFor": "Gepland voor {date}",
+      "approved": "Geplande gebeurtenis",
+      "skipped": "Voorval overgeslagen",
+      "failed": "Kan dit exemplaar",
+      "empty": "niet bijwerken Niets wacht op beoordeling."
+    },
+    "queues": {
+      "title": "Uw wachtrijen",
+      "upcoming": "Volgende uitvoering",
+      "variantsTitle": "Bijschrift scorebord",
+      "variantRuns": "{count, plural, one {# uitvoering} other {# uitvoeringen}}",
+      "variantRetired": "Gepensioneerd na twee zwakke runs",
+      "variantNoRuns": "Nog niet gebruikt",
+      "shifted": "{days, plural, one {# dag} other {# dagen}} verplaatst om een ​​nieuw bericht te voorkomen"
+    },
+    "createFlow": {
+      "title": "Nieuwe groenblijvende wachtrij",
+      "subtitle": "Kies een beproefde post, kies hoe deze terugkomt en laat de cijfers beslissen wanneer deze stopt.",
+      "sourceStep": "Bron bericht",
+      "captionsStep": "Onderschriften",
+      "scheduleStep": "Schema",
+      "suggestCaptions": "Onderschriften voorstellen",
+      "suggesting": "Onderschriften schrijven",
+      "suggestHint": "Vier herschrijvingen in de stem van uw merk: een nieuwe hook, een kortere versie, een vraag en een andere call-to-action. Vink degene aan die je wilt.",
+      "suggestFailed": "Kan momenteel geen ondertiteling schrijven",
+      "angles": {
+        "new_hook": "Nieuwe haak",
+        "shorter": "Korter",
+        "question": "Vraag",
+        "different_cta": "Verschillende call-to-action"
+      },
+      "useVariant": "Gebruiken",
+      "duplicateWarning": "Identiek aan een bericht gepubliceerd op {date}. Platforms bestraffen herhalingen; verander een paar woorden.",
+      "channelsTitle": "Kanalen",
+      "channelsHint": "De bronkanalen zijn geselecteerd. Voeg nog een verbonden kanaal toe om daar ook opnieuw te posten.",
+      "channelNotReady": "Niet verbonden",
+      "nextDates": "Eerste uitvoeringen"
+    },
+    "assessment": {
+      "needsReview": "Inhoud moet worden beoordeeld",
+      "needsUpdate": "Inhoud moet worden bijgewerkt",
+      "reusable": "Inhoud bevestigd herbruikbaar",
+      "unavailable": "Benchmarkvergelijking niet beschikbaar",
+      "manualHint": "U kunt ervoor kiezen deze inhoud opnieuw te gebruiken nadat u deze heeft beoordeeld. Opgenomen views of een hoog engagementpercentage alleen garanderen niet dat herhaling goed zal presteren.",
+      "benchmarkReason": "Voor een overeenkomende vergelijking zijn dezelfde statistische formule, doelgroep, betaalde of organische status en meetleeftijd vereist. Markaestro heeft die vergelijking nog niet gevalideerd; dit betekent niet dat uw account geen gegevens bevat.",
+      "captured": "Vastgelegde statistieken {date}",
+      "unknownCapture": "Gegevensregistratietijd niet beschikbaar",
+      "references": "Onderzoeksreferenties",
+      "referenceHint": "Gepubliceerde gemiddelden uit de merksteekproef van de aanbieder, weergegeven voor de context. Het zijn geen minimale weergaveaantallen of bewijs dat dit bericht herhaald moet worden. Formaten en formules verschillen; deze referenties komen niet in aanmerking voor een post voor aanbeveling.",
+      "average": "Gerapporteerd gemiddeld betrokkenheidspercentage: {value}%",
+      "noReference": "Er is hier geen geverifieerde referentie beschikbaar voor dit platform.",
+      "confirm": "Ik heb elk bijschrift en de media en links bekeken. De inhoud blijft nuttig en accuraat, zonder verlopen aanbiedingen, verouderde instructies of claims die afhankelijk zijn van een gebeurtenis uit het verleden. Ik zal het updaten of pauzeren als dat verandert.",
+      "xManual": "X voorvallen maken gebruik van handmatige publicatieherinneringen. Controleer de inhoud en pas deze aan voordat u deze plaatst; terugkerende identieke of substantieel vergelijkbare geautomatiseerde berichten worden beperkt door X.",
+      "reviewContent": "Inhoud beoordelen",
+      "saveReview": "Bevestig de inhoudsbeoordeling",
+      "metrics": {
+        "views": "Weergaven",
+        "impressions": "Indrukken",
+        "reach": "Bereik",
+        "likes": "Vind ik leuk",
+        "comments": "Opmerkingen",
+        "shares": "Aandelen",
+        "saves": "Slaat",
+        "clicks": "op Klikt"
+      },
+      "formats": {
+        "all": "Alle formaten",
+        "image": "Afbeelding",
+        "video": "Video",
+        "text": "Tekst"
+      },
+      "sourceHint": "Kies een gepubliceerd bericht om te beoordelen voor hergebruik. Prestatiestatistieken alleen zijn geen garantie voor een altijd groene geschiktheid.",
+      "pageSubtitle": "Controleer de inhoud op blijvende relevantie en kies vervolgens wat u wilt hergebruiken en wanneer.",
+      "openMedia": "Open bijgevoegde media",
+      "measurementsAvailable": "Prestatiegegevens beschikbaar",
+      "noMeasurements": "Nog geen geregistreerde statistieken",
+      "notEvaluated": "Aanbeveling voor hergebruik niet geëvalueerd",
+      "reviewForReuse": "Controleren voor hergebruik"
+    },
+    "library": {
+      "title": "Gepubliceerde berichten om te beoordelen",
+      "description": "Blader door uw opgenomen optreden en kies inhoud die u wilt beoordelen voor hergebruik. Deze lijst is beschikbaar voordat u een wachtrij maakt. We tonen maximaal 200 recent gepubliceerde berichten voor het geselecteerde merk.",
+      "counts": "{count, plural, one {# gepubliceerd bericht} other {# gepubliceerde berichten}} weergegeven · {measured} met geregistreerde statistieken",
+      "failed": "Gepubliceerde berichten konden niet worden geladen. Uw gegevens zijn niet gewist.",
+      "retry": "Probeer het opnieuw"
+    }
   }
 }

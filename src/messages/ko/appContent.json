@@ -410,16 +410,27 @@
       "reasons": {
         "SOURCE_HAS_NO_CHANNEL": "이 게시물에 채널이 없습니다",
         "SOURCE_NOT_PUBLISHED": "아직 게시되지 않음",
-        "SOURCE_PUBLISH_DATE_MISSING": "게시 날짜 알 수 없음"
+        "SOURCE_PUBLISH_DATE_MISSING": "게시 날짜 알 수 없음",
+        "SOURCE_PUBLISH_DATE_FUTURE": "게시 날짜가 미래입니다"
       },
-      "search": "게시된 게시물 검색"
+      "search": "게시된 게시물 검색",
+      "view": "보기",
+      "recent": "가장 최근",
+      "topPerforming": "최고 실적",
+      "channel": "플랫폼",
+      "allChannels": "모든 플랫폼",
+      "metric": "순위 기준",
+      "rankingDescription": "이 브랜드에 대해 최근 게시된 최대 200개의 게시물 중에서 선택한 플랫폼에서 가장 높은 기록이 먼저 계산됩니다. 이 측정항목이 없는 게시물은 제외됩니다. 측정된 0이 포함됩니다. 게시물 연령이나 대상 규모에 따라 개수가 조정되지 않습니다. 재사용하기 전에 콘텐츠를 검토하세요.",
+      "results": "{count, plural, one {# 일치하는 게시물} other {# 일치하는 게시물}}",
+      "noMeasuredMatches": "이 측정항목에 대해 기록된 값과 일치하는 게시물이 없습니다. 다른 측정항목, 플랫폼 또는 검색을 시도해 보세요.",
+      "rankedMetric": "{channel} · {metric}: {value}"
     },
     "previewFailed": "이 게시물을 확인할 수 없습니다",
     "queueName": "큐 이름",
     "removeVariant": "제거",
     "reviewEach": "매 회차 검토",
     "reviewPolicy": "승인 정책",
-    "runs": "{count, plural, other {#개 실행 생성됨}}",
+    "runs": "{count, plural, one {# 실행} other {# 실행}}가 생성되었습니다.",
     "saving": "만드는 중...",
     "selectBrand": "Evergreen 큐를 관리할 브랜드를 선택하세요.",
     "selectedSource": "선택한 게시물",
@@ -434,6 +445,113 @@
     "title": "Intelligent Evergreen",
     "variant": "캡션 변형",
     "variantNumber": "캡션 변형 {number}",
-    "variants": "캡션 변형"
+    "variants": "캡션 변형",
+    "pageTitle": "상록수",
+    "pageSubtitle": "콘텐츠의 지속적인 관련성을 검토한 후 재사용할 항목과 시기를 선택하세요.",
+    "summary": {
+      "title": "Evergreen이 얻은 것",
+      "window": "지난 {days}일",
+      "occurrences": "재게시물 게시됨",
+      "views": "조회수",
+      "engagements": "참여",
+      "clicks": "추적된 클릭",
+      "conversions": "전환",
+      "perPost": "재게시물당 vs 새로운 게시물당",
+      "evergreenLabel": "상록수",
+      "freshLabel": "새로운 게시물",
+      "empty": "이 창에는 아직 게시된 재게시물이 없습니다."
+    },
+    "reviews": {
+      "title": "귀하의 리뷰를 기다리고 있습니다",
+      "subtitle": "모든 실행을 검토하는 대기열에서 발생합니다.",
+      "approve": "승인",
+      "skip": "건너뛰기",
+      "edit": "임시 보관함에서 편집",
+      "plannedFor": "{date}에 대한 계획",
+      "approved": "발생 예정됨",
+      "skipped": "발생을 건너뛰었습니다",
+      "failed": "이 사건을 업데이트할 수 없습니다",
+      "empty": "검토를 기다리는 항목이 없습니다."
+    },
+    "queues": {
+      "title": "당신의 대기열",
+      "upcoming": "다음 실행",
+      "variantsTitle": "캡션 점수판",
+      "variantRuns": "{count, plural, one {# 실행} other {# 실행}}",
+      "variantRetired": "두 번의 약한 실행 후 은퇴",
+      "variantNoRuns": "아직 사용되지 않음",
+      "shifted": "새로운 게시물을 피하기 위해 {days, plural, one {#일} other {#일}}를 이동했습니다."
+    },
+    "createFlow": {
+      "title": "새로운 상록수 대기열",
+      "subtitle": "검증된 게시물을 선택하고, 게시물이 어떻게 돌아올지 선택하고, 게시물이 중단되는 시점은 숫자에 따라 결정됩니다.",
+      "sourceStep": "원본 게시물",
+      "captionsStep": "캡션",
+      "scheduleStep": "일정",
+      "suggestCaptions": "캡션 제안",
+      "suggesting": "캡션 쓰기",
+      "suggestHint": "브랜드 보이스를 4가지로 다시 작성합니다. 새로운 유인 요소, 짧은 내용, 질문, 다른 클릭 유도 문구입니다. 원하는 것을 선택하세요.",
+      "suggestFailed": "지금은 캡션을 쓸 수 없습니다",
+      "angles": {
+        "new_hook": "새로운 후크",
+        "shorter": "더 짧게",
+        "question": "질문",
+        "different_cta": "다양한 행동 유도"
+      },
+      "useVariant": "사용",
+      "duplicateWarning": "{date}에 게시된 게시물과 동일합니다. 플랫폼은 반복에 불이익을 줍니다. 단어 몇 개 바꾸세요.",
+      "channelsTitle": "채널",
+      "channelsHint": "소스 채널이 선택됩니다. 다시 게시하려면 다른 연결된 채널을 추가하세요.",
+      "channelNotReady": "연결되지 않음",
+      "nextDates": "첫 번째 실행"
+    },
+    "assessment": {
+      "needsReview": "콘텐츠 검토가 필요함",
+      "needsUpdate": "콘텐츠를 업데이트해야 합니다",
+      "reusable": "콘텐츠 재사용 가능 확인",
+      "unavailable": "벤치마크 비교 불가",
+      "manualHint": "이 콘텐츠를 검토한 후 재사용하도록 선택할 수 있습니다. 기록된 조회수나 높은 참여율만으로는 이를 반복하는 것이 좋은 성과를 거둘 것이라고 확신할 수 없습니다.",
+      "benchmarkReason": "일치된 비교에는 동일한 측정항목 수식, 대상, 유료 또는 유기적 상태, 측정 연령이 필요합니다. Markaestro는 아직 해당 비교를 검증하지 않았습니다. 이는 귀하의 계정에 데이터가 부족하다는 의미는 아닙니다.",
+      "captured": "캡처된 측정항목 {date}",
+      "unknownCapture": "측정항목 캡처 시간을 사용할 수 없음",
+      "references": "연구 참고자료",
+      "referenceHint": "제공업체의 브랜드 샘플에서 게시된 평균으로 상황에 맞게 표시됩니다. 이는 최소 조회수나 이 게시물을 반복해야 한다는 증거가 아닙니다. 형식과 수식이 다릅니다. 이러한 참고 자료는 게시물을 추천할 자격이 없습니다.",
+      "average": "보고된 평균 참여율: {value}%",
+      "noReference": "이 플랫폼에 대해 확인된 참조가 없습니다.",
+      "confirm": "나는 모든 캡션과 해당 미디어 및 링크를 검토했습니다. 콘텐츠는 만료된 제안, 오래된 지침 또는 과거 사건에 따른 주장 없이 유용하고 정확합니다. 변경사항이 있으면 업데이트하거나 일시중지하겠습니다.",
+      "xManual": "X번 발생에서는 수동 게시 알림을 사용합니다. 게시하기 전에 콘텐츠를 검토하고 조정합니다. 반복적으로 동일하거나 실질적으로 유사한 자동 게시물은 X로 제한됩니다.",
+      "reviewContent": "콘텐츠 검토",
+      "saveReview": "콘텐츠 리뷰 확인",
+      "metrics": {
+        "views": "조회수",
+        "impressions": "노출수",
+        "reach": "도달",
+        "likes": "좋아요",
+        "comments": "댓글",
+        "shares": "공유",
+        "saves": "저장",
+        "clicks": "클릭수"
+      },
+      "formats": {
+        "all": "모든 형식",
+        "image": "이미지",
+        "video": "비디오",
+        "text": "텍스트"
+      },
+      "sourceHint": "재사용 여부를 검토하려면 게시된 게시물을 선택하세요. 성능 지표만으로는 지속적인 적합성을 확립할 수 없습니다.",
+      "pageSubtitle": "콘텐츠의 지속적인 관련성을 검토한 후 재사용할 항목과 시기를 선택하세요.",
+      "openMedia": "첨부된 미디어 열기",
+      "measurementsAvailable": "사용 가능한 성능 데이터",
+      "noMeasurements": "아직 기록된 측정항목이 없습니다",
+      "notEvaluated": "재사용 권장 사항이 평가되지 않음",
+      "reviewForReuse": "재사용 검토"
+    },
+    "library": {
+      "title": "검토할 게시물을 게시했습니다",
+      "description": "녹음된 연주를 찾아보고 재사용을 위해 검토할 콘텐츠를 선택하세요. 이 목록은 대기열을 생성하기 전에 사용할 수 있습니다. 선택한 브랜드에 대해 최근 게시된 게시물을 최대 200개까지 표시합니다.",
+      "counts": "{count, plural, one {# 게시된 게시물} other {게시된 게시물 #개}} 표시됨 · 기록된 측정항목이 있는 {measured}",
+      "failed": "게시된 게시물을 로드할 수 없습니다. 귀하의 데이터는 삭제되지 않았습니다.",
+      "retry": "다시 시도하세요"
+    }
   }
 }

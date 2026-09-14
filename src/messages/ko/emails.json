@@ -112,15 +112,15 @@
     }
   },
   "intelligenceDigest": {
-    "subject": "Your week on Markaestro",
-    "preheader": "This week against last week, and the one move to make next.",
-    "intro": "Here is how each brand did this week compared with last week, with the next move Markaestro suggests.",
+    "subject": "Markaestro에서의 한 주",
+    "preheader": "이번주는 지난주에 비해 다음주에는 하나의 움직임이 있습니다.",
+    "intro": "다음은 Markaestro가 제안하는 다음 행보와 함께 지난주와 비교하여 이번 주에 각 브랜드의 성과를 보여줍니다.",
     "posts": "Posts",
-    "views": "Views",
-    "engagements": "Engagements",
-    "move": "Next move:",
-    "window": "Best window:",
+    "views": "조회수",
+    "engagements": "참여",
+    "move": "다음 수:",
+    "window": "가장 좋은 창:",
     "cta": "Open Intelligence",
-    "footerNote": "You receive this weekly summary because you are an owner or admin of this workspace."
+    "footerNote": "귀하는 이 작업 공간의 소유자 또는 관리자이기 때문에 이 주간 요약을 받습니다."
   }
 }

@@ -762,7 +762,7 @@
     "platform": "Plataforma",
     "hypothesisPlaceholder": "Los ganchos cortos consiguen más visualizaciones",
     "window": "Ventana",
-    "armControl": "Control",
+    "armControl": "Controlar",
     "armVariant": "Variante",
     "tipOneChange": "Cambia solo una cosa entre los brazos: el gancho, el medio o la hora. Dos cambios no se pueden distinguir.",
     "tipSameSlot": "Programa ambos brazos en franjas similares, un día de diferencia funciona bien, para que el horario no decida el resultado.",
@@ -832,5 +832,100 @@
     "noMove": "Nada que hacer aún. Los pasos aparecen cuando una franja, plataforma o patrón supera tu media.",
     "noWindow": "{missing} publicaciones más desbloquean las franjas.",
     "noWindowYet": "Ninguna franja tiene suficientes publicaciones todavía."
+  },
+  "weekPulse": {
+    "title": "Esta semana",
+    "subtitle": "Los últimos siete días contra los siete anteriores, por fecha de publicación.",
+    "posts": "Publicaciones",
+    "views": "Vistas",
+    "engagements": "Interacciones",
+    "vsLastWeek": "vs la semana pasada",
+    "noPrior": "No hay publicaciones la semana pasada para comparar",
+    "quiet": "Nada publicado en los últimos siete días. La mejor ventana a continuación es un buen lugar para comenzar."
+  },
+  "cohorts": {
+    "title": "Lo que funciona para usted",
+    "subtitle": "Interacciones promedio por publicación por forma. Solo publicaciones medidas, por lo que los grupos pequeños son ruidosos.",
+    "dimensions": {
+      "format": "Formato",
+      "length": "Longitud del título",
+      "cta": "Preguntar",
+      "hashtags": "Hashtags"
+    },
+    "keys": {
+      "0": "Sin hashtags",
+      "video": "Vídeo",
+      "image": "Imagen",
+      "carousel": "Carrusel",
+      "text": "Sólo texto",
+      "short": "Corto (menos de 80 caracteres)",
+      "medium": "Medio (80 a 220)",
+      "long": "Largo (más de 220)",
+      "none": "Sin título",
+      "cta": "Tiene un llamado a la acción",
+      "question": "Hace una pregunta",
+      "none-cta": "No preguntar",
+      "1-3": "1 a 3 hashtags",
+      "4+": "4 o más hashtags"
+    },
+    "posts": "{count, plural, one {# publicación} other {# publicaciones}}",
+    "avgEngagements": "Interacciones promedio",
+    "rate": "Tarifa",
+    "tooFew": "Las formas aparecen una vez que al menos cinco publicaciones tienen medidas."
+  },
+  "pillarCoverage": {
+    "title": "Cobertura del pilar",
+    "subtitle": "Con qué frecuencia se publicó cada pilar de contenido en los últimos 30 días, en comparación con los 30 anteriores.",
+    "last30": "Últimos 30 días",
+    "prior30": "30 días anteriores",
+    "avg": "Interacciones promedio",
+    "quiet": "Se quedó en silencio",
+    "empty": "Agregue pilares de contenido al perfil de audiencia y Markaestro realizará un seguimiento de la cobertura aquí."
+  },
+  "outcomes": {
+    "testThis": "Pruebe esto"
+  },
+  "provenTests": {
+    "title": "Probado mediante experimentos",
+    "subtitle": "Pruebas A/B terminadas con un claro ganador. Estos son los patrones en los que más puedes confiar.",
+    "winnerA": "El brazo A ganó",
+    "winnerB": "Ganó el brazo B",
+    "inconclusive": "No concluyente",
+    "stoppedEarly": "Detenido temprano",
+    "inconclusiveCount": "{count, plural, one {# prueba finalizada} other {# pruebas finalizaron}} sin un ganador claro.",
+    "empty": "Aún no hay pruebas terminadas. Ejecute uno desde la pestaña Experimentos."
+  },
+  "testIdeas": {
+    "title": "Ideas para probar",
+    "subtitle": "Extraído de tu mejor ventana y de tus patrones más fuertes. Cada uno configura el compositor para usted.",
+    "setUp": "Configurar",
+    "arms": "A: {a}. B: {b}.",
+    "kinds": {
+      "timing": "Momento",
+      "platform": "Plataforma",
+      "hook": "Gancho",
+      "pillar": "Pilar"
+    },
+    "titles": {
+      "timing": "Publicar en {a} en lugar de {b}",
+      "platform": "Misma publicación en {a} versus {b}",
+      "hook": "Un título con gancho versus el abridor habitual",
+      "pillar": "Una publicación {a} versus tu próxima publicación planificada"
+    }
+  },
+  "audienceSignals": {
+    "title": "Señales de audiencia",
+    "subtitle": "Qué tan bien coinciden las publicaciones recientes con la audiencia que declaraste y si ésta se está moviendo.",
+    "fit": "Ajuste de audiencia",
+    "coverage": "{value}% de publicaciones recientes puntuadas",
+    "noFit": "Fit aparece una vez que las publicaciones incluyen instantáneas de la audiencia.",
+    "driftTitle": "Bandera de deriva",
+    "associationNote": "La deriva es una asociación en los datos, no una causa comprobada.",
+    "noDrift": "No se detectó deriva. Las publicaciones recientes aún coinciden con la audiencia declarada."
+  },
+  "askActions": {
+    "draft": "Borrador de esta evidencia",
+    "test": "Conviértete en una prueba",
+    "followUp": "Solicitar un seguimiento"
   }
 }

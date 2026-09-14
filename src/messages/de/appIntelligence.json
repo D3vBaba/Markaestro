@@ -814,7 +814,7 @@
     "retry": "Erneut versuchen"
   },
   "legend": {
-    "button": "Labels",
+    "button": "Etiketten",
     "title": "Was jedes Label bedeutet",
     "intro": "Jede Zahl und jeder Satz auf dieser Seite trägt eines dieser Labels, damit du immer weißt, woher es stammt."
   },
@@ -832,5 +832,100 @@
     "noMove": "Noch nichts zu tun. Schritte erscheinen, wenn ein Zeitfenster, eine Plattform oder ein Muster deinen Durchschnitt schlägt.",
     "noWindow": "Noch {missing} Beiträge schalten Zeitfenster frei.",
     "noWindowYet": "Noch kein Zeitfenster hat genug Beiträge."
+  },
+  "weekPulse": {
+    "title": "Diese Woche",
+    "subtitle": "Die letzten sieben Tage im Vergleich zu den sieben Tagen davor, nach Veröffentlichungsdatum.",
+    "posts": "Beiträge",
+    "views": "Ansichten",
+    "engagements": "Interaktionen",
+    "vsLastWeek": "vs. letzte Woche",
+    "noPrior": "Keine Beiträge der letzten Woche zum Vergleich",
+    "quiet": "In den letzten sieben Tagen wurde nichts veröffentlicht. Das beste Fenster unten ist ein guter Ausgangspunkt."
+  },
+  "cohorts": {
+    "title": "Was für Sie funktioniert",
+    "subtitle": "Durchschnittliche Interaktionen pro Beitrag nach Form. Nur bemessene Pfosten, daher ist es in kleinen Gruppen laut.",
+    "dimensions": {
+      "format": "Formatieren",
+      "length": "Beschriftungslänge",
+      "cta": "Fragen Sie",
+      "hashtags": "Hashtags"
+    },
+    "keys": {
+      "0": "Keine Hashtags",
+      "video": "Video",
+      "image": "Bild",
+      "carousel": "Karussell",
+      "text": "Nur Text",
+      "short": "Kurz (unter 80 Zeichen)",
+      "medium": "Mittel (80 bis 220)",
+      "long": "Lang (über 220)",
+      "none": "Keine Bildunterschrift",
+      "cta": "Hat einen Aufruf zum Handeln",
+      "question": "Stellt eine Frage",
+      "none-cta": "Keine Frage",
+      "1-3": "1 bis 3 Hashtags",
+      "4+": "4 oder mehr Hashtags"
+    },
+    "posts": "{count, plural, one {# Beitrag} other {# Beiträge}}",
+    "avgEngagements": "Durchschnittliche Interaktionen",
+    "rate": "Bewerten",
+    "tooFew": "Formen erscheinen, sobald mindestens fünf Beiträge Messungen enthalten."
+  },
+  "pillarCoverage": {
+    "title": "Säulenabdeckung",
+    "subtitle": "Wie oft jede Inhaltssäule in den letzten 30 Tagen veröffentlicht wurde, im Vergleich zu den 30 Tagen davor.",
+    "last30": "Letzte 30 Tage",
+    "prior30": "Vor 30 Tagen",
+    "avg": "Durchschnittliche Interaktionen",
+    "quiet": "Still geworden",
+    "empty": "Fügen Sie Inhaltssäulen zum Zielgruppenprofil hinzu und Markaestro verfolgt hier die Berichterstattung."
+  },
+  "outcomes": {
+    "testThis": "Testen Sie dies"
+  },
+  "provenTests": {
+    "title": "Durch Experimente bewiesen",
+    "subtitle": "A/B-Tests mit einem klaren Gewinner abgeschlossen. Dies sind die Muster, denen Sie am meisten vertrauen können.",
+    "winnerA": "Arm A hat gewonnen",
+    "winnerB": "Arm B hat gewonnen",
+    "inconclusive": "Nicht schlüssig",
+    "stoppedEarly": "Früh gestoppt",
+    "inconclusiveCount": "{count, plural, one {# Test beendet} other {# Tests beendet}} ohne klaren Gewinner.",
+    "empty": "Noch keine abgeschlossenen Tests. Führen Sie eines über die Registerkarte „Experimente“ aus."
+  },
+  "testIdeas": {
+    "title": "Ideen zum Testen",
+    "subtitle": "Gezeichnet aus Ihrem besten Fenster und Ihren stärksten Mustern. Jeder richtet den Komponisten für Sie ein.",
+    "setUp": "Einrichten",
+    "arms": "A: {a}. B: {b}.",
+    "kinds": {
+      "timing": "Zeiteinteilung",
+      "platform": "Plattform",
+      "hook": "Haken",
+      "pillar": "Säule"
+    },
+    "titles": {
+      "timing": "Beitrag bei {a} statt bei {b}",
+      "platform": "Gleicher Beitrag zu {a} versus {b}",
+      "hook": "Eine Bildunterschrift mit Haken im Vergleich zu Ihrem üblichen Eröffnungstext",
+      "pillar": "Ein {a}-Beitrag im Vergleich zu Ihrem nächsten geplanten Beitrag"
+    }
+  },
+  "audienceSignals": {
+    "title": "Publikumssignale",
+    "subtitle": "Wie gut aktuelle Beiträge zu der von Ihnen angegebenen Zielgruppe passen und ob das bewegend ist.",
+    "fit": "Zielgruppentauglich",
+    "coverage": "{value}% der letzten Beiträge bewertet",
+    "noFit": "„Fit“ wird angezeigt, sobald Beiträge Schnappschüsse des Publikums enthalten.",
+    "driftTitle": "Drift-Flagge",
+    "associationNote": "Drift ist ein Zusammenhang in den Daten, keine nachgewiesene Ursache.",
+    "noDrift": "Keine Drift festgestellt. Aktuelle Beiträge entsprechen immer noch der angegebenen Zielgruppe."
+  },
+  "askActions": {
+    "draft": "Entwurf aus diesem Beweis",
+    "test": "Verwandeln Sie sich in einen Test",
+    "followUp": "Bitten Sie um ein Follow-up"
   }
 }
